@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0A1A2F;
+  --color-navy-dark: #0C1E3C;
+  --color-gold: #E5C469;
+  --color-gold-dark: #D9B24C;
+  --color-warm-gray: #F4F2EE;
+  --color-warm-gray-light: #EDEAE7;
+  --color-charcoal: #1E1E1E;
+
+  --font-family-sans: 'Manrope', system-ui, sans-serif;
+
+  --border-radius-4xl: 2rem;
+  --border-radius-5xl: 3rem;
+
+  --shadow-gold: 0 4px 14px 0 rgba(229, 196, 105, 0.15);
+  --shadow-gold-lg: 0 10px 25px 0 rgba(229, 196, 105, 0.2);
+
+  --font-weight-thin: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+}
+
+/* Custom base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Manrope', system-ui, sans-serif;
+    background-color: #ffffff;
+    color: #1E1E1E;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .outline-number {
+    -webkit-text-stroke: 2px #E5C469;
+    -webkit-text-fill-color: transparent;
+    font-weight: 300;
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(244, 242, 238, 0.8);
+    border: 1px solid rgba(229, 196, 105, 0.2);
+  }
+}
