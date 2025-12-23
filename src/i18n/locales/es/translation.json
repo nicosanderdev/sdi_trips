@@ -1,0 +1,49 @@
+{
+  "common": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "search": "Buscar",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar sesión",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "confirm": "Confirmar",
+    "close": "Cerrar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "terms": "Términos",
+    "searchPlaceholder": "Buscar destinos...",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "myTrips": "Mis viajes",
+    "wishlist": "Lista de deseos",
+    "inbox": "Bandeja de entrada"
+  },
+  "auth": {
+    "welcomeBack": "Bienvenido de vuelta",
+    "signInToAccount": "Inicia sesión en tu cuenta para continuar tu viaje",
+    "emailAddress": "Dirección de correo electrónico",
+    "password": "Contraseña",
+    "rememberMe": "Recordarme",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "signIn": "Iniciar sesión",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signUpHere": "Regístrate aquí",
+    "joinHolidayTrips": "Únete a Holiday Trips",
+    "createYourAccount": "Crea tu cuenta y comienza a explorar propiedades extraordinarias"
+  }
+}

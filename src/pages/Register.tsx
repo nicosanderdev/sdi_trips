@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/layout';
 import { Card, Button, Input } from '../components/ui';
 import { Eye, EyeOff, ArrowLeft, Check } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import ErrorMessage from '../components/common/ErrorMessage';
 
 const Register: React.FC = () => {
+  const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -16,6 +20,8 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -64,11 +70,33 @@ const Register: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Handle registration logic here
-      console.log('Registration attempt:', formData);
+    setAuthError(null);
+
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await signUp(
+        formData.email,
+        formData.password,
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }
+      );
+
+      if (error) {
+        setAuthError(error.message || 'Registration failed. Please try again.');
+      } else {
+        // Registration successful - user will be redirected after email confirmation
+        navigate('/login');
+      }
+    } catch (err) {
+      setAuthError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -234,9 +262,14 @@ const Register: React.FC = () => {
                     variant="primary"
                     size="lg"
                     className="w-full"
+                    disabled={isLoading}
                   >
-                    Create Account
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
                   </Button>
+
+                  {authError && (
+                    <ErrorMessage message={authError} />
+                  )}
                 </form>
 
                 {/* Social Registration Options */}

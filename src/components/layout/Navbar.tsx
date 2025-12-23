@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Search, User, Heart, MessageCircle, Calendar, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Search, User, Heart, MessageCircle, Calendar, LogOut, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n/config';
 import { Button } from '../ui';
+import { useAuth } from '../../hooks/useAuth';
 
 const Navbar: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would come from auth context
+  const isLoggedIn = !!user;
   const location = useLocation();
+  const { i18n: i18nInstance } = useTranslation();
 
   const navItems = [
     { path: '/', label: 'Home' },
@@ -22,6 +28,25 @@ const Navbar: React.FC = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  ];
+
+  const changeLanguage = (languageCode: string) => {
+    i18n.changeLanguage(languageCode);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
@@ -81,7 +106,7 @@ const Navbar: React.FC = () => {
                   </Link>
                 ))}
                 <button
-                  onClick={() => setIsLoggedIn(false)}
+                  onClick={handleLogout}
                   className="p-2 rounded-full text-navy hover:bg-red-50 hover:text-red-600 transition-all duration-200"
                   title="Logout"
                 >
@@ -102,6 +127,22 @@ const Navbar: React.FC = () => {
                 </Link>
               </div>
             )}
+
+            {/* Language Switcher */}
+            <div className="flex items-center space-x-1 ml-4 pl-4 border-l border-gray-300">
+              <Globe className="h-4 w-4 text-navy" />
+              <select
+                value={i18nInstance.language}
+                onChange={(e) => changeLanguage(e.target.value)}
+                className="bg-transparent text-sm text-navy font-medium focus:outline-none cursor-pointer"
+              >
+                {languages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag} {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -172,7 +213,7 @@ const Navbar: React.FC = () => {
                 ))}
                 <button
                   onClick={() => {
-                    setIsLoggedIn(false);
+                    handleLogout();
                     setIsOpen(false);
                   }}
                   className="flex items-center space-x-3 w-full px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
@@ -195,6 +236,24 @@ const Navbar: React.FC = () => {
                 </Link>
               </div>
             )}
+
+            {/* Mobile Language Switcher */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center space-x-3 px-4">
+                <Globe className="h-5 w-5 text-navy" />
+                <select
+                  value={i18nInstance.language}
+                  onChange={(e) => changeLanguage(e.target.value)}
+                  className="flex-1 bg-transparent text-sm text-navy font-medium focus:outline-none cursor-pointer"
+                >
+                  {languages.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.flag} {lang.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
         )}
       </div>

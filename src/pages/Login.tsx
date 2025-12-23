@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/layout';
 import { Card, Button, Input } from '../components/ui';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import ErrorMessage from '../components/common/ErrorMessage';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+    // Clear auth error when user starts typing
+    if (authError) {
+      setAuthError(null);
     }
   };
 
@@ -39,11 +49,26 @@ const Login: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Handle login logic here
-      console.log('Login attempt:', formData);
+    setAuthError(null);
+
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await signIn(formData.email, formData.password);
+
+      if (error) {
+        setAuthError(error.message || 'Login failed. Please try again.');
+      } else {
+        // Login successful, redirect to home
+        navigate('/');
+      }
+    } catch (err) {
+      setAuthError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -131,9 +156,14 @@ const Login: React.FC = () => {
                     variant="primary"
                     size="lg"
                     className="w-full"
+                    disabled={isLoading}
                   >
-                    Sign In
+                    {isLoading ? 'Signing In...' : 'Sign In'}
                   </Button>
+
+                  {authError && (
+                    <ErrorMessage message={authError} />
+                  )}
                 </form>
 
                 {/* Social Login Options */}

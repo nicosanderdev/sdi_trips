@@ -4,7 +4,9 @@ import mapboxgl from 'mapbox-gl';
 import DatePicker from 'react-datepicker';
 import { Layout } from '../components/layout';
 import { Button, Card, Badge } from '../components/ui';
-import { mockProperties, mockReviews } from '../data/mockData';
+import { getPropertyById } from '../services/propertyService';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
 import {
   MapPin,
   Users,
@@ -33,8 +35,10 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-  const property = mockProperties.find(p => p.id === id);
-  const reviews = mockReviews.filter(r => r.property.id === property?.id);
+  const [property, setProperty] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reviews] = useState<any[]>([]); // TODO: Implement reviews API
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showLightbox, setShowLightbox] = useState(false);
@@ -45,6 +49,31 @@ const PropertyDetail: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+
+  // Fetch property data
+  useEffect(() => {
+    const fetchProperty = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+        const propertyData = await getPropertyById(id);
+        if (propertyData) {
+          setProperty(propertyData);
+        } else {
+          setError('Property not found');
+        }
+      } catch (err) {
+        console.error('Error fetching property:', err);
+        setError('Failed to load property details. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [id]);
 
   // Initialize map
   useEffect(() => {
@@ -75,6 +104,31 @@ const PropertyDetail: React.FC = () => {
       map.remove();
     };
   }, [mapboxToken, property]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingSpinner size="lg" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <ErrorMessage message={error} />
+            <Link to="/search" className="mt-4 inline-block">
+              <Button>Back to Search</Button>
+            </Link>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!property) {
     return (
@@ -113,9 +167,8 @@ const PropertyDetail: React.FC = () => {
     return nights * property.price;
   };
 
-  const similarProperties = mockProperties
-    .filter(p => p.id !== property.id && p.location.split(',')[1]?.trim() === property.location.split(',')[1]?.trim())
-    .slice(0, 3);
+  // TODO: Implement similar properties logic with API
+  const similarProperties: any[] = [];
 
   const handleImageClick = (index: number) => {
     setLightboxIndex(index);
@@ -207,7 +260,7 @@ const PropertyDetail: React.FC = () => {
                 {/* Thumbnail Strip */}
                 {property.images.length > 1 && (
                   <div className="flex space-x-2 mt-4 overflow-x-auto">
-                    {property.images.map((image, index) => (
+                    {property.images.map((image: string, index: number) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
@@ -280,7 +333,7 @@ const PropertyDetail: React.FC = () => {
                 <div>
                   <h2 className="text-2xl font-semibold text-navy mb-4">What this place offers</h2>
                   <div className="grid grid-cols-2 gap-4">
-                    {property.amenities.map((amenity) => (
+                    {property.amenities.map((amenity: string) => (
                       <div key={amenity} className="flex items-center space-x-3">
                         <div className="text-gold">
                           {amenitiesIcons[amenity] || <Home className="h-5 w-5" />}

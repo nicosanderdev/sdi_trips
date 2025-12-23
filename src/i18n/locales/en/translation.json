@@ -1,0 +1,49 @@
+{
+  "common": {
+    "home": "Home",
+    "about": "About",
+    "search": "Search",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "terms": "Terms",
+    "searchPlaceholder": "Search destinations...",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "myTrips": "My Trips",
+    "wishlist": "Wishlist",
+    "inbox": "Inbox"
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "signInToAccount": "Sign in to your account to continue your journey",
+    "emailAddress": "Email Address",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign In",
+    "dontHaveAccount": "Don't have an account?",
+    "signUpHere": "Sign up here",
+    "joinHolidayTrips": "Join Holiday Trips",
+    "createYourAccount": "Create your account and start exploring extraordinary properties"
+  }
+}

@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
 import { Button, Input, RangeSlider, Card } from '../components/ui';
 import PropertyCard from '../components/sections/PropertyCard';
-import { mockProperties } from '../data/mockData';
+import { searchProperties } from '../services/propertyService';
 import type { Property } from '../types';
 import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -32,6 +32,8 @@ const Search: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [mapViewport] = useState({
     latitude: 40.7128,
     longitude: -74.0060,
@@ -48,25 +50,35 @@ const Search: React.FC = () => {
 
   const propertyRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
-  // Get available amenities from all properties
+  // Fetch properties based on current filters
+  const fetchProperties = async () => {
+    try {
+      const searchFilters = {
+        priceRange: filters.priceRange,
+        bedrooms: filters.bedrooms > 0 ? filters.bedrooms : undefined,
+        guests: filters.guests > 0 ? filters.guests : undefined,
+        amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
+        location: searchQuery || undefined,
+      };
+
+      const result = await searchProperties(searchFilters, 1, 50);
+      setProperties(result.properties);
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      setProperties([]);
+    }
+  };
+
+  // Fetch properties when filters change
+  useEffect(() => {
+    fetchProperties();
+  }, [filters, searchQuery]);
+
+  // Get available amenities from current properties
   const availableAmenities = useMemo(() => {
-    const allAmenities = mockProperties.flatMap(p => p.amenities);
+    const allAmenities = properties.flatMap(p => p.amenities);
     return [...new Set(allAmenities)].sort();
-  }, []);
-
-  // Filter properties based on current filters
-  const filteredProperties = useMemo(() => {
-    return mockProperties.filter(property => {
-      const matchesPrice = property.price >= filters.priceRange[0] && property.price <= filters.priceRange[1];
-      const matchesBedrooms = filters.bedrooms === 0 || property.bedrooms >= filters.bedrooms;
-      const matchesGuests = property.maxGuests >= filters.guests;
-      const matchesRating = property.rating >= filters.minRating;
-      const matchesAmenities = filters.amenities.length === 0 ||
-        filters.amenities.every(amenity => property.amenities.includes(amenity));
-
-      return matchesPrice && matchesBedrooms && matchesGuests && matchesRating && matchesAmenities && property.available;
-    });
-  }, [filters]);
+  }, [properties]);
 
 
   const handleFilterChange = (key: keyof SearchFilters, value: any) => {
@@ -114,7 +126,7 @@ const Search: React.FC = () => {
     const markers: mapboxgl.Marker[] = [];
     const popups: mapboxgl.Popup[] = [];
 
-    filteredProperties.forEach((property) => {
+    properties.forEach((property) => {
       // Create marker element
       const markerElement = document.createElement('div');
       markerElement.className = `w-8 h-8 rounded-full border-2 border-white shadow-lg cursor-pointer transition-all ${
@@ -170,10 +182,10 @@ const Search: React.FC = () => {
     }
 
     // Fit map to show all properties
-    if (filteredProperties.length > 0) {
+    if (properties.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
 
-      filteredProperties.forEach((property) => {
+      properties.forEach((property) => {
         bounds.extend([property.coordinates.lng, property.coordinates.lat]);
       });
 
@@ -186,7 +198,7 @@ const Search: React.FC = () => {
       popups.forEach(popup => popup.remove());
       map.remove();
     };
-  }, [filteredProperties, selectedProperty, hoveredProperty, mapboxToken, mapViewport]);
+  }, [properties, selectedProperty, hoveredProperty, mapboxToken, mapViewport]);
 
   return (
     <Layout>
@@ -213,6 +225,8 @@ const Search: React.FC = () => {
                   </div>
                   <Input
                     placeholder="Search destinations..."
+                    value={searchQuery}
+                    onChange={(value) => setSearchQuery(value)}
                     className="pl-10"
                   />
                 </div>
@@ -326,14 +340,14 @@ const Search: React.FC = () => {
 
               {/* Results Count */}
               <div className="text-sm text-charcoal">
-                {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'} found
+                {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
               </div>
             </div>
 
             {/* Properties List */}
             <div className="flex-1 overflow-y-auto">
               <div className="p-6 space-y-6">
-                {filteredProperties.map((property) => (
+                {properties.map((property) => (
                   <div
                     key={property.id}
                     ref={(el) => {
@@ -349,7 +363,7 @@ const Search: React.FC = () => {
                   </div>
                 ))}
 
-                {filteredProperties.length === 0 && (
+                {properties.length === 0 && (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🏠</div>
                     <h3 className="text-xl font-semibold text-navy mb-2">No properties found</h3>

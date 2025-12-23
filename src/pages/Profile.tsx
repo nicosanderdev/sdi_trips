@@ -1,37 +1,104 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { Card, Button, Input, Badge } from '../components/ui';
 import { User, Edit2, Save, X, Calendar, MapPin } from 'lucide-react';
-import { mockUsers, mockBookings } from '../data/mockData';
+import { useAuth } from '../hooks/useAuth';
+import { getMemberProfile, updateMemberProfile } from '../services/memberService';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
+import type { User as UserType } from '../types';
 
 const Profile: React.FC = () => {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings'>('profile');
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
-  // Mock current user - in real app this would come from auth context
-  const currentUser = mockUsers[2]; // Elena Rodriguez
-  const userBookings = mockBookings.filter(booking => booking.user.id === currentUser.id);
+  // Mock bookings for now - will be replaced with real API later
+  const userBookings: any[] = [];
 
   const [profileData, setProfileData] = useState({
-    firstName: 'Elena',
-    lastName: 'Rodriguez',
-    email: currentUser.email,
-    phone: '+1 (555) 987-6543',
-    bio: 'Travel enthusiast and photography lover. Always seeking the perfect blend of luxury and adventure.',
-    location: 'Barcelona, Spain',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    bio: '',
+    location: '',
   });
 
   const [editData, setEditData] = useState(profileData);
 
-  const handleSave = () => {
-    setProfileData(editData);
-    setIsEditing(false);
-    // In real app, this would make an API call to update the profile
+  // Fetch user profile on component mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+        const memberProfile = await getMemberProfile(user.id);
+
+        if (memberProfile) {
+          const profileInfo = {
+            firstName: memberProfile.name.split(' ')[0] || '',
+            lastName: memberProfile.name.split(' ').slice(1).join(' ') || '',
+            email: memberProfile.email,
+            phone: '', // TODO: Add phone to member profile
+            bio: 'Travel enthusiast and photography lover. Always seeking the perfect blend of luxury and adventure.', // TODO: Add bio to member profile
+            location: 'Barcelona, Spain', // TODO: Add location to member profile
+          };
+          setProfileData(profileInfo);
+          setEditData(profileInfo);
+          setCurrentUser(memberProfile);
+        } else {
+          // User exists but no member profile - this shouldn't happen with the trigger
+          setError('Profile information not found. Please contact support.');
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        setError('Failed to load profile information. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    try {
+      setUpdateError(null);
+      setUpdateSuccess(false);
+
+      const updateData = {
+        FirstName: editData.firstName,
+        LastName: editData.lastName,
+        Phone: editData.phone,
+      };
+
+      await updateMemberProfile(user.id, updateData);
+      setProfileData(editData);
+      setIsEditing(false);
+      setUpdateSuccess(true);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setUpdateError('Failed to update profile. Please try again.');
+    }
   };
 
   const handleCancel = () => {
     setEditData(profileData);
     setIsEditing(false);
+    setUpdateError(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -47,6 +114,41 @@ const Profile: React.FC = () => {
     { id: 'profile' as const, label: 'Profile', icon: User },
     { id: 'bookings' as const, label: 'My Bookings', icon: Calendar },
   ];
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingSpinner size="lg" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <ErrorMessage message={error} />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-navy mb-4">Profile Not Found</h1>
+            <p className="text-charcoal mb-4">Please try logging in again.</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -145,6 +247,16 @@ const Profile: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Success/Error Messages */}
+                  {updateSuccess && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                      Profile updated successfully!
+                    </div>
+                  )}
+                  {updateError && (
+                    <ErrorMessage message={updateError} />
+                  )}
 
                   <div className="space-y-6">
                     {/* Basic Information */}

@@ -1,15 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '../components/layout';
 import { Button } from '../components/ui';
 import HeroSplit from '../components/sections/HeroSplit';
 import PropertyCard from '../components/sections/PropertyCard';
 import Testimonials from '../components/sections/Testimonials';
-import { mockProperties } from '../data/mockData';
+import { getFeaturedProperties } from '../services/propertyService';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
+import type { Property } from '../types';
 
 const Landing: React.FC = () => {
-  // Get featured properties (first 6 available properties)
-  const featuredProperties = mockProperties.filter(p => p.available).slice(0, 6);
+  const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchFeaturedProperties = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const properties = await getFeaturedProperties();
+        setFeaturedProperties(properties);
+      } catch (err) {
+        console.error('Error fetching featured properties:', err);
+        setError('Failed to load featured properties. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProperties();
+  }, []);
 
   return (
     <Layout>
@@ -32,12 +54,26 @@ const Landing: React.FC = () => {
 
           {/* Properties Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {featuredProperties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                property={property}
-              />
-            ))}
+            {loading ? (
+              <div className="col-span-full flex justify-center py-12">
+                <LoadingSpinner size="lg" />
+              </div>
+            ) : error ? (
+              <div className="col-span-full">
+                <ErrorMessage message={error} />
+              </div>
+            ) : featuredProperties.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-charcoal text-lg">No featured properties available at the moment.</p>
+              </div>
+            ) : (
+              featuredProperties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                />
+              ))
+            )}
           </div>
 
           {/* View All Button */}

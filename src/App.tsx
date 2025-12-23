@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 
 // Pages
 import Landing from './pages/Landing';
@@ -18,24 +19,26 @@ import PropertyDetail from './pages/PropertyDetail';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/trips" element={<Trips />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/inbox" element={<Inbox />} />
-        <Route path="/inbox/:conversationId" element={<ChatDetail />} />
-        <Route path="/checkout/:propertyId" element={<Checkout />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/property/:id" element={<PropertyDetail />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/trips" element={<Trips />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/inbox" element={<Inbox />} />
+          <Route path="/inbox/:conversationId" element={<ChatDetail />} />
+          <Route path="/checkout/:propertyId" element={<Checkout />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/property/:id" element={<PropertyDetail />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
