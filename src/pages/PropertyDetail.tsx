@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
-import DatePicker from 'react-datepicker';
 import { Layout } from '../components/layout';
 import { Button, Card, Badge } from '../components/ui';
+import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
 import { getPropertyMessages, sendPropertyQuestion, replyToMessage } from '../services/messageService';
 import { useAuth } from '../hooks/useAuth';
@@ -32,7 +32,6 @@ import {
   Plus,
   X
 } from 'lucide-react';
-import 'react-datepicker/dist/react-datepicker.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const PropertyDetail: React.FC = () => {
@@ -773,38 +772,16 @@ const PropertyDetail: React.FC = () => {
                       <div className="text-charcoal">per night</div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm font-medium text-navy mb-2">
-                          Check-in
-                        </label>
-                        <DatePicker
-                          selected={checkIn}
-                          onChange={setCheckIn}
-                          selectsStart
-                          startDate={checkIn}
-                          endDate={checkOut}
-                          minDate={new Date()}
-                          placeholderText="Select date"
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-navy mb-2">
-                          Check-out
-                        </label>
-                        <DatePicker
-                          selected={checkOut}
-                          onChange={setCheckOut}
-                          selectsEnd
-                          startDate={checkIn}
-                          endDate={checkOut}
-                          minDate={checkIn || new Date()}
-                          placeholderText="Select date"
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
-                        />
-                      </div>
-                    </div>
+                    <BookingDatePicker
+                      propertyId={property.id}
+                      checkIn={checkIn}
+                      checkOut={checkOut}
+                      onCheckInChange={setCheckIn}
+                      onCheckOutChange={setCheckOut}
+                      minStayDays={property.minStayDays}
+                      maxStayDays={property.maxStayDays}
+                      leadTimeDays={property.leadTimeDays}
+                    />
 
                     <div>
                       <label className="block text-sm font-medium text-navy mb-2">

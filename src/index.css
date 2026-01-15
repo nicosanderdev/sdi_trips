@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
+@import "react-datepicker/dist/react-datepicker.css";
+
 @import "tailwindcss";
 
 @theme {
@@ -59,5 +61,133 @@
     backdrop-filter: blur(10px);
     background: rgba(244, 242, 238, 0.8);
     border: 1px solid rgba(229, 196, 105, 0.2);
+  }
+
+  /* Custom datepicker styles */
+  .react-datepicker {
+    @apply rounded-2xl shadow-gold-lg border-0;
+  }
+
+  .react-datepicker__header {
+    @apply bg-warm-gray border-0 rounded-t-2xl;
+  }
+
+  .react-datepicker__day {
+    @apply rounded-full w-10 h-10 leading-10;
+  }
+
+  /* Override react-datepicker defaults with higher specificity */
+  .react-datepicker__day--selected.range-start,
+  .react-datepicker__day--selected.range-end,
+  .react-datepicker__day--keyboard-selected.range-start,
+  .react-datepicker__day--keyboard-selected.range-end {
+    background-color: #E5C469 !important;
+    color: #0A1A2F !important;
+    font-weight: 600 !important;
+    border-radius: 9999px !important;
+  }
+
+  .react-datepicker__day--in-range.range-middle,
+  .react-datepicker__day--in-range.range-continuation {
+    background-color: rgba(229, 196, 105, 0.2) !important;
+    color: #0A1A2F !important;
+  }
+
+  .react-datepicker__day--disabled.blocked-date {
+    color: #9CA3AF !important;
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+  }
+
+  /* Booking datepicker specific styles */
+  .react-datepicker__day.blocked-date {
+    color: #9CA3AF !important;
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+  }
+
+  .react-datepicker__day.blocked-date:hover {
+    background-color: transparent !important;
+    color: #9CA3AF !important;
+  }
+
+  .react-datepicker__day.available-date {
+    color: #0A1A2F !important;
+  }
+
+  .react-datepicker__day.available-date:hover {
+    background-color: rgba(229, 196, 105, 0.1) !important;
+  }
+
+  /* Range selection styles */
+  .react-datepicker__day.range-start,
+  .react-datepicker__day.range-end {
+    background-color: #E5C469 !important;
+    color: #0A1A2F !important;
+    font-weight: 600 !important;
+    border-radius: 9999px !important;
+  }
+
+  .react-datepicker__day.range-middle {
+    background-color: rgba(229, 196, 105, 0.2) !important;
+    color: #0A1A2F !important;
+  }
+
+  .react-datepicker__day.range-start-week.range-start,
+  .react-datepicker__day.range-end-week.range-end {
+    border-radius: 9999px !important;
+  }
+
+  .react-datepicker__day.range-continuation {
+    background-color: rgba(229, 196, 105, 0.2) !important;
+    color: #0A1A2F !important;
+  }
+
+  /* Range continuity across weeks */
+  .react-datepicker__day.range-week-start.range-middle {
+    border-radius: 9999px 0 0 9999px !important;
+  }
+
+  .react-datepicker__day.range-week-end.range-middle {
+    border-radius: 0 9999px 9999px 0 !important;
+  }
+
+  /* Hover preview styles */
+  .react-datepicker__day.hover-range-start,
+  .react-datepicker__day.hover-range-end {
+    background-color: rgba(229, 196, 105, 0.1) !important;
+    color: #0A1A2F !important;
+    border-radius: 9999px !important;
+  }
+
+  .react-datepicker__day.hover-range-middle {
+    background-color: rgba(229, 196, 105, 0.1) !important;
+    color: #0A1A2F !important;
+  }
+
+  /* Hover range continuity across weeks */
+  .react-datepicker__day.hover-range-week-start.hover-range-middle {
+    border-radius: 9999px 0 0 9999px !important;
+  }
+
+  .react-datepicker__day.hover-range-week-end.hover-range-middle {
+    border-radius: 0 9999px 9999px 0 !important;
+  }
+
+  .react-datepicker__day.today-date {
+    --tw-ring-color: rgba(229, 196, 105, 0.3) !important;
+    --tw-ring-offset-width: 0px !important;
+    --tw-ring-offset-color: transparent !important;
+    --tw-ring-opacity: 1 !important;
+    box-shadow: 0 0 0 1px rgba(229, 196, 105, 0.3) !important;
+    color: #0A1A2F !important;
+  }
+
+  .custom-datepicker {
+    @apply rounded-2xl shadow-gold-lg border-0;
+  }
+
+  .datepicker-popper {
+    z-index: 9999;
   }
 }

@@ -77,6 +77,10 @@ function transformProperty(dbProperty: PropertyWithRelations): Property {
       lat: dbProperty.LocationLatitude,
       lng: dbProperty.LocationLongitude,
     },
+    minStayDays: dbProperty.MinStayDays || undefined,
+    maxStayDays: dbProperty.MaxStayDays || undefined,
+    leadTimeDays: dbProperty.LeadTimeDays || undefined,
+    bufferDays: dbProperty.BufferDays || undefined,
   };
 }
 

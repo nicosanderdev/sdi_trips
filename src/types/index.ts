@@ -64,6 +64,10 @@ export interface Property {
     lat: number;
     lng: number;
   };
+  minStayDays?: number;
+  maxStayDays?: number;
+  leadTimeDays?: number;
+  bufferDays?: number;
 }
 
 export interface User {
@@ -111,6 +115,19 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt: string;
+}
+
+// Date availability types
+export interface DateAvailability {
+  date: string; // YYYY-MM-DD
+  status: 'available' | 'blocked';
+}
+
+export interface PropertyBookingRules {
+  minStayDays?: number;
+  maxStayDays?: number;
+  leadTimeDays?: number;
+  bufferDays?: number;
 }
 
 // Message types for property Q&A
