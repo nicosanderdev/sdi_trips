@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button, OutlineNumber } from '../ui';
 
 const HeroSplit: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-warm-gray-light to-white overflow-hidden">
       {/* Background Pattern */}
@@ -17,25 +19,22 @@ const HeroSplit: React.FC = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-thin text-navy leading-tight">
-                Find Your
-                <span className="block font-bold text-gold">Perfect</span>
-                <span className="block font-thin">Holiday Home</span>
+                {t('landing.hero.title')}
               </h1>
               <p className="text-xl text-charcoal max-w-md leading-relaxed">
-                Discover extraordinary properties in the world's most beautiful destinations.
-                Experience luxury, comfort, and unforgettable memories.
+                {t('landing.hero.description')}
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/search">
                 <Button variant="primary" size="lg">
-                  Explore Properties
+                  {t('landing.hero.cta.search')}
                 </Button>
               </Link>
               <Link to="/about">
                 <Button variant="outline" size="lg">
-                  Learn More
+                  {t('landing.hero.cta.publish')}
                 </Button>
               </Link>
             </div>

@@ -112,3 +112,26 @@ export interface Review {
   comment: string;
   createdAt: string;
 }
+
+// Message types for property Q&A
+export interface PropertyMessage {
+  id: string;
+  threadId: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar?: string;
+  body: string;
+  snippet: string;
+  createdAt: string;
+  inReplyToMessageId?: string;
+  replies?: PropertyMessage[];
+  isOwnerReply?: boolean;
+}
+
+export interface PropertyThread {
+  id: string;
+  subject: string;
+  propertyId: string;
+  messages: PropertyMessage[];
+  lastMessageAt: string;
+}

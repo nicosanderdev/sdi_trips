@@ -45,5 +45,80 @@
     "signUpHere": "Regístrate aquí",
     "joinHolidayTrips": "Únete a Holiday Trips",
     "createYourAccount": "Crea tu cuenta y comienza a explorar propiedades extraordinarias"
+  },
+  "landing": {
+    "hero": {
+      "title": "Una forma confiable de alquilar casas de veraneo",
+      "description": "Encontrá casas reales, publicadas por personas de tu ciudad, con información clara y sin complicaciones.",
+      "subtitle": "Alquilá con tranquilidad. Publicá con confianza.",
+      "cta": {
+        "search": "Buscar casas",
+        "publish": "Publicar mi propiedad"
+      }
+    },
+    "featured": {
+      "title": "Propiedades destacadas",
+      "subtitle": "Casas seleccionadas, en las que podés confiar",
+      "description": "Explorá una selección de casas de veraneo destacadas por su ubicación, comodidad y claridad en la información. Publicaciones cuidadas, sin sorpresas ni letra chica.",
+      "viewAll": "Ver Todas las Propiedades"
+    },
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "subtitle": "Reservar tu casa de vacaciones soñada es simple y seguro. Aquí te mostramos cómo comenzar.",
+      "steps": {
+        "1": {
+          "title": "Buscá y descubrí",
+          "description": "Explorá casas disponibles en tu ciudad y zonas cercanas. Filtrá por fechas, tipo de propiedad y características que realmente importan."
+        },
+        "2": {
+          "title": "Agendá inmediatamente",
+          "description": "Consultá disponibilidad real y coordiná visitas o reservas de forma directa, simple y segura. Sin procesos confusos ni intermediaciones innecesarias."
+        },
+        "3": {
+          "title": "Disfrutá",
+          "description": "Llegá sabiendo qué esperar. Casas reales, acuerdos claros y la tranquilidad de alquilar en una plataforma local."
+        }
+      }
+    },
+    "whyChooseUs": {
+      "title": "Por qué elegirnos",
+      "subtitle": "Porque alquilar debería ser simple y confiable",
+      "features": {
+        "local": "Plataforma local, pensada para nuestra ciudad y su gente",
+        "clear": "Publicaciones claras, sin promesas exageradas",
+        "human": "Menos anonimato, más trato humano",
+        "simple": "Procesos simples, sin fricción ni complicaciones",
+        "alternative": "Una alternativa consciente a las plataformas globales",
+        "trust": "Acá, la confianza no es un detalle: es la base."
+      }
+    },
+    "testimonials": {
+      "title": "Comentarios de huéspedes",
+      "subtitle": "Experiencias reales de personas como vos",
+      "items": {
+        "1": {
+          "text": "Todo fue tal como se mostraba en la publicación. Coordinamos fácil y la casa estaba impecable.",
+          "author": "María",
+          "location": "Rivera"
+        },
+        "2": {
+          "text": "Se nota que es una plataforma local. Mucha más tranquilidad que otras opciones.",
+          "author": "Andrés",
+          "location": "Rivera"
+        },
+        "3": {
+          "text": "Publicar mi casa fue simple y sin vueltas. Todo claro desde el primer momento.",
+          "author": "Laura",
+          "location": "Propietaria"
+        }
+      }
+    },
+    "cta": {
+      "title": "Listo para disfrutar tu próxima aventura",
+      "subtitle": "Tu próxima estadía empieza acá",
+      "description": "Encontrá la casa ideal para descansar, compartir y disfrutar, con la tranquilidad de hacerlo en una plataforma local y confiable.",
+      "button": "Buscar casas disponibles"
+    },
+    "microcopy": "Descubrí casas extraordinarias en Rivera. Reales, cercanas y listas para recibirte."
   }
 }

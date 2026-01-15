@@ -1,6 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 
+// Components
+import GuestRoute from './components/common/GuestRoute';
+
 // Pages
 import Landing from './pages/Landing';
 import About from './pages/About';
@@ -25,9 +28,9 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<Terms />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+          <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+          <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/wishlist" element={<Wishlist />} />

@@ -45,5 +45,80 @@
     "signUpHere": "Sign up here",
     "joinHolidayTrips": "Join Holiday Trips",
     "createYourAccount": "Create your account and start exploring extraordinary properties"
+  },
+  "landing": {
+    "hero": {
+      "title": "A reliable way to rent vacation homes",
+      "description": "Find real homes, published by people from your city, with clear information and no complications.",
+      "subtitle": "Rent with peace of mind. Publish with confidence.",
+      "cta": {
+        "search": "Search homes",
+        "publish": "Publish my property"
+      }
+    },
+    "featured": {
+      "title": "Featured Properties",
+      "subtitle": "Selected homes you can trust",
+      "description": "Explore a selection of vacation homes highlighted for their location, comfort, and clear information. Carefully crafted listings, without surprises or fine print.",
+      "viewAll": "View All Properties"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Booking your dream holiday home is simple and secure. Here's how to get started.",
+      "steps": {
+        "1": {
+          "title": "Search & Discover",
+          "description": "Explore available homes in your city and nearby areas. Filter by dates, property type and features that really matter."
+        },
+        "2": {
+          "title": "Book Instantly",
+          "description": "Check real availability and coordinate visits or bookings directly, simply and securely. No confusing processes or unnecessary intermediaries."
+        },
+        "3": {
+          "title": "Enjoy Your Stay",
+          "description": "Arrive knowing what to expect. Real homes, clear agreements and the peace of mind of renting on a local platform."
+        }
+      }
+    },
+    "whyChooseUs": {
+      "title": "Why Choose Us",
+      "subtitle": "Because renting should be simple and reliable",
+      "features": {
+        "local": "Local platform, designed for our city and its people",
+        "clear": "Clear listings, without exaggerated promises",
+        "human": "Less anonymity, more human interaction",
+        "simple": "Simple processes, without friction or complications",
+        "alternative": "A conscious alternative to global platforms",
+        "trust": "Here, trust is not a detail: it's the foundation."
+      }
+    },
+    "testimonials": {
+      "title": "Guest Testimonials",
+      "subtitle": "Real experiences from people like you",
+      "items": {
+        "1": {
+          "text": "Everything was exactly as shown in the listing. We coordinated easily and the house was impeccable.",
+          "author": "María",
+          "location": "Rivera"
+        },
+        "2": {
+          "text": "You can tell it's a local platform. Much more peace of mind than other options.",
+          "author": "Andrés",
+          "location": "Rivera"
+        },
+        "3": {
+          "text": "Publishing my house was simple and straightforward. Everything clear from the first moment.",
+          "author": "Laura",
+          "location": "Property Owner"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Start Your Adventure?",
+      "subtitle": "Your next stay begins here",
+      "description": "Find the ideal home to rest, share and enjoy, with the peace of mind of doing it on a local and reliable platform.",
+      "button": "Search Available Homes"
+    },
+    "microcopy": "Discover extraordinary homes in Rivera. Real, nearby and ready to welcome you."
   }
 }

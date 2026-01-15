@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Button } from '../components/ui';
 import HeroSplit from '../components/sections/HeroSplit';
@@ -11,6 +12,7 @@ import ErrorMessage from '../components/common/ErrorMessage';
 import type { Property } from '../types';
 
 const Landing: React.FC = () => {
+  const { t } = useTranslation();
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,11 +46,10 @@ const Landing: React.FC = () => {
           {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-              Featured <span className="font-bold text-gold">Properties</span>
+              <span className="font-bold text-gold">{t('landing.featured.title')}</span>
             </h2>
             <p className="text-xl text-charcoal max-w-2xl mx-auto">
-              Discover handpicked properties that offer exceptional experiences
-              in stunning locations around the world.
+              {t('landing.featured.description')}
             </p>
           </div>
 
@@ -80,7 +81,7 @@ const Landing: React.FC = () => {
           <div className="text-center">
             <Link to="/search">
               <Button variant="outline" size="lg">
-                View All Properties
+                {t('landing.featured.viewAll')}
               </Button>
             </Link>
           </div>
@@ -92,11 +93,10 @@ const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-              How It <span className="font-bold text-gold">Works</span>
+              {t('landing.howItWorks.title').split(' ')[0]} <span className="font-bold text-gold">{t('landing.howItWorks.title').split(' ').slice(1).join(' ')}</span>
             </h2>
             <p className="text-xl text-charcoal max-w-2xl mx-auto">
-              Booking your dream holiday home is simple and secure.
-              Here's how to get started.
+              {t('landing.howItWorks.subtitle')}
             </p>
           </div>
 
@@ -106,10 +106,9 @@ const Landing: React.FC = () => {
               <div className="w-20 h-20 bg-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-gold">
                 <span className="text-2xl font-bold text-navy">1</span>
               </div>
-              <h3 className="text-2xl font-semibold text-navy mb-4">Search & Discover</h3>
+              <h3 className="text-2xl font-semibold text-navy mb-4">{t('landing.howItWorks.steps.1.title')}</h3>
               <p className="text-charcoal leading-relaxed">
-                Browse through our curated collection of luxury properties.
-                Use filters to find the perfect match for your needs and budget.
+                {t('landing.howItWorks.steps.1.description')}
               </p>
             </div>
 
@@ -118,10 +117,9 @@ const Landing: React.FC = () => {
               <div className="w-20 h-20 bg-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-gold">
                 <span className="text-2xl font-bold text-navy">2</span>
               </div>
-              <h3 className="text-2xl font-semibold text-navy mb-4">Book Instantly</h3>
+              <h3 className="text-2xl font-semibold text-navy mb-4">{t('landing.howItWorks.steps.2.title')}</h3>
               <p className="text-charcoal leading-relaxed">
-                Found your ideal property? Book instantly with our secure
-                payment system. Get instant confirmation and property details.
+                {t('landing.howItWorks.steps.2.description')}
               </p>
             </div>
 
@@ -130,10 +128,9 @@ const Landing: React.FC = () => {
               <div className="w-20 h-20 bg-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-gold">
                 <span className="text-2xl font-bold text-navy">3</span>
               </div>
-              <h3 className="text-2xl font-semibold text-navy mb-4">Enjoy Your Stay</h3>
+              <h3 className="text-2xl font-semibold text-navy mb-4">{t('landing.howItWorks.steps.3.title')}</h3>
               <p className="text-charcoal leading-relaxed">
-                Arrive and enjoy your luxury holiday home. Our 24/7 support
-                team is here to ensure your experience is perfect.
+                {t('landing.howItWorks.steps.3.description')}
               </p>
             </div>
           </div>
@@ -147,11 +144,10 @@ const Landing: React.FC = () => {
             {/* Left Side - Content */}
             <div>
               <h2 className="text-4xl md:text-5xl font-thin text-navy mb-6">
-                Why Choose <span className="font-bold text-gold">Holiday Trips</span>
+                {t('landing.whyChooseUs.title')}
               </h2>
               <p className="text-xl text-charcoal mb-8 leading-relaxed">
-                We're more than just a booking platform. We're your trusted partner
-                in creating unforgettable holiday memories.
+                {t('landing.whyChooseUs.subtitle')}
               </p>
 
               <div className="space-y-6">
@@ -160,8 +156,7 @@ const Landing: React.FC = () => {
                     <span className="text-navy font-bold text-sm">✓</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-navy mb-2">Curated Selection</h3>
-                    <p className="text-charcoal">Every property is personally inspected and meets our high standards for luxury and comfort.</p>
+                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.local')}</p>
                   </div>
                 </div>
 
@@ -170,8 +165,7 @@ const Landing: React.FC = () => {
                     <span className="text-navy font-bold text-sm">✓</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-navy mb-2">24/7 Support</h3>
-                    <p className="text-charcoal">Our dedicated team is available around the clock to assist with any questions or concerns.</p>
+                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.clear')}</p>
                   </div>
                 </div>
 
@@ -180,8 +174,34 @@ const Landing: React.FC = () => {
                     <span className="text-navy font-bold text-sm">✓</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-navy mb-2">Secure Payments</h3>
-                    <p className="text-charcoal">Your payments are protected with bank-level security and flexible cancellation policies.</p>
+                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.human')}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-navy font-bold text-sm">✓</span>
+                  </div>
+                  <div>
+                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.simple')}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-navy font-bold text-sm">✓</span>
+                  </div>
+                  <div>
+                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.alternative')}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-navy font-bold text-sm">✓</span>
+                  </div>
+                  <div>
+                    <p className="text-charcoal text-lg text-gold font-semibold">{t('landing.whyChooseUs.features.trust')}</p>
                   </div>
                 </div>
               </div>
@@ -210,11 +230,10 @@ const Landing: React.FC = () => {
       <section className="py-20 bg-navy text-white">
         <div className="max-w-4xl mx-auto px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-thin mb-6">
-            Ready to Start Your <span className="font-bold text-gold">Adventure</span>?
+            {t('landing.cta.title')}
           </h2>
           <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">
-            Join thousands of travelers who trust Holiday Trips for their perfect holiday home.
-            Your dream destination awaits.
+            {t('landing.cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
@@ -224,7 +243,7 @@ const Landing: React.FC = () => {
             </Link>
             <Link to="/search">
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-navy">
-                Browse Properties
+                {t('landing.cta.button')}
               </Button>
             </Link>
           </div>

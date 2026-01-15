@@ -1,35 +1,38 @@
 import React from 'react';
 import { Star, Quote } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../ui';
 
 const Testimonials: React.FC = () => {
+  const { t } = useTranslation();
+
   const testimonials = [
     {
       id: 1,
-      name: "Sarah & Michael Chen",
-      location: "San Francisco, CA",
+      name: t('landing.testimonials.items.1.author'),
+      location: t('landing.testimonials.items.1.location'),
       rating: 5,
-      text: "Our stay at the mountain cabin was absolutely magical. The views were breathtaking, and the property was even more beautiful than the photos. We'll definitely be back!",
+      text: t('landing.testimonials.items.1.text'),
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-      propertyType: "Mountain Cabin"
+      propertyType: "Property Owner"
     },
     {
       id: 2,
-      name: "Emma Thompson",
-      location: "London, UK",
+      name: t('landing.testimonials.items.2.author'),
+      location: t('landing.testimonials.items.2.location'),
       rating: 5,
-      text: "The beach villa exceeded all our expectations. The attention to detail was incredible, and the host was so welcoming. Perfect for our family vacation.",
+      text: t('landing.testimonials.items.2.text'),
       avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      propertyType: "Beach Villa"
+      propertyType: "Rivera"
     },
     {
       id: 3,
-      name: "Carlos Rodriguez",
-      location: "Barcelona, Spain",
+      name: t('landing.testimonials.items.3.author'),
+      location: t('landing.testimonials.items.3.location'),
       rating: 5,
-      text: "Stunning property with amazing amenities. The city apartment had everything we needed for our business trip, plus it was incredibly stylish and comfortable.",
+      text: t('landing.testimonials.items.3.text'),
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      propertyType: "City Apartment"
+      propertyType: "Property Owner"
     }
   ];
 
@@ -39,11 +42,10 @@ const Testimonials: React.FC = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-            What Our <span className="font-bold text-gold">Guests Say</span>
+            {t('landing.testimonials.title')}
           </h2>
           <p className="text-xl text-charcoal max-w-2xl mx-auto">
-            Don't just take our word for it. Hear from travelers who've experienced
-            the magic of our holiday homes.
+            {t('landing.testimonials.subtitle')}
           </p>
         </div>
 
