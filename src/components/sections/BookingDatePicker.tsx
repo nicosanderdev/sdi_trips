@@ -1,8 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import DatePicker from 'react-datepicker';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import { format, isSameDay, isWithinInterval, startOfWeek, endOfWeek, isSameWeek } from 'date-fns';
+import { enUS, es, ptBR } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 import { getPropertyAvailability, getBlockedDates, validateDateSelection, getEarliestAvailableDate } from '../../services/availabilityService';
 import type { PropertyBookingRules } from '../../types';
+import 'react-datepicker/dist/react-datepicker.css';
+
+// Register locales for react-datepicker
+registerLocale('en', enUS);
+registerLocale('es', es);
+registerLocale('pt', ptBR);
 
 interface BookingDatePickerProps {
   propertyId: string;
@@ -27,10 +35,31 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
   leadTimeDays,
   bufferDays,
 }) => {
+  const { t, i18n } = useTranslation();
   const [blockedDates, setBlockedDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
+
+  // Map i18n language to date-fns locale
+  const dateLocale = useMemo(() => {
+    const lang = i18n.language.split('-')[0]; // Get base language (e.g., 'en' from 'en-US')
+    switch (lang) {
+      case 'es':
+        return es;
+      case 'pt':
+        return ptBR;
+      case 'en':
+      default:
+        return enUS;
+    }
+  }, [i18n.language]);
+
+  // Map i18n language to react-datepicker locale string
+  const datePickerLocale = useMemo(() => {
+    const lang = i18n.language.split('-')[0];
+    return lang === 'pt' ? 'pt' : lang === 'es' ? 'es' : 'en';
+  }, [i18n.language]);
 
   const bookingRules: PropertyBookingRules = {
     minStayDays,
@@ -57,7 +86,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
         setBlockedDates(getBlockedDates(availabilityData));
       } catch (err) {
         console.error('Failed to fetch availability:', err);
-        setError('Failed to load availability');
+        setError(t('booking.failedToLoadAvailability'));
       } finally {
         setLoading(false);
       }
@@ -70,7 +99,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
   const handleDayMouseEnter = useCallback((date: Date) => {
     if (!checkIn || checkOut) return; // Only show hover preview when check-in is selected but check-out is not
 
-    const dateStr = format(date, 'yyyy-MM-dd');
+    const dateStr = format(date, 'yyyy-MM-dd', { locale: dateLocale });
 
     // Don't show hover preview for blocked dates or dates before check-in
     if (blockedDates.has(dateStr) || date < checkIn) {
@@ -79,7 +108,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     }
 
     setHoverDate(date);
-  }, [checkIn, checkOut, blockedDates]);
+  }, [checkIn, checkOut, blockedDates, dateLocale]);
 
   const handleMonthMouseLeave = useCallback(() => {
     setHoverDate(null);
@@ -89,7 +118,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
   const handleDateChange = useCallback((date: Date | null, isStartDate: boolean) => {
     if (!date) return;
 
-    const dateStr = format(date, 'yyyy-MM-dd');
+    const dateStr = format(date, 'yyyy-MM-dd', { locale: dateLocale });
 
     // Don't allow selection of blocked dates
     if (blockedDates.has(dateStr)) {
@@ -118,11 +147,11 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
 
       onCheckOutChange(date);
     }
-  }, [checkIn, checkOut, blockedDates, bookingRules, onCheckInChange, onCheckOutChange]);
+  }, [checkIn, checkOut, blockedDates, bookingRules, onCheckInChange, onCheckOutChange, dateLocale]);
 
   // Get CSS class for each day
   const getDayClassName = useCallback((date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
+    const dateStr = format(date, 'yyyy-MM-dd', { locale: dateLocale });
     const today = new Date();
     const isToday = isSameDay(date, today);
     const isCheckIn = checkIn && isSameDay(date, checkIn);
@@ -142,24 +171,24 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     } else if (isCheckIn) {
       classes.push('range-start');
       // Check if start date is first day of week
-      if (isSameDay(date, startOfWeek(date))) {
+      if (isSameDay(date, startOfWeek(date, { locale: dateLocale }))) {
         classes.push('range-start-week');
       }
     } else if (isCheckOut) {
       classes.push('range-end');
       // Check if end date is last day of week
-      if (isSameDay(date, endOfWeek(date))) {
+      if (isSameDay(date, endOfWeek(date, { locale: dateLocale }))) {
         classes.push('range-end-week');
       }
     } else if (isInRange) {
       classes.push('range-middle');
       // Check if this is a continuation from previous week
-      if (checkIn && !isSameWeek(date, checkIn)) {
+      if (checkIn && !isSameWeek(date, checkIn, { locale: dateLocale })) {
         classes.push('range-continuation');
       }
       // Add week boundary classes for proper edge rounding
-      const isFirstDayOfWeek = isSameDay(date, startOfWeek(date));
-      const isLastDayOfWeek = isSameDay(date, endOfWeek(date));
+      const isFirstDayOfWeek = isSameDay(date, startOfWeek(date, { locale: dateLocale }));
+      const isLastDayOfWeek = isSameDay(date, endOfWeek(date, { locale: dateLocale }));
 
       if (isFirstDayOfWeek) {
         classes.push('range-week-start');
@@ -174,8 +203,8 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     } else if (isInHoverRange) {
       classes.push('hover-range-middle');
       // Add week boundary classes for hover ranges too
-      const isFirstDayOfWeek = isSameDay(date, startOfWeek(date));
-      const isLastDayOfWeek = isSameDay(date, endOfWeek(date));
+      const isFirstDayOfWeek = isSameDay(date, startOfWeek(date, { locale: dateLocale }));
+      const isLastDayOfWeek = isSameDay(date, endOfWeek(date, { locale: dateLocale }));
 
       if (isFirstDayOfWeek) {
         classes.push('hover-range-week-start');
@@ -190,7 +219,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     }
 
     return classes.join(' ');
-  }, [checkIn, checkOut, blockedDates, hoverDate]);
+  }, [checkIn, checkOut, blockedDates, hoverDate, dateLocale]);
 
   // Get dates to exclude (blocked dates)
   const excludeDates = Array.from(blockedDates).map(dateStr => new Date(dateStr + 'T00:00:00'));
@@ -201,7 +230,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-charcoal">Loading availability...</div>
+        <div className="text-charcoal">{t('booking.loadingAvailability')}</div>
       </div>
     );
   }
@@ -219,7 +248,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
       {/* Check-in DatePicker */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-navy mb-2">
-          Check-in
+          {t('booking.checkIn')}
         </label>
         <DatePicker
           selected={checkIn}
@@ -234,18 +263,20 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
           minDate={minDate}
           excludeDates={excludeDates}
           dayClassName={getDayClassName}
-          placeholderText="Select check-in date"
+          placeholderText={t('booking.selectCheckIn')}
+          locale={datePickerLocale}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
           calendarClassName="custom-datepicker"
           popperClassName="datepicker-popper"
           dateFormat="MMM dd, yyyy"
+          formatWeekDay={(nameOfDay) => nameOfDay.substring(0, 1)}
         />
       </div>
 
       {/* Check-out DatePicker */}
       <div>
         <label className="block text-sm font-medium text-navy mb-2">
-          Check-out
+          {t('booking.checkOut')}
         </label>
         <DatePicker
           selected={checkOut}
@@ -260,12 +291,14 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
           minDate={checkIn || minDate}
           excludeDates={excludeDates}
           dayClassName={getDayClassName}
-          placeholderText="Select check-out date"
+          placeholderText={t('booking.selectCheckOut')}
+          locale={datePickerLocale}
           disabled={!checkIn}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
           calendarClassName="custom-datepicker"
           popperClassName="datepicker-popper"
           dateFormat="MMM dd, yyyy"
+          formatWeekDay={(nameOfDay) => nameOfDay.substring(0, 1)}
         />
       </div>
 
@@ -273,7 +306,10 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
       {checkIn && checkOut && (
         <div className="mt-4 p-3 bg-warm-gray rounded-lg">
           <div className="text-sm text-charcoal">
-            {Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))} nights selected
+            {Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))}{' '}
+            {Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)) === 1
+              ? t('booking.nightSelected')
+              : t('booking.nightsSelected')}
           </div>
           {(() => {
             const validation = validateDateSelection(checkIn, checkOut, blockedDates, bookingRules);

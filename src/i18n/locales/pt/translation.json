@@ -236,5 +236,15 @@
       "noQuestionsTitle": "Ainda não há perguntas",
       "noQuestionsMessage": "Seja o primeiro a fazer uma pergunta sobre esta propriedade."
     }
+  },
+  "booking": {
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "selectCheckIn": "Selecione a data de entrada",
+    "selectCheckOut": "Selecione a data de saída",
+    "loadingAvailability": "Carregando disponibilidade...",
+    "failedToLoadAvailability": "Falha ao carregar disponibilidade",
+    "nightsSelected": "noites selecionadas",
+    "nightSelected": "noite selecionada"
   }
 }

@@ -236,5 +236,15 @@
       "noQuestionsTitle": "No questions yet",
       "noQuestionsMessage": "Be the first to ask a question about this property."
     }
+  },
+  "booking": {
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "selectCheckIn": "Select check-in date",
+    "selectCheckOut": "Select check-out date",
+    "loadingAvailability": "Loading availability...",
+    "failedToLoadAvailability": "Failed to load availability",
+    "nightsSelected": "nights selected",
+    "nightSelected": "night selected"
   }
 }
