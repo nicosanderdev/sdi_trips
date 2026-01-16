@@ -12,19 +12,19 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isLoggedIn = !!user;
   const location = useLocation();
-  const { i18n: i18nInstance } = useTranslation();
+  const { t, i18n: i18nInstance } = useTranslation();
 
   const navItems = [
-    { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
-    { path: '/terms', label: 'Terms' },
+    { path: '/', labelKey: 'nav.home' },
+    { path: '/about', labelKey: 'nav.about' },
+    { path: '/terms', labelKey: 'nav.terms' },
   ];
 
   const userMenuItems = [
-    { path: '/profile', label: 'Profile', icon: User },
-    { path: '/trips', label: 'My Trips', icon: Calendar },
-    { path: '/wishlist', label: 'Wishlist', icon: Heart },
-    { path: '/inbox', label: 'Inbox', icon: MessageCircle },
+    { path: '/profile', labelKey: 'nav.profile', icon: User },
+    { path: '/trips', labelKey: 'nav.myTrips', icon: Calendar },
+    { path: '/wishlist', labelKey: 'nav.wishlist', icon: Heart },
+    { path: '/inbox', labelKey: 'nav.inbox', icon: MessageCircle },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -55,7 +55,7 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-8">
           {/* Logo */}
           <Link to="/" className="text-navy font-bold text-xl hover:text-gold transition-colors">
-            Holiday Trips
+            {t('nav.logo')}
           </Link>
 
           {/* Navigation Links */}
@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
                     : 'text-navy hover:bg-gold hover:text-navy'
                 }`}
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
           </div>
@@ -81,7 +81,7 @@ const Navbar: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
-                placeholder="Search destinations..."
+                placeholder={t('nav.searchPlaceholder')}
                 className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-white/50"
               />
             </div>
@@ -100,7 +100,7 @@ const Navbar: React.FC = () => {
                         ? 'bg-navy text-gold'
                         : 'text-navy hover:bg-gold hover:text-navy'
                     }`}
-                    title={item.label}
+                    title={t(item.labelKey)}
                   >
                     <item.icon className="h-5 w-5" />
                   </Link>
@@ -108,7 +108,7 @@ const Navbar: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className="p-2 rounded-full text-navy hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-                  title="Logout"
+                  title={t('nav.logout')}
                 >
                   <LogOut className="h-5 w-5" />
                 </button>
@@ -117,12 +117,12 @@ const Navbar: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <Link to="/login">
                   <Button variant="outline" size="sm">
-                    Sign In
+                    {t('nav.signIn')}
                   </Button>
                 </Link>
                 <Link to="/register">
                   <Button variant="primary" size="sm">
-                    Sign Up
+                    {t('nav.signUp')}
                   </Button>
                 </Link>
               </div>
@@ -149,7 +149,7 @@ const Navbar: React.FC = () => {
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center justify-between">
           <Link to="/" className="text-navy font-bold text-lg">
-            Holiday Trips
+            {t('nav.logo')}
           </Link>
 
           <button
@@ -169,7 +169,7 @@ const Navbar: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   type="text"
-                  placeholder="Search destinations..."
+                  placeholder={t('nav.searchPlaceholder')}
                   className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
                 />
               </div>
@@ -188,7 +188,7 @@ const Navbar: React.FC = () => {
                       : 'text-navy hover:bg-gold hover:text-navy'
                   }`}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               ))}
             </div>
@@ -208,7 +208,7 @@ const Navbar: React.FC = () => {
                     }`}
                   >
                     <item.icon className="h-5 w-5" />
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </Link>
                 ))}
                 <button
@@ -219,19 +219,19 @@ const Navbar: React.FC = () => {
                   className="flex items-center space-x-3 w-full px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
                 >
                   <LogOut className="h-5 w-5" />
-                  <span>Logout</span>
+                  <span>{t('nav.logout')}</span>
                 </button>
               </div>
             ) : (
               <div className="flex flex-col space-y-3">
                 <Link to="/login" onClick={() => setIsOpen(false)}>
                   <Button variant="outline" size="sm" className="w-full">
-                    Sign In
+                    {t('nav.signIn')}
                   </Button>
                 </Link>
                 <Link to="/register" onClick={() => setIsOpen(false)}>
                   <Button variant="primary" size="sm" className="w-full">
-                    Sign Up
+                    {t('nav.signUp')}
                   </Button>
                 </Link>
               </div>

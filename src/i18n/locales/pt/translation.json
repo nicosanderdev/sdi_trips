@@ -31,7 +31,10 @@
     "signUp": "Cadastrar",
     "myTrips": "Minhas viagens",
     "wishlist": "Lista de desejos",
-    "inbox": "Caixa de entrada"
+    "inbox": "Caixa de entrada",
+    "logo": "Holiday Trips",
+    "profile": "Perfil",
+    "logout": "Sair"
   },
   "auth": {
     "welcomeBack": "Bem-vindo de volta",
@@ -41,10 +44,63 @@
     "rememberMe": "Lembrar-me",
     "forgotPassword": "Esqueceu a senha?",
     "signIn": "Entrar",
+    "signingIn": "Entrando...",
     "dontHaveAccount": "Não tem uma conta?",
     "signUpHere": "Cadastre-se aqui",
     "joinHolidayTrips": "Junte-se ao Holiday Trips",
-    "createYourAccount": "Crie sua conta e comece a explorar propriedades extraordinárias"
+    "createYourAccount": "Crie sua conta e comece a explorar propriedades extraordinárias",
+    "backToHome": "Voltar ao início",
+    "enterYourEmail": "Digite seu e-mail",
+    "enterYourPassword": "Digite sua senha",
+    "orContinueWith": "Ou continue com",
+    "google": "Google",
+    "twitter": "Twitter",
+    "luxuryHolidayHome": "Casa de férias de luxo",
+    "testimonialQuote": "A combinação perfeita de luxo e conforto para nossas férias em família.",
+    "testimonialAuthor": "Sarah Johnson",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
+    "confirmPassword": "Confirmar Senha",
+    "enterFirstName": "Digite seu nome",
+    "enterLastName": "Digite seu sobrenome",
+    "createPassword": "Crie uma senha",
+    "confirmPasswordPlaceholder": "Confirme sua senha",
+    "passwordRequirements": {
+      "atLeast8Chars": "Pelo menos 8 caracteres",
+      "oneUppercase": "Uma letra maiúscula",
+      "oneLowercase": "Uma letra minúscula",
+      "oneNumber": "Um número"
+    },
+    "agreeToTerms": "Eu concordo com os",
+    "termsOfService": "Termos de Serviço",
+    "and": "e",
+    "privacyPolicy": "Política de Privacidade",
+    "creatingAccount": "Criando Conta...",
+    "createAccount": "Criar Conta",
+    "orSignUpWith": "Ou cadastre-se com",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "signInHere": "Entre aqui",
+    "whyJoinUs": "Por que se juntar a nós?",
+    "accessToProperties": "Acesso a mais de 800 propriedades de luxo",
+    "customerSupport": "Suporte ao cliente 24/7",
+    "exclusiveDeals": "Ofertas exclusivas para membros",
+    "luxuryHolidayHomeInterior": "Interior de casa de férias de luxo",
+    "errors": {
+      "emailRequired": "O e-mail é obrigatório",
+      "emailInvalid": "Por favor, digite um endereço de e-mail válido",
+      "passwordRequired": "A senha é obrigatória",
+      "passwordMinLength": "A senha deve ter pelo menos 6 caracteres",
+      "passwordMin8Chars": "A senha deve ter pelo menos 8 caracteres",
+      "passwordComplexity": "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula e um número",
+      "firstNameRequired": "O nome é obrigatório",
+      "lastNameRequired": "O sobrenome é obrigatório",
+      "confirmPasswordRequired": "Por favor, confirme sua senha",
+      "passwordsDoNotMatch": "As senhas não coincidem",
+      "mustAgreeToTerms": "Você deve concordar com os termos e condições",
+      "loginFailed": "Falha ao fazer login. Por favor, tente novamente.",
+      "registrationFailed": "Falha no cadastro. Por favor, tente novamente.",
+      "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."
+    }
   },
   "landing": {
     "hero": {
@@ -120,5 +176,65 @@
       "button": "Buscar Casas Disponíveis"
     },
     "microcopy": "Descubra casas extraordinárias em Rivera. Reais, próximas e prontas para recebê-lo."
+  },
+  "propertyDetail": {
+    "nav": {
+      "backToSearch": "Voltar à busca",
+      "save": "Salvar",
+      "share": "Compartilhar"
+    },
+    "errors": {
+      "propertyNotFound": "Propriedade não encontrada",
+      "failedToLoad": "Falha ao carregar detalhes da propriedade. Por favor, tente novamente."
+    },
+    "buttons": {
+      "backToSearch": "Voltar à Busca",
+      "contactHost": "Contatar Anfitrião",
+      "askQuestion": "Fazer uma Pergunta",
+      "signInToAsk": "Entre para Perguntar",
+      "cancel": "Cancelar",
+      "sendQuestion": "Enviar Pergunta",
+      "sending": "Enviando...",
+      "reply": "Responder",
+      "reserveNow": "Reservar Agora"
+    },
+    "sections": {
+      "about": "Sobre este lugar",
+      "amenities": "O que este lugar oferece",
+      "location": "Localização",
+      "host": "Anfitrião",
+      "reviews": "Avaliações",
+      "questions": "Perguntas e Respostas",
+      "similarProperties": "Propriedades similares"
+    },
+    "pricing": {
+      "perNight": "por noite",
+      "total": "Total",
+      "guests": "Hóspedes",
+      "guest": "hóspede",
+      "guests_plural": "hóspedes",
+      "nights": "noites",
+      "youWontBeCharged": "Você ainda não será cobrado"
+    },
+    "badges": {
+      "verifiedHost": "Anfitrião Verificado",
+      "propertyOwner": "Proprietário"
+    },
+    "placeholders": {
+      "propertyLocation": "Localização da Propriedade",
+      "mapboxTokenNote": "Adicione o token do Mapbox ao arquivo .env para mapa interativo",
+      "questionSubject": "Sobre o que é sua pergunta?",
+      "questionBody": "Pergunte qualquer coisa sobre esta propriedade...",
+      "replyBody": "Escreva sua resposta..."
+    },
+    "form": {
+      "subject": "Assunto",
+      "question": "Pergunta",
+      "characters": "caracteres"
+    },
+    "empty": {
+      "noQuestionsTitle": "Ainda não há perguntas",
+      "noQuestionsMessage": "Seja o primeiro a fazer uma pergunta sobre esta propriedade."
+    }
   }
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Input } from '../components/ui';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
@@ -9,6 +10,7 @@ import ErrorMessage from '../components/common/ErrorMessage';
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { signIn } = useAuth();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -34,15 +36,15 @@ const Login: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('auth.errors.emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t('auth.errors.emailInvalid');
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('auth.errors.passwordRequired');
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = t('auth.errors.passwordMinLength');
     }
 
     setErrors(newErrors);
@@ -60,13 +62,13 @@ const Login: React.FC = () => {
       const { error } = await signIn(formData.email, formData.password);
 
       if (error) {
-        setAuthError(error.message || 'Login failed. Please try again.');
+        setAuthError(error.message || t('auth.errors.loginFailed'));
       } else {
         // Login successful, redirect to home
         navigate('/');
       }
     } catch (err) {
-      setAuthError('An unexpected error occurred. Please try again.');
+      setAuthError(t('auth.errors.unexpectedError'));
     } finally {
       setIsLoading(false);
     }
@@ -86,16 +88,25 @@ const Login: React.FC = () => {
                 className="inline-flex items-center space-x-2 text-charcoal hover:text-navy transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
-                <span>Back to Home</span>
+                <span>{t('auth.backToHome')}</span>
               </Link>
 
               {/* Header */}
               <div className="space-y-4">
                 <h1 className="text-4xl md:text-5xl font-thin text-navy">
-                  Welcome <span className="font-bold text-gold">Back</span>
+                  {(() => {
+                    const text = t('auth.welcomeBack');
+                    const words = text.split(' ');
+                    const lastWord = words.pop();
+                    return (
+                      <>
+                        {words.join(' ')} <span className="font-bold text-gold">{lastWord}</span>
+                      </>
+                    );
+                  })()}
                 </h1>
                 <p className="text-xl text-charcoal">
-                  Sign in to your account to continue your journey
+                  {t('auth.signInToAccount')}
                 </p>
               </div>
 
@@ -104,8 +115,8 @@ const Login: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <Input
                     type="email"
-                    label="Email Address"
-                    placeholder="Enter your email"
+                    label={t('auth.emailAddress')}
+                    placeholder={t('auth.enterYourEmail')}
                     value={formData.email}
                     onChange={(value) => handleChange('email', value)}
                     error={errors.email}
@@ -115,8 +126,8 @@ const Login: React.FC = () => {
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      label="Password"
-                      placeholder="Enter your password"
+                      label={t('auth.password')}
+                      placeholder={t('auth.enterYourPassword')}
                       value={formData.password}
                       onChange={(value) => handleChange('password', value)}
                       error={errors.password}
@@ -141,13 +152,13 @@ const Login: React.FC = () => {
                         type="checkbox"
                         className="rounded border-gray-300 text-gold focus:ring-gold"
                       />
-                      <span className="text-sm text-charcoal">Remember me</span>
+                      <span className="text-sm text-charcoal">{t('auth.rememberMe')}</span>
                     </label>
                     <Link
                       to="/forgot-password"
                       className="text-sm text-gold hover:text-navy transition-colors font-medium"
                     >
-                      Forgot password?
+                      {t('auth.forgotPassword')}
                     </Link>
                   </div>
 
@@ -158,7 +169,7 @@ const Login: React.FC = () => {
                     className="w-full"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Signing In...' : 'Sign In'}
+                    {isLoading ? t('auth.signingIn') : t('auth.signIn')}
                   </Button>
 
                   {authError && (
@@ -173,7 +184,7 @@ const Login: React.FC = () => {
                       <div className="w-full border-t border-gray-200"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-4 bg-white text-charcoal">Or continue with</span>
+                      <span className="px-4 bg-white text-charcoal">{t('auth.orContinueWith')}</span>
                     </div>
                   </div>
 
@@ -185,13 +196,13 @@ const Login: React.FC = () => {
                         <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                         <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
-                      <span className="ml-2">Google</span>
+                      <span className="ml-2">{t('auth.google')}</span>
                     </button>
                     <button className="w-full inline-flex justify-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
                       </svg>
-                      <span className="ml-2">Twitter</span>
+                      <span className="ml-2">{t('auth.twitter')}</span>
                     </button>
                   </div>
                 </div>
@@ -199,12 +210,12 @@ const Login: React.FC = () => {
 
               {/* Sign Up Link */}
               <p className="text-center text-charcoal">
-                Don't have an account?{' '}
+                {t('auth.dontHaveAccount')}{' '}
                 <Link
                   to="/register"
                   className="text-gold hover:text-navy transition-colors font-semibold"
                 >
-                  Sign up here
+                  {t('auth.signUpHere')}
                 </Link>
               </p>
             </div>
@@ -214,7 +225,7 @@ const Login: React.FC = () => {
               <div className="relative">
                 <img
                   src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Luxury holiday home"
+                  alt={t('auth.luxuryHolidayHome')}
                   className="w-full h-[600px] object-cover rounded-3xl shadow-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-3xl"></div>
@@ -222,9 +233,9 @@ const Login: React.FC = () => {
                 {/* Floating Quote */}
                 <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md rounded-2xl p-6 shadow-gold">
                   <blockquote className="text-navy font-medium italic text-lg mb-2">
-                    "The perfect blend of luxury and comfort for our family getaway."
+                    "{t('auth.testimonialQuote')}"
                   </blockquote>
-                  <cite className="text-gold font-semibold">— Sarah Johnson</cite>
+                  <cite className="text-gold font-semibold">— {t('auth.testimonialAuthor')}</cite>
                 </div>
               </div>
             </div>

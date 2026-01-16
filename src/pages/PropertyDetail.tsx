@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
 import { Button, Card, Badge } from '../components/ui';
@@ -62,6 +63,7 @@ const PropertyDetail: React.FC = () => {
   const [submittingReply, setSubmittingReply] = useState(false);
 
   const { user } = useAuth();
+  const { t } = useTranslation();
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
   // Fetch property data
@@ -155,7 +157,7 @@ const PropertyDetail: React.FC = () => {
           <div className="text-center">
             <ErrorMessage message={error} />
             <Link to="/search" className="mt-4 inline-block">
-              <Button>Back to Search</Button>
+              <Button>{t('propertyDetail.buttons.backToSearch')}</Button>
             </Link>
           </div>
         </div>
@@ -168,9 +170,9 @@ const PropertyDetail: React.FC = () => {
       <Layout>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-navy mb-4">Property Not Found</h1>
+            <h1 className="text-2xl font-bold text-navy mb-4">{t('propertyDetail.errors.propertyNotFound')}</h1>
             <Link to="/search">
-              <Button>Back to Search</Button>
+              <Button>{t('propertyDetail.buttons.backToSearch')}</Button>
             </Link>
           </div>
         </div>
@@ -275,7 +277,7 @@ const PropertyDetail: React.FC = () => {
             <div className="flex items-center justify-between">
               <Link to="/search" className="flex items-center space-x-2 text-navy hover:text-gold transition-colors">
                 <ChevronLeft className="h-5 w-5" />
-                <span>Back to search</span>
+                <span>{t('propertyDetail.nav.backToSearch')}</span>
               </Link>
               <div className="flex items-center space-x-4">
                 <button
@@ -283,11 +285,11 @@ const PropertyDetail: React.FC = () => {
                   className="flex items-center space-x-2 text-navy hover:text-gold transition-colors"
                 >
                   <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
-                  <span>Save</span>
+                  <span>{t('propertyDetail.nav.save')}</span>
                 </button>
                 <button className="flex items-center space-x-2 text-navy hover:text-gold transition-colors">
                   <Share className="h-5 w-5" />
-                  <span>Share</span>
+                  <span>{t('propertyDetail.nav.share')}</span>
                 </button>
               </div>
             </div>
@@ -378,7 +380,7 @@ const PropertyDetail: React.FC = () => {
                       <div className="text-3xl font-bold text-navy">
                         ${property.price}
                       </div>
-                      <div className="text-charcoal">per night</div>
+                      <div className="text-charcoal">{t('propertyDetail.pricing.perNight')}</div>
                     </div>
                   </div>
 
@@ -400,13 +402,13 @@ const PropertyDetail: React.FC = () => {
 
                 {/* Description */}
                 <div>
-                  <h2 className="text-2xl font-semibold text-navy mb-4">About this place</h2>
+                  <h2 className="text-2xl font-semibold text-navy mb-4">{t('propertyDetail.sections.about')}</h2>
                   <p className="text-charcoal leading-relaxed">{property.description}</p>
                 </div>
 
                 {/* Amenities */}
                 <div>
-                  <h2 className="text-2xl font-semibold text-navy mb-4">What this place offers</h2>
+                  <h2 className="text-2xl font-semibold text-navy mb-4">{t('propertyDetail.sections.amenities')}</h2>
                   <div className="grid grid-cols-2 gap-4">
                     {property.amenities.map((amenity: string) => (
                       <div key={amenity} className="flex items-center space-x-3">
@@ -421,19 +423,19 @@ const PropertyDetail: React.FC = () => {
 
                 {/* Location Map */}
                 <div>
-                  <h2 className="text-2xl font-semibold text-navy mb-4">Location</h2>
+                  <h2 className="text-2xl font-semibold text-navy mb-4">{t('propertyDetail.sections.location')}</h2>
                   <div className="h-64 rounded-2xl overflow-hidden">
                     <div id="property-detail-map" className="w-full h-full"></div>
                     {!mapboxToken && (
                       <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                         <div className="text-center p-8">
                           <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                          <h3 className="text-lg font-semibold text-gray-600 mb-2">Property Location</h3>
+                          <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('propertyDetail.placeholders.propertyLocation')}</h3>
                           <p className="text-gray-500 text-sm mb-2">
                             {property.location}
                           </p>
                           <p className="text-gray-400 text-xs">
-                            Add Mapbox API token to .env file for interactive map
+                            {t('propertyDetail.placeholders.mapboxTokenNote')}
                           </p>
                         </div>
                       </div>
@@ -452,13 +454,13 @@ const PropertyDetail: React.FC = () => {
                       />
                       <div>
                         <h3 className="text-xl font-semibold text-navy">
-                          Hosted by {property.host.name}
+                          {t('propertyDetail.sections.host')} {property.host.name}
                         </h3>
                         <div className="flex items-center space-x-2 text-charcoal">
                           {property.host.verified && (
                             <div className="flex items-center space-x-1">
                               <Shield className="h-4 w-4 text-green-600" />
-                              <span className="text-sm text-green-600 font-medium">Verified Host</span>
+                              <span className="text-sm text-green-600 font-medium">{t('propertyDetail.badges.verifiedHost')}</span>
                             </div>
                           )}
                         </div>
@@ -466,7 +468,7 @@ const PropertyDetail: React.FC = () => {
                     </div>
                     <Button variant="outline" className="flex items-center space-x-2">
                       <MessageCircle className="h-4 w-4" />
-                      <span>Contact Host</span>
+                      <span>{t('propertyDetail.buttons.contactHost')}</span>
                     </Button>
                   </div>
                 </Card>
@@ -475,7 +477,7 @@ const PropertyDetail: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-semibold text-navy">
-                      Reviews ({reviews.length})
+                      {t('propertyDetail.sections.reviews')} ({reviews.length})
                     </h2>
                     <div className="flex items-center space-x-1">
                       <Star className="h-5 w-5 fill-gold text-gold" />
@@ -515,7 +517,7 @@ const PropertyDetail: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-semibold text-navy">
-                      Questions & Answers ({messages.length})
+                      {t('propertyDetail.sections.questions')} ({messages.length})
                     </h2>
                     {user ? (
                       <Button
@@ -524,13 +526,13 @@ const PropertyDetail: React.FC = () => {
                         className="flex items-center space-x-2"
                       >
                         <MessageCircle className="h-4 w-4" />
-                        <span>Ask a Question</span>
+                        <span>{t('propertyDetail.buttons.askQuestion')}</span>
                       </Button>
                     ) : (
                       <Link to={`/login?redirect=/property/${property.id}`}>
                         <Button variant="outline" className="flex items-center space-x-2">
                           <MessageCircle className="h-4 w-4" />
-                          <span>Sign in to Ask</span>
+                          <span>{t('propertyDetail.buttons.signInToAsk')}</span>
                         </Button>
                       </Link>
                     )}
@@ -543,13 +545,13 @@ const PropertyDetail: React.FC = () => {
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-navy mb-2">
-                              Subject
+                              {t('propertyDetail.form.subject')}
                             </label>
                             <input
                               type="text"
                               value={questionSubject}
                               onChange={(e) => setQuestionSubject(e.target.value)}
-                              placeholder="What's your question about?"
+                              placeholder={t('propertyDetail.placeholders.questionSubject')}
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
                               required
                               maxLength={255}
@@ -557,19 +559,19 @@ const PropertyDetail: React.FC = () => {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-navy mb-2">
-                              Question
+                              {t('propertyDetail.form.question')}
                             </label>
                             <textarea
                               value={questionBody}
                               onChange={(e) => setQuestionBody(e.target.value)}
-                              placeholder="Ask anything about this property..."
+                              placeholder={t('propertyDetail.placeholders.questionBody')}
                               rows={4}
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent resize-none"
                               required
                               maxLength={1000}
                             />
                             <div className="text-sm text-gray-500 mt-1">
-                              {questionBody.length}/1000 characters
+                              {questionBody.length}/1000 {t('propertyDetail.form.characters')}
                             </div>
                           </div>
                           <div className="flex justify-end space-x-3">
@@ -582,14 +584,14 @@ const PropertyDetail: React.FC = () => {
                                 setQuestionBody('');
                               }}
                             >
-                              Cancel
+                              {t('propertyDetail.buttons.cancel')}
                             </Button>
                             <Button
                               type="submit"
                               variant="primary"
                               disabled={submittingQuestion || !questionSubject.trim() || !questionBody.trim()}
                             >
-                              {submittingQuestion ? 'Sending...' : 'Send Question'}
+                              {submittingQuestion ? t('propertyDetail.buttons.sending') : t('propertyDetail.buttons.sendQuestion')}
                             </Button>
                           </div>
                         </div>
@@ -605,9 +607,9 @@ const PropertyDetail: React.FC = () => {
                   ) : messages.length === 0 ? (
                     <Card variant="elevated" className="p-8 text-center">
                       <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-navy mb-2">No questions yet</h3>
+                      <h3 className="text-lg font-semibold text-navy mb-2">{t('propertyDetail.empty.noQuestionsTitle')}</h3>
                       <p className="text-charcoal">
-                        Be the first to ask a question about this property.
+                        {t('propertyDetail.empty.noQuestionsMessage')}
                       </p>
                     </Card>
                   ) : (
@@ -636,7 +638,7 @@ const PropertyDetail: React.FC = () => {
                                   onClick={() => setReplyingTo(message.id)}
                                   className="text-sm text-gold hover:text-gold-dark font-medium"
                                 >
-                                  Reply
+                                  {t('propertyDetail.buttons.reply')}
                                 </button>
                               )}
                             </div>
@@ -656,7 +658,7 @@ const PropertyDetail: React.FC = () => {
                                   <textarea
                                     value={replyBody}
                                     onChange={(e) => setReplyBody(e.target.value)}
-                                    placeholder="Write your reply..."
+                                    placeholder={t('propertyDetail.placeholders.replyBody')}
                                     rows={3}
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent resize-none"
                                     required
@@ -672,7 +674,7 @@ const PropertyDetail: React.FC = () => {
                                         setReplyBody('');
                                       }}
                                     >
-                                      Cancel
+                                      {t('propertyDetail.buttons.cancel')}
                                     </Button>
                                     <Button
                                       type="submit"
@@ -680,7 +682,7 @@ const PropertyDetail: React.FC = () => {
                                       size="sm"
                                       disabled={submittingReply || !replyBody.trim()}
                                     >
-                                      {submittingReply ? 'Sending...' : 'Reply'}
+                                      {submittingReply ? t('propertyDetail.buttons.sending') : t('propertyDetail.buttons.reply')}
                                     </Button>
                                   </div>
                                 </form>
@@ -703,7 +705,7 @@ const PropertyDetail: React.FC = () => {
                                       <h5 className="font-semibold text-navy text-sm">{reply.senderName}</h5>
                                       {reply.isOwnerReply && (
                                         <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
-                                          Property Owner
+                                          {t('propertyDetail.badges.propertyOwner')}
                                         </Badge>
                                       )}
                                       <span className="text-xs text-gray-500">
@@ -725,7 +727,7 @@ const PropertyDetail: React.FC = () => {
                 {/* Similar Properties */}
                 {similarProperties.length > 0 && (
                   <div>
-                    <h2 className="text-2xl font-semibold text-navy mb-6">Similar properties</h2>
+                    <h2 className="text-2xl font-semibold text-navy mb-6">{t('propertyDetail.sections.similarProperties')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {similarProperties.map((similarProperty) => (
                         <Link key={similarProperty.id} to={`/property/${similarProperty.id}`}>
@@ -785,7 +787,7 @@ const PropertyDetail: React.FC = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-navy mb-2">
-                        Guests
+                        {t('propertyDetail.pricing.guests')}
                       </label>
                       <div className="flex items-center space-x-3">
                         <button
@@ -794,7 +796,7 @@ const PropertyDetail: React.FC = () => {
                         >
                           <Minus className="h-4 w-4" />
                         </button>
-                        <span className="flex-1 text-center font-medium">{guests} guest{guests > 1 ? 's' : ''}</span>
+                        <span className="flex-1 text-center font-medium">{guests} {t(guests === 1 ? 'propertyDetail.pricing.guest' : 'propertyDetail.pricing.guests_plural')}</span>
                         <button
                           onClick={() => setGuests(Math.min(property.maxGuests, guests + 1))}
                           className="p-2 border border-gray-300 rounded-lg hover:border-gold transition-colors"
@@ -808,12 +810,12 @@ const PropertyDetail: React.FC = () => {
                       <div className="border-t border-gray-200 pt-4 space-y-3">
                         <div className="flex justify-between">
                           <span className="text-charcoal">
-                            ${property.price} × {calculateNights()} nights
+                            ${property.price} × {calculateNights()} {t('propertyDetail.pricing.nights')}
                           </span>
                           <span className="font-medium">${calculateTotal()}</span>
                         </div>
                         <div className="flex justify-between font-semibold text-lg">
-                          <span>Total</span>
+                          <span>{t('propertyDetail.pricing.total')}</span>
                           <span>${calculateTotal()}</span>
                         </div>
                       </div>
@@ -825,11 +827,11 @@ const PropertyDetail: React.FC = () => {
                       className="w-full bg-gold text-navy hover:bg-gold-dark"
                       disabled={!checkIn || !checkOut}
                     >
-                      Reserve Now
+                      {t('propertyDetail.buttons.reserveNow')}
                     </Button>
 
                     <p className="text-center text-sm text-charcoal">
-                      You won't be charged yet
+                      {t('propertyDetail.pricing.youWontBeCharged')}
                     </p>
                   </div>
                 </Card>

@@ -31,7 +31,10 @@
     "signUp": "Sign Up",
     "myTrips": "My Trips",
     "wishlist": "Wishlist",
-    "inbox": "Inbox"
+    "inbox": "Inbox",
+    "logo": "Holiday Trips",
+    "profile": "Profile",
+    "logout": "Logout"
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -41,10 +44,63 @@
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
     "signIn": "Sign In",
+    "signingIn": "Signing In...",
     "dontHaveAccount": "Don't have an account?",
     "signUpHere": "Sign up here",
     "joinHolidayTrips": "Join Holiday Trips",
-    "createYourAccount": "Create your account and start exploring extraordinary properties"
+    "createYourAccount": "Create your account and start exploring extraordinary properties",
+    "backToHome": "Back to Home",
+    "enterYourEmail": "Enter your email",
+    "enterYourPassword": "Enter your password",
+    "orContinueWith": "Or continue with",
+    "google": "Google",
+    "twitter": "Twitter",
+    "luxuryHolidayHome": "Luxury holiday home",
+    "testimonialQuote": "The perfect blend of luxury and comfort for our family getaway.",
+    "testimonialAuthor": "Sarah Johnson",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "confirmPassword": "Confirm Password",
+    "enterFirstName": "Enter your first name",
+    "enterLastName": "Enter your last name",
+    "createPassword": "Create a password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "passwordRequirements": {
+      "atLeast8Chars": "At least 8 characters",
+      "oneUppercase": "One uppercase letter",
+      "oneLowercase": "One lowercase letter",
+      "oneNumber": "One number"
+    },
+    "agreeToTerms": "I agree to the",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "creatingAccount": "Creating Account...",
+    "createAccount": "Create Account",
+    "orSignUpWith": "Or sign up with",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInHere": "Sign in here",
+    "whyJoinUs": "Why Join Us?",
+    "accessToProperties": "Access to 800+ luxury properties",
+    "customerSupport": "24/7 customer support",
+    "exclusiveDeals": "Exclusive member deals",
+    "luxuryHolidayHomeInterior": "Luxury holiday home interior",
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordMin8Chars": "Password must be at least 8 characters",
+      "passwordComplexity": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "mustAgreeToTerms": "You must agree to the terms and conditions",
+      "loginFailed": "Login failed. Please try again.",
+      "registrationFailed": "Registration failed. Please try again.",
+      "unexpectedError": "An unexpected error occurred. Please try again."
+    }
   },
   "landing": {
     "hero": {
@@ -120,5 +176,65 @@
       "button": "Search Available Homes"
     },
     "microcopy": "Discover extraordinary homes in Rivera. Real, nearby and ready to welcome you."
+  },
+  "propertyDetail": {
+    "nav": {
+      "backToSearch": "Back to search",
+      "save": "Save",
+      "share": "Share"
+    },
+    "errors": {
+      "propertyNotFound": "Property not found",
+      "failedToLoad": "Failed to load property details. Please try again."
+    },
+    "buttons": {
+      "backToSearch": "Back to Search",
+      "contactHost": "Contact Host",
+      "askQuestion": "Ask a Question",
+      "signInToAsk": "Sign in to Ask",
+      "cancel": "Cancel",
+      "sendQuestion": "Send Question",
+      "sending": "Sending...",
+      "reply": "Reply",
+      "reserveNow": "Reserve Now"
+    },
+    "sections": {
+      "about": "About this place",
+      "amenities": "What this place offers",
+      "location": "Location",
+      "host": "Hosted by",
+      "reviews": "Reviews",
+      "questions": "Questions & Answers",
+      "similarProperties": "Similar properties"
+    },
+    "pricing": {
+      "perNight": "per night",
+      "total": "Total",
+      "guests": "Guests",
+      "guest": "guest",
+      "guests_plural": "guests",
+      "nights": "nights",
+      "youWontBeCharged": "You won't be charged yet"
+    },
+    "badges": {
+      "verifiedHost": "Verified Host",
+      "propertyOwner": "Property Owner"
+    },
+    "placeholders": {
+      "propertyLocation": "Property Location",
+      "mapboxTokenNote": "Add Mapbox API token to .env file for interactive map",
+      "questionSubject": "What's your question about?",
+      "questionBody": "Ask anything about this property...",
+      "replyBody": "Write your reply..."
+    },
+    "form": {
+      "subject": "Subject",
+      "question": "Question",
+      "characters": "characters"
+    },
+    "empty": {
+      "noQuestionsTitle": "No questions yet",
+      "noQuestionsMessage": "Be the first to ask a question about this property."
+    }
   }
 }
