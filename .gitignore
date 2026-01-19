@@ -26,3 +26,5 @@ dist-ssr
 .env.prod
 
 tasks/
+
+supabase/functions/send-booking-confirmation/index.ts

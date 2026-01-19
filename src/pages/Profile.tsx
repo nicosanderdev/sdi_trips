@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Input, Badge } from '../components/ui';
 import { User, Edit2, Save, X, Calendar, MapPin } from 'lucide-react';
@@ -9,6 +10,7 @@ import ErrorMessage from '../components/common/ErrorMessage';
 import type { User as UserType } from '../types';
 
 const Profile: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings'>('profile');
@@ -56,11 +58,11 @@ const Profile: React.FC = () => {
           setCurrentUser(memberProfile);
         } else {
           // User exists but no member profile - this shouldn't happen with the trigger
-          setError('Profile information not found. Please contact support.');
+          setError(t('profile.errors.profileInfoNotFound'));
         }
       } catch (err) {
         console.error('Error fetching profile:', err);
-        setError('Failed to load profile information. Please try again.');
+        setError(t('profile.errors.failedToLoad'));
       } finally {
         setLoading(false);
       }
@@ -91,7 +93,7 @@ const Profile: React.FC = () => {
       setTimeout(() => setUpdateSuccess(false), 3000);
     } catch (err) {
       console.error('Error updating profile:', err);
-      setUpdateError('Failed to update profile. Please try again.');
+      setUpdateError(t('profile.errors.failedToUpdate'));
     }
   };
 
@@ -111,8 +113,8 @@ const Profile: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'profile' as const, label: 'Profile', icon: User },
-    { id: 'bookings' as const, label: 'My Bookings', icon: Calendar },
+    { id: 'profile' as const, label: t('profile.tabs.profile'), icon: User },
+    { id: 'bookings' as const, label: t('profile.tabs.myBookings'), icon: Calendar },
   ];
 
   if (loading) {
@@ -142,8 +144,8 @@ const Profile: React.FC = () => {
       <Layout>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-navy mb-4">Profile Not Found</h1>
-            <p className="text-charcoal mb-4">Please try logging in again.</p>
+            <h1 className="text-2xl font-bold text-navy mb-4">{t('profile.errors.profileNotFound')}</h1>
+            <p className="text-charcoal mb-4">{t('profile.errors.tryLoggingInAgain')}</p>
           </div>
         </div>
       </Layout>
@@ -157,10 +159,10 @@ const Profile: React.FC = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl md:text-5xl font-thin text-navy mb-2">
-              My <span className="font-bold text-gold">Profile</span>
+              <span className="font-bold text-gold">{t('profile.header.title')}</span>
             </h1>
             <p className="text-xl text-charcoal">
-              Manage your account settings and view your booking history
+              {t('profile.header.subtitle')}
             </p>
           </div>
 
@@ -201,15 +203,15 @@ const Profile: React.FC = () => {
                   <div className="flex justify-center space-x-4 text-sm text-charcoal">
                     <div className="text-center">
                       <div className="font-semibold text-navy">{userBookings.length}</div>
-                      <div>Bookings</div>
+                      <div>{t('profile.profileTab.stats.bookings')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-semibold text-navy">4.9</div>
-                      <div>Rating</div>
+                      <div>{t('profile.profileTab.stats.rating')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-semibold text-navy">2</div>
-                      <div>Years</div>
+                      <div>{t('profile.profileTab.stats.years')}</div>
                     </div>
                   </div>
 
@@ -221,7 +223,7 @@ const Profile: React.FC = () => {
                       className="mt-6"
                     >
                       <Edit2 className="h-4 w-4 mr-2" />
-                      Edit Profile
+                      {t('profile.profileTab.editProfile')}
                     </Button>
                   )}
                 </Card>
@@ -232,7 +234,7 @@ const Profile: React.FC = () => {
                 <Card variant="default" className="p-8">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-2xl font-semibold text-navy">
-                      {isEditing ? 'Edit Profile' : 'Profile Information'}
+                      {isEditing ? t('profile.profileTab.editProfile') : t('profile.profileTab.profileInformation')}
                     </h3>
                     {isEditing && (
                       <div className="flex space-x-2">
@@ -251,7 +253,7 @@ const Profile: React.FC = () => {
                   {/* Success/Error Messages */}
                   {updateSuccess && (
                     <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
-                      Profile updated successfully!
+                      {t('profile.profileTab.updatedSuccessfully')}
                     </div>
                   )}
                   {updateError && (
@@ -262,13 +264,13 @@ const Profile: React.FC = () => {
                     {/* Basic Information */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Input
-                        label="First Name"
+                        label={t('auth.firstName')}
                         value={isEditing ? editData.firstName : profileData.firstName}
                         onChange={(value) => setEditData(prev => ({ ...prev, firstName: value }))}
                         disabled={!isEditing}
                       />
                       <Input
-                        label="Last Name"
+                        label={t('auth.lastName')}
                         value={isEditing ? editData.lastName : profileData.lastName}
                         onChange={(value) => setEditData(prev => ({ ...prev, lastName: value }))}
                         disabled={!isEditing}
@@ -277,21 +279,21 @@ const Profile: React.FC = () => {
 
                     <Input
                       type="email"
-                      label="Email Address"
+                      label={t('auth.emailAddress')}
                       value={isEditing ? editData.email : profileData.email}
                       onChange={(value) => setEditData(prev => ({ ...prev, email: value }))}
                       disabled={!isEditing}
                     />
 
                     <Input
-                      label="Phone Number"
+                      label={t('profile.profileTab.form.phoneNumber')}
                       value={isEditing ? editData.phone : profileData.phone}
                       onChange={(value) => setEditData(prev => ({ ...prev, phone: value }))}
                       disabled={!isEditing}
                     />
 
                     <Input
-                      label="Location"
+                      label={t('profile.profileTab.form.location')}
                       value={isEditing ? editData.location : profileData.location}
                       onChange={(value) => setEditData(prev => ({ ...prev, location: value }))}
                       disabled={!isEditing}
@@ -300,7 +302,7 @@ const Profile: React.FC = () => {
                     {/* Bio Section */}
                     <div>
                       <label className="block text-sm font-medium text-navy mb-2">
-                        Bio
+                        {t('profile.profileTab.form.bio')}
                       </label>
                       {isEditing ? (
                         <textarea
@@ -308,7 +310,7 @@ const Profile: React.FC = () => {
                           onChange={(e) => setEditData(prev => ({ ...prev, bio: e.target.value }))}
                           rows={4}
                           className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-white font-medium text-charcoal placeholder-gray-400 resize-none"
-                          placeholder="Tell us about yourself..."
+                          placeholder={t('profile.profileTab.form.bioPlaceholder')}
                         />
                       ) : (
                         <p className="text-charcoal leading-relaxed p-4 bg-warm-gray rounded-xl">
@@ -326,21 +328,21 @@ const Profile: React.FC = () => {
           {activeTab === 'bookings' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-semibold text-navy">My Bookings</h3>
+                <h3 className="text-2xl font-semibold text-navy">{t('profile.bookingsTab.title')}</h3>
                 <Badge variant="info" className="bg-gold text-navy">
-                  {userBookings.length} Total
+                  {userBookings.length} {t('profile.bookingsTab.total')}
                 </Badge>
               </div>
 
               {userBookings.length === 0 ? (
                 <Card variant="default" className="p-12 text-center">
                   <Calendar className="h-16 w-16 text-gold mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-navy mb-2">No Bookings Yet</h3>
+                  <h3 className="text-xl font-semibold text-navy mb-2">{t('profile.bookingsTab.emptyState.title')}</h3>
                   <p className="text-charcoal mb-6">
-                    You haven't made any bookings yet. Start exploring our amazing properties!
+                    {t('profile.bookingsTab.emptyState.message')}
                   </p>
                   <Button variant="primary">
-                    Browse Properties
+                    {t('profile.bookingsTab.emptyState.browseProperties')}
                   </Button>
                 </Card>
               ) : (
@@ -378,34 +380,34 @@ const Profile: React.FC = () => {
                               </div>
                             </div>
                             <Badge variant={getStatusColor(booking.status)} className="capitalize">
-                              {booking.status}
+                              {t(`profile.bookingsTab.status.${booking.status}`)}
                             </Badge>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                             <div className="text-center p-3 bg-warm-gray rounded-lg">
                               <div className="text-lg font-semibold text-navy">{booking.guests}</div>
-                              <div className="text-sm text-charcoal">Guests</div>
+                              <div className="text-sm text-charcoal">{t('profile.bookingsTab.guests')}</div>
                             </div>
                             <div className="text-center p-3 bg-warm-gray rounded-lg">
                               <div className="text-lg font-semibold text-navy">
                                 ${(booking.totalPrice / (booking.guests * Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24)))).toFixed(0)}
                               </div>
-                              <div className="text-sm text-charcoal">Per Night</div>
+                              <div className="text-sm text-charcoal">{t('profile.bookingsTab.perNight')}</div>
                             </div>
                             <div className="text-center p-3 bg-warm-gray rounded-lg">
                               <div className="text-lg font-semibold text-navy">${booking.totalPrice}</div>
-                              <div className="text-sm text-charcoal">Total</div>
+                              <div className="text-sm text-charcoal">{t('profile.bookingsTab.total')}</div>
                             </div>
                           </div>
 
                           <div className="flex flex-col sm:flex-row gap-3">
                             <Button variant="outline" size="sm">
-                              View Details
+                              {t('profile.bookingsTab.viewDetails')}
                             </Button>
                             {booking.status === 'confirmed' && (
                               <Button variant="primary" size="sm">
-                                Manage Booking
+                                {t('profile.bookingsTab.manageBooking')}
                               </Button>
                             )}
                           </div>

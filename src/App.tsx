@@ -12,13 +12,13 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
-import Trips from './pages/Trips';
 import Wishlist from './pages/Wishlist';
 import Inbox from './pages/Inbox';
 import ChatDetail from './pages/ChatDetail';
 import Checkout from './pages/Checkout';
 import Search from './pages/Search';
 import PropertyDetail from './pages/PropertyDetail';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -32,13 +32,13 @@ function App() {
           <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
           <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/trips" element={<Trips />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/inbox" element={<Inbox />} />
           <Route path="/inbox/:conversationId" element={<ChatDetail />} />
           <Route path="/checkout/:propertyId" element={<Checkout />} />
           <Route path="/search" element={<Search />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -50,7 +50,7 @@ export interface Property {
   location: string;
   price: number;
   currency: string;
-  images: string[];
+  images: string[] | never[];
   bedrooms: number;
   bathrooms: number;
   maxGuests: number;
@@ -86,7 +86,7 @@ export interface Booking {
   checkOut: string;
   guests: number;
   totalPrice: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'pending_confirmation' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: string;
 }
 

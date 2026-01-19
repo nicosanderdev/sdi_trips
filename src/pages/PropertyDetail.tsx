@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
 import { Button, Card, Badge } from '../components/ui';
 import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
 import { getPropertyMessages, sendPropertyQuestion, replyToMessage } from '../services/messageService';
+import { createBooking } from '../services/bookingService';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -31,7 +33,8 @@ import {
   MessageCircle,
   Minus,
   Plus,
-  X
+  X,
+  CheckCircle
 } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -50,6 +53,12 @@ const PropertyDetail: React.FC = () => {
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [guests, setGuests] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // Booking state
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingStatus, setBookingStatus] = useState<'pending_confirmation' | 'confirmed' | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   // Messages state
   const [messages, setMessages] = useState<PropertyMessage[]>([]);
@@ -244,6 +253,57 @@ const PropertyDetail: React.FC = () => {
       console.error('Error submitting reply:', err);
     } finally {
       setSubmittingReply(false);
+    }
+  };
+
+  // Booking handler
+  const handleReserveNow = async () => {
+    // Validate dates
+    if (!checkIn || !checkOut) {
+      alert(t('booking.selectDates'));
+      return;
+    }
+
+    // Validate user is logged in
+    if (!user) {
+      alert(t('booking.loginRequired'));
+      return;
+    }
+
+    // Validate property exists
+    if (!property?.id) {
+      alert(t('booking.error'));
+      return;
+    }
+
+    try {
+      setBookingLoading(true);
+
+      // Calculate total price
+      const totalPrice = calculateTotal();
+
+      // Create booking
+      const result = await createBooking({
+        propertyId: property.id,
+        userId: user.id,
+        checkIn,
+        checkOut,
+        guests,
+        totalPrice
+      });
+
+      if (result.success && result.booking) {
+        setBookingSuccess(true);
+        setBookingStatus(result.status);
+        setShowBookingModal(true);
+      } else {
+        alert(result.error || t('booking.error'));
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      alert(t('booking.error'));
+    } finally {
+      setBookingLoading(false);
     }
   };
 
@@ -825,9 +885,10 @@ const PropertyDetail: React.FC = () => {
                       variant="primary"
                       size="lg"
                       className="w-full bg-gold text-navy hover:bg-gold-dark"
-                      disabled={!checkIn || !checkOut}
+                      disabled={!checkIn || !checkOut || bookingLoading}
+                      onClick={handleReserveNow}
                     >
-                      {t('propertyDetail.buttons.reserveNow')}
+                      {bookingLoading ? t('booking.reserving') : t('propertyDetail.buttons.reserveNow')}
                     </Button>
 
                     <p className="text-center text-sm text-charcoal">
@@ -839,6 +900,78 @@ const PropertyDetail: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Booking Success Modal */}
+        {showBookingModal && bookingSuccess && bookingStatus && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6">
+              <div className="text-center">
+                {bookingStatus === 'confirmed' ? (
+                  <>
+                    {/* Confirmed Booking */}
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-navy mb-2">
+                      {t('booking.confirmed')}
+                    </h3>
+                    <p className="text-charcoal mb-4">
+                      {t('booking.confirmedMessage')}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    {/* Pending Confirmation */}
+                    <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-8 h-8 rounded-full bg-gold animate-pulse"></div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-navy mb-2">
+                      {t('booking.pendingConfirmation')}
+                    </h3>
+                    <p className="text-charcoal mb-4">
+                      {t('booking.syncMessage')}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {t('booking.pendingConfirmedNote')}
+                    </p>
+                  </>
+                )}
+
+                {/* Booking Details */}
+                <div className="bg-warm-gray rounded-xl p-4 mb-6 text-left">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-charcoal">{property.title}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-charcoal">
+                      {checkIn && checkOut ? `${format(checkIn, 'MMM dd')} - ${format(checkOut, 'MMM dd, yyyy')}` : 'Dates not selected'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-charcoal">
+                      {guests} {guests === 1 ? t('propertyDetail.pricing.guest') : t('propertyDetail.pricing.guests_plural')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center font-semibold">
+                    <span className="text-navy">{t('propertyDetail.pricing.total')}</span>
+                    <span className="text-gold">${calculateTotal()}</span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setShowBookingModal(false);
+                    setBookingSuccess(false);
+                    setBookingStatus(null);
+                  }}
+                  className="w-full"
+                >
+                  {t('booking.close')}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Lightbox */}
         {showLightbox && (

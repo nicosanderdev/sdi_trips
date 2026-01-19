@@ -245,6 +245,75 @@
     "loadingAvailability": "Loading availability...",
     "failedToLoadAvailability": "Failed to load availability",
     "nightsSelected": "nights selected",
-    "nightSelected": "night selected"
+    "nightSelected": "night selected",
+    "reserving": "Reserving...",
+    "confirmed": "Booking Confirmed!",
+    "pendingConfirmation": "Booking Pending Confirmation",
+    "syncMessage": "Your booking is being synchronized with external platforms. This may take 4-10 hours to confirm and avoid double bookings. We'll notify you once confirmed.",
+    "confirmedMessage": "Your booking has been confirmed! You will receive a confirmation email shortly.",
+    "pendingConfirmedNote": "If you have email enabled, you'll receive confirmation once the booking is approved.",
+    "error": "Failed to create booking. Please try again.",
+    "loginRequired": "Please log in to make a reservation",
+    "selectDates": "Please select check-in and check-out dates",
+    "bookingReference": "Booking Reference",
+    "close": "Close"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "Sorry, the page you're looking for doesn't exist or has been moved.",
+    "backToHome": "Back to Home",
+    "searchProperties": "Search Properties"
+  },
+  "profile": {
+    "header": {
+      "title": "My Profile",
+      "subtitle": "Manage your account settings and view your booking history"
+    },
+    "tabs": {
+      "profile": "Profile",
+      "myBookings": "My Bookings"
+    },
+    "profileTab": {
+      "stats": {
+        "bookings": "Bookings",
+        "rating": "Rating",
+        "years": "Years"
+      },
+      "editProfile": "Edit Profile",
+      "profileInformation": "Profile Information",
+      "updatedSuccessfully": "Profile updated successfully!",
+      "form": {
+        "phoneNumber": "Phone Number",
+        "location": "Location",
+        "bio": "Bio",
+        "bioPlaceholder": "Tell us about yourself..."
+      }
+    },
+    "bookingsTab": {
+      "title": "My Bookings",
+      "total": "Total",
+      "emptyState": {
+        "title": "No Bookings Yet",
+        "message": "You haven't made any bookings yet. Start exploring our amazing properties!",
+        "browseProperties": "Browse Properties"
+      },
+      "guests": "Guests",
+      "perNight": "Per Night",
+      "total": "Total",
+      "viewDetails": "View Details",
+      "manageBooking": "Manage Booking",
+      "status": {
+        "confirmed": "confirmed",
+        "completed": "completed",
+        "cancelled": "cancelled"
+      }
+    },
+    "errors": {
+      "profileNotFound": "Profile Not Found",
+      "tryLoggingInAgain": "Please try logging in again.",
+      "profileInfoNotFound": "Profile information not found. Please contact support.",
+      "failedToLoad": "Failed to load profile information. Please try again.",
+      "failedToUpdate": "Failed to update profile. Please try again."
+    }
   }
 }

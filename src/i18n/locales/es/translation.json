@@ -245,6 +245,75 @@
     "loadingAvailability": "Cargando disponibilidad...",
     "failedToLoadAvailability": "Error al cargar disponibilidad",
     "nightsSelected": "noches seleccionadas",
-    "nightSelected": "noche seleccionada"
+    "nightSelected": "noche seleccionada",
+    "reserving": "Reservando...",
+    "confirmed": "¡Reserva Confirmada!",
+    "pendingConfirmation": "Reserva Pendiente de Confirmación",
+    "syncMessage": "Tu reserva se está sincronizando con plataformas externas. Esto puede tomar 4-10 horas para confirmar y evitar reservas duplicadas. Te notificaremos una vez confirmada.",
+    "confirmedMessage": "¡Tu reserva ha sido confirmada! Recibirás un correo electrónico de confirmación en breve.",
+    "pendingConfirmedNote": "Si tienes activado el correo electrónico, recibirás confirmación una vez que la reserva sea aprobada.",
+    "error": "Error al crear la reserva. Por favor, inténtalo de nuevo.",
+    "loginRequired": "Por favor, inicia sesión para hacer una reserva",
+    "selectDates": "Por favor, selecciona las fechas de entrada y salida",
+    "bookingReference": "Referencia de Reserva",
+    "close": "Cerrar"
+  },
+  "notFound": {
+    "title": "Página No Encontrada",
+    "description": "Lo sentimos, la página que buscas no existe o ha sido movida.",
+    "backToHome": "Volver al Inicio",
+    "searchProperties": "Buscar Propiedades"
+  },
+  "profile": {
+    "header": {
+      "title": "Mi Perfil",
+      "subtitle": "Gestiona la configuración de tu cuenta y consulta el historial de reservas"
+    },
+    "tabs": {
+      "profile": "Perfil",
+      "myBookings": "Mis Reservas"
+    },
+    "profileTab": {
+      "stats": {
+        "bookings": "Reservas",
+        "rating": "Calificación",
+        "years": "Años"
+      },
+      "editProfile": "Editar Perfil",
+      "profileInformation": "Información del Perfil",
+      "updatedSuccessfully": "¡Perfil actualizado exitosamente!",
+      "form": {
+        "phoneNumber": "Número de Teléfono",
+        "location": "Ubicación",
+        "bio": "Biografía",
+        "bioPlaceholder": "Cuéntanos sobre ti..."
+      }
+    },
+    "bookingsTab": {
+      "title": "Mis Reservas",
+      "total": "Total",
+      "emptyState": {
+        "title": "Aún no hay reservas",
+        "message": "Aún no has hecho ninguna reserva. ¡Comienza explorando nuestras increíbles propiedades!",
+        "browseProperties": "Explorar Propiedades"
+      },
+      "guests": "Huéspedes",
+      "perNight": "Por Noche",
+      "total": "Total",
+      "viewDetails": "Ver Detalles",
+      "manageBooking": "Gestionar Reserva",
+      "status": {
+        "confirmed": "confirmada",
+        "completed": "completada",
+        "cancelled": "cancelada"
+      }
+    },
+    "errors": {
+      "profileNotFound": "Perfil No Encontrado",
+      "tryLoggingInAgain": "Por favor intenta iniciar sesión nuevamente.",
+      "profileInfoNotFound": "Información del perfil no encontrada. Por favor contacta con soporte.",
+      "failedToLoad": "Error al cargar la información del perfil. Por favor intenta nuevamente.",
+      "failedToUpdate": "Error al actualizar el perfil. Por favor intenta nuevamente."
+    }
   }
 }

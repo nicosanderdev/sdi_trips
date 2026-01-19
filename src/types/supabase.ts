@@ -297,6 +297,68 @@ export interface Database {
           LastModifiedBy?: string | null;
         };
       };
+      CalendarIntegrations: {
+        Row: {
+          Id: string;
+          EstatePropertyId: string;
+          PlatformType: number;
+          ExternalCalendarId: string;
+          ExternalCalendarName: string | null;
+          AccessToken: string | null;
+          RefreshToken: string | null;
+          TokenExpiresAt: string | null;
+          IsActive: boolean;
+          LastSyncAt: string | null;
+          SyncStatus: number;
+          IsDeleted: boolean;
+          Created: string;
+          CreatedBy: string | null;
+          LastModified: string;
+          LastModifiedBy: string | null;
+          ICalUrl: string | null;
+          ICalSyncToken: string | null;
+        };
+        Insert: {
+          Id?: string;
+          EstatePropertyId: string;
+          PlatformType: number;
+          ExternalCalendarId: string;
+          ExternalCalendarName?: string | null;
+          AccessToken?: string | null;
+          RefreshToken?: string | null;
+          TokenExpiresAt?: string | null;
+          IsActive?: boolean;
+          LastSyncAt?: string | null;
+          SyncStatus?: number;
+          IsDeleted?: boolean;
+          Created?: string;
+          CreatedBy?: string | null;
+          LastModified?: string;
+          LastModifiedBy?: string | null;
+          ICalUrl?: string | null;
+          ICalSyncToken?: string | null;
+        };
+        Update: {
+          Id?: string;
+          EstatePropertyId?: string;
+          PlatformType?: number;
+          ExternalCalendarId?: string;
+          ExternalCalendarName?: string | null;
+          AccessToken?: string | null;
+          RefreshToken?: string | null;
+          TokenExpiresAt?: string | null;
+          IsActive?: boolean;
+          LastSyncAt?: string | null;
+          SyncStatus?: number;
+          IsDeleted?: boolean;
+          Created?: string;
+          CreatedBy?: string | null;
+          LastModified?: string;
+          LastModifiedBy?: string | null;
+          ICalUrl?: string | null;
+          ICalSyncToken?: string | null;
+        };
+      };
     };
   };
 }
