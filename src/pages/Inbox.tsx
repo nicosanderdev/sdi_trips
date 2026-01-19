@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Badge, Button } from '../components/ui';
 import { MessageCircle, Search, MoreVertical, Phone, Video, MapPin, Calendar, Star } from 'lucide-react';
 import { mockConversations, mockUsers } from '../data/mockData';
 
 const Inbox: React.FC = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
 
@@ -25,11 +27,11 @@ const Inbox: React.FC = () => {
     const diffInHours = (now.getTime() - messageDate.getTime()) / (1000 * 60 * 60);
 
     if (diffInHours < 1) {
-      return 'Just now';
+      return t('inbox.time.justNow');
     } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)}h ago`;
+      return t('inbox.time.hoursAgo', { count: Math.floor(diffInHours) });
     } else if (diffInHours < 168) { // 7 days
-      return `${Math.floor(diffInHours / 24)}d ago`;
+      return t('inbox.time.daysAgo', { count: Math.floor(diffInHours / 24) });
     } else {
       return messageDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
@@ -82,7 +84,7 @@ const Inbox: React.FC = () => {
             <p className={`text-sm truncate ${
               conversation.unreadCount > 0 ? 'text-navy font-medium' : 'text-charcoal'
             }`}>
-              {conversation.lastMessage?.content || 'No messages yet'}
+              {conversation.lastMessage?.content || t('inbox.noMessagesYet')}
             </p>
 
             {/* Property Quick Info */}
@@ -119,10 +121,10 @@ const Inbox: React.FC = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl md:text-5xl font-thin text-navy mb-2">
-              My <span className="font-bold text-gold">Inbox</span>
+              <span className="font-bold text-gold">{t('inbox.title')}</span>
             </h1>
             <p className="text-xl text-charcoal">
-              Stay connected with hosts and manage your conversations
+              {t('inbox.subtitle')}
             </p>
           </div>
 
@@ -136,7 +138,7 @@ const Inbox: React.FC = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <input
                       type="text"
-                      placeholder="Search conversations..."
+                      placeholder={t('inbox.searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold text-sm"
@@ -149,9 +151,9 @@ const Inbox: React.FC = () => {
                   {filteredConversations.length === 0 ? (
                     <div className="p-8 text-center">
                       <MessageCircle className="h-12 w-12 text-gold mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-navy mb-2">No conversations found</h3>
+                      <h3 className="text-lg font-semibold text-navy mb-2">{t('inbox.noConversationsFound')}</h3>
                       <p className="text-charcoal text-sm">
-                        {searchQuery ? 'Try adjusting your search terms.' : 'Start a conversation with a host to see messages here.'}
+                        {searchQuery ? t('inbox.noConversationsMessage') : t('inbox.noConversationsEmpty')}
                       </p>
                     </div>
                   ) : (
@@ -164,7 +166,7 @@ const Inbox: React.FC = () => {
                 {/* Stats */}
                 <div className="p-4 bg-warm-gray border-t border-gray-100">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-charcoal">Total conversations</span>
+                    <span className="text-charcoal">{t('inbox.totalConversations')}</span>
                     <Badge variant="default" className="bg-gold text-navy">
                       {conversations.length}
                     </Badge>
@@ -231,11 +233,11 @@ const Inbox: React.FC = () => {
                     <div className="flex space-x-3">
                       <input
                         type="text"
-                        placeholder="Type your message..."
+                        placeholder={t('inbox.typeMessage')}
                         className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
                       />
                       <Button variant="primary" size="sm">
-                        Send
+                        {t('inbox.send')}
                       </Button>
                     </div>
                   </div>
@@ -244,9 +246,9 @@ const Inbox: React.FC = () => {
                 <Card variant="default" className="h-[600px] flex items-center justify-center">
                   <div className="text-center">
                     <MessageCircle className="h-16 w-16 text-gold mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-navy mb-2">Select a conversation</h3>
+                    <h3 className="text-xl font-semibold text-navy mb-2">{t('inbox.selectConversation')}</h3>
                     <p className="text-charcoal">
-                      Choose a conversation from the list to view messages and continue your discussion with the host.
+                      {t('inbox.selectConversationMessage')}
                     </p>
                   </div>
                 </Card>
@@ -256,33 +258,33 @@ const Inbox: React.FC = () => {
 
           {/* Quick Actions */}
           <Card variant="default" className="p-6 mt-8 bg-gradient-to-r from-gold/5 to-navy/5 border-gold/20">
-            <h3 className="text-lg font-semibold text-navy mb-4">Communication Tips</h3>
+            <h3 className="text-lg font-semibold text-navy mb-4">{t('inbox.communicationTips.title')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <MessageCircle className="h-6 w-6 text-gold" />
                 </div>
-                <h4 className="font-medium text-navy mb-2">Be Clear & Specific</h4>
+                <h4 className="font-medium text-navy mb-2">{t('inbox.communicationTips.beClear.title')}</h4>
                 <p className="text-sm text-charcoal">
-                  Ask specific questions about amenities, check-in procedures, or local recommendations.
+                  {t('inbox.communicationTips.beClear.description')}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Calendar className="h-6 w-6 text-gold" />
                 </div>
-                <h4 className="font-medium text-navy mb-2">Confirm Details</h4>
+                <h4 className="font-medium text-navy mb-2">{t('inbox.communicationTips.confirmDetails.title')}</h4>
                 <p className="text-sm text-charcoal">
-                  Double-check dates, guest count, and any special requests before finalizing.
+                  {t('inbox.communicationTips.confirmDetails.description')}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Star className="h-6 w-6 text-gold" />
                 </div>
-                <h4 className="font-medium text-navy mb-2">Leave Reviews</h4>
+                <h4 className="font-medium text-navy mb-2">{t('inbox.communicationTips.leaveReviews.title')}</h4>
                 <p className="text-sm text-charcoal">
-                  Share your experience after your stay to help other travelers make informed decisions.
+                  {t('inbox.communicationTips.leaveReviews.description')}
                 </p>
               </div>
             </div>

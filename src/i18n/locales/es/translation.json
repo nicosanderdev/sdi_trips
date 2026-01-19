@@ -109,7 +109,7 @@
       "subtitle": "Alquilá con tranquilidad. Publicá con confianza.",
       "cta": {
         "search": "Buscar casas",
-        "publish": "Publicar mi propiedad"
+        "login": "Ingresar"
       }
     },
     "featured": {
@@ -314,6 +314,62 @@
       "profileInfoNotFound": "Información del perfil no encontrada. Por favor contacta con soporte.",
       "failedToLoad": "Error al cargar la información del perfil. Por favor intenta nuevamente.",
       "failedToUpdate": "Error al actualizar el perfil. Por favor intenta nuevamente."
+    }
+  },
+  "inbox": {
+    "title": "Mi Bandeja de Entrada",
+    "subtitle": "Mantente conectado con los anfitriones y gestiona tus conversaciones",
+    "searchPlaceholder": "Buscar conversaciones...",
+    "noMessagesYet": "Aún no hay mensajes",
+    "noConversationsFound": "No se encontraron conversaciones",
+    "noConversationsMessage": "Intenta ajustar tus términos de búsqueda.",
+    "noConversationsEmpty": "Inicia una conversación con un anfitrión para ver mensajes aquí.",
+    "totalConversations": "Total de conversaciones",
+    "selectConversation": "Seleccionar una conversación",
+    "selectConversationMessage": "Elige una conversación de la lista para ver mensajes y continuar tu discusión con el anfitrión.",
+    "typeMessage": "Escribe tu mensaje...",
+    "send": "Enviar",
+    "time": {
+      "justNow": "Ahora mismo",
+      "hoursAgo": "Hace {{count}}h",
+      "daysAgo": "Hace {{count}}d"
+    },
+    "communicationTips": {
+      "title": "Consejos de Comunicación",
+      "beClear": {
+        "title": "Sé Claro y Específico",
+        "description": "Haz preguntas específicas sobre comodidades, procedimientos de check-in o recomendaciones locales."
+      },
+      "confirmDetails": {
+        "title": "Confirma Detalles",
+        "description": "Verifica las fechas, número de huéspedes y cualquier solicitud especial antes de finalizar."
+      },
+      "leaveReviews": {
+        "title": "Deja Comentarios",
+        "description": "Comparte tu experiencia después de tu estadía para ayudar a otros viajeros a tomar decisiones informadas."
+      }
+    }
+  },
+  "chatDetail": {
+    "conversationNotFound": "Conversación no encontrada",
+    "backToInbox": "Volver a Bandeja de Entrada",
+    "call": "Llamar",
+    "video": "Video",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "typeMessage": "Escribe tu mensaje...",
+    "pressEnterToSend": "Presiona Enter para enviar",
+    "quickActions": {
+      "suggestDates": "📅 Sugerir fechas",
+      "changeGuestCount": "👥 Cambiar número de huéspedes",
+      "askAboutAmenities": "💬 Preguntar sobre comodidades"
+    },
+    "aboutProperty": {
+      "title": "Acerca de esta propiedad",
+      "upToGuests": "Hasta {{count}} huéspedes",
+      "flexibleCancellation": "Cancelación flexible",
+      "rating": "{{rating}} calificación",
+      "viewProperty": "Ver Propiedad"
     }
   }
 }

@@ -7,12 +7,10 @@ import { Layout } from '../components/layout';
 import { Button, Card, Badge } from '../components/ui';
 import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
-import { getPropertyMessages, sendPropertyQuestion, replyToMessage } from '../services/messageService';
 import { createBooking } from '../services/bookingService';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
-import type { PropertyMessage } from '../types';
 import {
   MapPin,
   Users,
@@ -44,7 +42,50 @@ const PropertyDetail: React.FC = () => {
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [reviews] = useState<any[]>([]); // TODO: Implement reviews API
+
+  // Placeholder reviews data
+  const reviews = [
+    {
+      id: 1,
+      user: {
+        name: 'Sarah Johnson',
+        avatar: 'https://ui-avatars.com/api/?name=Sarah+Johnson&background=E5C469&color=0A1A2F'
+      },
+      rating: 5,
+      comment: 'Absolutely stunning property! The views were breathtaking and the amenities were top-notch. Perfect for a relaxing getaway.',
+      createdAt: '2024-01-15T10:30:00Z'
+    },
+    {
+      id: 2,
+      user: {
+        name: 'Michael Chen',
+        avatar: 'https://ui-avatars.com/api/?name=Michael+Chen&background=E5C469&color=0A1A2F'
+      },
+      rating: 4,
+      comment: 'Great location and clean property. The host was very responsive. Would definitely recommend!',
+      createdAt: '2024-01-10T14:20:00Z'
+    },
+    {
+      id: 3,
+      user: {
+        name: 'Emma Rodriguez',
+        avatar: 'https://ui-avatars.com/api/?name=Emma+Rodriguez&background=E5C469&color=0A1A2F'
+      },
+      rating: 5,
+      comment: 'This place exceeded our expectations. The kitchen was fully equipped and the bedroom was incredibly comfortable.',
+      createdAt: '2024-01-08T09:15:00Z'
+    },
+    {
+      id: 4,
+      user: {
+        name: 'David Thompson',
+        avatar: 'https://ui-avatars.com/api/?name=David+Thompson&background=E5C469&color=0A1A2F'
+      },
+      rating: 4,
+      comment: 'Wonderful stay with amazing ocean views. The property was exactly as described in the listing.',
+      createdAt: '2024-01-05T16:45:00Z'
+    }
+  ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showLightbox, setShowLightbox] = useState(false);
@@ -59,17 +100,6 @@ const PropertyDetail: React.FC = () => {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingStatus, setBookingStatus] = useState<'pending_confirmation' | 'confirmed' | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-
-  // Messages state
-  const [messages, setMessages] = useState<PropertyMessage[]>([]);
-  const [messagesLoading, setMessagesLoading] = useState(false);
-  const [showQuestionForm, setShowQuestionForm] = useState(false);
-  const [questionSubject, setQuestionSubject] = useState('');
-  const [questionBody, setQuestionBody] = useState('');
-  const [submittingQuestion, setSubmittingQuestion] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyBody, setReplyBody] = useState('');
-  const [submittingReply, setSubmittingReply] = useState(false);
 
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -99,25 +129,6 @@ const PropertyDetail: React.FC = () => {
 
     fetchProperty();
   }, [id]);
-
-  // Fetch messages when property is loaded
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (!property?.id) return;
-
-      try {
-        setMessagesLoading(true);
-        const messagesData = await getPropertyMessages(property.id);
-        setMessages(messagesData);
-      } catch (err) {
-        console.error('Error fetching messages:', err);
-      } finally {
-        setMessagesLoading(false);
-      }
-    };
-
-    fetchMessages();
-  }, [property?.id]);
 
   // Initialize map
   useEffect(() => {
@@ -213,48 +224,6 @@ const PropertyDetail: React.FC = () => {
 
   // TODO: Implement similar properties logic with API
   const similarProperties: any[] = [];
-
-  // Message handlers
-  const handleSubmitQuestion = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !property?.id || !questionSubject.trim() || !questionBody.trim()) return;
-
-    try {
-      setSubmittingQuestion(true);
-      await sendPropertyQuestion(property.id, questionSubject.trim(), questionBody.trim());
-      setQuestionSubject('');
-      setQuestionBody('');
-      setShowQuestionForm(false);
-
-      // Refresh messages
-      const messagesData = await getPropertyMessages(property.id);
-      setMessages(messagesData);
-    } catch (err) {
-      console.error('Error submitting question:', err);
-    } finally {
-      setSubmittingQuestion(false);
-    }
-  };
-
-  const handleSubmitReply = async (messageId: string, body: string) => {
-    if (!body.trim()) return;
-
-    try {
-      setSubmittingReply(true);
-      await replyToMessage(messageId, body.trim());
-
-      // Refresh messages
-      const messagesData = await getPropertyMessages(property.id);
-      setMessages(messagesData);
-
-      setReplyingTo(null);
-      setReplyBody('');
-    } catch (err) {
-      console.error('Error submitting reply:', err);
-    } finally {
-      setSubmittingReply(false);
-    }
-  };
 
   // Booking handler
   const handleReserveNow = async () => {
@@ -571,217 +540,6 @@ const PropertyDetail: React.FC = () => {
                       </Card>
                     ))}
                   </div>
-                </div>
-
-                {/* Questions & Answers */}
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-semibold text-navy">
-                      {t('propertyDetail.sections.questions')} ({messages.length})
-                    </h2>
-                    {user ? (
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowQuestionForm(!showQuestionForm)}
-                        className="flex items-center space-x-2"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        <span>{t('propertyDetail.buttons.askQuestion')}</span>
-                      </Button>
-                    ) : (
-                      <Link to={`/login?redirect=/property/${property.id}`}>
-                        <Button variant="outline" className="flex items-center space-x-2">
-                          <MessageCircle className="h-4 w-4" />
-                          <span>{t('propertyDetail.buttons.signInToAsk')}</span>
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-
-                  {/* Question Form */}
-                  {showQuestionForm && user && (
-                    <Card variant="elevated" className="p-6 mb-6">
-                      <form onSubmit={handleSubmitQuestion}>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-navy mb-2">
-                              {t('propertyDetail.form.subject')}
-                            </label>
-                            <input
-                              type="text"
-                              value={questionSubject}
-                              onChange={(e) => setQuestionSubject(e.target.value)}
-                              placeholder={t('propertyDetail.placeholders.questionSubject')}
-                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
-                              required
-                              maxLength={255}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-navy mb-2">
-                              {t('propertyDetail.form.question')}
-                            </label>
-                            <textarea
-                              value={questionBody}
-                              onChange={(e) => setQuestionBody(e.target.value)}
-                              placeholder={t('propertyDetail.placeholders.questionBody')}
-                              rows={4}
-                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent resize-none"
-                              required
-                              maxLength={1000}
-                            />
-                            <div className="text-sm text-gray-500 mt-1">
-                              {questionBody.length}/1000 {t('propertyDetail.form.characters')}
-                            </div>
-                          </div>
-                          <div className="flex justify-end space-x-3">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setShowQuestionForm(false);
-                                setQuestionSubject('');
-                                setQuestionBody('');
-                              }}
-                            >
-                              {t('propertyDetail.buttons.cancel')}
-                            </Button>
-                            <Button
-                              type="submit"
-                              variant="primary"
-                              disabled={submittingQuestion || !questionSubject.trim() || !questionBody.trim()}
-                            >
-                              {submittingQuestion ? t('propertyDetail.buttons.sending') : t('propertyDetail.buttons.sendQuestion')}
-                            </Button>
-                          </div>
-                        </div>
-                      </form>
-                    </Card>
-                  )}
-
-                  {/* Messages List */}
-                  {messagesLoading ? (
-                    <div className="flex justify-center py-8">
-                      <LoadingSpinner size="md" />
-                    </div>
-                  ) : messages.length === 0 ? (
-                    <Card variant="elevated" className="p-8 text-center">
-                      <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-navy mb-2">{t('propertyDetail.empty.noQuestionsTitle')}</h3>
-                      <p className="text-charcoal">
-                        {t('propertyDetail.empty.noQuestionsMessage')}
-                      </p>
-                    </Card>
-                  ) : (
-                    <div className="space-y-6">
-                      {messages.map((message) => (
-                        <Card key={message.id} variant="elevated" className="p-6">
-                          {/* Question */}
-                          <div className="flex items-start space-x-4">
-                            <img
-                              src={`https://ui-avatars.com/api/?name=${message.senderName}&background=E5C469&color=0A1A2F`}
-                              alt={message.senderName}
-                              className="w-10 h-10 rounded-full flex-shrink-0"
-                            />
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between mb-2">
-                                <h4 className="font-semibold text-navy">{message.senderName}</h4>
-                                <span className="text-sm text-gray-500">
-                                  {new Date(message.createdAt).toLocaleDateString()}
-                                </span>
-                              </div>
-                              <p className="text-charcoal mb-4">{message.body}</p>
-
-                              {/* Reply Button for Property Owner */}
-                              {user && message.senderId !== user.id && !message.replies?.length && (
-                                <button
-                                  onClick={() => setReplyingTo(message.id)}
-                                  className="text-sm text-gold hover:text-gold-dark font-medium"
-                                >
-                                  {t('propertyDetail.buttons.reply')}
-                                </button>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Reply Form */}
-                          {replyingTo === message.id && (
-                            <div className="mt-4 ml-14">
-                              <div className="border-l-2 border-gold pl-4">
-                                <form
-                                  onSubmit={(e) => {
-                                    e.preventDefault();
-                                    handleSubmitReply(message.id, replyBody);
-                                  }}
-                                  className="space-y-3"
-                                >
-                                  <textarea
-                                    value={replyBody}
-                                    onChange={(e) => setReplyBody(e.target.value)}
-                                    placeholder={t('propertyDetail.placeholders.replyBody')}
-                                    rows={3}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent resize-none"
-                                    required
-                                    maxLength={1000}
-                                  />
-                                  <div className="flex justify-end space-x-2">
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => {
-                                        setReplyingTo(null);
-                                        setReplyBody('');
-                                      }}
-                                    >
-                                      {t('propertyDetail.buttons.cancel')}
-                                    </Button>
-                                    <Button
-                                      type="submit"
-                                      variant="primary"
-                                      size="sm"
-                                      disabled={submittingReply || !replyBody.trim()}
-                                    >
-                                      {submittingReply ? t('propertyDetail.buttons.sending') : t('propertyDetail.buttons.reply')}
-                                    </Button>
-                                  </div>
-                                </form>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Replies */}
-                          {message.replies && message.replies.map((reply) => (
-                            <div key={reply.id} className="mt-4 ml-14">
-                              <div className="border-l-2 border-gold pl-4">
-                                <div className="flex items-start space-x-3">
-                                  <img
-                                    src={`https://ui-avatars.com/api/?name=${reply.senderName}&background=E5C469&color=0A1A2F`}
-                                    alt={reply.senderName}
-                                    className="w-8 h-8 rounded-full flex-shrink-0"
-                                  />
-                                  <div className="flex-1">
-                                    <div className="flex items-center space-x-2 mb-1">
-                                      <h5 className="font-semibold text-navy text-sm">{reply.senderName}</h5>
-                                      {reply.isOwnerReply && (
-                                        <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
-                                          {t('propertyDetail.badges.propertyOwner')}
-                                        </Badge>
-                                      )}
-                                      <span className="text-xs text-gray-500">
-                                        {new Date(reply.createdAt).toLocaleDateString()}
-                                      </span>
-                                    </div>
-                                    <p className="text-charcoal text-sm">{reply.body}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </Card>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* Similar Properties */}

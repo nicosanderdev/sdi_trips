@@ -1,10 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, OutlineNumber } from '../ui';
 
 const HeroSplit: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-warm-gray-light to-white overflow-hidden">
       {/* Background Pattern */}
@@ -28,13 +30,13 @@ const HeroSplit: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/search">
-                <Button variant="primary" size="lg">
+                <Button variant="primary" size="lg" onClick={() => navigate('/search')}>
                   {t('landing.hero.cta.search')}
                 </Button>
               </Link>
               <Link to="/about">
-                <Button variant="outline" size="lg">
-                  {t('landing.hero.cta.publish')}
+                <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
+                  {t('landing.hero.cta.login')}
                 </Button>
               </Link>
             </div>

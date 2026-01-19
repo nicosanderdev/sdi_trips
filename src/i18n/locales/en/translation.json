@@ -109,7 +109,7 @@
       "subtitle": "Rent with peace of mind. Publish with confidence.",
       "cta": {
         "search": "Search homes",
-        "publish": "Publish my property"
+        "publish": "Log in"
       }
     },
     "featured": {
@@ -314,6 +314,62 @@
       "profileInfoNotFound": "Profile information not found. Please contact support.",
       "failedToLoad": "Failed to load profile information. Please try again.",
       "failedToUpdate": "Failed to update profile. Please try again."
+    }
+  },
+  "inbox": {
+    "title": "My Inbox",
+    "subtitle": "Stay connected with hosts and manage your conversations",
+    "searchPlaceholder": "Search conversations...",
+    "noMessagesYet": "No messages yet",
+    "noConversationsFound": "No conversations found",
+    "noConversationsMessage": "Try adjusting your search terms.",
+    "noConversationsEmpty": "Start a conversation with a host to see messages here.",
+    "totalConversations": "Total conversations",
+    "selectConversation": "Select a conversation",
+    "selectConversationMessage": "Choose a conversation from the list to view messages and continue your discussion with the host.",
+    "typeMessage": "Type your message...",
+    "send": "Send",
+    "time": {
+      "justNow": "Just now",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "communicationTips": {
+      "title": "Communication Tips",
+      "beClear": {
+        "title": "Be Clear & Specific",
+        "description": "Ask specific questions about amenities, check-in procedures, or local recommendations."
+      },
+      "confirmDetails": {
+        "title": "Confirm Details",
+        "description": "Double-check dates, guest count, and any special requests before finalizing."
+      },
+      "leaveReviews": {
+        "title": "Leave Reviews",
+        "description": "Share your experience after your stay to help other travelers make informed decisions."
+      }
+    }
+  },
+  "chatDetail": {
+    "conversationNotFound": "Conversation not found",
+    "backToInbox": "Back to Inbox",
+    "call": "Call",
+    "video": "Video",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "typeMessage": "Type your message...",
+    "pressEnterToSend": "Press Enter to send",
+    "quickActions": {
+      "suggestDates": "📅 Suggest dates",
+      "changeGuestCount": "👥 Change guest count",
+      "askAboutAmenities": "💬 Ask about amenities"
+    },
+    "aboutProperty": {
+      "title": "About this property",
+      "upToGuests": "Up to {{count}} guests",
+      "flexibleCancellation": "Flexible cancellation",
+      "rating": "{{rating}} rating",
+      "viewProperty": "View Property"
     }
   }
 }

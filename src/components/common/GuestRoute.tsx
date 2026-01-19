@@ -19,9 +19,9 @@ const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
     );
   }
 
-  // Redirect authenticated users to home page
+  // Redirect authenticated users to search page
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/search" replace />;
   }
 
   // Render the requested page for non-authenticated users

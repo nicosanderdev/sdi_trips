@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Badge } from '../components/ui';
 import { ArrowLeft, Phone, Video, MoreVertical, Send, MapPin, Star, Calendar, Users } from 'lucide-react';
 import { mockConversations, mockMessages, mockUsers } from '../data/mockData';
 
 const ChatDetail: React.FC = () => {
+  const { t } = useTranslation();
   const { conversationId } = useParams<{ conversationId: string }>();
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -30,9 +32,9 @@ const ChatDetail: React.FC = () => {
       <Layout>
         <div className="py-12 px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-2xl font-semibold text-navy mb-4">Conversation not found</h1>
+            <h1 className="text-2xl font-semibold text-navy mb-4">{t('chatDetail.conversationNotFound')}</h1>
             <Link to="/inbox">
-              <Button variant="primary">Back to Inbox</Button>
+              <Button variant="primary">{t('chatDetail.backToInbox')}</Button>
             </Link>
           </div>
         </div>
@@ -72,9 +74,9 @@ const ChatDetail: React.FC = () => {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (messageDate.toDateString() === today.toDateString()) {
-      return 'Today';
+      return t('chatDetail.today');
     } else if (messageDate.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return t('chatDetail.yesterday');
     } else {
       return messageDate.toLocaleDateString('en-US', {
         month: 'short',
@@ -102,7 +104,7 @@ const ChatDetail: React.FC = () => {
           <div className="mb-6">
             <Link to="/inbox" className="inline-flex items-center space-x-2 text-charcoal hover:text-navy transition-colors mb-4">
               <ArrowLeft className="h-4 w-4" />
-              <span>Back to Inbox</span>
+              <span>{t('chatDetail.backToInbox')}</span>
             </Link>
 
             <Card variant="default" className="p-6">
@@ -135,11 +137,11 @@ const ChatDetail: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <Button variant="outline" size="sm">
                     <Phone className="h-4 w-4 mr-2" />
-                    Call
+                    {t('chatDetail.call')}
                   </Button>
                   <Button variant="outline" size="sm">
                     <Video className="h-4 w-4 mr-2" />
-                    Video
+                    {t('chatDetail.video')}
                   </Button>
                   <button className="p-2 hover:bg-gray-100 rounded-full">
                     <MoreVertical className="h-5 w-5 text-gray-400" />
@@ -219,7 +221,7 @@ const ChatDetail: React.FC = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Type your message..."
+                    placeholder={t('chatDetail.typeMessage')}
                     rows={1}
                     className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold resize-none max-h-32"
                     style={{ minHeight: '44px' }}
@@ -242,16 +244,16 @@ const ChatDetail: React.FC = () => {
               <div className="flex items-center justify-between mt-3 text-sm text-charcoal">
                 <div className="flex space-x-4">
                   <button className="hover:text-gold transition-colors">
-                    📅 Suggest dates
+                    {t('chatDetail.quickActions.suggestDates')}
                   </button>
                   <button className="hover:text-gold transition-colors">
-                    👥 Change guest count
+                    {t('chatDetail.quickActions.changeGuestCount')}
                   </button>
                   <button className="hover:text-gold transition-colors">
-                    💬 Ask about amenities
+                    {t('chatDetail.quickActions.askAboutAmenities')}
                   </button>
                 </div>
-                <span className="text-xs">Press Enter to send</span>
+                <span className="text-xs">{t('chatDetail.pressEnterToSend')}</span>
               </div>
             </div>
           </Card>
@@ -260,25 +262,25 @@ const ChatDetail: React.FC = () => {
           <Card variant="default" className="p-6 mt-6 bg-gradient-to-r from-gold/5 to-navy/5 border-gold/20">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-navy mb-2">About this property</h3>
+                <h3 className="font-semibold text-navy mb-2">{t('chatDetail.aboutProperty.title')}</h3>
                 <div className="flex items-center space-x-6 text-sm text-charcoal">
                   <div className="flex items-center space-x-1">
                     <Users className="h-4 w-4" />
-                    <span>Up to {conversation.property.maxGuests} guests</span>
+                    <span>{t('chatDetail.aboutProperty.upToGuests', { count: conversation.property.maxGuests })}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-4 w-4" />
-                    <span>Flexible cancellation</span>
+                    <span>{t('chatDetail.aboutProperty.flexibleCancellation')}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Star className="h-4 w-4 fill-gold text-gold" />
-                    <span>{conversation.property.rating} rating</span>
+                    <span>{t('chatDetail.aboutProperty.rating', { rating: conversation.property.rating })}</span>
                   </div>
                 </div>
               </div>
               <Link to={`/property/${conversation.property.id}`}>
                 <Button variant="outline" size="sm">
-                  View Property
+                  {t('chatDetail.aboutProperty.viewProperty')}
                 </Button>
               </Link>
             </div>

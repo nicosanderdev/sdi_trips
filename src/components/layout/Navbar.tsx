@@ -22,7 +22,6 @@ const Navbar: React.FC = () => {
 
   const userMenuItems = [
     { path: '/profile', labelKey: 'nav.profile', icon: User },
-    { path: '/trips', labelKey: 'nav.myTrips', icon: Calendar },
     { path: '/wishlist', labelKey: 'nav.wishlist', icon: Heart },
     { path: '/inbox', labelKey: 'nav.inbox', icon: MessageCircle },
   ];
