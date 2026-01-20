@@ -31,6 +31,18 @@ export interface InputProps extends BaseComponentProps {
   disabled?: boolean;
 }
 
+// Textarea component props
+export interface TextareaProps extends BaseComponentProps {
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  error?: string;
+  label?: string;
+  required?: boolean;
+  disabled?: boolean;
+  rows?: number;
+}
+
 // Badge component props
 export interface BadgeProps extends BaseComponentProps {
   variant?: 'default' | 'success' | 'warning' | 'error' | 'info';

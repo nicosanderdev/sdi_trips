@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Input, Badge, MFAEnrollmentModal, Tooltip } from '../components/ui';
-import { User, Edit2, Save, X, Calendar, MapPin, Shield, ShieldCheck, Info } from 'lucide-react';
+import { User, Edit2, Save, X, Calendar, MapPin, Shield, ShieldCheck, Info, Camera } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { getMemberProfile, updateMemberProfile, uploadProfilePicture, requestEmailChange, verifyEmailChange, requestPhoneChange, verifyPhoneChange, updateMFAStatus } from '../services/memberService';
 import { getUserBookingsCount } from '../services/bookingService';
@@ -40,6 +40,9 @@ const Profile: React.FC = () => {
   const [mfaEnrollmentData, setMfaEnrollmentData] = useState<MFAEnrollment | null>(null);
   const [showMFAEnrollment, setShowMFAEnrollment] = useState(false);
   const [mfaLoading, setMfaLoading] = useState(false);
+
+  // File input ref for camera button
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Mock bookings for now - will be replaced with real API later
   const userBookings: any[] = [];
@@ -208,6 +211,10 @@ const Profile: React.FC = () => {
       // Clear the input value to allow re-uploading the same file
       event.target.value = '';
     }
+  };
+
+  const handleCameraClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleEmailConfirmation = () => {
@@ -426,28 +433,27 @@ const Profile: React.FC = () => {
                       className="w-24 h-24 rounded-full mx-auto object-cover"
                     />
                     {isEditing && (
-                      <>
-                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
-                          {isUploadingPhoto ? (
-                            <div className="text-white text-xs">
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mx-auto mb-1"></div>
-                              {t('profile.profileTab.uploadPhoto')}
-                            </div>
-                          ) : (
-                            <span className="text-white text-xs font-medium">
-                              {t('profile.profileTab.changePhoto')}
-                            </span>
-                          )}
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handlePhotoUpload}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          disabled={isUploadingPhoto}
-                        />
-                      </>
+                      <button
+                        onClick={handleCameraClick}
+                        disabled={isUploadingPhoto}
+                        className="absolute -bottom-2 -right-2 bg-gold hover:bg-gold-dark text-white p-2 rounded-full shadow-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={t('profile.profileTab.changePhoto')}
+                      >
+                        {isUploadingPhoto ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : (
+                          <Camera className="h-4 w-4" />
+                        )}
+                      </button>
                     )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      disabled={isUploadingPhoto}
+                    />
                   </div>
                   <h2 className="text-xl font-semibold text-navy mb-2">
                     {profileData.firstName} {profileData.lastName}
@@ -461,7 +467,7 @@ const Profile: React.FC = () => {
                     </h4>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-charcoal">
-                        {t('profile.verification.emailVerified')}:
+                        {t('profile.verification.emailVerifiedText')}:
                       </span>
                       <Badge
                         variant={user?.email_confirmed_at ? 'success' : 'warning'}
@@ -479,7 +485,7 @@ const Profile: React.FC = () => {
                   <div className="bg-warm-gray rounded-lg p-4 mb-6">
                     <div className="flex items-center justify-center gap-2 mb-3">
                       <h4 className="text-sm font-semibold text-navy">
-                        Autenticación en dos pasos
+                        {t('profile.verification.twoFactorEnabledText')}	
                       </h4>
                       <Tooltip content={t('mfa.tooltip')}>
                         <Info className="h-4 w-4 text-gray-500 hover:text-gray-700 cursor-help" />

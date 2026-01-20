@@ -2,6 +2,7 @@
   "common": {
     "home": "Inicio",
     "about": "Acerca de",
+    "contact": "Contacto",
     "search": "Buscar",
     "login": "Iniciar sesión",
     "register": "Registrarse",
@@ -296,8 +297,10 @@
     },
     "verification": {
       "security": "Seguridad",
-      "emailVerified": "Correo Verificado",
-      "emailNotVerified": "Correo No Verificado",
+      "emailVerifiedText": "Email Verificado",
+      "emailVerified": "Si",
+      "emailNotVerified": "No",
+      "twoFactorEnabledText": "Autenticación en dos pasos",
       "twoFactorEnabled": "2FA Habilitado",
       "twoFactorDisabled": "2FA Deshabilitado"
     },
@@ -439,5 +442,132 @@
       "rating": "{{rating}} calificación",
       "viewProperty": "Ver Propiedad"
     }
+  },
+  "wishlist": {
+    "errors": {
+      "unableToLoadMemberProfile": "No se pudo cargar el perfil del miembro",
+      "failedToLoadWishlist": "Error al cargar la lista de deseos",
+      "unableToGetMemberProfile": "No se pudo obtener el perfil del miembro"
+    },
+    "removeFromWishlist": "Quitar de la lista de deseos",
+    "unavailable": "No disponible",
+    "hostedBy": "Alojado por {{hostName}}",
+    "verifiedHost": "Anfitrión Verificado",
+    "bookNow": "Reservar Ahora",
+    "my": "Mi",
+    "wishlistTitle": "Lista de Deseos",
+    "subtitle": "Tus propiedades guardadas, listas para tu próxima aventura",
+    "savedProperties": "{{count}} {{count, plural, one {Propiedad Guardada} other {Propiedades Guardadas}}}",
+    "lastUpdated": "Última actualización",
+    "emptyTitle": "Tu Lista de Deseos Está Vacía",
+    "emptyDescription": "Comienza a guardar tus propiedades favoritas para hacer seguimiento de los lugares que te gustaría visitar.",
+    "exploreProperties": "Explorar Propiedades"
+  },
+  "contact": {
+    "title": {
+      "first": "Ponte en",
+      "second": "Contacto"
+    },
+    "subtitle": "¿Tienes una pregunta? Nos encantaría escucharte.",
+    "form": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Dirección de Correo Electrónico",
+      "subject": "Asunto",
+      "message": "Mensaje",
+      "firstNamePlaceholder": "Ingresa tu nombre",
+      "lastNamePlaceholder": "Ingresa tu apellido",
+      "emailPlaceholder": "tu@email.com",
+      "subjectPlaceholder": "¿De qué se trata?",
+      "messagePlaceholder": "Cuéntanos más...",
+      "submit": "Enviar Mensaje",
+      "sending": "Enviando..."
+    },
+    "reasons": {
+      "title": "¿Cómo podemos ayudarte?",
+      "support": "Soporte General",
+      "supportDesc": "Preguntas sobre reservas o propiedades",
+      "technical": "Problemas Técnicos",
+      "technicalDesc": "Reportar errores o problemas técnicos",
+      "partnership": "Alianzas",
+      "partnershipDesc": "Consultas comerciales y colaboraciones"
+    },
+    "publishBanner": {
+      "title": "¿Tienes una propiedad para compartir?",
+      "description": "Únete a nuestra comunidad de anfitriones y comienza a ganar compartiendo tu casa de vacaciones con viajeros de todo el mundo.",
+      "button": "Más Información Sobre Hospedaje"
+    },
+    "success": {
+      "title": "¡Mensaje Enviado!",
+      "message": "Gracias por contactarnos. Te responderemos pronto."
+    },
+    "errors": {
+      "firstNameRequired": "El nombre es obligatorio",
+      "lastNameRequired": "El apellido es obligatorio",
+      "emailRequired": "El correo electrónico es obligatorio",
+      "emailInvalid": "Por favor ingresa una dirección de correo electrónico válida",
+      "subjectRequired": "El asunto es obligatorio",
+      "messageRequired": "El mensaje es obligatorio",
+      "submitFailed": "Error al enviar el mensaje. Por favor intenta nuevamente."
+    }
+  },
+  "search": {
+    "header": {
+      "titlePrefix": "Encuentra tu",
+      "titleHighlight": "Estancia Perfecta",
+      "subtitle": "Descubre propiedades increíbles alrededor del mundo"
+    },
+    "searchPlaceholder": "Buscar destinos...",
+    "filters": {
+      "button": "Filtros",
+      "title": "Filtros",
+      "clearAll": "Limpiar Todo",
+      "priceRange": "Rango de Precio (por noche)",
+      "bedrooms": "Dormitorios",
+      "guests": "Huéspedes",
+      "minimumRating": "Calificación Mínima",
+      "amenities": "Comodidades",
+      "options": {
+        "any": "Cualquiera",
+        "bedrooms": {
+          "1": "1+",
+          "2": "2+",
+          "3": "3+",
+          "4": "4+"
+        },
+        "guests": {
+          "1": "1 huésped",
+          "2": "2 huéspedes",
+          "3": "3 huéspedes",
+          "4": "4 huéspedes",
+          "5": "5+ huéspedes"
+        },
+        "rating": {
+          "any": "Cualquiera",
+          "3": "3+",
+          "4": "4+",
+          "4.5": "4.5+"
+        }
+      }
+    },
+    "results": {
+      "count": "{{count}} {{count, plural, one {propiedad encontrada} other {propiedades encontradas}}}",
+      "empty": {
+        "title": "No se encontraron propiedades",
+        "message": "Intenta ajustar tus filtros para ver más resultados."
+      }
+    },
+    "map": {
+      "unavailable": "Mapa No Disponible",
+      "tokenRequired": "Por favor agrega tu token de API de Mapbox al archivo .env",
+      "viewDetails": "Ver Detalles",
+      "perNight": "/noche"
+    }
+  },
+  "propertyCard": {
+    "perNight": "/noche",
+    "unavailable": "No Disponible",
+    "hostedBy": "Alojado por {{name}}",
+    "verifiedHost": "Anfitrión Verificado"
   }
 }

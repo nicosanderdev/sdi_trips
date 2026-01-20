@@ -262,3 +262,37 @@ export async function searchProperties(
     totalCount: count || 0,
   };
 }
+
+/**
+ * Get favorite properties for a specific member
+ */
+export async function getFavoriteProperties(memberId: string): Promise<Property[]> {
+  const { data, error } = await supabase
+    .from('Favorites')
+    .select(`
+      EstatePropertyId,
+      EstateProperties!inner (
+        *,
+        EstatePropertyValues!inner (
+          *
+        ),
+        EstatePropertyAmenity (
+          AmenityId,
+          Amenities (*)
+        ),
+        Owners:Members (*)
+      )
+    `)
+    .eq('MemberId', memberId)
+    .eq('EstateProperties.IsDeleted', false)
+    .eq('EstateProperties.EstatePropertyValues.IsDeleted', false)
+    .eq('EstateProperties.EstatePropertyValues.IsActive', true)
+    .eq('EstateProperties.EstatePropertyValues.IsPropertyVisible', true);
+
+  if (error) {
+    console.error('Error fetching favorite properties:', error);
+    throw error;
+  }
+
+  return data.map((favorite: any) => transformProperty(favorite.EstateProperties));
+}

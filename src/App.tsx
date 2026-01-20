@@ -7,6 +7,7 @@ import GuestRoute from './components/common/GuestRoute';
 // Pages
 import Landing from './pages/Landing';
 import About from './pages/About';
+import Contact from './pages/Contact';
 import Terms from './pages/Terms';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -27,6 +28,7 @@ function App() {
         <Routes>
           <Route path="/" element={<GuestRoute><Landing /></GuestRoute>} />
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />

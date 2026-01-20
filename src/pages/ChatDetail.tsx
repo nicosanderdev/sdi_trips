@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Badge } from '../components/ui';
-import { ArrowLeft, Phone, Video, MoreVertical, Send, MapPin, Star, Calendar, Users } from 'lucide-react';
+import { ArrowLeft, Send, MapPin, Star, Calendar, Users } from 'lucide-react';
 import { mockConversations, mockMessages, mockUsers } from '../data/mockData';
 
 const ChatDetail: React.FC = () => {
@@ -127,25 +127,11 @@ const ChatDetail: React.FC = () => {
                         <Star className="h-4 w-4 fill-gold text-gold" />
                         <span>{conversation.property.rating}</span>
                       </div>
-                      <Badge variant="default" className="bg-gold text-navy">
+                      <Badge className="bg-gold! text-navy!">
                         ${conversation.property.price}/night
                       </Badge>
                     </div>
                   </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <Button variant="outline" size="sm">
-                    <Phone className="h-4 w-4 mr-2" />
-                    {t('chatDetail.call')}
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Video className="h-4 w-4 mr-2" />
-                    {t('chatDetail.video')}
-                  </Button>
-                  <button className="p-2 hover:bg-gray-100 rounded-full">
-                    <MoreVertical className="h-5 w-5 text-gray-400" />
-                  </button>
                 </div>
               </div>
             </Card>
@@ -198,17 +184,6 @@ const ChatDetail: React.FC = () => {
                   </div>
                 </div>
               ))}
-
-              {/* Typing Indicator (could be shown when other user is typing) */}
-              <div className="flex justify-start">
-                <div className="bg-warm-gray rounded-2xl rounded-tl-md px-4 py-2 max-w-xs">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-charcoal/50 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-charcoal/50 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-charcoal/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                </div>
-              </div>
 
               <div ref={messagesEndRef} />
             </div>

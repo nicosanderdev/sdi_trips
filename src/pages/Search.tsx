@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
 import { Button, Input, RangeSlider, Card } from '../components/ui';
@@ -19,6 +20,7 @@ interface SearchFilters {
 }
 
 const Search: React.FC = () => {
+  const { t } = useTranslation();
   // Mapbox access token - you'll need to set this in your .env file
 
   const [filters, setFilters] = useState<SearchFilters>({
@@ -35,9 +37,9 @@ const Search: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [mapViewport] = useState({
-    latitude: 40.7128,
-    longitude: -74.0060,
-    zoom: 2,
+    latitude: -30.901139,
+    longitude: -55.543487,
+    zoom: 12,
   });
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -164,14 +166,14 @@ const Search: React.FC = () => {
             <h3 class="font-semibold text-navy text-sm mb-1">${selectedProperty.title}</h3>
             <p class="text-xs text-charcoal mb-2">${selectedProperty.location}</p>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-gold">$${selectedProperty.price}/night</span>
+              <span class="font-bold text-gold">$${selectedProperty.price}${t('search.map.perNight')}</span>
               <div class="flex items-center space-x-1">
                 <span class="text-xs text-charcoal">★ ${selectedProperty.rating}</span>
               </div>
             </div>
             <a href="/property/${selectedProperty.id}" class="block mt-2">
               <button class="w-full bg-gold text-navy px-3 py-1 rounded text-sm font-medium hover:bg-opacity-90">
-                View Details
+                ${t('search.map.viewDetails')}
               </button>
             </a>
           </div>
@@ -207,9 +209,9 @@ const Search: React.FC = () => {
         <div className="bg-navy text-white py-6">
           <div className="max-w-7xl mx-auto px-8">
             <h1 className="text-3xl md:text-4xl font-thin mb-2">
-              Find Your <span className="font-bold text-gold">Perfect Stay</span>
+              {t('search.header.titlePrefix')} <span className="font-bold text-gold">{t('search.header.titleHighlight')}</span>
             </h1>
-            <p className="text-warm-gray-light">Discover amazing properties around the world</p>
+            <p className="text-warm-gray-light">{t('search.header.subtitle')}</p>
           </div>
         </div>
 
@@ -224,7 +226,7 @@ const Search: React.FC = () => {
                     <SearchIcon className="h-full w-full" />
                   </div>
                   <Input
-                    placeholder="Search destinations..."
+                    placeholder={t('search.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(value) => setSearchQuery(value)}
                     className="pl-10"
@@ -236,7 +238,7 @@ const Search: React.FC = () => {
                   className="flex items-center space-x-2"
                 >
                   <SlidersHorizontal className="h-4 w-4" />
-                  <span>Filters</span>
+                  <span>{t('search.filters.button')}</span>
                 </Button>
               </div>
 
@@ -244,14 +246,14 @@ const Search: React.FC = () => {
               {showFilters && (
                 <Card variant="glass" className="p-6 space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-navy">Filters</h3>
+                    <h3 className="text-lg font-semibold text-navy">{t('search.filters.title')}</h3>
                     <Button variant="outline" size="sm" onClick={clearFilters}>
-                      Clear All
+                      {t('search.filters.clearAll')}
                     </Button>
                   </div>
 
                   <RangeSlider
-                    label="Price Range (per night)"
+                    label={t('search.filters.priceRange')}
                     min={50}
                     max={1000}
                     value={filters.priceRange}
@@ -261,42 +263,42 @@ const Search: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-navy mb-2">
-                        Bedrooms
+                        {t('search.filters.bedrooms')}
                       </label>
                       <select
                         value={filters.bedrooms}
                         onChange={(e) => handleFilterChange('bedrooms', parseInt(e.target.value))}
                         className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
                       >
-                        <option value={0}>Any</option>
-                        <option value={1}>1+</option>
-                        <option value={2}>2+</option>
-                        <option value={3}>3+</option>
-                        <option value={4}>4+</option>
+                        <option value={0}>{t('search.filters.options.any')}</option>
+                        <option value={1}>{t('search.filters.options.bedrooms.1')}</option>
+                        <option value={2}>{t('search.filters.options.bedrooms.2')}</option>
+                        <option value={3}>{t('search.filters.options.bedrooms.3')}</option>
+                        <option value={4}>{t('search.filters.options.bedrooms.4')}</option>
                       </select>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-navy mb-2">
-                        Guests
+                        {t('search.filters.guests')}
                       </label>
                       <select
                         value={filters.guests}
                         onChange={(e) => handleFilterChange('guests', parseInt(e.target.value))}
                         className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
                       >
-                        <option value={1}>1 guest</option>
-                        <option value={2}>2 guests</option>
-                        <option value={3}>3 guests</option>
-                        <option value={4}>4 guests</option>
-                        <option value={5}>5+ guests</option>
+                        <option value={1}>{t('search.filters.options.guests.1')}</option>
+                        <option value={2}>{t('search.filters.options.guests.2')}</option>
+                        <option value={3}>{t('search.filters.options.guests.3')}</option>
+                        <option value={4}>{t('search.filters.options.guests.4')}</option>
+                        <option value={5}>{t('search.filters.options.guests.5')}</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-navy mb-3">
-                      Minimum Rating
+                      {t('search.filters.minimumRating')}
                     </label>
                     <div className="flex space-x-2">
                       {[0, 3, 4, 4.5].map(rating => (
@@ -309,7 +311,7 @@ const Search: React.FC = () => {
                               : 'bg-white text-charcoal border-gray-300 hover:border-gold'
                           } transition-colors`}
                         >
-                          {rating === 0 ? 'Any' : `${rating}+`}
+                          {rating === 0 ? t('search.filters.options.rating.any') : t(`search.filters.options.rating.${rating}`)}
                         </button>
                       ))}
                     </div>
@@ -317,7 +319,7 @@ const Search: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-navy mb-3">
-                      Amenities
+                      {t('search.filters.amenities')}
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {availableAmenities.map(amenity => (
@@ -340,7 +342,7 @@ const Search: React.FC = () => {
 
               {/* Results Count */}
               <div className="text-sm text-charcoal">
-                {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
+                {t('search.results.count', { count: properties.length})}
               </div>
             </div>
 
@@ -366,8 +368,8 @@ const Search: React.FC = () => {
                 {properties.length === 0 && (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🏠</div>
-                    <h3 className="text-xl font-semibold text-navy mb-2">No properties found</h3>
-                    <p className="text-charcoal">Try adjusting your filters to see more results.</p>
+                    <h3 className="text-xl font-semibold text-navy mb-2">{t('search.results.empty.title')}</h3>
+                    <p className="text-charcoal">{t('search.results.empty.message')}</p>
                   </div>
                 )}
               </div>
@@ -381,9 +383,9 @@ const Search: React.FC = () => {
               <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
                 <div className="text-center p-8">
                   <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">Map Unavailable</h3>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('search.map.unavailable')}</h3>
                   <p className="text-gray-500">
-                    Please add your Mapbox API token to the .env file
+                    {t('search.map.tokenRequired')}
                   </p>
                 </div>
               </div>

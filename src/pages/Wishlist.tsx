@@ -1,24 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Badge } from '../components/ui';
-import { Heart, MapPin, Users, Bed, Bath, Star, X, Calendar } from 'lucide-react';
-import { mockProperties } from '../data/mockData';
+import { Heart, MapPin, Users, Bed, Bath, Star, X } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { getMemberProfile } from '../services/memberService';
+import { getFavoriteProperties } from '../services/propertyService';
+import { supabase } from '../lib/supabase';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
 
 const Wishlist: React.FC = () => {
-  // Mock wishlist - in real app this would come from user preferences
-  const [wishlistItems, setWishlistItems] = useState([
-    mockProperties[0], // Seaside Villa
-    mockProperties[2], // Urban Loft
-    mockProperties[3], // Tropical Beach Bungalow
-    mockProperties[5], // Desert Oasis Villa
-  ]);
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const removeFromWishlist = (propertyId: string) => {
-    setWishlistItems(prev => prev.filter(item => item.id !== propertyId));
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Get member profile to get the MemberId
+        const member = await getMemberProfile(user.id);
+        if (!member) {
+          setError(t('wishlist.errors.unableToLoadMemberProfile'));
+          setLoading(false);
+          return;
+        }
+
+        // Fetch favorite properties
+        const favorites = await getFavoriteProperties(member.id);
+        setWishlistItems(favorites);
+      } catch (err) {
+        console.error('Error fetching favorites:', err);
+        setError(t('wishlist.errors.failedToLoadWishlist'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavorites();
+  }, [user]);
+
+  const removeFromWishlist = async (propertyId: string) => {
+    if (!user) return;
+
+    try {
+      // Get member profile to get the MemberId
+      const member = await getMemberProfile(user.id);
+      if (!member) {
+        console.error(t('wishlist.errors.unableToGetMemberProfile'));
+        return;
+      }
+
+      // Delete from Favorites table
+      const { error } = await supabase
+        .from('Favorites')
+        .delete()
+        .eq('MemberId', member.id)
+        .eq('EstatePropertyId', propertyId);
+
+      if (error) {
+        console.error('Error removing from wishlist:', error);
+        return;
+      }
+
+      // Update local state
+      setWishlistItems(prev => prev.filter(item => item.id !== propertyId));
+    } catch (err) {
+      console.error('Error removing from wishlist:', err);
+    }
   };
 
-  const PropertyCard: React.FC<{ property: typeof mockProperties[0] }> = ({ property }) => (
+  const PropertyCard: React.FC<{ property: any }> = ({ property }) => (
     <Card variant="elevated" className="group overflow-hidden hover:shadow-gold-lg transition-all duration-300">
       {/* Image Container */}
       <div className="relative overflow-hidden">
@@ -34,7 +97,7 @@ const Wishlist: React.FC = () => {
         <button
           onClick={() => removeFromWishlist(property.id)}
           className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-red-50 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-          title="Remove from wishlist"
+          title={t('wishlist.removeFromWishlist')}
         >
           <X className="h-5 w-5 text-gray-600 hover:text-red-600" />
         </button>
@@ -55,7 +118,7 @@ const Wishlist: React.FC = () => {
         {!property.available && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <Badge variant="error" className="text-white font-medium">
-              Unavailable
+              {t('wishlist.unavailable')}
             </Badge>
           </div>
         )}
@@ -116,9 +179,9 @@ const Wishlist: React.FC = () => {
               className="w-8 h-8 rounded-full"
             />
             <div>
-              <p className="text-sm font-medium text-navy">Hosted by {property.host.name}</p>
+              <p className="text-sm font-medium text-navy">{t('wishlist.hostedBy', { hostName: property.host.name })}</p>
               {property.host.verified && (
-                <p className="text-xs text-green-600 font-medium">Verified Host</p>
+                <p className="text-xs text-green-600 font-medium">{t('wishlist.verifiedHost')}</p>
               )}
             </div>
           </div>
@@ -127,7 +190,7 @@ const Wishlist: React.FC = () => {
           <div className="flex space-x-2">
             <Link to={`/checkout/${property.id}`}>
               <Button variant="primary" size="sm" disabled={!property.available}>
-                {property.available ? 'Book Now' : 'Unavailable'}
+                {property.available ? t('wishlist.bookNow') : t('wishlist.unavailable')}
               </Button>
             </Link>
           </div>
@@ -136,6 +199,30 @@ const Wishlist: React.FC = () => {
     </Card>
   );
 
+  if (loading) {
+    return (
+      <Layout>
+        <div className="py-12 px-8">
+          <div className="max-w-7xl mx-auto flex justify-center">
+            <LoadingSpinner />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="py-12 px-8">
+          <div className="max-w-7xl mx-auto">
+            <ErrorMessage message={error} />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="py-12 px-8">
@@ -143,10 +230,10 @@ const Wishlist: React.FC = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl md:text-5xl font-thin text-navy mb-2">
-              My <span className="font-bold text-gold">Wishlist</span>
+              {t('wishlist.my')} <span className="font-bold text-gold">{t('wishlist.wishlistTitle')}</span>
             </h1>
             <p className="text-xl text-charcoal">
-              Your saved properties, ready for your next adventure
+              {t('wishlist.subtitle')}
             </p>
           </div>
 
@@ -155,12 +242,12 @@ const Wishlist: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Heart className="h-5 w-5 text-red-500" />
               <span className="text-lg font-semibold text-navy">
-                {wishlistItems.length} Saved {wishlistItems.length === 1 ? 'Property' : 'Properties'}
+                {t('wishlist.savedProperties', { count: wishlistItems.length })}
               </span>
             </div>
             <div className="h-6 border-l border-gray-300"></div>
             <div className="text-charcoal">
-              Last updated: {new Date().toLocaleDateString('en-US', {
+              {t('wishlist.lastUpdated')}: {new Date().toLocaleDateString('en-US', {
                 month: 'long',
                 day: 'numeric',
                 year: 'numeric'
@@ -172,13 +259,13 @@ const Wishlist: React.FC = () => {
           {wishlistItems.length === 0 ? (
             <Card variant="default" className="p-12 text-center">
               <Heart className="h-16 w-16 text-gold mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-navy mb-2">Your Wishlist is Empty</h3>
+              <h3 className="text-xl font-semibold text-navy mb-2">{t('wishlist.emptyTitle')}</h3>
               <p className="text-charcoal mb-6">
-                Start saving your favorite properties to keep track of places you'd like to visit.
+                {t('wishlist.emptyDescription')}
               </p>
               <Link to="/search">
                 <Button variant="primary">
-                  Explore Properties
+                  {t('wishlist.exploreProperties')}
                 </Button>
               </Link>
             </Card>
@@ -191,69 +278,10 @@ const Wishlist: React.FC = () => {
                 ))}
               </div>
 
-              {/* Wishlist Actions */}
-              <Card variant="default" className="p-6 bg-gradient-to-r from-gold/5 to-navy/5 border-gold/20">
-                <div className="flex flex-col md:flex-row items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-navy mb-2">Ready to Book?</h3>
-                    <p className="text-charcoal">
-                      Turn your wishlist into reality. Contact hosts or proceed with booking for your favorite properties.
-                    </p>
-                  </div>
-                  <div className="flex space-x-3 mt-4 md:mt-0">
-                    <Link to="/trips">
-                      <Button variant="outline">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        View My Trips
-                      </Button>
-                    </Link>
-                    <Link to="/search">
-                      <Button variant="primary">
-                        Find More Properties
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </Card>
             </>
           )}
 
-          {/* Wishlist Tips */}
-          {wishlistItems.length > 0 && (
-            <Card variant="default" className="p-8 mt-8">
-              <h3 className="text-xl font-semibold text-navy mb-4">Wishlist Tips</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium text-navy mb-2">💝 Save Smart</h4>
-                  <p className="text-sm text-charcoal">
-                    Save properties you're genuinely interested in. Use the wishlist to compare options
-                    and track properties that match your preferences.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-navy mb-2">🔔 Get Notified</h4>
-                  <p className="text-sm text-charcoal">
-                    We'll notify you when prices change or when similar properties become available
-                    in your saved destinations.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-navy mb-2">📅 Plan Ahead</h4>
-                  <p className="text-sm text-charcoal">
-                    Check availability and book early. Popular properties fill up quickly,
-                    especially during peak seasons.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-navy mb-2">💬 Ask Questions</h4>
-                  <p className="text-sm text-charcoal">
-                    Don't hesitate to contact hosts with questions about amenities,
-                    local attractions, or any special requirements.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
+          {/* TODO: Implement Wishlist Tips banner when notification system is ready */}
         </div>
       </div>
     </Layout>

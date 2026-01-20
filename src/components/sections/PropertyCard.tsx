@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { MapPin, Users, Bed, Bath, Star, Heart } from 'lucide-react';
 import { Card, Badge } from '../ui';
@@ -15,6 +16,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   onFavorite,
   isFavorite = false
 }) => {
+  const { t } = useTranslation();
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -45,7 +47,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           {/* Price Badge */}
           <div className="absolute top-4 left-4">
             <Badge variant="default" className="bg-navy text-gold font-bold">
-              ${property.price}/night
+              ${property.price}{t('propertyCard.perNight')}
             </Badge>
           </div>
 
@@ -53,7 +55,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           {!property.available && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <Badge variant="error" className="text-white font-medium">
-                Unavailable
+                {t('propertyCard.unavailable')}
               </Badge>
             </div>
           )}
@@ -111,9 +113,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               className="w-8 h-8 rounded-full"
             />
             <div className="flex-1">
-              <p className="text-sm font-medium text-navy">Hosted by {property.host.name}</p>
+              <p className="text-sm font-medium text-navy">{t('propertyCard.hostedBy', { name: property.host.name })}</p>
               {property.host.verified && (
-                <p className="text-xs text-green-600 font-medium">Verified Host</p>
+                <p className="text-xs text-green-600 font-medium">{t('propertyCard.verifiedHost')}</p>
               )}
             </div>
           </div>

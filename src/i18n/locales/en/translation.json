@@ -2,6 +2,7 @@
   "common": {
     "home": "Home",
     "about": "About",
+    "contact": "Contact",
     "search": "Search",
     "login": "Login",
     "register": "Register",
@@ -296,8 +297,10 @@
     },
     "verification": {
       "security": "Security",
-      "emailVerified": "Email Verified",
-      "emailNotVerified": "Email Not Verified",
+      "emailVerifiedText": "Email Verified",
+      "emailVerified": "Yes",
+      "emailNotVerified": "No",
+      "twoFactorEnabledText": "2FA Authentication",
       "twoFactorEnabled": "2FA Enabled",
       "twoFactorDisabled": "2FA Disabled"
     },
@@ -439,5 +442,132 @@
       "rating": "{{rating}} rating",
       "viewProperty": "View Property"
     }
+  },
+  "wishlist": {
+    "errors": {
+      "unableToLoadMemberProfile": "Unable to load member profile",
+      "failedToLoadWishlist": "Failed to load wishlist",
+      "unableToGetMemberProfile": "Unable to get member profile"
+    },
+    "removeFromWishlist": "Remove from wishlist",
+    "unavailable": "Unavailable",
+    "hostedBy": "Hosted by {{hostName}}",
+    "verifiedHost": "Verified Host",
+    "bookNow": "Book Now",
+    "my": "My",
+    "wishlistTitle": "Wishlist",
+    "subtitle": "Your saved properties, ready for your next adventure",
+    "savedProperties": "{{count}} Saved {{count, plural, one {Property} other {Properties}}}",
+    "lastUpdated": "Last updated",
+    "emptyTitle": "Your Wishlist is Empty",
+    "emptyDescription": "Start saving your favorite properties to keep track of places you'd like to visit.",
+    "exploreProperties": "Explore Properties"
+  },
+  "contact": {
+    "title": {
+      "first": "Get in",
+      "second": "Touch"
+    },
+    "subtitle": "Have a question? We'd love to hear from you.",
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNamePlaceholder": "Enter your last name",
+      "emailPlaceholder": "your@email.com",
+      "subjectPlaceholder": "What is this about?",
+      "messagePlaceholder": "Tell us more...",
+      "submit": "Send Message",
+      "sending": "Sending..."
+    },
+    "reasons": {
+      "title": "How can we help?",
+      "support": "General Support",
+      "supportDesc": "Questions about bookings or properties",
+      "technical": "Technical Issues",
+      "technicalDesc": "Report bugs or technical problems",
+      "partnership": "Partnerships",
+      "partnershipDesc": "Business inquiries and collaborations"
+    },
+    "publishBanner": {
+      "title": "Do you have a property to share?",
+      "description": "Join our community of hosts and start earning by sharing your vacation home with travelers around the world.",
+      "button": "Learn More About Hosting"
+    },
+    "success": {
+      "title": "Message Sent!",
+      "message": "Thank you for contacting us. We'll get back to you soon."
+    },
+    "errors": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "subjectRequired": "Subject is required",
+      "messageRequired": "Message is required",
+      "submitFailed": "Failed to send message. Please try again."
+    }
+  },
+  "search": {
+    "header": {
+      "titlePrefix": "Find Your",
+      "titleHighlight": "Perfect Stay",
+      "subtitle": "Discover amazing properties around the world"
+    },
+    "searchPlaceholder": "Search destinations...",
+    "filters": {
+      "button": "Filters",
+      "title": "Filters",
+      "clearAll": "Clear All",
+      "priceRange": "Price Range (per night)",
+      "bedrooms": "Bedrooms",
+      "guests": "Guests",
+      "minimumRating": "Minimum Rating",
+      "amenities": "Amenities",
+      "options": {
+        "any": "Any",
+        "bedrooms": {
+          "1": "1+",
+          "2": "2+",
+          "3": "3+",
+          "4": "4+"
+        },
+        "guests": {
+          "1": "1 guest",
+          "2": "2 guests",
+          "3": "3 guests",
+          "4": "4 guests",
+          "5": "5+ guests"
+        },
+        "rating": {
+          "any": "Any",
+          "3": "3+",
+          "4": "4+",
+          "4.5": "4.5+"
+        }
+      }
+    },
+    "results": {
+      "count": "{{count}} {{count, plural, one {property} other {properties}}} found",
+      "empty": {
+        "title": "No properties found",
+        "message": "Try adjusting your filters to see more results."
+      }
+    },
+    "map": {
+      "unavailable": "Map Unavailable",
+      "tokenRequired": "Please add your Mapbox API token to the .env file",
+      "viewDetails": "View Details",
+      "perNight": "/night"
+    }
+  },
+  "propertyCard": {
+    "perNight": "/night",
+    "unavailable": "Unavailable",
+    "hostedBy": "Hosted by {{name}}",
+    "verifiedHost": "Verified Host"
   }
 }
