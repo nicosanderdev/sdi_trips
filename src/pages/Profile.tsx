@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
-import { Card, Button, Input, Badge } from '../components/ui';
-import { User, Edit2, Save, X, Calendar, MapPin } from 'lucide-react';
+import { Card, Button, Input, Badge, MFAEnrollmentModal, Tooltip } from '../components/ui';
+import { User, Edit2, Save, X, Calendar, MapPin, Shield, ShieldCheck, Info } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { getMemberProfile, updateMemberProfile } from '../services/memberService';
+import { getMemberProfile, updateMemberProfile, uploadProfilePicture, requestEmailChange, verifyEmailChange, requestPhoneChange, verifyPhoneChange, updateMFAStatus } from '../services/memberService';
+import { getUserBookingsCount } from '../services/bookingService';
+import { enrollMFA, verifyMFAEnrollment, listMFAFactors, unenrollMFA } from '../services/mfaService';
+import { Modal, VerificationModal } from '../components/ui';
+import type { MFAFactor, MFAEnrollment } from '../types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import type { User as UserType } from '../types';
@@ -19,6 +23,23 @@ const Profile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [userBookingsCount, setUserBookingsCount] = useState(0);
+  const [accountAge, setAccountAge] = useState('');
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [originalEmail, setOriginalEmail] = useState('');
+  const [showPhoneConfirmation, setShowPhoneConfirmation] = useState(false);
+  const [showPhoneVerification, setShowPhoneVerification] = useState(false);
+  const [pendingPhone, setPendingPhone] = useState('');
+  const [originalPhone, setOriginalPhone] = useState('');
+
+  // MFA state
+  const [mfaFactors, setMfaFactors] = useState<MFAFactor[]>([]);
+  const [mfaEnrollmentData, setMfaEnrollmentData] = useState<MFAEnrollment | null>(null);
+  const [showMFAEnrollment, setShowMFAEnrollment] = useState(false);
+  const [mfaLoading, setMfaLoading] = useState(false);
 
   // Mock bookings for now - will be replaced with real API later
   const userBookings: any[] = [];
@@ -56,6 +77,27 @@ const Profile: React.FC = () => {
           setProfileData(profileInfo);
           setEditData(profileInfo);
           setCurrentUser(memberProfile);
+          setOriginalEmail(memberProfile.email);
+          setOriginalPhone(''); // TODO: Fetch from Members table when phone is added
+
+          // Fetch user bookings count
+          const bookingsCount = await getUserBookingsCount(user.id);
+          setUserBookingsCount(bookingsCount);
+
+          // Calculate account age
+          if (memberProfile.created_at) {
+            const createdDate = new Date(memberProfile.created_at);
+            const now = new Date();
+            const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+            const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365));
+            const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
+
+            if (diffYears >= 1) {
+              setAccountAge(`${diffYears} ${t('profile.profileTab.stats.years').toLowerCase()}`);
+            } else {
+              setAccountAge(`${diffMonths} ${t('profile.profileTab.stats.memberSince').toLowerCase()}`);
+            }
+          }
         } else {
           // User exists but no member profile - this shouldn't happen with the trigger
           setError(t('profile.errors.profileInfoNotFound'));
@@ -71,7 +113,46 @@ const Profile: React.FC = () => {
     fetchProfile();
   }, [user]);
 
+  // Load MFA factors
+  const loadMFAFactors = async () => {
+    if (!user) return;
+
+    try {
+      const factors = await listMFAFactors();
+      setMfaFactors(factors);
+    } catch (error) {
+      console.error('Error loading MFA factors:', error);
+    }
+  };
+
+  // Load MFA factors when component mounts
+  useEffect(() => {
+    if (user) {
+      loadMFAFactors();
+    }
+  }, [user]);
+
   const handleSave = async () => {
+    if (!user) return;
+
+    // Check if email has changed
+    if (editData.email !== originalEmail) {
+      setPendingEmail(editData.email);
+      setShowEmailConfirmation(true);
+      return;
+    }
+
+    // Check if phone has changed and 2FA is enabled
+    if (editData.phone !== originalPhone && mfaFactors.length > 0) {
+      setPendingPhone(editData.phone);
+      setShowPhoneConfirmation(true);
+      return;
+    }
+
+    await performSave();
+  };
+
+  const performSave = async () => {
     if (!user) return;
 
     try {
@@ -86,6 +167,7 @@ const Profile: React.FC = () => {
 
       await updateMemberProfile(user.id, updateData);
       setProfileData(editData);
+      setOriginalEmail(editData.email);
       setIsEditing(false);
       setUpdateSuccess(true);
 
@@ -101,6 +183,153 @@ const Profile: React.FC = () => {
     setEditData(profileData);
     setIsEditing(false);
     setUpdateError(null);
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    try {
+      setIsUploadingPhoto(true);
+      setUpdateError(null);
+
+      const newAvatarUrl = await uploadProfilePicture(user.id, file);
+
+      // Update the current user state with new avatar
+      setCurrentUser(prev => prev ? { ...prev, avatar: newAvatarUrl } : null);
+
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      setUpdateError(error instanceof Error ? error.message : 'Failed to upload profile picture');
+    } finally {
+      setIsUploadingPhoto(false);
+      // Clear the input value to allow re-uploading the same file
+      event.target.value = '';
+    }
+  };
+
+  const handleEmailConfirmation = () => {
+    setShowEmailConfirmation(false);
+    setShowEmailVerification(true);
+  };
+
+  const handleEmailVerification = async (code: string) => {
+    if (!user) return;
+
+    try {
+      await verifyEmailChange(user.id, code);
+      setShowEmailVerification(false);
+      await performSave();
+    } catch (error) {
+      throw error; // Let VerificationModal handle the error
+    }
+  };
+
+  const handleEmailVerificationResend = async () => {
+    if (!user || !pendingEmail) return;
+
+    try {
+      await requestEmailChange(user.id, pendingEmail);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleCancelEmailChange = () => {
+    setShowEmailConfirmation(false);
+    setShowEmailVerification(false);
+    setPendingEmail('');
+    setEditData(prev => ({ ...prev, email: originalEmail }));
+  };
+
+  const handlePhoneConfirmation = () => {
+    setShowPhoneConfirmation(false);
+    setShowPhoneVerification(true);
+  };
+
+  const handlePhoneVerification = async (code: string) => {
+    if (!user) return;
+
+    try {
+      await verifyPhoneChange(user.id, code);
+      setShowPhoneVerification(false);
+      await performSave();
+    } catch (error) {
+      throw error; // Let VerificationModal handle the error
+    }
+  };
+
+  const handlePhoneVerificationResend = async () => {
+    if (!user || !pendingPhone) return;
+
+    try {
+      await requestPhoneChange(user.id, pendingPhone);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleCancelPhoneChange = () => {
+    setShowPhoneConfirmation(false);
+    setShowPhoneVerification(false);
+    setPendingPhone('');
+    setEditData(prev => ({ ...prev, phone: originalPhone }));
+  };
+
+  // MFA handlers
+  const handleEnableMFA = async () => {
+    if (!user) return;
+
+    try {
+      setMfaLoading(true);
+      const enrollment = await enrollMFA();
+      setMfaEnrollmentData(enrollment);
+      setShowMFAEnrollment(true);
+    } catch (error) {
+      console.error('Error starting MFA enrollment:', error);
+      setUpdateError(t('mfa.enrollment.error'));
+    } finally {
+      setMfaLoading(false);
+    }
+  };
+
+  const handleMFAEnrollmentVerify = async (code: string) => {
+    if (!user || !mfaEnrollmentData) return;
+
+    try {
+      await verifyMFAEnrollment(mfaEnrollmentData.id, code);
+      await updateMFAStatus(user.id, true);
+      setShowMFAEnrollment(false);
+      setMfaEnrollmentData(null);
+      await loadMFAFactors();
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleDisableMFA = async (factorId: string) => {
+    if (!user) return;
+
+    const confirmed = window.confirm(t('mfa.management.unenrollConfirm'));
+    if (!confirmed) return;
+
+    try {
+      setMfaLoading(true);
+      await unenrollMFA(factorId);
+      await updateMFAStatus(user.id, false);
+      await loadMFAFactors();
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error disabling MFA:', error);
+      setUpdateError('Failed to disable 2FA. Please try again.');
+    } finally {
+      setMfaLoading(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -190,19 +419,116 @@ const Profile: React.FC = () => {
               {/* Profile Summary Card */}
               <div className="lg:col-span-1">
                 <Card variant="default" className="p-6 text-center">
-                  <img
-                    src={currentUser.avatar}
-                    alt={currentUser.name}
-                    className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-                  />
+                  <div className="relative inline-block mb-4">
+                    <img
+                      src={currentUser.avatar}
+                      alt={currentUser.name}
+                      className="w-24 h-24 rounded-full mx-auto object-cover"
+                    />
+                    {isEditing && (
+                      <>
+                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+                          {isUploadingPhoto ? (
+                            <div className="text-white text-xs">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mx-auto mb-1"></div>
+                              {t('profile.profileTab.uploadPhoto')}
+                            </div>
+                          ) : (
+                            <span className="text-white text-xs font-medium">
+                              {t('profile.profileTab.changePhoto')}
+                            </span>
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          disabled={isUploadingPhoto}
+                        />
+                      </>
+                    )}
+                  </div>
                   <h2 className="text-xl font-semibold text-navy mb-2">
                     {profileData.firstName} {profileData.lastName}
                   </h2>
                   <p className="text-charcoal mb-4">{profileData.location}</p>
 
+                  {/* Verification Status Card */}
+                  <div className="bg-warm-gray rounded-lg pt-4 mb-2">
+                    <h4 className="text-sm font-semibold text-navy mb-3">
+                      {t('profile.verification.security')}
+                    </h4>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-charcoal">
+                        {t('profile.verification.emailVerified')}:
+                      </span>
+                      <Badge
+                        variant={user?.email_confirmed_at ? 'success' : 'warning'}
+                        size="sm"
+                      >
+                        {user?.email_confirmed_at
+                          ? t('profile.verification.emailVerified')
+                          : t('profile.verification.emailNotVerified')
+                        }
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* MFA Management */}
+                  <div className="bg-warm-gray rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <h4 className="text-sm font-semibold text-navy">
+                        Autenticación en dos pasos
+                      </h4>
+                      <Tooltip content={t('mfa.tooltip')}>
+                        <Info className="h-4 w-4 text-gray-500 hover:text-gray-700 cursor-help" />
+                      </Tooltip>
+                    </div>
+                    {mfaFactors.length > 0 ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <ShieldCheck className="h-4 w-4 text-green-600" />
+                            <span className="text-sm text-charcoal">
+                              {t('mfa.management.enrolled')} ({mfaFactors.length})
+                            </span>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDisableMFA(mfaFactors[0].id)}
+                            disabled={mfaLoading}
+                          >
+                            <Shield className="h-4 w-4 mr-2" />
+                            {t('mfa.disable')}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Shield className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-charcoal">
+                            {t('profile.verification.twoFactorDisabled')}
+                          </span>
+                        </div>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={handleEnableMFA}
+                          disabled={mfaLoading}
+                        >
+                          <ShieldCheck className="h-4 w-4 mr-2" />
+                          {mfaLoading ? 'Enabling...' : t('mfa.enable')}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex justify-center space-x-4 text-sm text-charcoal">
                     <div className="text-center">
-                      <div className="font-semibold text-navy">{userBookings.length}</div>
+                      <div className="font-semibold text-navy">{userBookingsCount}</div>
                       <div>{t('profile.profileTab.stats.bookings')}</div>
                     </div>
                     <div className="text-center">
@@ -210,8 +536,8 @@ const Profile: React.FC = () => {
                       <div>{t('profile.profileTab.stats.rating')}</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-semibold text-navy">2</div>
-                      <div>{t('profile.profileTab.stats.years')}</div>
+                      <div className="font-semibold text-navy">{accountAge}</div>
+                      <div>{t('profile.profileTab.stats.memberSince')}</div>
                     </div>
                   </div>
 
@@ -240,11 +566,11 @@ const Profile: React.FC = () => {
                       <div className="flex space-x-2">
                         <Button onClick={handleSave} variant="primary" size="sm">
                           <Save className="h-4 w-4 mr-2" />
-                          Save
+                          {t('profile.profileTab.saveChanges')}
                         </Button>
                         <Button onClick={handleCancel} variant="outline" size="sm">
                           <X className="h-4 w-4 mr-2" />
-                          Cancel
+                          {t('profile.profileTab.cancelEdit')}
                         </Button>
                       </div>
                     )}
@@ -421,6 +747,81 @@ const Profile: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Email Change Confirmation Modal */}
+      <Modal
+        isOpen={showEmailConfirmation}
+        onClose={handleCancelEmailChange}
+        title={t('profile.modals.emailChange.title')}
+      >
+        <div className="space-y-4">
+          <p className="text-charcoal">
+            {t('profile.modals.emailChange.message')} <strong>{pendingEmail}</strong>?
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button variant="outline" onClick={handleCancelEmailChange}>
+              {t('profile.modals.emailChange.cancel')}
+            </Button>
+            <Button onClick={handleEmailConfirmation}>
+              {t('profile.modals.emailChange.confirm')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Email Verification Modal */}
+      <VerificationModal
+        isOpen={showEmailVerification}
+        onClose={handleCancelEmailChange}
+        onVerify={handleEmailVerification}
+        onResend={handleEmailVerificationResend}
+        title={t('profile.modals.verification.emailTitle')}
+        description={t('profile.modals.verification.emailDescription')}
+        targetValue={pendingEmail}
+      />
+
+      {/* Phone Change Confirmation Modal */}
+      <Modal
+        isOpen={showPhoneConfirmation}
+        onClose={handleCancelPhoneChange}
+        title={t('profile.modals.phoneChange.title')}
+      >
+        <div className="space-y-4">
+          <p className="text-charcoal">
+            {t('profile.modals.phoneChange.message')}
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button variant="outline" onClick={handleCancelPhoneChange}>
+              {t('profile.modals.phoneChange.cancel')}
+            </Button>
+            <Button onClick={handlePhoneConfirmation}>
+              {t('profile.modals.phoneChange.confirm')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Phone Verification Modal */}
+      <VerificationModal
+        isOpen={showPhoneVerification}
+        onClose={handleCancelPhoneChange}
+        onVerify={handlePhoneVerification}
+        onResend={handlePhoneVerificationResend}
+        title={t('profile.modals.verification.phoneTitle')}
+        description={t('profile.modals.verification.phoneDescription')}
+        targetValue={pendingPhone}
+      />
+
+      {/* MFA Enrollment Modal */}
+      <MFAEnrollmentModal
+        isOpen={showMFAEnrollment}
+        onClose={() => {
+          setShowMFAEnrollment(false);
+          setMfaEnrollmentData(null);
+        }}
+        enrollmentData={mfaEnrollmentData}
+        onVerify={handleMFAEnrollmentVerify}
+      />
     </Layout>
   );
 };

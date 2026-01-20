@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Search, User, Heart, MessageCircle, Calendar, LogOut, Globe } from 'lucide-react';
+import { Menu, X, Search, User, Heart, MessageCircle, LogOut, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/config';
 import { Button } from '../ui';

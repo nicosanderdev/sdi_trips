@@ -35,6 +35,7 @@ function transformMember(dbMember: DbMember): User {
     email: dbMember.Email || '',
     avatar: dbMember.AvatarUrl || undefined,
     verified: true, // TODO: Implement verification status
+    created_at: dbMember.Created,
   };
 }
 
@@ -109,6 +110,108 @@ export async function createMemberProfile(memberData: CreateMemberData): Promise
 }
 
 /**
+ * Upload profile picture to Supabase storage
+ */
+export async function uploadProfilePicture(userId: string, file: File): Promise<string> {
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    throw new Error('File must be an image');
+  }
+
+  // Validate file size (5MB max)
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('File size must be less than 5MB');
+  }
+
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${userId}/${Date.now()}.${fileExt}`;
+  const filePath = `avatars/${fileName}`;
+
+  // Upload file to Supabase storage
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+  if (uploadError) {
+    console.error('Error uploading profile picture:', uploadError);
+    throw new Error('Failed to upload profile picture');
+  }
+
+  // Get public URL
+  const { data } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+
+  if (!data.publicUrl) {
+    throw new Error('Failed to get public URL for uploaded image');
+  }
+
+  // Update member's avatar URL in database
+  await updateMemberAvatar(data.publicUrl);
+
+  return data.publicUrl;
+}
+
+/**
+ * Request email change verification
+ */
+export async function requestEmailChange(userId: string, newEmail: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('send-email-verification', {
+    body: { userId, newEmail },
+  });
+
+  if (error) {
+    console.error('Error requesting email change:', error);
+    throw new Error(data?.error || 'Failed to send verification email');
+  }
+}
+
+/**
+ * Verify email change code
+ */
+export async function verifyEmailChange(userId: string, code: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('verify-email-code', {
+    body: { userId, code },
+  });
+
+  if (error) {
+    console.error('Error verifying email code:', error);
+    throw new Error(data?.error || 'Failed to verify email');
+  }
+}
+
+/**
+ * Request phone change verification
+ */
+export async function requestPhoneChange(userId: string, newPhone: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('send-phone-verification', {
+    body: { userId, newPhone },
+  });
+
+  if (error) {
+    console.error('Error requesting phone change:', error);
+    throw new Error(data?.error || 'Failed to send verification SMS');
+  }
+}
+
+/**
+ * Verify phone change code
+ */
+export async function verifyPhoneChange(userId: string, code: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('verify-phone-code', {
+    body: { userId, code },
+  });
+
+  if (error) {
+    console.error('Error verifying phone code:', error);
+    throw new Error(data?.error || 'Failed to verify phone number');
+  }
+}
+
+/**
  * Update member avatar using the Supabase function
  */
 export async function updateMemberAvatar(avatarUrl: string): Promise<boolean> {
@@ -144,4 +247,23 @@ export async function getMemberById(memberId: string): Promise<User | null> {
   }
 
   return transformMember(data);
+}
+
+/**
+ * Update MFA status in the Members table
+ */
+export async function updateMFAStatus(userId: string, enabled: boolean): Promise<void> {
+  const { error } = await supabase
+    .from('Members')
+    .update({
+      TwoFactorEnabled: enabled,
+      LastModified: new Date().toISOString(),
+    })
+    .eq('UserId', userId)
+    .eq('IsDeleted', false);
+
+  if (error) {
+    console.error('Error updating MFA status:', error);
+    throw error;
+  }
 }

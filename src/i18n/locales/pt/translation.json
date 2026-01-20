@@ -277,16 +277,54 @@
       "stats": {
         "bookings": "Reservas",
         "rating": "Avaliação",
-        "years": "Anos"
+        "years": "Anos",
+        "memberSince": "Membro Desde"
       },
       "editProfile": "Editar Perfil",
       "profileInformation": "Informações do Perfil",
       "updatedSuccessfully": "Perfil atualizado com sucesso!",
+      "saveChanges": "Salvar Alterações",
+      "cancelEdit": "Cancelar",
+      "uploadPhoto": "Enviar Foto",
+      "changePhoto": "Alterar Foto",
       "form": {
         "phoneNumber": "Número de Telefone",
         "location": "Localização",
         "bio": "Biografia",
         "bioPlaceholder": "Conte-nos sobre você..."
+      }
+    },
+    "verification": {
+      "security": "Segurança",
+      "emailVerified": "E-mail Verificado",
+      "emailNotVerified": "E-mail Não Verificado",
+      "twoFactorEnabled": "2FA Ativado",
+      "twoFactorDisabled": "2FA Desativado"
+    },
+    "modals": {
+      "emailChange": {
+        "title": "Confirmar Alteração de E-mail",
+        "message": "Tem certeza de que deseja alterar seu e-mail para",
+        "confirm": "Confirmar Alteração",
+        "cancel": "Cancelar"
+      },
+      "phoneChange": {
+        "title": "Confirmar Alteração de Telefone",
+        "message": "Alterar seu número de telefone requer atualizar suas configurações de 2FA. Tem certeza de que deseja continuar?",
+        "confirm": "Continuar",
+        "cancel": "Cancelar",
+        "reconfigure2FA": "Gostaria de reconfigurar 2FA com seu novo número?"
+      },
+      "verification": {
+        "emailTitle": "Verificar Novo E-mail",
+        "emailDescription": "Enviamos um código de 6 dígitos para seu novo endereço de e-mail.",
+        "phoneTitle": "Verificar Novo Telefone",
+        "phoneDescription": "Enviamos um código de 6 dígitos para seu novo número de telefone.",
+        "verify": "Verificar",
+        "resend": "Reenviar Código",
+        "resendIn": "Reenviar em {{seconds}}s",
+        "codeExpired": "Código expirado. Por favor solicite um novo.",
+        "invalidCode": "Código de verificação inválido. Por favor tente novamente."
       }
     },
     "bookingsTab": {
@@ -314,6 +352,36 @@
       "profileInfoNotFound": "Informações do perfil não encontradas. Por favor contacte o suporte.",
       "failedToLoad": "Falha ao carregar informações do perfil. Por favor tente novamente.",
       "failedToUpdate": "Falha ao atualizar perfil. Por favor tente novamente."
+    }
+  },
+  "mfa": {
+    "enable": "Ativar 2FA",
+    "disable": "Desativar 2FA",
+    "manage": "Gerenciar 2FA",
+    "tooltip": "Adiciona uma camada extra de segurança ao exigir um código do seu aplicativo autenticador além da sua senha",
+    "enrollment": {
+      "title": "Ativar Autenticação de Dois Fatores",
+      "description": "Escaneie este código QR com seu aplicativo autenticador",
+      "step1": "Baixe um aplicativo autenticador (Google Authenticator, Authy, etc.)",
+      "step2": "Escaneie o código QR com seu aplicativo",
+      "step3": "Digite o código de 6 dígitos do seu aplicativo",
+      "manualEntry": "Ou digite este código manualmente:",
+      "verifyCode": "Verificar Código",
+      "success": "Autenticação de dois fatores ativada com sucesso!",
+      "error": "Falha ao ativar 2FA. Por favor tente novamente."
+    },
+    "verification": {
+      "title": "Autenticação de Dois Fatores",
+      "description": "Digite o código de 6 dígitos do seu aplicativo autenticador",
+      "verify": "Verificar",
+      "invalid": "Código inválido. Por favor tente novamente.",
+      "required": "Verificação 2FA necessária para fazer login"
+    },
+    "management": {
+      "enrolled": "Fatores Registrados",
+      "unenroll": "Remover",
+      "unenrollConfirm": "Tem certeza de que deseja desativar 2FA?",
+      "lastFactor": "Este é seu último fator de autenticação"
     }
   },
   "inbox": {

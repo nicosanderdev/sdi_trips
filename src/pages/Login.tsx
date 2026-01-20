@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
-import { Card, Button, Input } from '../components/ui';
+import { Card, Button, Input, Modal } from '../components/ui';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import ErrorMessage from '../components/common/ErrorMessage';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, verifyMFALogin, cancelMFAChallenge } = useAuth();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
@@ -19,6 +19,10 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showMFAVerification, setShowMFAVerification] = useState(false);
+  const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
+  const [mfaError, setMfaError] = useState<string | null>(null);
+  const [isMFAVerifying, setIsMFAVerifying] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -59,10 +63,13 @@ const Login: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await signIn(formData.email, formData.password);
+      const { error, mfaRequired } = await signIn(formData.email, formData.password);
 
       if (error) {
         setAuthError(error.message || t('auth.errors.loginFailed'));
+      } else if (mfaRequired) {
+        // MFA required, show MFA verification modal
+        setShowMFAVerification(true);
       } else {
         // Login successful, redirect to home
         navigate('/');
@@ -72,6 +79,40 @@ const Login: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleMFAVerify = async () => {
+    const fullCode = mfaCode.join('');
+    if (fullCode.length !== 6) {
+      setMfaError('Please enter the complete 6-digit code');
+      return;
+    }
+
+    setIsMFAVerifying(true);
+    setMfaError(null);
+
+    try {
+      const { error } = await verifyMFALogin(fullCode);
+
+      if (error) {
+        setMfaError(error.message || 'Invalid authentication code');
+      } else {
+        // MFA verification successful, redirect to home
+        setShowMFAVerification(false);
+        navigate('/');
+      }
+    } catch (err) {
+      setMfaError('Verification failed. Please try again.');
+    } finally {
+      setIsMFAVerifying(false);
+    }
+  };
+
+  const handleCancelMFA = () => {
+    setShowMFAVerification(false);
+    setMfaCode(['', '', '', '', '', '']);
+    setMfaError(null);
+    cancelMFAChallenge();
   };
 
   return (
@@ -242,6 +283,78 @@ const Login: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* MFA Verification Modal */}
+      <Modal
+        isOpen={showMFAVerification}
+        onClose={handleCancelMFA}
+        title={t('mfa.verification.title')}
+      >
+        <div className="space-y-6">
+          <div className="text-center">
+            <p className="text-charcoal mb-4">{t('mfa.verification.description')}</p>
+            <p className="text-sm text-gray-500">
+              {t('mfa.verification.required')}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-navy mb-3 text-center">
+              Enter the 6-digit code from your authenticator app
+            </label>
+            <div className="flex justify-center space-x-2">
+              {mfaCode.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => {
+                    const newCode = [...mfaCode];
+                    newCode[index] = e.target.value.replace(/\D/g, '');
+                    setMfaCode(newCode);
+
+                    // Auto-focus next input
+                    if (e.target.value && index < 5) {
+                      const nextInput = document.querySelector(`input[data-index="${index + 1}"]`) as HTMLInputElement;
+                      nextInput?.focus();
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Backspace' && !digit && index > 0) {
+                      const prevInput = document.querySelector(`input[data-index="${index - 1}"]`) as HTMLInputElement;
+                      prevInput?.focus();
+                    }
+                  }}
+                  data-index={index}
+                  className="w-12 h-12 text-center text-xl font-semibold border-2 border-gray-300 rounded-lg focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  disabled={isMFAVerifying}
+                />
+              ))}
+            </div>
+          </div>
+
+          {mfaError && (
+            <div className="text-center">
+              <ErrorMessage message={mfaError} />
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-3">
+            <Button variant="outline" onClick={handleCancelMFA} disabled={isMFAVerifying}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={handleMFAVerify}
+              disabled={mfaCode.join('').length !== 6 || isMFAVerifying}
+            >
+              {isMFAVerifying ? 'Verifying...' : t('mfa.verification.verify')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </Layout>
   );
 };

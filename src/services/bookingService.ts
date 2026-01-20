@@ -524,3 +524,26 @@ export async function getUserBookings(userId: string): Promise<Booking[]> {
     return [];
   }
 }
+
+/**
+ * Get the count of user's bookings (non-deleted)
+ */
+export async function getUserBookingsCount(userId: string): Promise<number> {
+  try {
+    const { count, error } = await supabase
+      .from('Bookings')
+      .select('Id', { count: 'exact', head: true })
+      .eq('MemberId', userId)
+      .eq('IsDeleted', false);
+
+    if (error) {
+      console.error('Error fetching user bookings count:', error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error('Failed to fetch user bookings count:', error);
+    return 0;
+  }
+}

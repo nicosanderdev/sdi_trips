@@ -197,6 +197,7 @@ export interface Database {
           Phone: string | null;
           Role: string | null;
           Email: string | null;
+          TwoFactorEnabled: boolean;
         };
         Insert: {
           Id?: string;
@@ -220,6 +221,7 @@ export interface Database {
           Phone?: string | null;
           Role?: string | null;
           Email?: string | null;
+          TwoFactorEnabled?: boolean;
         };
         Update: {
           Id?: string;
@@ -243,6 +245,7 @@ export interface Database {
           Phone?: string | null;
           Role?: string | null;
           Email?: string | null;
+          TwoFactorEnabled?: boolean;
         };
       };
       EstatePropertyAmenity: {

@@ -76,6 +76,7 @@ export interface User {
   email: string;
   avatar?: string;
   verified: boolean;
+  created_at?: string;
 }
 
 export interface Booking {
@@ -151,4 +152,29 @@ export interface PropertyThread {
   propertyId: string;
   messages: PropertyMessage[];
   lastMessageAt: string;
+}
+
+// MFA types
+export interface MFAFactor {
+  id: string;
+  type: 'totp';
+  friendlyName: string;
+  status: 'verified' | 'unverified';
+  createdAt: string;
+}
+
+export interface MFAEnrollment {
+  id: string;
+  type: 'totp';
+  totp: {
+    qr_code: string;
+    secret: string;
+    uri: string;
+  };
+}
+
+export interface MFAChallenge {
+  id: string;
+  factorId: string;
+  expiresAt: number;
 }
