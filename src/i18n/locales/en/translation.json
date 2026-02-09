@@ -199,6 +199,138 @@
       "reply": "Reply",
       "reserveNow": "Reserve Now"
     },
+    "heroGallery": {
+      "imageCounter": "{{current}} of {{total}}",
+      "viewAllPhotos": "View all photos"
+    },
+    "propertyIdentity": {
+      "defaultSubtitle": "A welcoming home in a great location",
+      "walkingDistance": "{{minutes}}-minute walk to {{location}}",
+      "guests": "{{count}} guests",
+      "bedrooms": "{{count}} bedrooms",
+      "bathrooms": "{{count}} bathrooms"
+    },
+    "trustSignals": {
+      "verifiedBy": "Verified by {{platform}}",
+      "propertyVerified": "Property verified in person",
+      "identityConfirmed": "Identity confirmed",
+      "ownerOccupied": "Owner-occupied home",
+      "localResident": "Local resident",
+      "verificationDescription": "This property has been personally verified by our local team",
+      "learnMore": "How we verify properties",
+      "hostSince": "{{name}} has been welcoming guests since {{year}}"
+    },
+    "description": {
+      "heading": "About this home",
+      "fallback": "This property offers a comfortable and welcoming stay in a great location."
+    },
+    "attributes": {
+      "heading": "What you'll find here",
+      "sleeping": {
+        "title": "Sleeping arrangements",
+        "description": "{{bedrooms}} bedrooms with comfortable beds"
+      },
+      "bathrooms": {
+        "title": "Bathrooms",
+        "description": "{{count}} full bathrooms",
+        "essentials": "Fresh towels and essentials provided"
+      },
+      "kitchen": {
+        "title": "Fully equipped kitchen",
+        "description": "Everything you need to cook, plus coffee and basics"
+      },
+      "comfort": {
+        "title": "Air conditioning",
+        "description": "Throughout the home"
+      },
+      "wifi": {
+        "title": "Fast WiFi",
+        "description": "Great for remote work"
+      },
+      "outdoor": {
+        "title": "Outdoor space",
+        "descriptionDefault": "Private outdoor area perfect for relaxing"
+      }
+    },
+    "detailSections": {
+      "homeLayout": {
+        "heading": "Home layout",
+        "default": "The main living area opens to the kitchen, making it easy to gather. The bedrooms are quiet and comfortable, perfect for rest after a day exploring."
+      },
+      "outdoorAreas": {
+        "heading": "Outdoor areas",
+        "default": "The back deck gets morning sun - perfect for breakfast outside. There's a shaded area in the afternoon for reading and relaxing."
+      },
+      "neighborhood": {
+        "heading": "Neighborhood & surroundings",
+        "walkingTime": "{{minutes}}-minute walk",
+        "default": "This is a quiet residential neighborhood, family-friendly and close to local shops and restaurants. The area has a peaceful, welcoming atmosphere."
+      }
+    },
+    "secondaryGallery": {
+      "heading": "More photos"
+    },
+    "amenities": {
+      "heading": "Amenities & what's included",
+      "empty": "Standard amenities included",
+      "categories": {
+        "kitchen": "Kitchen",
+        "bathroom": "Bathroom",
+        "bedroom": "Bedroom",
+        "entertainment": "Entertainment",
+        "outdoor": "Outdoor"
+      }
+    },
+    "policies": {
+      "heading": "Policies & house guidelines",
+      "checkIn": {
+        "title": "Check-in & Check-out",
+        "times": "Check in after {{time}}, check out by {{time}}",
+        "flexible": "Flexible timing? Just ask - we'll try to accommodate"
+      },
+      "cancellation": {
+        "title": "Cancellation policy",
+        "free": "Free cancellation up to {{days}} days before arrival",
+        "refund": "Full refund, no questions asked"
+      },
+      "houseRules": {
+        "title": "House guidelines",
+        "quiet": "Please respect quiet hours in this residential neighborhood",
+        "smoking": "No smoking inside, outdoor areas are fine"
+      },
+      "children": {
+        "title": "Children & Pets",
+        "childrenWelcome": "Children welcome",
+        "petsPolicy": "Sorry, no pets - allergies"
+      }
+    },
+    "reviews": {
+      "heading": "Reviews",
+      "noReviews": "No reviews yet",
+      "ratingCount": "{{rating}} · {{count}} reviews"
+    },
+    "cta": {
+      "checkAvailability": "Check Availability",
+      "askAboutDates": "Ask About Dates",
+      "contactHost": "Questions? Message {{name}} directly",
+      "pricePerNight": "{{price}} per night",
+      "confirmWithHost": "You'll confirm details with {{name}} before finalizing",
+      "noPaymentYet": "No payment until booking is confirmed",
+      "sendMessage": "Send {{name}} a Message"
+    },
+    "host": {
+      "heading": "Meet your host",
+      "defaultName": "Host",
+      "bioDefault": "I love sharing my home with travelers and helping them discover the best of our local area.",
+      "responseTime": "Usually responds within {{hours}} hours",
+      "sendMessage": "Send Message"
+    },
+    "trustFooter": {
+      "heading": "How we verify properties",
+      "description": "Every home on our platform is verified by a local team member before listing. We visit in person, confirm ownership, and ensure accuracy.",
+      "learnMore": "Read our full trust & quality standards",
+      "support": "Questions about this property? Contact our support team"
+    },
     "sections": {
       "about": "About this place",
       "amenities": "What this place offers",

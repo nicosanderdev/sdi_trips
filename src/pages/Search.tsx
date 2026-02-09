@@ -204,7 +204,7 @@ const Search: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-white">
+      <div className="bg-white">
         {/* Header */}
         <div className="bg-navy text-white py-6">
           <div className="max-w-7xl mx-auto px-8">

@@ -199,6 +199,138 @@
       "reply": "Responder",
       "reserveNow": "Reservar Agora"
     },
+    "heroGallery": {
+      "imageCounter": "{{current}} de {{total}}",
+      "viewAllPhotos": "Ver todas as fotos"
+    },
+    "propertyIdentity": {
+      "defaultSubtitle": "Uma casa acolhedora em uma ótima localização",
+      "walkingDistance": "{{minutes}} minutos a pé até {{location}}",
+      "guests": "{{count}} hóspedes",
+      "bedrooms": "{{count}} quartos",
+      "bathrooms": "{{count}} banheiros"
+    },
+    "trustSignals": {
+      "verifiedBy": "Verificado por {{platform}}",
+      "propertyVerified": "Propriedade verificada pessoalmente",
+      "identityConfirmed": "Identidade confirmada",
+      "ownerOccupied": "Casa do proprietário",
+      "localResident": "Residente local",
+      "verificationDescription": "Esta propriedade foi verificada pessoalmente pela nossa equipe local",
+      "learnMore": "Como verificamos as propriedades",
+      "hostSince": "{{name}} recebe hóspedes desde {{year}}"
+    },
+    "description": {
+      "heading": "Sobre esta casa",
+      "fallback": "Esta propriedade oferece uma estadia confortável e acolhedora em uma ótima localização."
+    },
+    "attributes": {
+      "heading": "O que você encontrará aqui",
+      "sleeping": {
+        "title": "Quartos",
+        "description": "{{bedrooms}} quartos com camas confortáveis"
+      },
+      "bathrooms": {
+        "title": "Banheiros",
+        "description": "{{count}} banheiros completos",
+        "essentials": "Toalhas e itens essenciais fornecidos"
+      },
+      "kitchen": {
+        "title": "Cozinha totalmente equipada",
+        "description": "Tudo que você precisa para cozinhar, mais café e básicos"
+      },
+      "comfort": {
+        "title": "Ar condicionado",
+        "description": "Por toda a casa"
+      },
+      "wifi": {
+        "title": "WiFi rápido",
+        "description": "Ótimo para trabalho remoto"
+      },
+      "outdoor": {
+        "title": "Espaço ao ar livre",
+        "descriptionDefault": "Área externa privada perfeita para relaxar"
+      }
+    },
+    "detailSections": {
+      "homeLayout": {
+        "heading": "Layout da casa",
+        "default": "A área de convivência principal abre para a cozinha, facilitando a reunião. Os quartos são tranquilos e confortáveis, perfeitos para descansar após um dia explorando."
+      },
+      "outdoorAreas": {
+        "heading": "Áreas externas",
+        "default": "O deck dos fundos recebe sol pela manhã - perfeito para café da manhã ao ar livre. Há uma área sombreada à tarde para leitura e relaxamento."
+      },
+      "neighborhood": {
+        "heading": "Vizinhança e arredores",
+        "walkingTime": "{{minutes}} minutos a pé",
+        "default": "Esta é uma vizinhança residencial tranquila, familiar e próxima a lojas e restaurantes locais. A área tem uma atmosfera pacífica e acolhedora."
+      }
+    },
+    "secondaryGallery": {
+      "heading": "Mais fotos"
+    },
+    "amenities": {
+      "heading": "Comodidades e o que está incluído",
+      "empty": "Comodidades padrão incluídas",
+      "categories": {
+        "kitchen": "Cozinha",
+        "bathroom": "Banheiro",
+        "bedroom": "Quarto",
+        "entertainment": "Entretenimento",
+        "outdoor": "Exterior"
+      }
+    },
+    "policies": {
+      "heading": "Políticas e regras da casa",
+      "checkIn": {
+        "title": "Check-in e Check-out",
+        "times": "Check-in após {{time}}, check-out até {{time}}",
+        "flexible": "Horários flexíveis? Basta perguntar - tentaremos acomodar"
+      },
+      "cancellation": {
+        "title": "Política de cancelamento",
+        "free": "Cancelamento gratuito até {{days}} dias antes da chegada",
+        "refund": "Reembolso total, sem perguntas"
+      },
+      "houseRules": {
+        "title": "Regras da casa",
+        "quiet": "Por favor respeite o horário de silêncio nesta vizinhança residencial",
+        "smoking": "Não fumar dentro, áreas externas são permitidas"
+      },
+      "children": {
+        "title": "Crianças e animais",
+        "childrenWelcome": "Crianças bem-vindas",
+        "petsPolicy": "Desculpe, não aceitamos animais - alergias"
+      }
+    },
+    "reviews": {
+      "heading": "Avaliações",
+      "noReviews": "Ainda não há avaliações",
+      "ratingCount": "{{rating}} · {{count}} avaliações"
+    },
+    "cta": {
+      "checkAvailability": "Verificar disponibilidade",
+      "askAboutDates": "Consultar datas",
+      "contactHost": "Dúvidas? Mande mensagem diretamente para {{name}}",
+      "pricePerNight": "{{price}} por noite",
+      "confirmWithHost": "Você confirmará os detalhes com {{name}} antes de finalizar",
+      "noPaymentYet": "Sem pagamento até a reserva ser confirmada",
+      "sendMessage": "Enviar mensagem para {{name}}"
+    },
+    "host": {
+      "heading": "Conheça seu anfitrião",
+      "defaultName": "Anfitrião",
+      "bioDefault": "Adoro compartilhar minha casa com viajantes e ajudá-los a descobrir o melhor da nossa região.",
+      "responseTime": "Geralmente responde em {{hours}} horas",
+      "sendMessage": "Enviar mensagem"
+    },
+    "trustFooter": {
+      "heading": "Como verificamos as propriedades",
+      "description": "Cada casa em nossa plataforma é verificada por um membro da equipe local antes de ser publicada. Visitamos pessoalmente, confirmamos a propriedade e garantimos precisão.",
+      "learnMore": "Leia nossos padrões de confiança e qualidade",
+      "support": "Dúvidas sobre esta propriedade? Entre em contato com nossa equipe de suporte"
+    },
     "sections": {
       "about": "Sobre este lugar",
       "amenities": "O que este lugar oferece",
