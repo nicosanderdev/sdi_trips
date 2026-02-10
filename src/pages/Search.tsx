@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
@@ -7,7 +7,20 @@ import PropertyCard from '../components/sections/PropertyCard';
 import { searchProperties } from '../services/propertyService';
 import type { Property } from '../types';
 import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
+import uyCitiesData from '../data/uy-cities.json';
 import 'mapbox-gl/dist/mapbox-gl.css';
+
+const DEBOUNCE_MS = 450;
+const UY_CITIES_MAX_SUGGESTIONS = 10;
+
+interface UyCity {
+  name: string;
+  lat: string;
+  long: string;
+  zoom: string;
+}
+
+const uyCities: UyCity[] = uyCitiesData as UyCity[];
 
 interface SearchFilters {
   priceRange: [number, number];
@@ -36,12 +49,15 @@ const Search: React.FC = () => {
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [mapViewport] = useState({
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [mapViewport, setMapViewport] = useState({
     latitude: -30.901139,
     longitude: -55.543487,
     zoom: 12,
   });
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Initialize mapbox
   useEffect(() => {
@@ -52,29 +68,112 @@ const Search: React.FC = () => {
 
   const propertyRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
-  // Fetch properties based on current filters
-  const fetchProperties = async () => {
-    try {
-      const searchFilters = {
-        priceRange: filters.priceRange,
-        bedrooms: filters.bedrooms > 0 ? filters.bedrooms : undefined,
-        guests: filters.guests > 0 ? filters.guests : undefined,
-        amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
-        location: searchQuery || undefined,
-      };
+  // Debounce search query
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
 
-      const result = await searchProperties(searchFilters, 1, 50);
-      setProperties(result.properties);
-    } catch (err) {
-      console.error('Error fetching properties:', err);
-      setProperties([]);
-    }
-  };
+  function findExactCityMatch(query: string): UyCity | undefined {
+    const q = query.trim().toLowerCase();
+    return uyCities.find((c) => c.name.toLowerCase() === q);
+  }
 
-  // Fetch properties when filters change
+  // Fetch properties based on current filters (optional override for immediate apply on city select)
+  const fetchProperties = useCallback(
+    async (overrideLocation?: string) => {
+      const locationToUse = overrideLocation ?? debouncedSearchQuery;
+      try {
+        const searchFilters = {
+          priceRange: filters.priceRange,
+          bedrooms: filters.bedrooms > 0 ? filters.bedrooms : undefined,
+          guests: filters.guests > 0 ? filters.guests : undefined,
+          amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
+          location: locationToUse || undefined,
+        };
+
+        const result = await searchProperties(searchFilters, 1, 50);
+        setProperties(result.properties);
+      } catch (err) {
+        console.error('Error fetching properties:', err);
+        setProperties([]);
+      }
+    },
+    [filters, debouncedSearchQuery]
+  );
+
+  // Fetch properties when debounced location or filters change
   useEffect(() => {
     fetchProperties();
-  }, [filters, searchQuery]);
+  }, [fetchProperties]);
+
+  // When debounced query is set and not from list, geocode and move map
+  useEffect(() => {
+    const q = debouncedSearchQuery.trim();
+    if (!q || !mapboxToken) return;
+    const exactMatch = findExactCityMatch(q);
+    if (exactMatch) return; // use list coordinates only on explicit select; debounced flow doesn't set viewport for list matches
+
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${mapboxToken}&country=UY`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        const feature = data.features?.[0];
+        if (feature?.center && Array.isArray(feature.center)) {
+          const [lng, lat] = feature.center;
+          setMapViewport((prev) => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng,
+            zoom: 12,
+          }));
+        }
+      })
+      .catch((err) => console.error('Geocoding error:', err));
+  }, [debouncedSearchQuery, mapboxToken]);
+
+  // Filtered Uruguay cities for autocomplete
+  const filteredCities = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return uyCities
+      .filter((c) => c.name.toLowerCase().includes(q))
+      .slice(0, UY_CITIES_MAX_SUGGESTIONS);
+  }, [searchQuery]);
+
+  const handleSelectCity = useCallback(
+    (city: UyCity) => {
+      setSearchQuery(city.name);
+      setMapViewport({
+        latitude: parseFloat(city.lat),
+        longitude: parseFloat(city.long),
+        zoom: parseInt(city.zoom, 10),
+      });
+      setShowSuggestions(false);
+      fetchProperties(city.name);
+    },
+    [fetchProperties]
+  );
+
+  // Click outside and Escape to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowSuggestions(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Get available amenities from current properties
   const availableAmenities = useMemo(() => {
@@ -221,7 +320,7 @@ const Search: React.FC = () => {
             {/* Search & Filter Bar */}
             <div className="p-6 border-b border-gray-200 bg-white">
               <div className="flex items-center space-x-4 mb-4">
-                <div className="flex-1 relative">
+                <div ref={searchContainerRef} className="flex-1 relative">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400">
                     <SearchIcon className="h-full w-full" />
                   </div>
@@ -229,8 +328,29 @@ const Search: React.FC = () => {
                     placeholder={t('search.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(value) => setSearchQuery(value)}
+                    onFocus={() => setShowSuggestions(true)}
                     className="pl-10"
                   />
+                  {showSuggestions && searchQuery.length >= 1 && filteredCities.length > 0 && (
+                    <ul
+                      className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                      role="listbox"
+                    >
+                      {filteredCities.map((city) => (
+                        <li
+                          key={city.name}
+                          role="option"
+                          className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-gray-100 border-b border-gray-100 last:border-0"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSelectCity(city);
+                          }}
+                        >
+                          {city.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <Button
                   variant={showFilters ? "primary" : "outline"}
@@ -339,11 +459,6 @@ const Search: React.FC = () => {
                   </div>
                 </Card>
               )}
-
-              {/* Results Count */}
-              <div className="text-sm text-charcoal">
-                {t('search.results.count', { count: properties.length})}
-              </div>
             </div>
 
             {/* Properties List */}

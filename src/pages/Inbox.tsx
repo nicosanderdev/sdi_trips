@@ -97,7 +97,7 @@ const Inbox: React.FC = () => {
                 <Star className="h-3 w-3 fill-gold text-gold" />
                 <span>{conversation.property.rating}</span>
               </div>
-              <div className="text-gold font-medium">
+              <div className="text-blue-950 font-medium">
                 ${conversation.property.price}/night
               </div>
             </div>
@@ -166,8 +166,8 @@ const Inbox: React.FC = () => {
                 {/* Stats */}
                 <div className="p-4 bg-warm-gray border-t border-gray-100">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-charcoal">{t('inbox.totalConversations')}</span>
-                    <Badge variant="default" className="bg-gold text-navy">
+                    <span>{t('inbox.totalConversations')}</span>
+                    <Badge variant="default" className="text-white">
                       {conversations.length}
                     </Badge>
                   </div>

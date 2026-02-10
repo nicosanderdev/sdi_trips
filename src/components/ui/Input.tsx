@@ -6,6 +6,7 @@ const Input: React.FC<InputProps> = ({
   placeholder,
   value,
   onChange,
+  onFocus,
   error,
   label,
   required = false,
@@ -33,6 +34,7 @@ const Input: React.FC<InputProps> = ({
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
+        onFocus={onFocus}
         disabled={disabled}
         required={required}
         className={inputClasses}

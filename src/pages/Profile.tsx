@@ -546,18 +546,6 @@ const Profile: React.FC = () => {
                       <div>{t('profile.profileTab.stats.memberSince')}</div>
                     </div>
                   </div>
-
-                  {!isEditing && (
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="outline"
-                      size="sm"
-                      className="mt-6"
-                    >
-                      <Edit2 className="h-4 w-4 mr-2" />
-                      {t('profile.profileTab.editProfile')}
-                    </Button>
-                  )}
                 </Card>
               </div>
 
@@ -568,18 +556,29 @@ const Profile: React.FC = () => {
                     <h3 className="text-2xl font-semibold text-navy">
                       {isEditing ? t('profile.profileTab.editProfile') : t('profile.profileTab.profileInformation')}
                     </h3>
-                    {isEditing && (
-                      <div className="flex space-x-2">
-                        <Button onClick={handleSave} variant="primary" size="sm">
-                          <Save className="h-4 w-4 mr-2" />
-                          {t('profile.profileTab.saveChanges')}
+                    <div className="flex items-center space-x-2">
+                      {isEditing ? (
+                        <>
+                          <Button onClick={handleSave} variant="primary" size="sm">
+                            <Save className="h-4 w-4 mr-2" />
+                            {t('profile.profileTab.saveChanges')}
+                          </Button>
+                          <Button onClick={handleCancel} variant="outline" size="sm">
+                            <X className="h-4 w-4 mr-2" />
+                            {t('profile.profileTab.cancelEdit')}
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          onClick={() => setIsEditing(true)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          {t('profile.profileTab.editProfile')}
                         </Button>
-                        <Button onClick={handleCancel} variant="outline" size="sm">
-                          <X className="h-4 w-4 mr-2" />
-                          {t('profile.profileTab.cancelEdit')}
-                        </Button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   {/* Success/Error Messages */}

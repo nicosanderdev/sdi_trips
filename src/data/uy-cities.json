@@ -1,0 +1,68 @@
+[
+    { "name": "Artigas, Uruguay", "lat": "-30.6000", "long": "-56.8000", "zoom": "9" },
+    { "name": "Artigas, Artigas, Uruguay", "lat": "-30.4043", "long": "-56.4693", "zoom": "13" },
+    { "name": "Bella Unión, Artigas, Uruguay", "lat": "-30.2500", "long": "-57.6000", "zoom": "13" },
+  
+    { "name": "Canelones, Uruguay", "lat": "-34.5228", "long": "-55.9185", "zoom": "9" },
+    { "name": "Canelones, Canelones, Uruguay", "lat": "-34.5238", "long": "-56.2822", "zoom": "13" },
+    { "name": "Ciudad de la Costa, Canelones, Uruguay", "lat": "-34.8250", "long": "-55.9500", "zoom": "13" },
+    { "name": "Las Piedras, Canelones, Uruguay", "lat": "-34.7302", "long": "-56.2192", "zoom": "13" },
+  
+    { "name": "Cerro Largo, Uruguay", "lat": "-32.3667", "long": "-54.1667", "zoom": "9" },
+    { "name": "Melo, Cerro Largo, Uruguay", "lat": "-32.3682", "long": "-54.1641", "zoom": "13" },
+    { "name": "Río Branco, Cerro Largo, Uruguay", "lat": "-32.5900", "long": "-53.3800", "zoom": "13" },
+  
+    { "name": "Colonia, Uruguay", "lat": "-34.2000", "long": "-57.7000", "zoom": "9" },
+    { "name": "Colonia del Sacramento, Colonia, Uruguay", "lat": "-34.4626", "long": "-57.8398", "zoom": "13" },
+    { "name": "Carmelo, Colonia, Uruguay", "lat": "-34.0000", "long": "-58.2833", "zoom": "13" },
+  
+    { "name": "Durazno, Uruguay", "lat": "-33.0000", "long": "-56.0000", "zoom": "9" },
+    { "name": "Durazno, Durazno, Uruguay", "lat": "-33.3806", "long": "-56.5231", "zoom": "13" },
+  
+    { "name": "Flores, Uruguay", "lat": "-33.5000", "long": "-56.8000", "zoom": "9" },
+    { "name": "Trinidad, Flores, Uruguay", "lat": "-33.5167", "long": "-56.9000", "zoom": "13" },
+  
+    { "name": "Florida, Uruguay", "lat": "-33.8000", "long": "-55.9000", "zoom": "9" },
+    { "name": "Florida, Florida, Uruguay", "lat": "-34.1003", "long": "-56.2148", "zoom": "13" },
+  
+    { "name": "Lavalleja, Uruguay", "lat": "-34.0000", "long": "-55.0000", "zoom": "9" },
+    { "name": "Minas, Lavalleja, Uruguay", "lat": "-34.3759", "long": "-55.2377", "zoom": "13" },
+  
+    { "name": "Maldonado, Uruguay", "lat": "-34.7000", "long": "-54.8000", "zoom": "9" },
+    { "name": "Maldonado, Maldonado, Uruguay", "lat": "-34.8979", "long": "-54.9502", "zoom": "13" },
+    { "name": "Punta del Este, Maldonado, Uruguay", "lat": "-34.9667", "long": "-54.9333", "zoom": "13" },
+  
+    { "name": "Montevideo, Uruguay", "lat": "-34.8333", "long": "-56.1667", "zoom": "9" },
+    { "name": "Montevideo, Montevideo, Uruguay", "lat": "-34.9033", "long": "-56.1882", "zoom": "13" },
+  
+    { "name": "Paysandú, Uruguay", "lat": "-32.0000", "long": "-57.5000", "zoom": "9" },
+    { "name": "Paysandú, Paysandú, Uruguay", "lat": "-32.3171", "long": "-58.0807", "zoom": "13" },
+  
+    { "name": "Río Negro, Uruguay", "lat": "-32.7000", "long": "-57.5000", "zoom": "9" },
+    { "name": "Fray Bentos, Río Negro, Uruguay", "lat": "-33.1165", "long": "-58.3107", "zoom": "13" },
+    { "name": "Young, Río Negro, Uruguay", "lat": "-32.6833", "long": "-57.6333", "zoom": "13" },
+  
+    { "name": "Rivera, Uruguay", "lat": "-31.5000", "long": "-55.1000", "zoom": "9" },
+    { "name": "Rivera, Rivera, Uruguay", "lat": "-30.9053", "long": "-55.5508", "zoom": "13" },
+  
+    { "name": "Rocha, Uruguay", "lat": "-34.0000", "long": "-54.0000", "zoom": "9" },
+    { "name": "Rocha, Rocha, Uruguay", "lat": "-34.4833", "long": "-54.3333", "zoom": "13" },
+    { "name": "La Paloma, Rocha, Uruguay", "lat": "-34.6500", "long": "-54.1667", "zoom": "13" },
+  
+    { "name": "Salto, Uruguay", "lat": "-31.3000", "long": "-57.1000", "zoom": "9" },
+    { "name": "Salto, Salto, Uruguay", "lat": "-31.3881", "long": "-57.9598", "zoom": "13" },
+  
+    { "name": "San José, Uruguay", "lat": "-34.3000", "long": "-56.7000", "zoom": "9" },
+    { "name": "San José de Mayo, San José, Uruguay", "lat": "-34.3375", "long": "-56.7136", "zoom": "13" },
+  
+    { "name": "Soriano, Uruguay", "lat": "-33.5000", "long": "-57.8000", "zoom": "9" },
+    { "name": "Mercedes, Soriano, Uruguay", "lat": "-33.2524", "long": "-58.0305", "zoom": "13" },
+    { "name": "Dolores, Soriano, Uruguay", "lat": "-33.5333", "long": "-58.2167", "zoom": "13" },
+  
+    { "name": "Tacuarembó, Uruguay", "lat": "-32.0000", "long": "-55.5000", "zoom": "9" },
+    { "name": "Tacuarembó, Tacuarembó, Uruguay", "lat": "-31.7188", "long": "-55.9793", "zoom": "13" },
+    { "name": "Paso de los Toros, Tacuarembó, Uruguay", "lat": "-32.8167", "long": "-56.5167", "zoom": "13" },
+  
+    { "name": "Treinta y Tres, Uruguay", "lat": "-33.0000", "long": "-54.2000", "zoom": "9" },
+    { "name": "Treinta y Tres, Treinta y Tres, Uruguay", "lat": "-33.2333", "long": "-54.3833", "zoom": "13" }
+  ]
