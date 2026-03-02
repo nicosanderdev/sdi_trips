@@ -359,6 +359,12 @@
       "learnMore": "Read our full trust & quality standards",
       "support": "Questions about this property? Contact our support team"
     },
+    "bookingRequirements": {
+      "heading": "Complete your account to book",
+      "description": "To request a stay, please verify your email and confirm your phone number in your profile.",
+      "cta": "Go to profile",
+      "error": "You need a verified email and confirmed phone number before booking."
+    },
     "sections": {
       "about": "About this place",
       "amenities": "What this place offers",
@@ -463,6 +469,14 @@
       "twoFactorEnabledText": "2FA Authentication",
       "twoFactorEnabled": "2FA Enabled",
       "twoFactorDisabled": "2FA Disabled"
+    },
+    "bookingRequirements": {
+      "heading": "Complete your account to book stays",
+      "description": "You’ll need a verified email and confirmed phone number before you can request a booking.",
+      "emailOk": "Email verified",
+      "emailMissing": "Email not verified",
+      "phoneOk": "Phone number added",
+      "phoneMissing": "Phone number missing"
     },
     "modals": {
       "emailChange": {

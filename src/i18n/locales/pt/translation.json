@@ -336,6 +336,12 @@
       "learnMore": "Leia nossos padrões de confiança e qualidade",
       "support": "Dúvidas sobre esta propriedade? Entre em contato com nossa equipe de suporte"
     },
+    "bookingRequirements": {
+      "heading": "Complete sua conta para reservar",
+      "description": "Para solicitar uma estadia, verifique seu e-mail e confirme seu número de telefone no seu perfil.",
+      "cta": "Ir para o perfil",
+      "error": "Você precisa de um e-mail verificado e um telefone confirmado antes de reservar."
+    },
     "sections": {
       "about": "Sobre este lugar",
       "amenities": "O que este lugar oferece",
@@ -440,6 +446,14 @@
       "twoFactorEnabledText": "Autenticação em dois passos",
       "twoFactorEnabled": "2FA Ativado",
       "twoFactorDisabled": "2FA Desativado"
+    },
+    "bookingRequirements": {
+      "heading": "Complete sua conta para reservar estadias",
+      "description": "Você precisará de um e-mail verificado e de um número de telefone confirmado antes de poder solicitar uma reserva.",
+      "emailOk": "E-mail verificado",
+      "emailMissing": "E-mail não verificado",
+      "phoneOk": "Telefone adicionado",
+      "phoneMissing": "Telefone ausente"
     },
     "modals": {
       "emailChange": {

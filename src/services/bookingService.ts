@@ -8,6 +8,7 @@ export interface CreateBookingParams {
   checkOut: Date;
   guests: number;
   totalPrice: number;
+  notes?: string;
 }
 
 export interface BookingResponse {
@@ -47,7 +48,7 @@ export async function checkPropertyHasCalendarSync(propertyId: string): Promise<
  * Create a new booking with appropriate status based on calendar sync
  */
 export async function createBooking(params: CreateBookingParams): Promise<BookingResponse> {
-  const { propertyId, userId, checkIn, checkOut, guests, totalPrice } = params;
+  const { propertyId, userId, checkIn, checkOut, guests, totalPrice, notes } = params;
 
   try {
     // Check if property has calendar sync
@@ -67,6 +68,7 @@ export async function createBooking(params: CreateBookingParams): Promise<Bookin
         CheckOutDate: checkOut.toISOString(),
         NumberOfGuests: guests,
         TotalPrice: totalPrice,
+        Notes: notes,
         Status: status,
         Created: new Date().toISOString(),
         CreatedBy: userId,

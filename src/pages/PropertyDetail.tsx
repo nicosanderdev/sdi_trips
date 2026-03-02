@@ -4,9 +4,13 @@ import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
 import { Button, Card } from '../components/ui';
+import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
+import { createBooking } from '../services/bookingService';
+import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
+import { getBookingEligibility, type BookingEligibility } from '../services/bookingEligibilityService';
 import {
     MapPin,
     Users,
@@ -46,9 +50,55 @@ const PropertyDetail: React.FC = () => {
     const [lightboxIndex, setLightboxIndex] = useState(0);
     const [galleryOpacity, setGalleryOpacity] = useState(1);
     const [lightboxOpacity, setLightboxOpacity] = useState(1);
+    const [checkIn, setCheckIn] = useState<Date | null>(null);
+    const [checkOut, setCheckOut] = useState<Date | null>(null);
+    const [showBookingCalendar, setShowBookingCalendar] = useState(false);
+    const [bookingNotes, setBookingNotes] = useState('');
+    const [bookingLoading, setBookingLoading] = useState(false);
+    const [bookingError, setBookingError] = useState<string | null>(null);
+    const [bookingSuccess, setBookingSuccess] = useState(false);
+    const [eligibility, setEligibility] = useState<BookingEligibility | null>(null);
+    const [eligibilityLoading, setEligibilityLoading] = useState(false);
 
     const { t } = useTranslation();
+    const { user } = useAuth();
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+
+    // Compute booking eligibility for the current user
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadEligibility = async () => {
+            if (!user) {
+                if (isMounted) {
+                    setEligibility(null);
+                }
+                return;
+            }
+
+            try {
+                if (isMounted) {
+                    setEligibilityLoading(true);
+                }
+                const result = await getBookingEligibility(user);
+                if (isMounted) {
+                    setEligibility(result);
+                }
+            } catch (err) {
+                console.error('Error loading booking eligibility:', err);
+            } finally {
+                if (isMounted) {
+                    setEligibilityLoading(false);
+                }
+            }
+        };
+
+        loadEligibility();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [user]);
 
     // Fetch property data
     useEffect(() => {
@@ -218,12 +268,6 @@ const PropertyDetail: React.FC = () => {
         }
     ];
 
-    const descriptionParagraphs =
-        property.description
-            ?.split('\n')
-            .map((paragraph: string) => paragraph.trim())
-            .filter(Boolean) || [t('propertyDetail.description.fallback')];
-
     const secondaryGalleryImages = heroImages.slice(0, 6);
     const amenityList = property.amenities?.length ? property.amenities : [t('propertyDetail.amenities.empty')];
 
@@ -266,6 +310,21 @@ const PropertyDetail: React.FC = () => {
         }
     ];
 
+    const calculateNights = () => {
+        if (!checkIn || !checkOut) return 0;
+        const diffTime = checkOut.getTime() - checkIn.getTime();
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    const calculateTotal = () => {
+        const nights = calculateNights();
+        return nights * (property.price || 0);
+    };
+
+    const isLoggedIn = !!user;
+    const shouldShowEligibilityOverlay = isLoggedIn && !!eligibility && !eligibility.meetsRequirements;
+    const isReserveDisabledForEligibility = isLoggedIn && !!eligibility && !eligibility.meetsRequirements;
+
     const handleImageClick = (index: number) => {
         setLightboxIndex(index);
         setShowLightbox(true);
@@ -301,6 +360,65 @@ const PropertyDetail: React.FC = () => {
             setLightboxIndex((prev) => (prev - 1 + heroImageCount) % heroImageCount);
             setLightboxOpacity(1);
         }, 200);
+    };
+
+    const handleBookDates = async () => {
+        if (!checkIn || !checkOut) {
+            alert(t('booking.selectDates'));
+            return;
+        }
+
+        if (!user) {
+            alert(t('booking.loginRequired'));
+            return;
+        }
+
+        if (eligibility && !eligibility.meetsRequirements) {
+            const message = t('propertyDetail.bookingRequirements.error');
+            setBookingError(message);
+            alert(message);
+            return;
+        }
+
+        if (!property?.id) {
+            alert(t('booking.error'));
+            return;
+        }
+
+        try {
+            setBookingLoading(true);
+            setBookingError(null);
+            setBookingSuccess(false);
+
+            const totalPrice = calculateTotal();
+            const guests = 1;
+
+            const result = await createBooking({
+                propertyId: property.id,
+                userId: user.id,
+                checkIn,
+                checkOut,
+                guests,
+                totalPrice,
+                notes: bookingNotes || undefined
+            });
+
+            if (!result.success) {
+                const message = result.error || t('booking.error');
+                setBookingError(message);
+                alert(message);
+                return;
+            }
+
+            setBookingSuccess(true);
+        } catch (error) {
+            console.error('Error creating booking:', error);
+            const message = t('booking.error');
+            setBookingError(message);
+            alert(message);
+        } finally {
+            setBookingLoading(false);
+        }
     };
 
     return (
@@ -509,12 +627,81 @@ const PropertyDetail: React.FC = () => {
                                         <div className="text-3xl font-semibold text-navy">${property.price}</div>
                                         <p className="text-sm text-charcoal">{t('propertyDetail.pricing.perNight')}</p>
                                     </div>
-                                    <Button variant="primary" size="lg" className="w-full bg-gold text-navy hover:bg-gold-dark">
+                                    <Button
+                                        variant="primary"
+                                        size="lg"
+                                        className="w-full bg-gold text-navy hover:bg-gold-dark"
+                                        onClick={() => setShowBookingCalendar((prev) => !prev)}
+                                    >
                                         {t('propertyDetail.cta.checkAvailability')}
                                     </Button>
-                                    <Button variant="outline" className="w-full">
-                                        {t('propertyDetail.cta.askAboutDates')}
-                                    </Button>
+                                    {showBookingCalendar && (
+                                        <div className="relative pt-4 border-t border-warm-gray">
+                                            <div className="space-y-4">
+                                                <BookingDatePicker
+                                                    propertyId={property.id}
+                                                    checkIn={checkIn}
+                                                    checkOut={checkOut}
+                                                    onCheckInChange={setCheckIn}
+                                                    onCheckOutChange={setCheckOut}
+                                                    minStayDays={property.minStayDays}
+                                                    maxStayDays={property.maxStayDays}
+                                                    leadTimeDays={property.leadTimeDays}
+                                                    bufferDays={property.bufferDays}
+                                                />
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-medium text-navy">
+                                                        Notes for your booking
+                                                    </label>
+                                                    <textarea
+                                                        value={bookingNotes}
+                                                        onChange={(e) => setBookingNotes(e.target.value)}
+                                                        rows={3}
+                                                        className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+                                                    />
+                                                </div>
+                                                <Button
+                                                    variant="primary"
+                                                    size="lg"
+                                                    className="w-full bg-gold text-navy hover:bg-gold-dark"
+                                                    disabled={!checkIn || !checkOut || bookingLoading || isReserveDisabledForEligibility}
+                                                    onClick={handleBookDates}
+                                                >
+                                                    {bookingLoading ? t('booking.reserving') : t('propertyDetail.buttons.reserveNow')}
+                                                </Button>
+                                                {bookingSuccess && (
+                                                    <p className="text-xs text-green-700">
+                                                        {t('booking.pendingConfirmation')}
+                                                    </p>
+                                                )}
+                                                {bookingError && (
+                                                    <p className="text-xs text-red-600">
+                                                        {bookingError}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            {shouldShowEligibilityOverlay && (
+                                                <div className="absolute inset-0 rounded-2xl bg-white/75 backdrop-blur-sm flex flex-col items-center justify-center px-4 text-center">
+                                                    <p className="text-sm font-semibold text-navy mb-1">
+                                                        {t('propertyDetail.bookingRequirements.heading')}
+                                                    </p>
+                                                    <p className="text-xs text-charcoal mb-3">
+                                                        {t('propertyDetail.bookingRequirements.description')}
+                                                    </p>
+                                                    <Link to="/profile">
+                                                        <Button
+                                                            variant="primary"
+                                                            size="sm"
+                                                            className="bg-gold text-navy hover:bg-gold-dark"
+                                                            disabled={eligibilityLoading}
+                                                        >
+                                                            {t('propertyDetail.bookingRequirements.cta')}
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                     <p className="text-xs text-charcoal">{t('propertyDetail.cta.confirmWithHost', { name: hostFirstName })}</p>
                                     <p className="text-xs text-charcoal">{t('propertyDetail.cta.noPaymentYet')}</p>
                                     <Link

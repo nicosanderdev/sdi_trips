@@ -12,6 +12,7 @@ import type { MFAFactor, MFAEnrollment } from '../types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import type { User as UserType } from '../types';
+import { getBookingEligibility, type BookingEligibility } from '../services/bookingEligibilityService';
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
@@ -40,6 +41,10 @@ const Profile: React.FC = () => {
   const [mfaEnrollmentData, setMfaEnrollmentData] = useState<MFAEnrollment | null>(null);
   const [showMFAEnrollment, setShowMFAEnrollment] = useState(false);
   const [mfaLoading, setMfaLoading] = useState(false);
+
+  // Booking eligibility
+  const [eligibility, setEligibility] = useState<BookingEligibility | null>(null);
+  const [eligibilityLoading, setEligibilityLoading] = useState(false);
 
   // File input ref for camera button
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -114,6 +119,42 @@ const Profile: React.FC = () => {
     };
 
     fetchProfile();
+  }, [user]);
+
+  // Load booking eligibility for the current user
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadEligibility = async () => {
+      if (!user) {
+        if (isMounted) {
+          setEligibility(null);
+        }
+        return;
+      }
+
+      try {
+        if (isMounted) {
+          setEligibilityLoading(true);
+        }
+        const result = await getBookingEligibility(user);
+        if (isMounted) {
+          setEligibility(result);
+        }
+      } catch (err) {
+        console.error('Error loading booking eligibility:', err);
+      } finally {
+        if (isMounted) {
+          setEligibilityLoading(false);
+        }
+      }
+    };
+
+    loadEligibility();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   // Load MFA factors
@@ -353,6 +394,10 @@ const Profile: React.FC = () => {
     { id: 'bookings' as const, label: t('profile.tabs.myBookings'), icon: Calendar },
   ];
 
+  const isEmailVerified = !!user?.email_confirmed_at;
+  const hasPhone = !!eligibility?.hasPhone;
+  const meetsBookingRequirements = !!eligibility?.meetsRequirements;
+
   if (loading) {
     return (
       <Layout>
@@ -401,6 +446,36 @@ const Profile: React.FC = () => {
               {t('profile.header.subtitle')}
             </p>
           </div>
+
+          {/* Booking requirements notification */}
+          {user && eligibility && !meetsBookingRequirements && (
+            <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-semibold">
+                  {t('profile.bookingRequirements.heading')}
+                </p>
+                <p className="text-sm">
+                  {t('profile.bookingRequirements.description')}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 text-sm md:items-end">
+                <div className="flex items-center gap-2">
+                  <Badge variant={isEmailVerified ? 'success' : 'warning'} size="sm">
+                    {isEmailVerified
+                      ? t('profile.bookingRequirements.emailOk')
+                      : t('profile.bookingRequirements.emailMissing')}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={hasPhone ? 'success' : 'warning'} size="sm">
+                    {hasPhone
+                      ? t('profile.bookingRequirements.phoneOk')
+                      : t('profile.bookingRequirements.phoneMissing')}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Tab Navigation */}
           <div className="flex space-x-1 mb-8 bg-warm-gray rounded-xl p-1">
