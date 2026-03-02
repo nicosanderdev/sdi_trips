@@ -105,12 +105,17 @@
   },
   "landing": {
     "hero": {
-      "title": "A reliable way to rent vacation homes",
-      "description": "Find real homes, published by people from your city, with clear information and no complications.",
+      "title": "A reliable way to rent homes",
+      "description": "Find real homes, with clear information and no complications.",
       "subtitle": "Rent with peace of mind. Publish with confidence.",
       "cta": {
         "search": "Search homes",
         "publish": "Log in"
+      },
+      "stats": {
+        "properties": "Properties",
+        "countries": "Countries",
+        "happyGuests": "Happy Guests"
       }
     },
     "featured": {
@@ -175,6 +180,29 @@
       "subtitle": "Your next stay begins here",
       "description": "Find the ideal home to rest, share and enjoy, with the peace of mind of doing it on a local and reliable platform.",
       "button": "Search Available Homes"
+    },
+    "ads": {
+      "title": "For You",
+      "subtitle": "Partners and offers to make your stay even better.",
+      "insurance": {
+        "title": "Insurance partners",
+        "partner1": { "name": "SecureStay Insurance", "tagline": "Coverage for your vacation rental peace of mind." },
+        "partner2": { "name": "Holiday Cover", "tagline": "Flexible plans for short-term stays." },
+        "partner3": { "name": "Local Shield", "tagline": "Trusted by property owners and guests alike." }
+      },
+      "specialProperties": {
+        "title": "Special properties",
+        "explore": "Explore",
+        "property1": { "title": "Lakefront retreat", "location": "Rivera" },
+        "property2": { "title": "Country house with pool", "location": "Near Rivera" },
+        "property3": { "title": "Central apartment", "location": "Rivera downtown" }
+      },
+      "partners": {
+        "title": "Real estate & travel partners",
+        "partner1": { "name": "Rivera Homes", "description": "Local real estate and vacation rentals." },
+        "partner2": { "name": "Travel Uruguay", "description": "Tours and experiences for your trip." },
+        "partner3": { "name": "Casa & Campo", "description": "Holiday homes and rural stays." }
+      }
     },
     "microcopy": "Discover extraordinary homes in Rivera. Real, nearby and ready to welcome you."
   },
@@ -589,7 +617,8 @@
     "my": "My",
     "wishlistTitle": "Wishlist",
     "subtitle": "Your saved properties, ready for your next adventure",
-    "savedProperties": "{{count}} Saved {{count, plural, one {Property} other {Properties}}}",
+    "savedProperties_one": "{{count}} Saved Property",
+    "savedProperties_other": "{{count}} Saved Properties",
     "lastUpdated": "Last updated",
     "emptyTitle": "Your Wishlist is Empty",
     "emptyDescription": "Start saving your favorite properties to keep track of places you'd like to visit.",
@@ -641,6 +670,77 @@
       "subjectRequired": "Subject is required",
       "messageRequired": "Message is required",
       "submitFailed": "Failed to send message. Please try again."
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "About",
+      "titleHighlight": "Holiday Trips",
+      "description": "We're on a mission to transform how people experience vacation homes. By curating extraordinary properties and providing unparalleled service, we create memories that last a lifetime."
+    },
+    "story": {
+      "title": "Our",
+      "titleHighlight": "Story",
+      "paragraph1": "Holiday Trips began with a simple idea: vacation rentals should be as luxurious and memorable as the finest hotels, but with the space and privacy of a home.",
+      "paragraph2": "Our founder, Anna Svensson, experienced this firsthand when searching for the perfect holiday home for her family. Frustrated by the lack of quality options and inconsistent experiences, she decided to create a platform that would change the vacation rental industry forever.",
+      "paragraph3": "Today, we've curated over 800 exceptional properties across 50+ countries, each personally inspected and vetted to ensure they meet our uncompromising standards for luxury, comfort, and authenticity.",
+      "imageAlt": "Holiday Trips team"
+    },
+    "stats": {
+      "curatedProperties": "Curated Properties",
+      "countries": "Countries",
+      "happyGuests": "Happy Guests",
+      "averageRating": "Average Rating"
+    },
+    "values": {
+      "title": "Our",
+      "titleHighlight": "Values",
+      "subtitle": "These principles guide everything we do and shape the experiences we create for our guests.",
+      "passion": {
+        "title": "Passion for Hospitality",
+        "description": "We believe that every vacation should feel like coming home to a place that truly cares about your comfort and happiness."
+      },
+      "excellence": {
+        "title": "Excellence in Every Detail",
+        "description": "From property selection to guest support, we maintain the highest standards in everything we do."
+      },
+      "global": {
+        "title": "Global Perspective",
+        "description": "Our international team brings diverse experiences and insights to create truly special vacation experiences."
+      },
+      "trust": {
+        "title": "Trust & Transparency",
+        "description": "We build lasting relationships through honest communication and reliable service you can count on."
+      }
+    },
+    "team": {
+      "title": "Meet Our",
+      "titleHighlight": "Team",
+      "subtitle": "The passionate individuals behind Holiday Trips, dedicated to creating extraordinary experiences for our guests.",
+      "members": {
+        "anna": {
+          "name": "Anna Svensson",
+          "role": "Founder & CEO",
+          "bio": "With over 15 years in luxury hospitality, Anna founded Holiday Trips to revolutionize how people experience vacation homes."
+        },
+        "marcus": {
+          "name": "Marcus Johnson",
+          "role": "Head of Operations",
+          "bio": "Marcus ensures every property meets our exacting standards for luxury, comfort, and authenticity."
+        },
+        "elena": {
+          "name": "Elena Rodriguez",
+          "role": "Customer Experience Director",
+          "bio": "Elena leads our 24/7 customer support team, ensuring every guest has an exceptional experience."
+        }
+      }
+    },
+    "cta": {
+      "title": "Join Our",
+      "titleHighlight": "Community",
+      "description": "Experience the difference that passion, attention to detail, and genuine care can make. Your perfect holiday home awaits.",
+      "getStarted": "Get Started Today",
+      "browseProperties": "Browse Properties"
     }
   },
   "search": {

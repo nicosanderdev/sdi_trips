@@ -105,12 +105,17 @@
   },
   "landing": {
     "hero": {
-      "title": "Una forma confiable de alquilar casas de veraneo",
-      "description": "Encontrá casas reales, publicadas por personas de tu ciudad, con información clara y sin complicaciones.",
+      "title": "Una forma confiable de alquilar casas",
+      "description": "Encontrá casas reales, con información clara y sin complicaciones.",
       "subtitle": "Alquilá con tranquilidad. Publicá con confianza.",
       "cta": {
         "search": "Buscar casas",
         "login": "Ingresar"
+      },
+      "stats": {
+        "properties": "Propiedades",
+        "countries": "Países",
+        "happyGuests": "Huéspedes Felices"
       }
     },
     "featured": {
@@ -175,6 +180,29 @@
       "subtitle": "Tu próxima estadía empieza acá",
       "description": "Encontrá la casa ideal para descansar, compartir y disfrutar, con la tranquilidad de hacerlo en una plataforma local y confiable.",
       "button": "Buscar casas disponibles"
+    },
+    "ads": {
+      "title": "Para vos",
+      "subtitle": "Socios y ofertas para que tu estadía sea aún mejor.",
+      "insurance": {
+        "title": "Socios aseguradores",
+        "partner1": { "name": "SecureStay Seguros", "tagline": "Cobertura para tu tranquilidad en el alquiler." },
+        "partner2": { "name": "Holiday Cover", "tagline": "Planes flexibles para estadías cortas." },
+        "partner3": { "name": "Local Shield", "tagline": "Con la confianza de propietarios y huéspedes." }
+      },
+      "specialProperties": {
+        "title": "Propiedades especiales",
+        "explore": "Explorar",
+        "property1": { "title": "Casa frente al lago", "location": "Rivera" },
+        "property2": { "title": "Casa de campo con pileta", "location": "Cerca de Rivera" },
+        "property3": { "title": "Departamento céntrico", "location": "Centro de Rivera" }
+      },
+      "partners": {
+        "title": "Inmobiliarias y agencias de viajes",
+        "partner1": { "name": "Rivera Homes", "description": "Inmobiliaria local y alquileres vacacionales." },
+        "partner2": { "name": "Travel Uruguay", "description": "Circuitos y experiencias para tu viaje." },
+        "partner3": { "name": "Casa & Campo", "description": "Casas de veraneo y estadías rurales." }
+      }
     },
     "microcopy": "Descubrí casas extraordinarias en Rivera. Reales, cercanas y listas para recibirte."
   },
@@ -589,7 +617,8 @@
     "my": "Mi",
     "wishlistTitle": "Lista de Deseos",
     "subtitle": "Tus propiedades guardadas, listas para tu próxima aventura",
-    "savedProperties": "{{count}} {{count, plural, one {Propiedad Guardada} other {Propiedades Guardadas}}}",
+    "savedProperties_one": "{{count}} Propiedad Guardada",
+    "savedProperties_other": "{{count}} Propiedades Guardadas",
     "lastUpdated": "Última actualización",
     "emptyTitle": "Tu Lista de Deseos Está Vacía",
     "emptyDescription": "Comienza a guardar tus propiedades favoritas para hacer seguimiento de los lugares que te gustaría visitar.",
@@ -641,6 +670,77 @@
       "subjectRequired": "El asunto es obligatorio",
       "messageRequired": "El mensaje es obligatorio",
       "submitFailed": "Error al enviar el mensaje. Por favor intenta nuevamente."
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Acerca de",
+      "titleHighlight": "Holiday Trips",
+      "description": "Estamos en una misión para transformar cómo las personas experimentan las casas de vacaciones. Al seleccionar propiedades extraordinarias y brindar un servicio sin igual, creamos recuerdos que duran toda la vida."
+    },
+    "story": {
+      "title": "Nuestra",
+      "titleHighlight": "Historia",
+      "paragraph1": "Holiday Trips comenzó con una idea simple: los alquileres vacacionales deberían ser tan lujosos y memorables como los mejores hoteles, pero con el espacio y la privacidad de un hogar.",
+      "paragraph2": "Nuestra fundadora, Anna Svensson, experimentó esto de primera mano al buscar la casa de vacaciones perfecta para su familia. Frustrada por la falta de opciones de calidad y experiencias inconsistentes, decidió crear una plataforma que cambiaría la industria de alquileres vacacionales para siempre.",
+      "paragraph3": "Hoy, hemos seleccionado más de 800 propiedades excepcionales en más de 50 países, cada una inspeccionada y verificada personalmente para asegurar que cumplan con nuestros estándares inquebrantables de lujo, comodidad y autenticidad.",
+      "imageAlt": "Equipo de Holiday Trips"
+    },
+    "stats": {
+      "curatedProperties": "Propiedades Seleccionadas",
+      "countries": "Países",
+      "happyGuests": "Huéspedes Felices",
+      "averageRating": "Calificación Promedio"
+    },
+    "values": {
+      "title": "Nuestros",
+      "titleHighlight": "Valores",
+      "subtitle": "Estos principios guían todo lo que hacemos y dan forma a las experiencias que creamos para nuestros huéspedes.",
+      "passion": {
+        "title": "Pasión por la Hospitalidad",
+        "description": "Creemos que cada vacación debería sentirse como llegar a casa a un lugar que realmente se preocupa por tu comodidad y felicidad."
+      },
+      "excellence": {
+        "title": "Excelencia en Cada Detalle",
+        "description": "Desde la selección de propiedades hasta el apoyo al huésped, mantenemos los más altos estándares en todo lo que hacemos."
+      },
+      "global": {
+        "title": "Perspectiva Global",
+        "description": "Nuestro equipo internacional aporta experiencias e ideas diversas para crear experiencias vacacionales verdaderamente especiales."
+      },
+      "trust": {
+        "title": "Confianza y Transparencia",
+        "description": "Construimos relaciones duraderas a través de una comunicación honesta y un servicio confiable en el que puedes contar."
+      }
+    },
+    "team": {
+      "title": "Conoce a Nuestro",
+      "titleHighlight": "Equipo",
+      "subtitle": "Los individuos apasionados detrás de Holiday Trips, dedicados a crear experiencias extraordinarias para nuestros huéspedes.",
+      "members": {
+        "anna": {
+          "name": "Anna Svensson",
+          "role": "Fundadora y CEO",
+          "bio": "Con más de 15 años en hospitalidad de lujo, Anna fundó Holiday Trips para revolucionar cómo las personas experimentan las casas de vacaciones."
+        },
+        "marcus": {
+          "name": "Marcus Johnson",
+          "role": "Jefe de Operaciones",
+          "bio": "Marcus asegura que cada propiedad cumpla con nuestros estándares exigentes de lujo, comodidad y autenticidad."
+        },
+        "elena": {
+          "name": "Elena Rodriguez",
+          "role": "Directora de Experiencia del Cliente",
+          "bio": "Elena lidera nuestro equipo de atención al cliente 24/7, asegurando que cada huésped tenga una experiencia excepcional."
+        }
+      }
+    },
+    "cta": {
+      "title": "Únete a Nuestra",
+      "titleHighlight": "Comunidad",
+      "description": "Experimenta la diferencia que la pasión, la atención al detalle y el cuidado genuino pueden hacer. Tu casa de vacaciones perfecta te espera.",
+      "getStarted": "Comienza Hoy",
+      "browseProperties": "Explorar Propiedades"
     }
   },
   "search": {

@@ -105,12 +105,17 @@
   },
   "landing": {
     "hero": {
-      "title": "Uma forma confiável de alugar casas de férias",
-      "description": "Encontre casas reais, publicadas por pessoas da sua cidade, com informações claras e sem complicações.",
+      "title": "Uma forma confiável de alugar casas",
+      "description": "Encontre casas reais, com informações claras e sem complicações.",
       "subtitle": "Alugue com tranquilidade. Publique com confiança.",
       "cta": {
         "search": "Buscar casas",
         "publish": "Entrar"
+      },
+      "stats": {
+        "properties": "Propriedades",
+        "countries": "Países",
+        "happyGuests": "Hóspedes Felizes"
       }
     },
     "featured": {
@@ -589,7 +594,8 @@
     "my": "Minha",
     "wishlistTitle": "Lista de Desejos",
     "subtitle": "Suas propriedades salvas, prontas para sua próxima aventura",
-    "savedProperties": "{{count}} {{count, plural, one {Propriedade Salva} other {Propriedades Salvas}}}",
+    "savedProperties_one": "{{count}} Propriedade Salva",
+    "savedProperties_other": "{{count}} Propriedades Salvas",
     "lastUpdated": "Última atualização",
     "emptyTitle": "Sua Lista de Desejos Está Vazia",
     "emptyDescription": "Comece a salvar suas propriedades favoritas para acompanhar os lugares que gostaria de visitar.",
@@ -641,6 +647,77 @@
       "subjectRequired": "O assunto é obrigatório",
       "messageRequired": "A mensagem é obrigatória",
       "submitFailed": "Falha ao enviar mensagem. Por favor, tente novamente."
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Sobre",
+      "titleHighlight": "Holiday Trips",
+      "description": "Estamos em uma missão para transformar como as pessoas experimentam casas de férias. Ao selecionar propriedades extraordinárias e fornecer um serviço incomparável, criamos memórias que duram toda a vida."
+    },
+    "story": {
+      "title": "Nossa",
+      "titleHighlight": "História",
+      "paragraph1": "Holiday Trips começou com uma ideia simples: aluguéis de férias devem ser tão luxuosos e memoráveis quanto os melhores hotéis, mas com o espaço e a privacidade de uma casa.",
+      "paragraph2": "Nossa fundadora, Anna Svensson, experimentou isso em primeira mão ao procurar a casa de férias perfeita para sua família. Frustrada pela falta de opções de qualidade e experiências inconsistentes, ela decidiu criar uma plataforma que mudaria a indústria de aluguéis de férias para sempre.",
+      "paragraph3": "Hoje, selecionamos mais de 800 propriedades excepcionais em mais de 50 países, cada uma inspecionada e verificada pessoalmente para garantir que atendam aos nossos padrões intransigentes de luxo, conforto e autenticidade.",
+      "imageAlt": "Equipe Holiday Trips"
+    },
+    "stats": {
+      "curatedProperties": "Propriedades Selecionadas",
+      "countries": "Países",
+      "happyGuests": "Hóspedes Felizes",
+      "averageRating": "Avaliação Média"
+    },
+    "values": {
+      "title": "Nossos",
+      "titleHighlight": "Valores",
+      "subtitle": "Esses princípios guiam tudo o que fazemos e moldam as experiências que criamos para nossos hóspedes.",
+      "passion": {
+        "title": "Paixão pela Hospitalidade",
+        "description": "Acreditamos que cada férias deve parecer voltar para casa em um lugar que realmente se preocupa com seu conforto e felicidade."
+      },
+      "excellence": {
+        "title": "Excelência em Cada Detalhe",
+        "description": "Desde a seleção de propriedades até o suporte ao hóspede, mantemos os mais altos padrões em tudo o que fazemos."
+      },
+      "global": {
+        "title": "Perspectiva Global",
+        "description": "Nossa equipe internacional traz experiências e insights diversos para criar experiências de férias verdadeiramente especiais."
+      },
+      "trust": {
+        "title": "Confiança e Transparência",
+        "description": "Construímos relacionamentos duradouros através de comunicação honesta e serviço confiável em que você pode contar."
+      }
+    },
+    "team": {
+      "title": "Conheça Nossa",
+      "titleHighlight": "Equipe",
+      "subtitle": "Os indivíduos apaixonados por trás do Holiday Trips, dedicados a criar experiências extraordinárias para nossos hóspedes.",
+      "members": {
+        "anna": {
+          "name": "Anna Svensson",
+          "role": "Fundadora e CEO",
+          "bio": "Com mais de 15 anos em hospitalidade de luxo, Anna fundou o Holiday Trips para revolucionar como as pessoas experimentam casas de férias."
+        },
+        "marcus": {
+          "name": "Marcus Johnson",
+          "role": "Chefe de Operações",
+          "bio": "Marcus garante que cada propriedade atenda aos nossos padrões rigorosos de luxo, conforto e autenticidade."
+        },
+        "elena": {
+          "name": "Elena Rodriguez",
+          "role": "Diretora de Experiência do Cliente",
+          "bio": "Elena lidera nossa equipe de suporte ao cliente 24/7, garantindo que cada hóspede tenha uma experiência excepcional."
+        }
+      }
+    },
+    "cta": {
+      "title": "Junte-se à Nossa",
+      "titleHighlight": "Comunidade",
+      "description": "Experimente a diferença que paixão, atenção aos detalhes e cuidado genuíno podem fazer. Sua casa de férias perfeita está esperando.",
+      "getStarted": "Comece Hoje",
+      "browseProperties": "Explorar Propriedades"
     }
   },
   "search": {
