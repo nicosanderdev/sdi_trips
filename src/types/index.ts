@@ -90,6 +90,7 @@ export interface User {
   avatar?: string;
   verified: boolean;
   created_at?: string;
+  phone?: string;
 }
 
 export interface Booking {

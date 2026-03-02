@@ -25,7 +25,7 @@ export async function getBookingEligibility(
   try {
     const { data, error } = await supabase
       .from('Members')
-      .select('Phone')
+      .select('Phone, PhonePrefix')
       .eq('UserId', user.id)
       .eq('IsDeleted', false)
       .single();
@@ -35,8 +35,8 @@ export async function getBookingEligibility(
       if ((error as any).code !== 'PGRST116') {
         console.error('Error loading member contact info for eligibility:', error);
       }
-    } else {
-      hasPhone = !!data?.Phone;
+    } else if (data) {
+      hasPhone = !!(data.Phone || data.PhonePrefix);
     }
   } catch (err) {
     console.error('Unexpected error computing booking eligibility:', err);

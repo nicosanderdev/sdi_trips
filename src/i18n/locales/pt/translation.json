@@ -443,6 +443,9 @@
       "emailVerifiedText": "E-mail Verificado",
       "emailVerified": "Sim",
       "emailNotVerified": "Nao",
+      "phoneVerifiedText": "Telefone Verificado",
+      "phoneVerified": "Sim",
+      "phoneNotVerified": "Nao",
       "twoFactorEnabledText": "Autenticação em dois passos",
       "twoFactorEnabled": "2FA Ativado",
       "twoFactorDisabled": "2FA Desativado"

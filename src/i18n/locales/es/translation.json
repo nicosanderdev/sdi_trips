@@ -466,6 +466,9 @@
       "emailVerifiedText": "Email Verificado",
       "emailVerified": "Si",
       "emailNotVerified": "No",
+      "phoneVerifiedText": "Teléfono Verificado",
+      "phoneVerified": "Si",
+      "phoneNotVerified": "No",
       "twoFactorEnabledText": "Autenticación en dos pasos",
       "twoFactorEnabled": "2FA Habilitado",
       "twoFactorDisabled": "2FA Deshabilitado"

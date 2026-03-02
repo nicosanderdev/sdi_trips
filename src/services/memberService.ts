@@ -7,6 +7,7 @@ type DbMember = Database['public']['Tables']['Members']['Row'];
 export interface UpdateMemberData {
   FirstName?: string;
   LastName?: string;
+  PhonePrefix?: string;
   Phone?: string;
   AvatarUrl?: string;
   Street?: string;
@@ -22,6 +23,7 @@ export interface CreateMemberData {
   FirstName?: string;
   LastName?: string;
   Email?: string;
+  PhonePrefix?: string;
   Phone?: string;
 }
 
@@ -29,6 +31,27 @@ export interface CreateMemberData {
  * Transform database member data to frontend User type
  */
 function transformMember(dbMember: DbMember): User {
+  let phone: string | undefined;
+
+  if (dbMember.PhonePrefix && dbMember.Phone) {
+    const localDigits = dbMember.Phone.replace(/\D/g, '');
+    const prefixTrimmed = dbMember.PhonePrefix.trim();
+
+    if (localDigits) {
+      const prefixDigits = prefixTrimmed.replace(/\D/g, '');
+      const normalizedPrefix = prefixTrimmed.startsWith('+')
+        ? prefixTrimmed
+        : prefixDigits
+        ? `+${prefixDigits}`
+        : prefixTrimmed;
+
+      phone = `${normalizedPrefix}${localDigits}`;
+    }
+  } else if (dbMember.Phone) {
+    // Legacy: full phone number stored directly in Phone
+    phone = dbMember.Phone;
+  }
+
   return {
     id: dbMember.Id,
     name: `${dbMember.FirstName || ''} ${dbMember.LastName || ''}`.trim() || 'User',
@@ -36,6 +59,7 @@ function transformMember(dbMember: DbMember): User {
     avatar: dbMember.AvatarUrl || undefined,
     verified: true, // TODO: Implement verification status
     created_at: dbMember.Created,
+    phone,
   };
 }
 
@@ -187,27 +211,31 @@ export async function verifyEmailChange(userId: string, code: string): Promise<v
  * Request phone change verification
  */
 export async function requestPhoneChange(userId: string, newPhone: string): Promise<void> {
-  const { data, error } = await supabase.functions.invoke('send-phone-verification', {
-    body: { userId, newPhone },
+  // Note: userId is not needed when using Supabase Auth directly, but kept for API consistency
+  const { error } = await supabase.auth.updateUser({
+    phone: newPhone,
   });
 
   if (error) {
     console.error('Error requesting phone change:', error);
-    throw new Error(data?.error || 'Failed to send verification SMS');
+    throw new Error(error.message || 'Failed to send verification SMS');
   }
 }
 
 /**
  * Verify phone change code
  */
-export async function verifyPhoneChange(userId: string, code: string): Promise<void> {
-  const { data, error } = await supabase.functions.invoke('verify-phone-code', {
-    body: { userId, code },
+export async function verifyPhoneChange(userId: string, newPhone: string, code: string): Promise<void> {
+  // Note: userId is not needed when using Supabase Auth directly, but kept for API consistency
+  const { error } = await supabase.auth.verifyOtp({
+    phone: newPhone,
+    token: code,
+    type: 'phone_change',
   });
 
   if (error) {
     console.error('Error verifying phone code:', error);
-    throw new Error(data?.error || 'Failed to verify phone number');
+    throw new Error(error.message || 'Failed to verify phone number');
   }
 }
 

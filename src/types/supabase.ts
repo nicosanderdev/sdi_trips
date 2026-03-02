@@ -194,6 +194,7 @@ export interface Database {
           CreatedBy: string | null;
           LastModified: string;
           LastModifiedBy: string | null;
+          PhonePrefix: string | null;
           Phone: string | null;
           Role: string | null;
           Email: string | null;
@@ -218,6 +219,7 @@ export interface Database {
           CreatedBy?: string | null;
           LastModified?: string;
           LastModifiedBy?: string | null;
+          PhonePrefix?: string | null;
           Phone?: string | null;
           Role?: string | null;
           Email?: string | null;
@@ -242,6 +244,7 @@ export interface Database {
           CreatedBy?: string | null;
           LastModified?: string;
           LastModifiedBy?: string | null;
+          PhonePrefix?: string | null;
           Phone?: string | null;
           Role?: string | null;
           Email?: string | null;

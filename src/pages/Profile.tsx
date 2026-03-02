@@ -35,6 +35,11 @@ const Profile: React.FC = () => {
   const [showPhoneVerification, setShowPhoneVerification] = useState(false);
   const [pendingPhone, setPendingPhone] = useState('');
   const [originalPhone, setOriginalPhone] = useState('');
+  const [emailChangeError, setEmailChangeError] = useState<string | null>(null);
+  const [phoneChangeError, setPhoneChangeError] = useState<string | null>(null);
+  const [isRequestingEmailCode, setIsRequestingEmailCode] = useState(false);
+  const [isRequestingPhoneCode, setIsRequestingPhoneCode] = useState(false);
+  const [isVerifyingPhoneCode, setIsVerifyingPhoneCode] = useState(false);
 
   // MFA state
   const [mfaFactors, setMfaFactors] = useState<MFAFactor[]>([]);
@@ -57,11 +62,81 @@ const Profile: React.FC = () => {
     lastName: '',
     email: '',
     phone: '',
+    phoneCountry: 'UY',
+    phoneLocal: '',
     bio: '',
     location: '',
   });
 
   const [editData, setEditData] = useState(profileData);
+
+  const SUPPORTED_PHONE_COUNTRIES = [
+    { code: 'UY', dialCode: '+598' },
+    { code: 'BR', dialCode: '+55' },
+    { code: 'AR', dialCode: '+54' },
+  ] as const;
+
+  const parsePhoneNumber = (phone: string | undefined | null) => {
+    const trimmed = (phone || '').trim();
+    let phoneCountry = 'UY';
+    let phoneLocal = '';
+
+    if (!trimmed) {
+      return { phoneCountry, phoneLocal };
+    }
+
+    // First try to match using the raw value (e.g. "+598...")
+    const directMatch = SUPPORTED_PHONE_COUNTRIES.find(c => trimmed.startsWith(c.dialCode));
+    if (directMatch) {
+      phoneCountry = directMatch.code;
+      phoneLocal = trimmed.slice(directMatch.dialCode.length);
+      return { phoneCountry, phoneLocal };
+    }
+
+    // Fallback: try matching using digits only (handles values like "5989..." without "+")
+    const digitsOnly = trimmed.replace(/\D/g, '');
+    if (digitsOnly) {
+      const digitMatch = SUPPORTED_PHONE_COUNTRIES.find(c => {
+        const dialDigits = c.dialCode.replace(/\D/g, '');
+        return digitsOnly.startsWith(dialDigits);
+      });
+
+      if (digitMatch) {
+        phoneCountry = digitMatch.code;
+        const dialDigits = digitMatch.dialCode.replace(/\D/g, '');
+        phoneLocal = digitsOnly.slice(dialDigits.length);
+        return { phoneCountry, phoneLocal };
+      }
+    }
+
+    // If still no match, treat as international/other and strip leading "+"
+    phoneCountry = 'OTHER';
+    phoneLocal = trimmed.startsWith('+') ? trimmed.slice(1) : trimmed;
+
+    return { phoneCountry, phoneLocal };
+  };
+
+  const buildInternationalPhone = (
+    phoneCountry: string,
+    phoneLocal: string,
+    existingFull?: string
+  ) => {
+    const localDigits = (phoneLocal || '').replace(/\D/g, '');
+    if (!localDigits) {
+      return '';
+    }
+
+    const countryConfig = SUPPORTED_PHONE_COUNTRIES.find(c => c.code === phoneCountry);
+    if (countryConfig) {
+      const dialDigits = countryConfig.dialCode.replace(/\D/g, '');
+      return `+${dialDigits}${localDigits}`;
+    }
+
+    const raw = (existingFull || phoneLocal).trim();
+    if (!raw) return '';
+    if (raw.startsWith('+')) return raw;
+    return `+${raw.replace(/\D/g, '')}`;
+  };
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -74,11 +149,17 @@ const Profile: React.FC = () => {
         const memberProfile = await getMemberProfile(user.id);
 
         if (memberProfile) {
+          const phoneFromMember = memberProfile.phone || '';
+          const phoneFromAuth = user.phone || '';
+          const effectivePhone = phoneFromMember || phoneFromAuth;
+          const parsedPhone = parsePhoneNumber(effectivePhone);
           const profileInfo = {
             firstName: memberProfile.name.split(' ')[0] || '',
             lastName: memberProfile.name.split(' ').slice(1).join(' ') || '',
             email: memberProfile.email,
-            phone: '', // TODO: Add phone to member profile
+            phone: effectivePhone,
+            phoneCountry: parsedPhone.phoneCountry,
+            phoneLocal: parsedPhone.phoneLocal,
             bio: 'Travel enthusiast and photography lover. Always seeking the perfect blend of luxury and adventure.', // TODO: Add bio to member profile
             location: 'Barcelona, Spain', // TODO: Add location to member profile
           };
@@ -86,7 +167,7 @@ const Profile: React.FC = () => {
           setEditData(profileInfo);
           setCurrentUser(memberProfile);
           setOriginalEmail(memberProfile.email);
-          setOriginalPhone(''); // TODO: Fetch from Members table when phone is added
+          setOriginalPhone(profileInfo.phone);
 
           // Fetch user bookings count
           const bookingsCount = await getUserBookingsCount(user.id);
@@ -186,9 +267,15 @@ const Profile: React.FC = () => {
       return;
     }
 
-    // Check if phone has changed and 2FA is enabled
-    if (editData.phone !== originalPhone && mfaFactors.length > 0) {
-      setPendingPhone(editData.phone);
+    // Check if phone has changed and is not empty
+    const newPhoneFull = buildInternationalPhone(
+      editData.phoneCountry,
+      editData.phoneLocal,
+      editData.phone
+    );
+    const trimmedPhone = newPhoneFull.trim();
+    if (trimmedPhone !== originalPhone.trim() && trimmedPhone !== '') {
+      setPendingPhone(trimmedPhone);
       setShowPhoneConfirmation(true);
       return;
     }
@@ -203,15 +290,44 @@ const Profile: React.FC = () => {
       setUpdateError(null);
       setUpdateSuccess(false);
 
+      const newPhoneFull = buildInternationalPhone(
+        editData.phoneCountry,
+        editData.phoneLocal,
+        editData.phone
+      );
+
+      const countryConfig = SUPPORTED_PHONE_COUNTRIES.find(
+        c => c.code === editData.phoneCountry
+      );
+
+      let phonePrefix: string | undefined;
+      let phoneLocal: string | undefined;
+
+      if (countryConfig) {
+        phonePrefix = countryConfig.dialCode;
+        phoneLocal = (editData.phoneLocal || '').replace(/\D/g, '');
+      } else if (newPhoneFull) {
+        // Fallback for unsupported countries: store full phone in Phone as legacy
+        phonePrefix = undefined;
+        phoneLocal = newPhoneFull;
+      }
+
       const updateData = {
         FirstName: editData.firstName,
         LastName: editData.lastName,
-        Phone: editData.phone,
+        PhonePrefix: phonePrefix,
+        Phone: phoneLocal || undefined,
       };
 
       await updateMemberProfile(user.id, updateData);
-      setProfileData(editData);
+      const updatedProfile = {
+        ...editData,
+        phone: newPhoneFull,
+      };
+      setProfileData(updatedProfile);
+      setEditData(updatedProfile);
       setOriginalEmail(editData.email);
+      setOriginalPhone(newPhoneFull);
       setIsEditing(false);
       setUpdateSuccess(true);
 
@@ -258,9 +374,23 @@ const Profile: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const handleEmailConfirmation = () => {
-    setShowEmailConfirmation(false);
-    setShowEmailVerification(true);
+  const handleEmailConfirmation = async () => {
+    if (!user || !pendingEmail) return;
+
+    try {
+      setEmailChangeError(null);
+      setIsRequestingEmailCode(true);
+      await requestEmailChange(user.id, pendingEmail);
+      setShowEmailConfirmation(false);
+      setShowEmailVerification(true);
+    } catch (error) {
+      console.error('Error requesting email change:', error);
+      setEmailChangeError(
+        error instanceof Error ? error.message : 'Failed to send verification email'
+      );
+    } finally {
+      setIsRequestingEmailCode(false);
+    }
   };
 
   const handleEmailVerification = async (code: string) => {
@@ -289,23 +419,42 @@ const Profile: React.FC = () => {
     setShowEmailConfirmation(false);
     setShowEmailVerification(false);
     setPendingEmail('');
+    setEmailChangeError(null);
+    setIsRequestingEmailCode(false);
     setEditData(prev => ({ ...prev, email: originalEmail }));
   };
 
-  const handlePhoneConfirmation = () => {
-    setShowPhoneConfirmation(false);
-    setShowPhoneVerification(true);
+  const handlePhoneConfirmation = async () => {
+    if (!user || !pendingPhone) return;
+
+    try {
+      setPhoneChangeError(null);
+      setIsRequestingPhoneCode(true);
+      await requestPhoneChange(user.id, pendingPhone);
+      setShowPhoneConfirmation(false);
+      setShowPhoneVerification(true);
+    } catch (error) {
+      console.error('Error requesting phone change:', error);
+      setPhoneChangeError(
+        error instanceof Error ? error.message : 'Failed to send verification SMS'
+      );
+    } finally {
+      setIsRequestingPhoneCode(false);
+    }
   };
 
   const handlePhoneVerification = async (code: string) => {
-    if (!user) return;
+    if (!user || !pendingPhone) return;
 
     try {
-      await verifyPhoneChange(user.id, code);
+      setIsVerifyingPhoneCode(true);
+      await verifyPhoneChange(user.id, pendingPhone, code);
       setShowPhoneVerification(false);
       await performSave();
     } catch (error) {
       throw error; // Let VerificationModal handle the error
+    } finally {
+      setIsVerifyingPhoneCode(false);
     }
   };
 
@@ -323,7 +472,16 @@ const Profile: React.FC = () => {
     setShowPhoneConfirmation(false);
     setShowPhoneVerification(false);
     setPendingPhone('');
-    setEditData(prev => ({ ...prev, phone: originalPhone }));
+    setPhoneChangeError(null);
+    setIsRequestingPhoneCode(false);
+    setIsVerifyingPhoneCode(false);
+    const parsed = parsePhoneNumber(originalPhone);
+    setEditData(prev => ({
+      ...prev,
+      phone: originalPhone,
+      phoneCountry: parsed.phoneCountry,
+      phoneLocal: parsed.phoneLocal,
+    }));
   };
 
   // MFA handlers
@@ -332,6 +490,10 @@ const Profile: React.FC = () => {
 
     try {
       setMfaLoading(true);
+      if (!user.phone_confirmed_at) {
+        setUpdateError('You need a confirmed phone number before enabling 2FA.');
+        return;
+      }
       const enrollment = await enrollMFA();
       setMfaEnrollmentData(enrollment);
       setShowMFAEnrollment(true);
@@ -395,6 +557,7 @@ const Profile: React.FC = () => {
   ];
 
   const isEmailVerified = !!user?.email_confirmed_at;
+  const isPhoneVerified = !!user?.phone_confirmed_at;
   const hasPhone = !!eligibility?.hasPhone;
   const meetsBookingRequirements = !!eligibility?.meetsRequirements;
 
@@ -554,6 +717,20 @@ const Profile: React.FC = () => {
                         }
                       </Badge>
                     </div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-charcoal">
+                        {t('profile.verification.phoneVerifiedText')}:
+                      </span>
+                      <Badge
+                        variant={isPhoneVerified ? 'success' : 'warning'}
+                        size="sm"
+                      >
+                        {isPhoneVerified
+                          ? t('profile.verification.phoneVerified')
+                          : t('profile.verification.phoneNotVerified')
+                        }
+                      </Badge>
+                    </div>
                   </div>
 
                   {/* MFA Management */}
@@ -691,12 +868,40 @@ const Profile: React.FC = () => {
                       disabled={!isEditing}
                     />
 
-                    <Input
-                      label={t('profile.profileTab.form.phoneNumber')}
-                      value={isEditing ? editData.phone : profileData.phone}
-                      onChange={(value) => setEditData(prev => ({ ...prev, phone: value }))}
-                      disabled={!isEditing}
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-navy mb-2">
+                        {t('profile.profileTab.form.phoneNumber')}
+                      </label>
+                      <div className="flex gap-3">
+                        <select
+                          className="w-32 px-3 py-2 rounded-xl border-2 border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold disabled:bg-gray-100 disabled:text-gray-500"
+                          value={isEditing ? editData.phoneCountry : profileData.phoneCountry}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setEditData(prev => ({ ...prev, phoneCountry: value }));
+                          }}
+                          disabled={!isEditing}
+                        >
+                          <option value="UY">UY +598</option>
+                          <option value="BR">BR +55</option>
+                          <option value="AR">AR +54</option>
+                          <option value="OTHER">INTL +</option>
+                        </select>
+                        <Input
+                          type="tel"
+                          value={isEditing ? editData.phoneLocal : profileData.phoneLocal}
+                          onChange={(value) => setEditData(prev => ({ ...prev, phoneLocal: value }))}
+                          disabled={!isEditing}
+                          placeholder={
+                            (isEditing ? editData.phoneCountry : profileData.phoneCountry) ===
+                            'OTHER'
+                              ? '+123456789 (full intl number)'
+                              : '99 123 456 (local number)'
+                          }
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
 
                     <Input
                       label={t('profile.profileTab.form.location')}
@@ -757,7 +962,7 @@ const Profile: React.FC = () => {
                     <Card key={booking.id} variant="elevated" className="p-6">
                       <div className="flex flex-col lg:flex-row gap-6">
                         {/* Property Image */}
-                        <div className="lg:w-48 lg:flex-shrink-0">
+                        <div className="lg:w-48 lg:shrink-0">
                           <img
                             src={booking.property.images[0]}
                             alt={booking.property.title}
@@ -838,12 +1043,17 @@ const Profile: React.FC = () => {
           <p className="text-charcoal">
             {t('profile.modals.emailChange.message')} <strong>{pendingEmail}</strong>?
           </p>
+          {emailChangeError && (
+            <p className="text-sm text-red-600">
+              {emailChangeError}
+            </p>
+          )}
           <div className="flex justify-end space-x-3">
             <Button variant="outline" onClick={handleCancelEmailChange}>
               {t('profile.modals.emailChange.cancel')}
             </Button>
-            <Button onClick={handleEmailConfirmation}>
-              {t('profile.modals.emailChange.confirm')}
+            <Button onClick={handleEmailConfirmation} disabled={isRequestingEmailCode}>
+              {isRequestingEmailCode ? 'Sending...' : t('profile.modals.emailChange.confirm')}
             </Button>
           </div>
         </div>
@@ -870,12 +1080,17 @@ const Profile: React.FC = () => {
           <p className="text-charcoal">
             {t('profile.modals.phoneChange.message')}
           </p>
+          {phoneChangeError && (
+            <p className="text-sm text-red-600">
+              {phoneChangeError}
+            </p>
+          )}
           <div className="flex justify-end space-x-3">
             <Button variant="outline" onClick={handleCancelPhoneChange}>
               {t('profile.modals.phoneChange.cancel')}
             </Button>
-            <Button onClick={handlePhoneConfirmation}>
-              {t('profile.modals.phoneChange.confirm')}
+            <Button onClick={handlePhoneConfirmation} disabled={isRequestingPhoneCode}>
+              {isRequestingPhoneCode ? 'Sending...' : t('profile.modals.phoneChange.confirm')}
             </Button>
           </div>
         </div>
@@ -890,6 +1105,7 @@ const Profile: React.FC = () => {
         title={t('profile.modals.verification.phoneTitle')}
         description={t('profile.modals.verification.phoneDescription')}
         targetValue={pendingPhone}
+        isLoading={isVerifyingPhoneCode}
       />
 
       {/* MFA Enrollment Modal */}
