@@ -572,6 +572,7 @@
     "noConversationsFound": "No se encontraron conversaciones",
     "noConversationsMessage": "Intenta ajustar tus términos de búsqueda.",
     "noConversationsEmpty": "Inicia una conversación con un anfitrión para ver mensajes aquí.",
+    "totalUnread": "Mensajes sin leer",
     "totalConversations": "Total de conversaciones",
     "selectConversation": "Seleccionar una conversación",
     "selectConversationMessage": "Elige una conversación de la lista para ver mensajes y continuar tu discusión con el anfitrión.",
@@ -607,6 +608,13 @@
     "yesterday": "Ayer",
     "typeMessage": "Escribe tu mensaje...",
     "pressEnterToSend": "Presiona Enter para enviar",
+    "quickTemplates": {
+      "askCapacity": "¿Cuál es la capacidad de la propiedad?",
+      "closestWarehouse": "¿Cuál es el almacén más cercano?",
+      "interestedInDates": "Estoy interesado en reservar para las siguientes fechas:",
+      "paymentMethods": "¿Qué métodos de pago aceptan?",
+      "depositConfirmation": "Ya realicé la seña. ¿Podrías confirmarme cuando la recibas?"
+    },
     "quickActions": {
       "suggestDates": "📅 Sugerir fechas",
       "changeGuestCount": "👥 Cambiar número de huéspedes",

@@ -1,33 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Badge } from '../components/ui';
 import { ArrowLeft, Send, MapPin, Star, Calendar, Users } from 'lucide-react';
-import { mockConversations, mockMessages, mockUsers } from '../data/mockData';
+import type { Message } from '../types';
+import { useChatThread } from '../hooks/useChatThread';
 
 const ChatDetail: React.FC = () => {
   const { t } = useTranslation();
   const { conversationId } = useParams<{ conversationId: string }>();
-  const [newMessage, setNewMessage] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const threadId = conversationId ?? null;
 
-  // Find the conversation and its messages
-  const conversation = mockConversations.find(c => c.id === conversationId);
-  const conversationMessages = mockMessages.filter(m => m.conversationId === conversationId);
+  const {
+    conversation,
+    messages,
+    isLoading,
+    error,
+    newMessage,
+    setNewMessage,
+    messagesEndRef,
+    handleSendMessage,
+    handleKeyPress,
+  } = useChatThread(threadId);
 
-  // Mock current user
-  const currentUser = mockUsers[2]; // Elena Rodriguez
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [conversationMessages]);
-
-  if (!conversation) {
+  if (!conversationId || (!conversation && !isLoading && !error)) {
     return (
       <Layout>
         <div className="py-12 px-8">
@@ -42,22 +39,7 @@ const ChatDetail: React.FC = () => {
     );
   }
 
-  const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id) || conversation.participants[0];
-
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      // In real app, this would send the message to the API
-      console.log('Sending message:', newMessage);
-      setNewMessage('');
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+  const otherParticipant = conversation?.participants[0];
 
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString('en-US', {
@@ -87,19 +69,19 @@ const ChatDetail: React.FC = () => {
   };
 
   // Group messages by date
-  const groupedMessages = conversationMessages.reduce((groups, message) => {
+  const groupedMessages = messages.reduce((groups: Record<string, Message[]>, message) => {
     const date = formatDate(message.timestamp);
     if (!groups[date]) {
       groups[date] = [];
     }
     groups[date].push(message);
     return groups;
-  }, {} as Record<string, typeof conversationMessages>);
+  }, {});
 
   return (
     <Layout>
       <div className="py-12 px-8">
-        <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">
             <Link to="/inbox" className="inline-flex items-center space-x-2 text-charcoal hover:text-navy transition-colors mb-4">
@@ -109,30 +91,35 @@ const ChatDetail: React.FC = () => {
 
             <Card variant="default" className="p-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={otherParticipant.avatar || `https://ui-avatars.com/api/?name=${otherParticipant.name}&background=E5C469&color=0A1A2F`}
-                    alt={otherParticipant.name}
-                    className="w-16 h-16 rounded-full"
-                  />
-                  <div>
-                    <h1 className="text-2xl font-semibold text-navy">{otherParticipant.name}</h1>
-                    <p className="text-charcoal">{conversation.property.title}</p>
-                    <div className="flex items-center space-x-4 mt-2 text-sm text-charcoal">
-                      <div className="flex items-center space-x-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>{conversation.property.location}</span>
+                {conversation && otherParticipant && (
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={
+                        otherParticipant.avatar ||
+                        `https://ui-avatars.com/api/?name=${otherParticipant.name}&background=E5C469&color=0A1A2F`
+                      }
+                      alt={otherParticipant.name}
+                      className="w-16 h-16 rounded-full"
+                    />
+                    <div>
+                      <h1 className="text-2xl font-semibold text-navy">{otherParticipant.name}</h1>
+                      <p className="text-charcoal">{conversation.property.title}</p>
+                      <div className="flex items-center space-x-4 mt-2 text-sm text-charcoal">
+                        <div className="flex items-center space-x-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>{conversation.property.location}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star className="h-4 w-4 fill-gold text-gold" />
+                          <span>{conversation.property.rating}</span>
+                        </div>
+                        <Badge className="bg-gold! text-navy!">
+                          ${conversation.property.price}/night
+                        </Badge>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-4 w-4 fill-gold text-gold" />
-                        <span>{conversation.property.rating}</span>
-                      </div>
-                      <Badge className="bg-gold! text-navy!">
-                        ${conversation.property.price}/night
-                      </Badge>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </Card>
           </div>
@@ -153,7 +140,7 @@ const ChatDetail: React.FC = () => {
                   {/* Messages */}
                   <div className="space-y-4">
                     {messages.map((message) => {
-                      const isCurrentUser = message.sender.id === currentUser.id;
+                      const isCurrentUser = message.read === false;
                       return (
                         <div key={message.id} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
                           <div className={`flex space-x-3 max-w-xs lg:max-w-md ${isCurrentUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
@@ -161,7 +148,7 @@ const ChatDetail: React.FC = () => {
                             <img
                               src={message.sender.avatar || `https://ui-avatars.com/api/?name=${message.sender.name}&background=E5C469&color=0A1A2F`}
                               alt={message.sender.name}
-                              className="w-8 h-8 rounded-full flex-shrink-0"
+                              className="w-8 h-8 rounded-full shrink-0"
                             />
 
                             {/* Message Bubble */}
@@ -234,32 +221,34 @@ const ChatDetail: React.FC = () => {
           </Card>
 
           {/* Property Quick Info */}
-          <Card variant="default" className="p-6 mt-6 bg-gradient-to-r from-gold/5 to-navy/5 border-gold/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-navy mb-2">{t('chatDetail.aboutProperty.title')}</h3>
-                <div className="flex items-center space-x-6 text-sm text-charcoal">
-                  <div className="flex items-center space-x-1">
-                    <Users className="h-4 w-4" />
-                    <span>{t('chatDetail.aboutProperty.upToGuests', { count: conversation.property.maxGuests })}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>{t('chatDetail.aboutProperty.flexibleCancellation')}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 fill-gold text-gold" />
-                    <span>{t('chatDetail.aboutProperty.rating', { rating: conversation.property.rating })}</span>
+          {conversation && (
+            <Card variant="default" className="p-6 mt-6 bg-linear-to-r from-gold/5 to-navy/5 border-gold/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-navy mb-2">{t('chatDetail.aboutProperty.title')}</h3>
+                  <div className="flex items-center space-x-6 text-sm text-charcoal">
+                    <div className="flex items-center space-x-1">
+                      <Users className="h-4 w-4" />
+                      <span>{t('chatDetail.aboutProperty.upToGuests', { count: conversation.property.maxGuests })}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{t('chatDetail.aboutProperty.flexibleCancellation')}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Star className="h-4 w-4 fill-gold text-gold" />
+                      <span>{t('chatDetail.aboutProperty.rating', { rating: conversation.property.rating })}</span>
+                    </div>
                   </div>
                 </div>
+                <Link to={`/property/${conversation.property.id}`}>
+                  <Button variant="outline" size="sm">
+                    {t('chatDetail.aboutProperty.viewProperty')}
+                  </Button>
+                </Link>
               </div>
-              <Link to={`/property/${conversation.property.id}`}>
-                <Button variant="outline" size="sm">
-                  {t('chatDetail.aboutProperty.viewProperty')}
-                </Button>
-              </Link>
-            </div>
-          </Card>
+            </Card>
+          )}
         </div>
       </div>
     </Layout>

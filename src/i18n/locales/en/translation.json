@@ -572,6 +572,7 @@
     "noConversationsFound": "No conversations found",
     "noConversationsMessage": "Try adjusting your search terms.",
     "noConversationsEmpty": "Start a conversation with a host to see messages here.",
+    "totalUnread": "Unread messages",
     "totalConversations": "Total conversations",
     "selectConversation": "Select a conversation",
     "selectConversationMessage": "Choose a conversation from the list to view messages and continue your discussion with the host.",
@@ -607,6 +608,13 @@
     "yesterday": "Yesterday",
     "typeMessage": "Type your message...",
     "pressEnterToSend": "Press Enter to send",
+    "quickTemplates": {
+      "askCapacity": "How many people can the property accommodate?",
+      "closestWarehouse": "Which is the closest almacén or convenience store?",
+      "interestedInDates": "I'm interested in booking for the following dates:",
+      "paymentMethods": "What payment methods do you accept?",
+      "depositConfirmation": "I've already sent the deposit. Could you please confirm once you receive it?"
+    },
     "quickActions": {
       "suggestDates": "📅 Suggest dates",
       "changeGuestCount": "👥 Change guest count",

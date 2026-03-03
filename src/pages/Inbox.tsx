@@ -1,18 +1,63 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Badge, Button } from '../components/ui';
-import { MessageCircle, Search, MoreVertical, Phone, Video, MapPin, Calendar, Star } from 'lucide-react';
-import { mockConversations, mockUsers } from '../data/mockData';
+import { MessageCircle, Search, MoreVertical, Phone, Video, MapPin, Calendar, Star, Users } from 'lucide-react';
+import type { Conversation, Message, Property } from '../types';
+import { getGuestInboxThreads, markThreadMessagesAsRead } from '../services/messageService';
+import { useChatThread } from '../hooks/useChatThread';
+import { getPropertyById } from '../services/propertyService';
 
 const Inbox: React.FC = () => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [activeProperty, setActiveProperty] = useState<Property | null>(null);
 
-  // Mock conversations - in real app this would come from API
-  const conversations = mockConversations;
+  const {
+    conversation: activeConversation,
+    messages,
+    isLoading: isThreadLoading,
+    error: threadError,
+    newMessage,
+    setNewMessage,
+    messagesEndRef,
+    handleSendMessage,
+    handleKeyPress,
+  } = useChatThread(selectedConversation);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadConversations = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getGuestInboxThreads();
+        if (isMounted) {
+          setConversations(data);
+        }
+      } catch (err) {
+        console.error('Failed to load inbox conversations', err);
+        if (isMounted) {
+          setError(t('common.error.generic'));
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadConversations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [t]);
 
   const filteredConversations = conversations.filter(conversation =>
     conversation.property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -37,21 +82,117 @@ const Inbox: React.FC = () => {
     }
   };
 
-  const ConversationItem: React.FC<{ conversation: typeof conversations[0] }> = ({ conversation }) => {
-    const otherParticipant = conversation.participants.find(p => p.id !== mockUsers[2].id) || conversation.participants[0];
+  const formatMessageTime = (date: string) => {
+    return new Date(date).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
+  const formatMessageDate = (date: string) => {
+    const messageDate = new Date(date);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (messageDate.toDateString() === today.toDateString()) {
+      return t('chatDetail.today');
+    } else if (messageDate.toDateString() === yesterday.toDateString()) {
+      return t('chatDetail.yesterday');
+    } else {
+      return messageDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year:
+          messageDate.getFullYear() !== today.getFullYear()
+            ? 'numeric'
+            : undefined,
+      });
+    }
+  };
+
+  const groupedMessages = messages.reduce(
+    (groups: Record<string, Message[]>, message) => {
+      const date = formatMessageDate(message.timestamp);
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(message);
+      return groups;
+    },
+    {},
+  );
+
+  const totalUnread = conversations.reduce(
+    (sum, conversation) => sum + (conversation.unreadCount ?? 0),
+    0,
+  );
+
+  const quickTemplates = [
+    'chatDetail.quickTemplates.askCapacity',
+    'chatDetail.quickTemplates.closestWarehouse',
+    'chatDetail.quickTemplates.interestedInDates',
+    'chatDetail.quickTemplates.paymentMethods',
+    'chatDetail.quickTemplates.depositConfirmation',
+  ] as const;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!activeConversation) {
+      setActiveProperty(null);
+      return;
+    }
+
+    const loadProperty = async () => {
+      try {
+        const fullProperty = await getPropertyById(activeConversation.property.id);
+        if (isMounted) {
+          setActiveProperty(fullProperty);
+        }
+      } catch (err) {
+        console.error('Failed to load full property for conversation', err);
+      }
+    };
+
+    loadProperty();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeConversation]);
+
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversation(conversationId);
+    setConversations((prev) =>
+      prev.map((conversation) =>
+        conversation.id === conversationId
+          ? { ...conversation, unreadCount: 0 }
+          : conversation,
+      ),
+    );
+
+    markThreadMessagesAsRead(conversationId).catch((err) => {
+      console.error('Failed to mark thread messages as read', err);
+    });
+  };
+
+  const ConversationItem: React.FC<{ conversation: Conversation }> = ({ conversation }) => {
+    const otherParticipant = conversation.participants[0];
     const isSelected = selectedConversation === conversation.id;
 
     return (
-      <Link
-        to={`/inbox/${conversation.id}`}
-        onClick={() => setSelectedConversation(conversation.id)}
-        className={`block p-4 hover:bg-warm-gray transition-colors border-b border-gray-100 last:border-b-0 ${
+      <button
+        type="button"
+        onClick={() => handleSelectConversation(conversation.id)}
+        className={`w-full text-left p-4 hover:bg-warm-gray transition-colors border-b border-gray-100 last:border-b-0 ${
           isSelected ? 'bg-gold/5 border-gold/20' : ''
         }`}
       >
         <div className="flex items-start space-x-4">
           {/* Avatar */}
-          <div className="relative flex-shrink-0">
+          <div className="relative shrink-0">
             <img
               src={otherParticipant.avatar || `https://ui-avatars.com/api/?name=${otherParticipant.name}&background=E5C469&color=0A1A2F`}
               alt={otherParticipant.name}
@@ -72,7 +213,7 @@ const Inbox: React.FC = () => {
               <h3 className="text-sm font-semibold text-navy truncate">
                 {otherParticipant.name}
               </h3>
-              <span className="text-xs text-charcoal flex-shrink-0">
+              <span className="text-xs text-charcoal shrink-0">
                 {conversation.lastMessage ? formatTime(conversation.lastMessage.timestamp) : formatTime(conversation.updatedAt)}
               </span>
             </div>
@@ -104,13 +245,13 @@ const Inbox: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
             <button className="p-1 hover:bg-gray-100 rounded-full">
               <MoreVertical className="h-4 w-4 text-gray-400" />
             </button>
           </div>
         </div>
-      </Link>
+      </button>
     );
   };
 
@@ -148,7 +289,15 @@ const Inbox: React.FC = () => {
 
                 {/* Conversations */}
                 <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
-                  {filteredConversations.length === 0 ? (
+                  {isLoading ? (
+                    <div className="p-8 text-center">
+                      <p className="text-charcoal text-sm">{t('common.loading')}</p>
+                    </div>
+                  ) : error ? (
+                    <div className="p-8 text-center">
+                      <p className="text-red-600 text-sm">{error}</p>
+                    </div>
+                  ) : filteredConversations.length === 0 ? (
                     <div className="p-8 text-center">
                       <MessageCircle className="h-12 w-12 text-gold mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-navy mb-2">{t('inbox.noConversationsFound')}</h3>
@@ -165,11 +314,25 @@ const Inbox: React.FC = () => {
 
                 {/* Stats */}
                 <div className="p-4 bg-warm-gray border-t border-gray-100">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>{t('inbox.totalConversations')}</span>
-                    <Badge variant="default" className="text-white">
-                      {conversations.length}
-                    </Badge>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{t('inbox.totalUnread')}</span>
+                      <Badge
+                        variant="default"
+                        className={`text-white ${
+                          totalUnread > 0 ? 'bg-red-500' : 'bg-gray-400'
+                        }`}
+                        aria-label={t('inbox.totalUnread')}
+                      >
+                        {totalUnread}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{t('inbox.totalConversations')}</span>
+                      <Badge variant="default" className="text-white">
+                        {conversations.length}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -182,63 +345,209 @@ const Inbox: React.FC = () => {
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <img
-                          src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
-                          alt="Host"
-                          className="w-12 h-12 rounded-full"
-                        />
-                        <div>
-                          <h3 className="font-semibold text-navy">Anna Svensson</h3>
-                          <p className="text-sm text-charcoal">Seaside Villa Paradise</p>
-                        </div>
+                        {activeConversation && (
+                          <>
+                            <img
+                              src={
+                                activeConversation.participants[0]?.avatar ||
+                                `https://ui-avatars.com/api/?name=${activeConversation.participants[0]?.name}&background=E5C469&color=0A1A2F`
+                              }
+                              alt={activeConversation.participants[0]?.name}
+                              className="w-12 h-12 rounded-full"
+                            />
+                            <div>
+                              <h3 className="font-semibold text-navy">
+                                {activeConversation.participants[0]?.name}
+                              </h3>
+                              <p className="text-sm text-charcoal">
+                                {activeConversation.property.title}
+                              </p>
+                              <div className="flex items-center space-x-3 mt-1 text-xs text-charcoal">
+                                <div className="flex items-center space-x-1">
+                                  <MapPin className="h-3 w-3" />
+                                  <span>{activeConversation.property.location}</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Star className="h-3 w-3 fill-gold text-gold" />
+                                  <span>{activeConversation.property.rating}</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Users className="h-3 w-3" />
+                                  <span>
+                                    {t('chatDetail.aboutProperty.upToGuests', {
+                                      count: activeConversation.property.maxGuests,
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Phone className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Video className="h-4 w-4" />
+                        {(() => {
+                          const callPhone =
+                            activeProperty?.host.phone ||
+                            activeConversation?.participants[0]?.phone;
+
+                          if (callPhone) {
+                            return (
+                              <a
+                                href={`tel:${callPhone}`}
+                                aria-label={t('chatDetail.call')}
+                              >
+                                <Button variant="outline" size="sm">
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                              </a>
+                            );
+                          }
+
+                          return (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled
+                              aria-label={t('chatDetail.call')}
+                            >
+                              <Phone className="h-4 w-4 opacity-50" />
+                            </Button>
+                          );
+                        })()}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          aria-label={t('chatDetail.video')}
+                          disabled
+                        >
+                          <Video className="h-4 w-4 opacity-50" />
                         </Button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex-1 p-6 overflow-y-auto">
-                    <div className="space-y-4">
-                      {/* Sample Messages */}
-                      <div className="flex justify-start">
-                        <div className="bg-warm-gray rounded-2xl rounded-tl-md px-4 py-2 max-w-xs">
-                          <p className="text-sm">Hi Elena! I'm excited to welcome you to my seaside villa. Do you have any questions about the property?</p>
-                          <span className="text-xs text-charcoal mt-1 block">2 hours ago</span>
-                        </div>
-                      </div>
+                  <div className="flex-1 mx-4 my-3 px-4 py-3 overflow-y-auto space-y-6 bg-warm-gray-light rounded-2xl border border-gray-100">
+                    {threadError && (
+                      <p className="text-sm text-red-600">{threadError}</p>
+                    )}
 
-                      <div className="flex justify-end">
-                        <div className="bg-gold text-navy rounded-2xl rounded-tr-md px-4 py-2 max-w-xs">
-                          <p className="text-sm">Hello Anna! The photos look amazing. Could you tell me more about the beach access?</p>
-                          <span className="text-xs text-navy/70 mt-1 block">1 hour ago</span>
-                        </div>
-                      </div>
+                    {isThreadLoading && messages.length === 0 ? (
+                      <p className="text-sm text-charcoal">
+                        {t('common.loading')}
+                      </p>
+                    ) : (
+                      Object.entries(groupedMessages).map(([date, messagesForDate]) => (
+                        <div key={date}>
+                          <div className="flex items-center justify-center mb-4">
+                            <div className="bg-white px-3 py-1 rounded-full border border-gray-200 text-sm text-charcoal font-medium">
+                              {date}
+                            </div>
+                          </div>
 
-                      <div className="flex justify-start">
-                        <div className="bg-warm-gray rounded-2xl rounded-tl-md px-4 py-2 max-w-xs">
-                          <p className="text-sm">Absolutely! The villa has direct access to a private beach area. There are also kayaks available for your use.</p>
-                          <span className="text-xs text-charcoal mt-1 block">30 minutes ago</span>
+                          <div className="space-y-4">
+                            {messagesForDate.map((message) => {
+                              const isCurrentUser = message.read === false;
+                              return (
+                                <div
+                                  key={message.id}
+                                  className={`flex ${
+                                    isCurrentUser ? 'justify-end' : 'justify-start'
+                                  }`}
+                                >
+                                  <div
+                                    className={`flex space-x-3 max-w-xs lg:max-w-md ${
+                                      isCurrentUser
+                                        ? 'flex-row-reverse space-x-reverse'
+                                        : ''
+                                    }`}
+                                  >
+                                    <img
+                                      src={
+                                        message.sender.avatar ||
+                                        `https://ui-avatars.com/api/?name=${message.sender.name}&background=E5C469&color=0A1A2F`
+                                      }
+                                      alt={message.sender.name}
+                                      className="w-8 h-8 rounded-full shrink-0"
+                                    />
+
+                                    <div
+                                      className={`rounded-2xl px-4 py-2 ${
+                                        isCurrentUser
+                                          ? 'bg-gold text-navy rounded-tr-md'
+                                          : 'bg-warm-gray text-charcoal rounded-tl-md'
+                                      }`}
+                                    >
+                                      <p className="text-sm leading-relaxed">
+                                        {message.content}
+                                      </p>
+                                      <span
+                                        className={`text-xs mt-1 block ${
+                                          isCurrentUser
+                                            ? 'text-navy/70'
+                                            : 'text-charcoal/70'
+                                        }`}
+                                      >
+                                        {formatMessageTime(message.timestamp)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      ))
+                    )}
+
+                    <div ref={messagesEndRef} />
                   </div>
 
                   <div className="p-4 border-t border-gray-100">
                     <div className="flex space-x-3">
-                      <input
-                        type="text"
-                        placeholder={t('inbox.typeMessage')}
-                        className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
-                      />
-                      <Button variant="primary" size="sm">
-                        {t('inbox.send')}
-                      </Button>
+                      <div className="flex-1 relative">
+                        <textarea
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          onKeyPress={handleKeyPress}
+                          placeholder={t('chatDetail.typeMessage')}
+                          rows={1}
+                          className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold resize-none max-h-32"
+                          style={{ minHeight: '44px' }}
+                        />
+                        <button
+                          onClick={handleSendMessage}
+                          disabled={!newMessage.trim()}
+                          className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors ${
+                            newMessage.trim()
+                              ? 'text-gold hover:bg-gold/10'
+                              : 'text-gray-400 cursor-not-allowed'
+                          }`}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2 text-xs text-charcoal">
+                      {quickTemplates.map((key) => (
+                        <button
+                          key={key}
+                          type="button"
+                          className="px-3 py-1 rounded-full border border-gray-200 hover:bg-gold/10 hover:border-gold transition-colors"
+                          onClick={() => {
+                            const template = t(key);
+                            setNewMessage((prev) =>
+                              prev ? `${prev.trim()}\n${template}` : template,
+                            );
+                          }}
+                        >
+                          {t(key)}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-end mt-3 text-sm text-charcoal">
+                      <span className="text-xs">
+                        {t('chatDetail.pressEnterToSend')}
+                      </span>
                     </div>
                   </div>
                 </Card>
@@ -257,7 +566,7 @@ const Inbox: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <Card variant="default" className="p-6 mt-8 bg-gradient-to-r from-gold/5 to-navy/5 border-gold/20">
+          <Card variant="default" className="p-6 mt-8 bg-linear-to-r from-gold/5 to-navy/5 border-gold/20">
             <h3 className="text-lg font-semibold text-navy mb-4">{t('inbox.communicationTips.title')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">

@@ -549,6 +549,7 @@
     "noConversationsFound": "Nenhuma conversa encontrada",
     "noConversationsMessage": "Tente ajustar seus termos de busca.",
     "noConversationsEmpty": "Inicie uma conversa com um anfitrião para ver mensagens aqui.",
+    "totalUnread": "Mensagens não lidas",
     "totalConversations": "Total de conversas",
     "selectConversation": "Selecione uma conversa",
     "selectConversationMessage": "Escolha uma conversa da lista para ver mensagens e continuar sua discussão com o anfitrião.",
@@ -584,6 +585,13 @@
     "yesterday": "Ontem",
     "typeMessage": "Digite sua mensagem...",
     "pressEnterToSend": "Pressione Enter para enviar",
+    "quickTemplates": {
+      "askCapacity": "Qual é a capacidade do imóvel?",
+      "closestWarehouse": "Qual é o armazém mais próximo?",
+      "interestedInDates": "Tenho interesse em reservar para as seguintes datas:",
+      "paymentMethods": "Quais formas de pagamento vocês aceitam?",
+      "depositConfirmation": "Já fiz o sinal. Você poderia me confirmar quando receber?"
+    },
     "quickActions": {
       "suggestDates": "📅 Sugerir datas",
       "changeGuestCount": "👥 Alterar número de hóspedes",

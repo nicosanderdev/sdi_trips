@@ -67,9 +67,16 @@ function transformProperty(dbProperty: PropertyWithRelations): Property {
     reviewCount: 0, // TODO: Implement real reviews
     host: {
       id: dbProperty.Owners?.Id || dbProperty.OwnerId || '',
-      name: `${dbProperty.Owners?.FirstName || ''} ${dbProperty.Owners?.LastName || ''}`.trim() || 'Host',
+      name:
+        `${dbProperty.Owners?.FirstName || ''} ${
+          dbProperty.Owners?.LastName || ''
+        }`.trim() || 'Host',
       email: dbProperty.Owners?.Email || '',
       avatar: dbProperty.Owners?.AvatarUrl || undefined,
+      phone:
+        dbProperty.Owners?.PhonePrefix && dbProperty.Owners?.Phone
+          ? `${dbProperty.Owners.PhonePrefix}${dbProperty.Owners.Phone}`
+          : dbProperty.Owners?.Phone || undefined,
       verified: true, // TODO: Implement verification status
     },
     available: propertyValue.IsActive && propertyValue.IsPropertyVisible,

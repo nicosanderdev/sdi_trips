@@ -1,5 +1,11 @@
 import { supabase } from '../lib/supabase';
-import type { PropertyMessage } from '../types';
+import type {
+  PropertyMessage,
+  Conversation,
+  Message,
+  User,
+  Property,
+} from '../types';
 
 interface DatabaseMessage {
   id: string;
@@ -18,6 +24,214 @@ interface DatabaseMessage {
   isStarred: boolean;
   isArchived: boolean;
 }
+
+interface GuestInboxThreadRow {
+  threadId: string;
+  propertyId: string | null;
+  propertyTitle: string | null;
+  propertyLocation: string | null;
+  otherParticipantId: string | null;
+  otherParticipantName: string | null;
+  lastMessageSnippet: string | null;
+  lastMessageAt: string | null;
+  unreadCount: number | null;
+}
+
+interface ThreadMessageRow {
+  id: string;
+  threadId: string;
+  senderId: string;
+  senderName: string;
+  recipientId: string | null;
+  propertyId: string | null;
+  propertyTitle: string | null;
+  subject: string | null;
+  snippet: string | null;
+  fullBody: string | null;
+  createdAt: string;
+  isRead: boolean;
+  isReplied: boolean;
+  isStarred: boolean;
+  isArchived: boolean;
+}
+
+function mapGuestInboxRowToConversation(row: GuestInboxThreadRow): Conversation {
+  const hostUser: User = {
+    id: row.otherParticipantId ?? '',
+    name: row.otherParticipantName ?? '',
+    email: '',
+    avatar: undefined,
+    phone: undefined,
+    verified: false,
+  };
+
+  const property: Property = {
+    id: row.propertyId ?? '',
+    title: row.propertyTitle ?? '',
+    location: row.propertyLocation ?? '',
+    price: 0,
+    currency: 'USD',
+    images: [],
+    bedrooms: 0,
+    bathrooms: 0,
+    maxGuests: 0,
+    description: '',
+    amenities: [],
+    rating: 0,
+    reviewCount: 0,
+    host: hostUser,
+    available: true,
+    coordinates: { lat: 0, lng: 0 },
+  };
+
+  const lastMessage: Message | undefined =
+    row.lastMessageSnippet && row.lastMessageAt
+      ? {
+          id: `${row.threadId}-last`,
+          conversationId: row.threadId,
+          sender: hostUser,
+          content: row.lastMessageSnippet,
+          timestamp: row.lastMessageAt,
+          read: (row.unreadCount ?? 0) === 0,
+        }
+      : undefined;
+
+  return {
+    id: row.threadId,
+    participants: [hostUser],
+    property,
+    lastMessage,
+    unreadCount: row.unreadCount ?? 0,
+    updatedAt: row.lastMessageAt ?? new Date().toISOString(),
+  };
+}
+
+function mapThreadRowToMessage(row: ThreadMessageRow, currentUserId: string | undefined): Message {
+  const sender: User = {
+    id: row.senderId,
+    name: row.senderName,
+    email: '',
+    avatar: undefined,
+    verified: false,
+  };
+
+  const isRead =
+    currentUserId && row.recipientId === currentUserId ? row.isRead : true;
+
+  return {
+    id: row.id,
+    conversationId: row.threadId,
+    sender,
+    content: row.fullBody ?? row.snippet ?? '',
+    timestamp: row.createdAt,
+    read: isRead,
+  };
+}
+
+export async function getGuestInboxThreads(
+  page = 1,
+  limit = 50,
+): Promise<Conversation[]> {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error('Error getting auth user for inbox:', authError);
+    throw authError ?? new Error('User not authenticated');
+  }
+
+  const { data, error } = await supabase.rpc('get_guest_inbox_threads', {
+    p_user_id: user.id,
+    p_page: page,
+    p_limit: limit,
+  });
+
+  if (error) {
+    console.error('Error fetching guest inbox threads:', error);
+    throw error;
+  }
+
+  if (!data || !Array.isArray(data)) {
+    return [];
+  }
+
+  return (data as GuestInboxThreadRow[])
+    .filter((row) => row.threadId && row.lastMessageAt)
+    .map(mapGuestInboxRowToConversation);
+}
+
+export async function getThreadMessages(
+  threadId: string,
+  options?: { page?: number; limit?: number; sortBy?: 'createdAt_asc' | 'createdAt_desc' },
+): Promise<Message[]> {
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 100;
+  const sortBy = options?.sortBy ?? 'createdAt_asc';
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error('Error getting auth user for thread messages:', authError);
+    throw authError ?? new Error('User not authenticated');
+  }
+
+  const { data, error } = await supabase.rpc('get_messages_by_thread_id', {
+    p_thread_id: threadId,
+    p_user_id: user.id,
+    p_page: page,
+    p_limit: limit,
+    p_sort_by: sortBy,
+  });
+
+  if (error) {
+    console.error('Error fetching thread messages:', error);
+    throw error;
+  }
+
+  if (!data || !Array.isArray(data)) {
+    return [];
+  }
+
+  return (data as ThreadMessageRow[]).map((row) =>
+    mapThreadRowToMessage(row, user.id),
+  );
+}
+
+export async function markThreadMessagesAsRead(
+  threadId: string,
+): Promise<void> {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error(
+      'Error getting auth user for markThreadMessagesAsRead:',
+      authError,
+    );
+    throw authError ?? new Error('User not authenticated');
+  }
+
+  const { error } = await supabase.rpc('mark_thread_messages_as_read', {
+    p_user_id: user.id,
+    p_thread_id: threadId,
+  });
+
+  if (error) {
+    console.error('Error marking thread messages as read:', error);
+    throw error;
+  }
+}
+
+// Unread counts are kept in sync between the inbox UI and backend
+// via the markThreadMessagesAsRead helper and the corresponding
+// mark_thread_messages_as_read Supabase RPC.
 
 /**
  * Get all messages for a specific property
