@@ -64,6 +64,17 @@
     border: 1px solid rgba(229, 196, 105, 0.2);
   }
 
+  /* Onboarding tour: highlight ring around target element */
+  .onboarding-highlight {
+    box-shadow: 0 0 0 3px var(--color-gold);
+    animation: onboarding-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes onboarding-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 3px var(--color-gold); }
+    50% { opacity: 0.9; box-shadow: 0 0 0 4px var(--color-gold); }
+  }
+
   /* Custom datepicker styles */
   .custom-datepicker .react-datepicker {
     font-family: 'Manrope', system-ui, sans-serif;

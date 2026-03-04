@@ -8,6 +8,7 @@ import { getMemberProfile, updateMemberProfile, uploadProfilePicture, requestEma
 import { getUserBookingsCount } from '../services/bookingService';
 import { enrollMFA, verifyMFAEnrollment, listMFAFactors, unenrollMFA } from '../services/mfaService';
 import { Modal, VerificationModal } from '../components/ui';
+import { OnboardingTour } from '../components/onboarding';
 import type { MFAFactor, MFAEnrollment } from '../types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -49,10 +50,17 @@ const Profile: React.FC = () => {
 
   // Booking eligibility
   const [eligibility, setEligibility] = useState<BookingEligibility | null>(null);
-  const [eligibilityLoading, setEligibilityLoading] = useState(false);
+  const [, setEligibilityLoading] = useState(false);
 
   // File input ref for camera button
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Onboarding tour target refs
+  const onboardingRefWelcome = useRef<HTMLDivElement>(null);
+  const onboardingRefVerifyEmail = useRef<HTMLDivElement>(null);
+  const onboardingRefVerifyPhone = useRef<HTMLDivElement>(null);
+  const onboardingRefProfilePhoto = useRef<HTMLDivElement>(null);
+  const onboardingRefMyBookings = useRef<HTMLButtonElement>(null);
 
   // Mock bookings for now - will be replaced with real API later
   const userBookings: any[] = [];
@@ -69,6 +77,47 @@ const Profile: React.FC = () => {
   });
 
   const [editData, setEditData] = useState(profileData);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+
+  const onboardingSteps = [
+    {
+      key: 'welcome',
+      targetId: 'welcome',
+      titleKey: 'onboarding.welcome.title',
+      messageKey: 'onboarding.welcome.message',
+    },
+    {
+      key: 'verifyEmail',
+      targetId: 'verifyEmail',
+      titleKey: 'onboarding.verifyEmail.title',
+      messageKey: 'onboarding.verifyEmail.message',
+    },
+    {
+      key: 'verifyPhone',
+      targetId: 'verifyPhone',
+      titleKey: 'onboarding.verifyPhone.title',
+      messageKey: 'onboarding.verifyPhone.message',
+    },
+    {
+      key: 'profilePhoto',
+      targetId: 'profilePhoto',
+      titleKey: 'onboarding.profilePhoto.title',
+      messageKey: 'onboarding.profilePhoto.message',
+    },
+    {
+      key: 'myBookings',
+      targetId: 'myBookings',
+      titleKey: 'onboarding.myBookings.title',
+      messageKey: 'onboarding.myBookings.message',
+    },
+    {
+      key: 'farewell',
+      targetId: 'welcome',
+      titleKey: 'onboarding.farewell.title',
+      messageKey: 'onboarding.farewell.message',
+    },
+  ];
 
   const SUPPORTED_PHONE_COUNTRIES = [
     { code: 'UY', dialCode: '+598' },
@@ -161,13 +210,18 @@ const Profile: React.FC = () => {
             phoneCountry: parsedPhone.phoneCountry,
             phoneLocal: parsedPhone.phoneLocal,
             bio: 'Travel enthusiast and photography lover. Always seeking the perfect blend of luxury and adventure.', // TODO: Add bio to member profile
-            location: 'Barcelona, Spain', // TODO: Add location to member profile
+            location: '', // No default; user can add in profile. TODO: derive from Member City/Country when available.
           };
           setProfileData(profileInfo);
           setEditData(profileInfo);
           setCurrentUser(memberProfile);
           setOriginalEmail(memberProfile.email);
           setOriginalPhone(profileInfo.phone);
+
+          if (memberProfile.needsOnboarding) {
+            setShowOnboarding(true);
+            setOnboardingStep(0);
+          }
 
           // Fetch user bookings count
           const bookingsCount = await getUserBookingsCount(user.id);
@@ -556,10 +610,42 @@ const Profile: React.FC = () => {
     { id: 'bookings' as const, label: t('profile.tabs.myBookings'), icon: Calendar },
   ];
 
+  // Email/phone verification badges use Supabase auth; require "Confirm email" in Auth settings
+  // so new users show as unverified until they confirm.
   const isEmailVerified = !!user?.email_confirmed_at;
   const isPhoneVerified = !!user?.phone_confirmed_at;
   const hasPhone = !!eligibility?.hasPhone;
   const meetsBookingRequirements = !!eligibility?.meetsRequirements;
+
+  const handleCompleteOnboarding = async () => {
+    if (!user || !currentUser?.needsOnboarding) {
+      setShowOnboarding(false);
+      return;
+    }
+
+    try {
+      await updateMemberProfile(user.id, { NeedsOnboarding: false });
+      setCurrentUser(prev =>
+        prev ? { ...prev, needsOnboarding: false } : prev
+      );
+    } catch (err) {
+      console.error('Error completing onboarding:', err);
+    } finally {
+      setShowOnboarding(false);
+    }
+  };
+
+  const handleOnboardingNext = () => {
+    if (onboardingStep >= onboardingSteps.length - 1) {
+      void handleCompleteOnboarding();
+    } else {
+      setOnboardingStep(prev => prev + 1);
+    }
+  };
+
+  const handleOnboardingSkip = () => {
+    void handleCompleteOnboarding();
+  };
 
   if (loading) {
     return (
@@ -601,7 +687,7 @@ const Profile: React.FC = () => {
       <div className="py-12 px-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div ref={onboardingRefWelcome} className="mb-8">
             <h1 className="text-4xl md:text-5xl font-thin text-navy mb-2">
               <span className="font-bold text-gold">{t('profile.header.title')}</span>
             </h1>
@@ -645,6 +731,7 @@ const Profile: React.FC = () => {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
+                ref={tab.id === 'bookings' ? onboardingRefMyBookings : undefined}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                   activeTab === tab.id
@@ -664,7 +751,7 @@ const Profile: React.FC = () => {
               {/* Profile Summary Card */}
               <div className="lg:col-span-1">
                 <Card variant="default" className="p-6 text-center">
-                  <div className="relative inline-block mb-4">
+                  <div ref={onboardingRefProfilePhoto} className="relative inline-block mb-4">
                     <img
                       src={currentUser.avatar}
                       alt={currentUser.name}
@@ -696,14 +783,16 @@ const Profile: React.FC = () => {
                   <h2 className="text-xl font-semibold text-navy mb-2">
                     {profileData.firstName} {profileData.lastName}
                   </h2>
-                  <p className="text-charcoal mb-4">{profileData.location}</p>
+                  {profileData.location ? (
+                    <p className="text-charcoal mb-4">{profileData.location}</p>
+                  ) : null}
 
                   {/* Verification Status Card */}
                   <div className="bg-warm-gray rounded-lg pt-4 mb-2">
                     <h4 className="text-sm font-semibold text-navy mb-3">
                       {t('profile.verification.security')}
                     </h4>
-                    <div className="flex items-center justify-between mb-2">
+                    <div ref={onboardingRefVerifyEmail} className="flex items-center justify-between mb-2">
                       <span className="text-sm text-charcoal">
                         {t('profile.verification.emailVerifiedText')}:
                       </span>
@@ -717,7 +806,7 @@ const Profile: React.FC = () => {
                         }
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div ref={onboardingRefVerifyPhone} className="flex items-center justify-between mb-2">
                       <span className="text-sm text-charcoal">
                         {t('profile.verification.phoneVerifiedText')}:
                       </span>
@@ -1118,6 +1207,23 @@ const Profile: React.FC = () => {
         enrollmentData={mfaEnrollmentData}
         onVerify={handleMFAEnrollmentVerify}
       />
+
+      {/* Onboarding Tour (contextual guided tour) */}
+      {showOnboarding && (
+        <OnboardingTour
+          steps={onboardingSteps}
+          currentStep={onboardingStep}
+          targetRefs={{
+            welcome: onboardingRefWelcome,
+            verifyEmail: onboardingRefVerifyEmail,
+            verifyPhone: onboardingRefVerifyPhone,
+            profilePhoto: onboardingRefProfilePhoto,
+            myBookings: onboardingRefMyBookings,
+          }}
+          onNext={handleOnboardingNext}
+          onSkip={handleOnboardingSkip}
+        />
+      )}
     </Layout>
   );
 };

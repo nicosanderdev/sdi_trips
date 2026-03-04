@@ -18,6 +18,8 @@ export async function getBookingEligibility(
     };
   }
 
+  // Email verified state comes from Supabase auth; ensure Auth > Email "Confirm email" is enabled
+  // for new signups so email_confirmed_at is null until the user confirms.
   const isEmailVerified = !!user.email_confirmed_at;
 
   let hasPhone = false;

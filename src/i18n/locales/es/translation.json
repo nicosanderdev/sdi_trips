@@ -25,7 +25,7 @@
   },
   "nav": {
     "home": "Inicio",
-    "about": "Acerca de",
+    "about": "Acerca",
     "terms": "Términos",
     "searchPlaceholder": "Buscar destinos...",
     "signIn": "Iniciar sesión",
@@ -35,7 +35,8 @@
     "inbox": "Bandeja de entrada",
     "logo": "Holiday Trips",
     "profile": "Perfil",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "logoutAlert": "Tu sesión se cerrará."
   },
   "auth": {
     "welcomeBack": "Bienvenido de vuelta",
@@ -56,6 +57,7 @@
     "orContinueWith": "O continúa con",
     "google": "Google",
     "twitter": "Twitter",
+    "facebook": "Facebook",
     "luxuryHolidayHome": "Casa de vacaciones de lujo",
     "testimonialQuote": "La combinación perfecta de lujo y comodidad para nuestras vacaciones familiares.",
     "testimonialAuthor": "Sarah Johnson",
@@ -534,6 +536,36 @@
       "failedToUpdate": "Error al actualizar el perfil. Por favor intenta nuevamente."
     }
   },
+  "onboarding": {
+    "welcome": {
+      "title": "Bienvenido a Holiday Trips",
+      "message": "Tu perfil está listo. Te mostramos lo esencial para empezar a reservar."
+    },
+    "verifyEmail": {
+      "title": "Verifica tu correo",
+      "message": "Verifica tu correo aquí para solicitar estadías. Haz clic en Editar perfil para actualizarlo."
+    },
+    "verifyPhone": {
+      "title": "Agrega y verifica tu teléfono",
+      "message": "Agrega y confirma tu teléfono en el perfil para alquilar casas."
+    },
+    "profilePhoto": {
+      "title": "Agrega una foto de perfil",
+      "message": "Sube una foto aquí (primero Editar perfil). Ayuda a los anfitriones a reconocerte."
+    },
+    "myBookings": {
+      "title": "Revisa tus reservas",
+      "message": "Tus viajes aparecerán aquí. Abre esta pestaña para ver tus reservas."
+    },
+    "farewell": {
+      "title": "Listo para explorar",
+      "message": "Estás listo. Te deseamos viajes increíbles y excelentes estadías."
+    },
+    "skip": "Saltar por ahora",
+    "next": "Siguiente",
+    "done": "Listo",
+    "stepIndicator": "Paso {{current}} de {{total}}"
+  },
   "mfa": {
     "enable": "Habilitar 2FA",
     "disable": "Deshabilitar 2FA",
@@ -826,5 +858,135 @@
     "unavailable": "No Disponible",
     "hostedBy": "Alojado por {{name}}",
     "verifiedHost": "Anfitrión Verificado"
+  },
+  "terms": {
+    "hero": {
+      "title": "Términos de",
+      "titleHighlight": "Servicio",
+      "description1": "Lee estos términos cuidadosamente antes de usar Holiday Trips.",
+      "description2": "Al utilizar nuestros servicios, aceptas quedar sujeto a estos términos.",
+      "lastUpdated": "Última actualización:"
+    },
+    "sections": {
+      "acceptance": {
+        "title": "Aceptación de los Términos",
+        "paragraph1": "Al acceder y utilizar Holiday Trips, aceptas y te comprometes a cumplir los términos y disposiciones de este acuerdo. Si no estás de acuerdo con lo anterior, por favor no utilices este servicio.",
+        "paragraph2": "Estos Términos de Servicio se aplican a todos los visitantes, usuarios y demás personas que accedan o utilicen nuestros servicios. Al utilizar nuestros servicios, aceptas quedar sujeto a estos términos."
+      },
+      "useLicense": {
+        "title": "Licencia de uso",
+        "paragraph1": "Se concede permiso para descargar temporalmente una copia de los materiales de Holiday Trips solo para visualización transitoria personal y no comercial.",
+        "paragraph2": "Se trata de la concesión de una licencia, no de una transferencia de propiedad, y bajo esta licencia no puedes:",
+        "item1": "modificar o copiar los materiales",
+        "item2": "utilizar los materiales con fines comerciales o para cualquier exhibición pública",
+        "item3": "intentar realizar ingeniería inversa de cualquier software contenido en nuestro sitio web",
+        "item4": "eliminar cualquier aviso de derechos de autor u otras notas de propiedad de los materiales"
+      },
+      "userAccount": {
+        "title": "Cuenta de usuario",
+        "paragraph1": "Cuando creas una cuenta con nosotros, debes proporcionar información exacta, completa y actualizada en todo momento. Eres responsable de resguardar tu contraseña y de todas las actividades que ocurran bajo tu cuenta.",
+        "paragraph2": "Aceptas no revelar tu contraseña a ningún tercero. Debes notificarnos de inmediato si tomas conocimiento de alguna vulneración de seguridad o uso no autorizado de tu cuenta."
+      },
+      "bookings": {
+        "title": "Reservas y pagos",
+        "paragraph1": "Todas las reservas están sujetas a disponibilidad y confirmación. Los precios pueden cambiar sin previo aviso hasta que la reserva sea confirmada.",
+        "paragraph2": "El pago debe realizarse en su totalidad al momento de reservar, salvo que se acuerde lo contrario. Aceptamos tarjetas de crédito principales y otros métodos de pago que se muestran en nuestra plataforma.",
+        "paragraph3": "Las cancelaciones y reembolsos están sujetos a la política de cancelación específica de cada propiedad, que se mostrará claramente durante el proceso de reserva."
+      },
+      "propertyStandards": {
+        "title": "Estándares de las propiedades",
+        "paragraph1": "Nos esforzamos por ofrecer propiedades que cumplan altos estándares de calidad, limpieza y seguridad. Todas las propiedades listadas en nuestra plataforma han sido inspeccionadas y aprobadas por nuestro equipo.",
+        "paragraph2": "Sin embargo, no podemos garantizar el estado de las propiedades en todo momento, y los huéspedes deben informar cualquier inconveniente inmediatamente al llegar para que podamos resolverlo con rapidez."
+      },
+      "liability": {
+        "title": "Limitación de responsabilidad",
+        "paragraph1": "En ningún caso Holiday Trips ni sus proveedores serán responsables por ningún daño (incluyendo, sin limitación, daños por pérdida de datos o de ganancias, o por interrupción del negocio) que surja del uso o la imposibilidad de uso de los materiales en nuestra plataforma.",
+        "paragraph2": "No seremos responsables por daños directos, indirectos, incidentales, consecuentes o punitivos que se deriven del uso que hagas de nuestros servicios."
+      },
+      "privacy": {
+        "title": "Política de privacidad",
+        "paragraph1": "Tu privacidad es importante para nosotros. Revisa nuestra Política de Privacidad, que también rige el uso de nuestros servicios, para entender nuestras prácticas.",
+        "paragraph2": "Al utilizar nuestros servicios, prestas tu consentimiento para la recopilación y el uso de la información de acuerdo con nuestra Política de Privacidad."
+      },
+      "termination": {
+        "title": "Terminación",
+        "paragraph1": "Podemos cancelar o suspender tu cuenta de forma inmediata, sin previo aviso ni responsabilidad, por cualquier motivo, incluyendo sin limitación si incumples estos Términos.",
+        "paragraph2": "Al finalizar la cuenta, tu derecho a utilizar el servicio cesará de inmediato. Si deseas cerrar tu cuenta, simplemente puedes dejar de utilizar el servicio."
+      },
+      "changes": {
+        "title": "Cambios en los Términos",
+        "paragraph1": "Nos reservamos el derecho, a nuestro exclusivo criterio, de modificar o reemplazar estos Términos en cualquier momento. Si la revisión es sustancial, intentaremos avisar con al menos 30 días de antelación antes de que entren en vigencia los nuevos términos.",
+        "paragraph2": "Qué constituye un cambio sustancial será determinado a nuestro exclusivo criterio. Al continuar accediendo o utilizando nuestro servicio después de que dichas revisiones entren en vigencia, aceptas quedar sujeto a los términos revisados."
+      },
+      "contact": {
+        "title": "Información de contacto",
+        "intro": "Si tienes alguna pregunta sobre estos Términos de Servicio, contáctanos:",
+        "emailLabel": "Correo electrónico",
+        "phoneLabel": "Teléfono",
+        "addressLabel": "Dirección"
+      }
+    },
+    "footer": {
+      "questionsTitle": "¿Preguntas sobre nuestros términos?",
+      "questionsBody": "Si tienes alguna pregunta sobre estos Términos de Servicio o necesitas aclarar algún punto, no dudes en ponerte en contacto con nuestro equipo legal.",
+      "contactButton": "Contactar al equipo legal"
+    }
+  },
+  "privacy": {
+    "hero": {
+      "title": "Política de",
+      "titleHighlight": "Privacidad",
+      "description1": "Esta Política de Privacidad explica cómo recopilamos, usamos y protegemos tus datos personales cuando utilizas nuestra plataforma.",
+      "description2": "Al utilizar nuestros servicios, aceptas las prácticas descritas en esta política.",
+      "lastUpdated": "Última actualización:"
+    },
+    "sections": {
+      "controller": {
+        "title": "Identificación del Responsable",
+        "paragraph1": "El responsable del tratamiento de tus datos personales es [Nombre de la Empresa/Plataforma], con domicilio en [Dirección física], y correo electrónico de contacto [Email de soporte]."
+      },
+      "dataCollected": {
+        "title": "Datos que Recolectamos",
+        "intro": "Para facilitar el alquiler de propiedades, recolectamos:",
+        "item1": "Datos de identidad: Nombre completo, número de documento (DNI, Cédula, Pasaporte).",
+        "item2": "Datos de contacto: Correo electrónico, número de teléfono, domicilio.",
+        "item3": "Datos de la propiedad: (En caso de ser propietario) Dirección, fotos y descripción.",
+        "item4": "Datos de pago: Información procesada de forma segura a través de nuestras pasarelas de pago (no almacenamos números de tarjeta completos).",
+        "item5": "Datos técnicos: Dirección IP, cookies y datos de navegación."
+      },
+      "purpose": {
+        "title": "Finalidad del Tratamiento",
+        "intro": "Utilizamos tus datos para:",
+        "item1": "Gestionar reservas y pagos.",
+        "item2": "Facilitar la comunicación entre inquilinos y propietarios.",
+        "item3": "Verificar la identidad de los usuarios por seguridad.",
+        "item4": "Enviar comunicaciones promocionales (solo si tú lo autorizas).",
+        "item5": "Cumplir con obligaciones legales y fiscales en Uruguay, Argentina y Brasil."
+      },
+      "legalBasis": {
+        "title": "Base Legal",
+        "intro": "Tratamos tus datos basados en:",
+        "item1": "La ejecución del contrato de alquiler.",
+        "item2": "Tu consentimiento expreso.",
+        "item3": "El cumplimiento de obligaciones legales."
+      },
+      "internationalTransfers": {
+        "title": "Transferencia Internacional de Datos",
+        "paragraph1": "Dado que operamos en Uruguay, Argentina y Brasil, tus datos pueden ser transferidos entre estos países para la prestación del servicio. Nos aseguramos de que dichas transferencias cumplan con los estándares de seguridad exigidos por las autoridades locales (URCDP en Uruguay, AAIP en Argentina y ANPD en Brasil)."
+      },
+      "userRights": {
+        "title": "Derechos del Usuario",
+        "paragraph1": "Tienes derecho a acceder, rectificar, actualizar, suprimir o revocar el consentimiento del uso de tus datos. Para ejercer estos derechos, envía un correo a [Email de soporte] con el asunto \"Protección de Datos\"."
+      },
+      "security": {
+        "title": "Seguridad",
+        "paragraph1": "Implementamos medidas técnicas y organizativas para proteger tus datos contra acceso no autorizado, pérdida o alteración."
+      }
+    },
+    "footer": {
+      "questionsTitle": "¿Dudas sobre nuestra Política de Privacidad?",
+      "questionsBody": "Si tienes preguntas sobre esta Política de Privacidad o sobre cómo tratamos tus datos personales, ponte en contacto con nuestro equipo.",
+      "contactButton": "Contactar al equipo de privacidad"
+    }
   }
 }

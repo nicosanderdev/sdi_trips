@@ -4,7 +4,7 @@ import { Layout } from '../components/layout';
 import { Card } from '../components/ui';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-const Terms: React.FC = () => {
+const Privacy: React.FC = () => {
   const { t } = useTranslation();
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
 
@@ -20,119 +20,84 @@ const Terms: React.FC = () => {
 
   const sections = [
     {
-      id: 'acceptance',
-      title: t('terms.sections.acceptance.title'),
+      id: 'controller',
+      title: t('privacy.sections.controller.title'),
       content: (
         <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.acceptance.paragraph1')}</p>
-          <p>{t('terms.sections.acceptance.paragraph2')}</p>
+          <p>{t('privacy.sections.controller.paragraph1')}</p>
         </div>
       ),
     },
     {
-      id: 'use-license',
-      title: t('terms.sections.useLicense.title'),
+      id: 'data-collected',
+      title: t('privacy.sections.dataCollected.title'),
       content: (
         <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.useLicense.paragraph1')}</p>
-          <p>{t('terms.sections.useLicense.paragraph2')}</p>
+          <p>{t('privacy.sections.dataCollected.intro')}</p>
           <ul className="list-disc list-inside space-y-2 ml-4">
-            <li>{t('terms.sections.useLicense.item1')}</li>
-            <li>{t('terms.sections.useLicense.item2')}</li>
-            <li>{t('terms.sections.useLicense.item3')}</li>
-            <li>{t('terms.sections.useLicense.item4')}</li>
+            <li>{t('privacy.sections.dataCollected.item1')}</li>
+            <li>{t('privacy.sections.dataCollected.item2')}</li>
+            <li>{t('privacy.sections.dataCollected.item3')}</li>
+            <li>{t('privacy.sections.dataCollected.item4')}</li>
+            <li>{t('privacy.sections.dataCollected.item5')}</li>
           </ul>
         </div>
       ),
     },
     {
-      id: 'user-account',
-      title: t('terms.sections.userAccount.title'),
+      id: 'purpose',
+      title: t('privacy.sections.purpose.title'),
       content: (
         <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.userAccount.paragraph1')}</p>
-          <p>{t('terms.sections.userAccount.paragraph2')}</p>
+          <p>{t('privacy.sections.purpose.intro')}</p>
+          <ul className="list-disc list-inside space-y-2 ml-4">
+            <li>{t('privacy.sections.purpose.item1')}</li>
+            <li>{t('privacy.sections.purpose.item2')}</li>
+            <li>{t('privacy.sections.purpose.item3')}</li>
+            <li>{t('privacy.sections.purpose.item4')}</li>
+            <li>{t('privacy.sections.purpose.item5')}</li>
+          </ul>
         </div>
       ),
     },
     {
-      id: 'bookings',
-      title: t('terms.sections.bookings.title'),
+      id: 'legal-basis',
+      title: t('privacy.sections.legalBasis.title'),
       content: (
         <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.bookings.paragraph1')}</p>
-          <p>{t('terms.sections.bookings.paragraph2')}</p>
-          <p>{t('terms.sections.bookings.paragraph3')}</p>
+          <p>{t('privacy.sections.legalBasis.intro')}</p>
+          <ul className="list-disc list-inside space-y-2 ml-4">
+            <li>{t('privacy.sections.legalBasis.item1')}</li>
+            <li>{t('privacy.sections.legalBasis.item2')}</li>
+            <li>{t('privacy.sections.legalBasis.item3')}</li>
+          </ul>
         </div>
       ),
     },
     {
-      id: 'property-standards',
-      title: t('terms.sections.propertyStandards.title'),
+      id: 'international-transfers',
+      title: t('privacy.sections.internationalTransfers.title'),
       content: (
         <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.propertyStandards.paragraph1')}</p>
-          <p>{t('terms.sections.propertyStandards.paragraph2')}</p>
+          <p>{t('privacy.sections.internationalTransfers.paragraph1')}</p>
         </div>
       ),
     },
     {
-      id: 'liability',
-      title: t('terms.sections.liability.title'),
+      id: 'user-rights',
+      title: t('privacy.sections.userRights.title'),
       content: (
         <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.liability.paragraph1')}</p>
-          <p>{t('terms.sections.liability.paragraph2')}</p>
+          <p>{t('privacy.sections.userRights.paragraph1')}</p>
         </div>
       ),
     },
     {
-      id: 'privacy',
-      title: t('terms.sections.privacy.title'),
+      id: 'security',
+      title: t('privacy.sections.security.title'),
       content: (
         <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.privacy.paragraph1')}</p>
-          <p>{t('terms.sections.privacy.paragraph2')}</p>
-        </div>
-      ),
-    },
-    {
-      id: 'termination',
-      title: t('terms.sections.termination.title'),
-      content: (
-        <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.termination.paragraph1')}</p>
-          <p>{t('terms.sections.termination.paragraph2')}</p>
-        </div>
-      ),
-    },
-    {
-      id: 'changes',
-      title: t('terms.sections.changes.title'),
-      content: (
-        <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.changes.paragraph1')}</p>
-          <p>{t('terms.sections.changes.paragraph2')}</p>
-        </div>
-      ),
-    },
-    {
-      id: 'contact',
-      title: t('terms.sections.contact.title'),
-      content: (
-        <div className="space-y-4 text-charcoal leading-relaxed">
-          <p>{t('terms.sections.contact.intro')}</p>
-          <div className="bg-warm-gray-light p-4 rounded-xl">
-            <p>
-              <strong>{t('terms.sections.contact.emailLabel')}:</strong> legal@holidaytrips.com
-            </p>
-            <p>
-              <strong>{t('terms.sections.contact.phoneLabel')}:</strong> +1 (555) 123-4567
-            </p>
-            <p>
-              <strong>{t('terms.sections.contact.addressLabel')}:</strong> 123 Luxury Lane, San Francisco, CA 94105
-            </p>
-          </div>
+          <p>{t('privacy.sections.security.paragraph1')}</p>
         </div>
       ),
     },
@@ -144,15 +109,15 @@ const Terms: React.FC = () => {
       <section className="py-20 bg-warm-gray-light">
         <div className="max-w-4xl mx-auto px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-thin text-navy mb-6">
-            {t('terms.hero.title')}{' '}
-            <span className="font-bold text-gold">{t('terms.hero.titleHighlight')}</span>
+            {t('privacy.hero.title')}{' '}
+            <span className="font-bold text-gold">{t('privacy.hero.titleHighlight')}</span>
           </h1>
           <p className="text-xl text-charcoal leading-relaxed">
-            {t('terms.hero.description1')}{' '}
-            {t('terms.hero.description2')}
+            {t('privacy.hero.description1')}{' '}
+            {t('privacy.hero.description2')}
           </p>
           <p className="text-sm text-charcoal mt-4">
-            {t('terms.hero.lastUpdated')}{' '}
+            {t('privacy.hero.lastUpdated')}{' '}
             {new Date().toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
@@ -162,7 +127,7 @@ const Terms: React.FC = () => {
         </div>
       </section>
 
-      {/* Terms Content */}
+      {/* Privacy Content */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-8">
           <div className="space-y-4">
@@ -194,16 +159,16 @@ const Terms: React.FC = () => {
           {/* Footer Note */}
           <div className="mt-12 p-6 bg-warm-gray-light rounded-2xl">
             <h3 className="text-lg font-semibold text-navy mb-3">
-              {t('terms.footer.questionsTitle')}
+              {t('privacy.footer.questionsTitle')}
             </h3>
             <p className="text-charcoal mb-4">
-              {t('terms.footer.questionsBody')}
+              {t('privacy.footer.questionsBody')}
             </p>
             <a
-              href="mailto:legal@holidaytrips.com"
+              href="mailto:privacy@holidaytrips.com"
               className="inline-flex items-center px-6 py-3 bg-gold text-navy font-semibold rounded-full hover:bg-navy hover:text-gold transition-all duration-200"
             >
-              {t('terms.footer.contactButton')}
+              {t('privacy.footer.contactButton')}
             </a>
           </div>
         </div>
@@ -212,4 +177,5 @@ const Terms: React.FC = () => {
   );
 };
 
-export default Terms;
+export default Privacy;
+

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
+import { getMemberProfile } from '../../services/memberService';
 
 interface GuestRouteProps {
   children: React.ReactNode;
@@ -9,9 +10,37 @@ interface GuestRouteProps {
 
 const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const [checkingMember, setCheckingMember] = useState(false);
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (!user) {
+        setRedirectPath(null);
+        return;
+      }
+
+      try {
+        setCheckingMember(true);
+        const member = await getMemberProfile(user.id);
+        if (member && member.needsOnboarding) {
+          setRedirectPath('/profile');
+        } else {
+          setRedirectPath('/search');
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        setRedirectPath('/search');
+      } finally {
+        setCheckingMember(false);
+      }
+    };
+
+    checkOnboarding();
+  }, [user]);
 
   // Show loading spinner while checking authentication status
-  if (loading) {
+  if (loading || (user && checkingMember) || (user && !redirectPath)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
@@ -19,9 +48,8 @@ const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
     );
   }
 
-  // Redirect authenticated users to search page
   if (user) {
-    return <Navigate to="/search" replace />;
+    return <Navigate to={redirectPath || '/search'} replace />;
   }
 
   // Render the requested page for non-authenticated users

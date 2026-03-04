@@ -91,6 +91,7 @@ export interface User {
   verified: boolean;
   created_at?: string;
   phone?: string;
+   needsOnboarding?: boolean;
 }
 
 export interface Booking {

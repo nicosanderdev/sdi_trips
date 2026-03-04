@@ -35,7 +35,8 @@
     "inbox": "Inbox",
     "logo": "Holiday Trips",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "logoutAlert": "Your session will be closed."
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -56,6 +57,7 @@
     "orContinueWith": "Or continue with",
     "google": "Google",
     "twitter": "Twitter",
+    "facebook": "Facebook",
     "luxuryHolidayHome": "Luxury holiday home",
     "testimonialQuote": "The perfect blend of luxury and comfort for our family getaway.",
     "testimonialAuthor": "Sarah Johnson",
@@ -186,22 +188,49 @@
       "subtitle": "Partners and offers to make your stay even better.",
       "insurance": {
         "title": "Insurance partners",
-        "partner1": { "name": "SecureStay Insurance", "tagline": "Coverage for your vacation rental peace of mind." },
-        "partner2": { "name": "Holiday Cover", "tagline": "Flexible plans for short-term stays." },
-        "partner3": { "name": "Local Shield", "tagline": "Trusted by property owners and guests alike." }
+        "partner1": {
+          "name": "SecureStay Insurance",
+          "tagline": "Coverage for your vacation rental peace of mind."
+        },
+        "partner2": {
+          "name": "Holiday Cover",
+          "tagline": "Flexible plans for short-term stays."
+        },
+        "partner3": {
+          "name": "Local Shield",
+          "tagline": "Trusted by property owners and guests alike."
+        }
       },
       "specialProperties": {
         "title": "Special properties",
         "explore": "Explore",
-        "property1": { "title": "Lakefront retreat", "location": "Rivera" },
-        "property2": { "title": "Country house with pool", "location": "Near Rivera" },
-        "property3": { "title": "Central apartment", "location": "Rivera downtown" }
+        "property1": {
+          "title": "Lakefront retreat",
+          "location": "Rivera"
+        },
+        "property2": {
+          "title": "Country house with pool",
+          "location": "Near Rivera"
+        },
+        "property3": {
+          "title": "Central apartment",
+          "location": "Rivera downtown"
+        }
       },
       "partners": {
         "title": "Real estate & travel partners",
-        "partner1": { "name": "Rivera Homes", "description": "Local real estate and vacation rentals." },
-        "partner2": { "name": "Travel Uruguay", "description": "Tours and experiences for your trip." },
-        "partner3": { "name": "Casa & Campo", "description": "Holiday homes and rural stays." }
+        "partner1": {
+          "name": "Rivera Homes",
+          "description": "Local real estate and vacation rentals."
+        },
+        "partner2": {
+          "name": "Travel Uruguay",
+          "description": "Tours and experiences for your trip."
+        },
+        "partner3": {
+          "name": "Casa & Campo",
+          "description": "Holiday homes and rural stays."
+        }
       }
     },
     "microcopy": "Discover extraordinary homes in Rivera. Real, nearby and ready to welcome you."
@@ -517,7 +546,6 @@
       },
       "guests": "Guests",
       "perNight": "Per Night",
-      "total": "Total",
       "viewDetails": "View Details",
       "manageBooking": "Manage Booking",
       "status": {
@@ -533,6 +561,36 @@
       "failedToLoad": "Failed to load profile information. Please try again.",
       "failedToUpdate": "Failed to update profile. Please try again."
     }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Holiday Trips",
+      "message": "Your profile is ready. We will point out a few things so you can start booking."
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "message": "Verify your email here so you can request stays. Click Edit profile to update it."
+    },
+    "verifyPhone": {
+      "title": "Add and verify your phone",
+      "message": "Add and confirm your phone in the profile form so you can rent homes."
+    },
+    "profilePhoto": {
+      "title": "Add a profile photo",
+      "message": "Upload a photo here (Edit profile first). It helps hosts recognize you."
+    },
+    "myBookings": {
+      "title": "Check your bookings",
+      "message": "Your trips will appear here. Open this tab anytime to see your reservations."
+    },
+    "farewell": {
+      "title": "All set to explore",
+      "message": "You are all set. We wish you amazing trips and great stays."
+    },
+    "skip": "Skip for now",
+    "next": "Next",
+    "done": "Done",
+    "stepIndicator": "Step {{current}} of {{total}}"
   },
   "mfa": {
     "enable": "Enable 2FA",
@@ -800,9 +858,9 @@
           "5": "5+ guests"
         },
         "rating": {
-          "any": "Any",
           "3": "3+",
           "4": "4+",
+          "any": "Any",
           "4.5": "4.5+"
         }
       }
@@ -826,5 +884,135 @@
     "unavailable": "Unavailable",
     "hostedBy": "Hosted by {{name}}",
     "verifiedHost": "Verified Host"
+  },
+  "terms": {
+    "hero": {
+      "title": "Terms of",
+      "titleHighlight": "Service",
+      "description1": "Please read these terms carefully before using Holiday Trips.",
+      "description2": "By using our services, you agree to be bound by these terms.",
+      "lastUpdated": "Last updated:"
+    },
+    "sections": {
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "paragraph1": "By accessing and using Holiday Trips, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.",
+        "paragraph2": "These Terms of Service apply to all visitors, users, and others who access or use our services. By using our services, you agree to be bound by these terms."
+      },
+      "useLicense": {
+        "title": "Use License",
+        "paragraph1": "Permission is granted to temporarily download one copy of the materials on Holiday Trips for personal, non-commercial transitory viewing only.",
+        "paragraph2": "This is the grant of a license, not a transfer of title, and under this license you may not:",
+        "item1": "modify or copy the materials",
+        "item2": "use the materials for any commercial purpose or for any public display",
+        "item3": "attempt to reverse engineer any software contained on our website",
+        "item4": "remove any copyright or other proprietary notations from the materials"
+      },
+      "userAccount": {
+        "title": "User Account",
+        "paragraph1": "When you create an account with us, you must provide information that is accurate, complete, and current at all times. You are responsible for safeguarding the password and for all activities that occur under your account.",
+        "paragraph2": "You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account."
+      },
+      "bookings": {
+        "title": "Bookings and Payments",
+        "paragraph1": "All bookings are subject to availability and confirmation. Prices are subject to change without notice until a booking is confirmed.",
+        "paragraph2": "Payment must be made in full at the time of booking unless otherwise agreed. We accept major credit cards and other payment methods as displayed on our platform.",
+        "paragraph3": "Cancellations and refunds are subject to the specific property's cancellation policy, which will be clearly displayed during the booking process."
+      },
+      "propertyStandards": {
+        "title": "Property Standards",
+        "paragraph1": "We strive to provide properties that meet high standards of quality, cleanliness, and safety. All properties listed on our platform have been inspected and approved by our team.",
+        "paragraph2": "However, we cannot guarantee the condition of properties at all times, and guests should report any issues immediately upon arrival to allow us to address them promptly."
+      },
+      "liability": {
+        "title": "Limitation of Liability",
+        "paragraph1": "In no event shall Holiday Trips or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on our platform.",
+        "paragraph2": "We shall not be held responsible for any direct, indirect, incidental, consequential, or punitive damages arising from your use of our services."
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "paragraph1": "Your privacy is important to us. Please review our Privacy Policy, which also governs your use of our services, to understand our practices.",
+        "paragraph2": "By using our services, you consent to the collection and use of information in accordance with our Privacy Policy."
+      },
+      "termination": {
+        "title": "Termination",
+        "paragraph1": "We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.",
+        "paragraph2": "Upon termination, your right to use the service will cease immediately. If you wish to terminate your account, you may simply discontinue using the service."
+      },
+      "changes": {
+        "title": "Changes to Terms",
+        "paragraph1": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will try to provide at least 30 days notice prior to any new terms taking effect.",
+        "paragraph2": "What constitutes a material change will be determined at our sole discretion. By continuing to access or use our service after those revisions become effective, you agree to be bound by the revised terms."
+      },
+      "contact": {
+        "title": "Contact Information",
+        "intro": "If you have any questions about these Terms of Service, please contact us:",
+        "emailLabel": "Email",
+        "phoneLabel": "Phone",
+        "addressLabel": "Address"
+      }
+    },
+    "footer": {
+      "questionsTitle": "Questions About Our Terms?",
+      "questionsBody": "If you have any questions about these Terms of Service or need clarification on any point, please don't hesitate to contact our legal team.",
+      "contactButton": "Contact Legal Team"
+    }
+  },
+  "privacy": {
+    "hero": {
+      "title": "Privacy",
+      "titleHighlight": "Policy",
+      "description1": "This Privacy Policy explains how we collect, use, and protect your personal data when you use our platform.",
+      "description2": "By using our services, you consent to the practices described in this policy.",
+      "lastUpdated": "Last updated:"
+    },
+    "sections": {
+      "controller": {
+        "title": "Data Controller",
+        "paragraph1": "The entity responsible for processing your personal data is [Company Name], located at [Physical Address], with the contact email [Support Email]."
+      },
+      "dataCollected": {
+        "title": "Data We Collect",
+        "intro": "To facilitate summer house rentals, we collect:",
+        "item1": "Identity Data: Full name, ID number (DNI, ID card, Passport).",
+        "item2": "Contact Data: Email address, phone number, physical address.",
+        "item3": "Property Data: (For owners) Address, photos, and descriptions.",
+        "item4": "Payment Data: Information processed securely via our payment gateways (we do not store full credit card numbers).",
+        "item5": "Technical Data: IP address, cookies, and browsing data."
+      },
+      "purpose": {
+        "title": "Purpose of Processing",
+        "intro": "We use your data to:",
+        "item1": "Manage bookings and payments.",
+        "item2": "Facilitate communication between guests and hosts.",
+        "item3": "Verify user identity for security purposes.",
+        "item4": "Send promotional communications (only with your consent).",
+        "item5": "Comply with legal and tax obligations in Uruguay, Argentina, and Brazil."
+      },
+      "legalBasis": {
+        "title": "Legal Basis",
+        "intro": "We process your data based on:",
+        "item1": "Performance of the rental contract.",
+        "item2": "Your express consent.",
+        "item3": "Compliance with legal obligations."
+      },
+      "internationalTransfers": {
+        "title": "International Data Transfers",
+        "paragraph1": "As we operate in Uruguay, Argentina, and Brazil, your data may be transferred between these countries to provide the service. We ensure that such transfers comply with the security standards required by local authorities (URCDP in Uruguay, AAIP in Argentina, and ANPD in Brazil)."
+      },
+      "userRights": {
+        "title": "User Rights",
+        "paragraph1": "You have the right to access, rectify, update, delete, or withdraw consent for the use of your data. To exercise these rights, please send an email to [Support Email] with the subject \"Data Protection.\""
+      },
+      "security": {
+        "title": "Security",
+        "paragraph1": "We implement technical and organizational measures to protect your data against unauthorized access, loss, or alteration."
+      }
+    },
+    "footer": {
+      "questionsTitle": "Questions About Our Privacy Policy?",
+      "questionsBody": "If you have any questions about this Privacy Policy or how we handle your personal data, please contact our team.",
+      "contactButton": "Contact Privacy Team"
+    }
   }
 }

@@ -30,3 +30,5 @@ tasks/
 supabase/functions/
 
 supabase/functions/send-booking-confirmation/index.ts
+
+supabase/

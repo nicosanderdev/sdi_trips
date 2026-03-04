@@ -10,6 +10,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const isLoggedIn = !!user;
   const location = useLocation();
   const { t, i18n: i18nInstance } = useTranslation();
@@ -17,8 +18,7 @@ const Navbar: React.FC = () => {
   const navItems = [
     { path: '/', labelKey: 'nav.home' },
     { path: '/about', labelKey: 'nav.about' },
-    { path: '/contact', labelKey: 'common.contact', defaultLabel: 'Contact' },
-    { path: '/terms', labelKey: 'nav.terms' },
+    { path: '/contact', labelKey: 'common.contact', defaultLabel: 'Contact' }
   ];
 
   const userMenuItems = [
@@ -89,17 +89,47 @@ const Navbar: React.FC = () => {
                         : 'text-navy hover:bg-gold hover:text-navy'
                     }`}
                     title={t(item.labelKey)}
+                    aria-label={t(item.labelKey)}
                   >
                     <item.icon className="h-5 w-5" />
                   </Link>
                 ))}
-                <button
-                  onClick={handleLogout}
-                  className="p-2 rounded-full text-navy hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-                  title={t('nav.logout')}
-                >
-                  <LogOut className="h-5 w-5" />
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowLogoutConfirm(true)}
+                    className="p-2 rounded-full text-navy hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+                    title={t('nav.logout')}
+                    aria-label={t('nav.logout')}
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                  {showLogoutConfirm && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-50">
+                      <p className="text-xs text-gray-700 mb-3">
+                        {t('nav.logoutAlert')}
+                      </p>
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowLogoutConfirm(false)}
+                          className="px-3 py-1 rounded-full text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                        >
+                          {t('common.cancel', { defaultValue: 'Cancel' })}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await handleLogout();
+                            setShowLogoutConfirm(false);
+                          }}
+                          className="px-3 py-1 rounded-full text-xs font-medium bg-red-700 text-white hover:bg-red-800 transition-colors"
+                        >
+                          {t('nav.logout')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <div className="flex items-center space-x-3">
@@ -187,16 +217,42 @@ const Navbar: React.FC = () => {
                     <span>{t(item.labelKey)}</span>
                   </Link>
                 ))}
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsOpen(false);
-                  }}
-                  className="flex items-center space-x-3 w-full px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span>{t('nav.logout')}</span>
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowLogoutConfirm(true)}
+                    className="flex items-center space-x-3 w-full px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    <span>{t('nav.logout')}</span>
+                  </button>
+                  {showLogoutConfirm && (
+                    <div className="absolute right-4 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-50">
+                      <p className="text-xs text-gray-700 mb-3">
+                        {t('nav.logoutAlert')}
+                      </p>
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowLogoutConfirm(false)}
+                          className="px-3 py-1 rounded-full text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                        >
+                          {t('common.cancel', { defaultValue: 'Cancel' })}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await handleLogout();
+                            setShowLogoutConfirm(false);
+                            setIsOpen(false);
+                          }}
+                          className="px-3 py-1 rounded-full text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
+                        >
+                          {t('nav.logout')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="flex flex-col space-y-3">

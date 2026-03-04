@@ -10,11 +10,14 @@ interface AuthContextType {
   loading: boolean;
   mfaRequired: boolean;
   mfaFactor: MFAFactor | null;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null; mfaRequired?: boolean }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null; mfaRequired?: boolean; userId?: string | null }>;
   signUp: (email: string, password: string, userData?: { firstName: string; lastName: string }) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
-  verifyMFALogin: (code: string) => Promise<{ error: AuthError | null }>;
+  verifyMFALogin: (code: string) => Promise<{ error: AuthError | null; userId?: string | null }>;
   cancelMFAChallenge: () => void;
 }
 
@@ -80,7 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setMfaRequired(true);
           setMfaFactor(factor);
           setMfaChallengeId(challenge.id);
-          return { error: null, mfaRequired: true };
+          return { error: null, mfaRequired: true, userId: null };
         }
       } catch (mfaError) {
         console.error('Error checking MFA:', mfaError);
@@ -88,7 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
-    return { error: null };
+    return { error: null, userId: data.user?.id ?? null };
   };
 
   const signUp = async (email: string, password: string, userData?: { firstName: string; lastName: string }) => {
@@ -121,13 +124,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       await verifyMFAChallenge(mfaFactor.id, mfaChallengeId, code);
+      const { data } = await supabase.auth.getUser();
       // MFA verification successful, clear MFA state
       setMfaRequired(false);
       setMfaFactor(null);
       setMfaChallengeId(null);
-      return { error: null };
+      return { error: null, userId: data.user?.id ?? null };
     } catch (error) {
-      return { error: error as AuthError };
+      return { error: error as AuthError, userId: null };
     }
   };
 

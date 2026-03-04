@@ -16,6 +16,7 @@ export interface UpdateMemberData {
   State?: string;
   PostalCode?: string;
   Country?: string;
+  NeedsOnboarding?: boolean;
 }
 
 export interface CreateMemberData {
@@ -60,6 +61,7 @@ function transformMember(dbMember: DbMember): User {
     verified: true, // TODO: Implement verification status
     created_at: dbMember.Created,
     phone,
+    needsOnboarding: dbMember.NeedsOnboarding ?? false,
   };
 }
 
@@ -121,6 +123,7 @@ export async function createMemberProfile(memberData: CreateMemberData): Promise
       IsDeleted: false,
       Created: new Date().toISOString(),
       LastModified: new Date().toISOString(),
+      NeedsOnboarding: true,
     })
     .select()
     .single();
