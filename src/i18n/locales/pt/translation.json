@@ -450,7 +450,11 @@
       "phoneNotVerified": "Nao",
       "twoFactorEnabledText": "Autenticação em dois passos",
       "twoFactorEnabled": "2FA Ativado",
-      "twoFactorDisabled": "2FA Desativado"
+      "twoFactorDisabled": "2FA Desativado",
+      "emailResendError": "Falha ao reenviar o e-mail de verificação. Por favor tente novamente.",
+      "emailResend": "Reenviar e-mail de verificação",
+      "phoneRequiredForMfa": "Você precisa ter um telefone verificado no seu perfil antes de ativar o 2FA.",
+      "updatePhoneCta": "Atualizar telefone"
     },
     "bookingRequirements": {
       "heading": "Complete sua conta para reservar estadias",

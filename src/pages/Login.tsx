@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Input, Modal } from '../components/ui';
@@ -7,13 +7,17 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { getMemberProfile } from '../services/memberService';
+import { resendEmailVerification } from '../services/authService';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signIn, verifyMFALogin, cancelMFAChallenge } = useAuth();
   const { t } = useTranslation();
+  const fromSignupState = (location.state as { fromSignup?: boolean; email?: string } | null) || null;
+  const initialEmail = fromSignupState?.email ?? '';
   const [formData, setFormData] = useState({
-    email: '',
+    email: initialEmail,
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +28,9 @@ const Login: React.FC = () => {
   const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
   const [mfaError, setMfaError] = useState<string | null>(null);
   const [isMFAVerifying, setIsMFAVerifying] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resendError, setResendError] = useState<string | null>(null);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -34,6 +41,10 @@ const Login: React.FC = () => {
     // Clear auth error when user starts typing
     if (authError) {
       setAuthError(null);
+    }
+    if (field === 'email') {
+      setResendMessage(null);
+      setResendError(null);
     }
   };
 
@@ -89,6 +100,32 @@ const Login: React.FC = () => {
       setAuthError(t('auth.errors.unexpectedError'));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResendError(null);
+    setResendMessage(null);
+
+    if (!formData.email) {
+      setErrors(prev => ({ ...prev, email: t('auth.errors.emailRequired') }));
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setErrors(prev => ({ ...prev, email: t('auth.errors.emailInvalid') }));
+      return;
+    }
+
+    setIsResendingVerification(true);
+    try {
+      await resendEmailVerification(formData.email);
+      setResendMessage(t('auth.verifyEmailResent'));
+    } catch (error) {
+      console.error('Error resending verification email:', error);
+      setResendError(t('auth.errors.resendVerificationFailed'));
+    } finally {
+      setIsResendingVerification(false);
     }
   };
 
@@ -176,6 +213,42 @@ const Login: React.FC = () => {
 
               {/* Login Form */}
               <Card variant="default" className="p-8">
+                {(fromSignupState?.fromSignup || resendMessage || resendError) && (
+                  <div className="mb-6">
+                    <div className="p-3 rounded-lg border text-sm"
+                      style={{ borderColor: '#FBBF24', backgroundColor: '#FFFBEB', color: '#92400E' }}>
+                      <p className="font-semibold">
+                        {t('auth.verifyEmailPrompt')}
+                      </p>
+                      <p className="mt-1">
+                        {t('auth.verifyEmailDescription')}
+                      </p>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-xs text-charcoal">
+                      <span>{t('auth.verifyEmailDidntReceive')}</span>
+                      <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        className="text-gold hover:text-navy font-medium disabled:opacity-50"
+                        disabled={isResendingVerification}
+                      >
+                        {isResendingVerification
+                          ? t('auth.verifyEmailResending')
+                          : t('auth.verifyEmailResend')}
+                      </button>
+                    </div>
+                    {resendMessage && (
+                      <p className="mt-2 text-xs text-green-700 font-medium">
+                        {resendMessage}
+                      </p>
+                    )}
+                    {resendError && (
+                      <p className="mt-2 text-xs text-red-600 font-medium">
+                        {resendError}
+                      </p>
+                    )}
+                  </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <Input
                     type="email"

@@ -500,7 +500,11 @@
       "phoneNotVerified": "No",
       "twoFactorEnabledText": "2FA Authentication",
       "twoFactorEnabled": "2FA Enabled",
-      "twoFactorDisabled": "2FA Disabled"
+      "twoFactorDisabled": "2FA Disabled",
+      "emailResendError": "Failed to resend verification email. Please try again.",
+      "emailResend": "Resend verification email",
+      "phoneRequiredForMfa": "You need a verified phone number on your profile before enabling 2FA.",
+      "updatePhoneCta": "Update phone number"
     },
     "bookingRequirements": {
       "heading": "Complete your account to book stays",

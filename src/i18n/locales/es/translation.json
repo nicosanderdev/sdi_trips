@@ -473,7 +473,11 @@
       "phoneNotVerified": "No",
       "twoFactorEnabledText": "Autenticación en dos pasos",
       "twoFactorEnabled": "2FA Habilitado",
-      "twoFactorDisabled": "2FA Deshabilitado"
+      "twoFactorDisabled": "2FA Deshabilitado",
+      "emailResendError": "Error al reenviar el correo de verificación. Por favor intenta nuevamente.",
+      "emailResend": "Reenviar correo de verificación",
+      "phoneRequiredForMfa": "Necesitas tener un teléfono verificado en tu perfil antes de habilitar 2FA.",
+      "updatePhoneCta": "Actualizar teléfono"
     },
     "bookingRequirements": {
       "heading": "Completa tu cuenta para poder reservar",

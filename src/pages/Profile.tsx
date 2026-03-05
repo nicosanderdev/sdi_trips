@@ -14,6 +14,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import type { User as UserType } from '../types';
 import { getBookingEligibility, type BookingEligibility } from '../services/bookingEligibilityService';
+import { resendEmailVerification } from '../services/authService';
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
@@ -752,11 +753,17 @@ const Profile: React.FC = () => {
               <div className="lg:col-span-1">
                 <Card variant="default" className="p-6 text-center">
                   <div ref={onboardingRefProfilePhoto} className="relative inline-block mb-4">
-                    <img
-                      src={currentUser.avatar}
-                      alt={currentUser.name}
-                      className="w-24 h-24 rounded-full mx-auto object-cover"
-                    />
+                    {currentUser.avatar ? (
+                      <img
+                        src={currentUser.avatar}
+                        alt={currentUser.name}
+                        className="w-24 h-24 rounded-full mx-auto object-cover"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 rounded-full mx-auto bg-warm-gray flex items-center justify-center">
+                        <User className="h-10 w-10 text-gray-500" />
+                      </div>
+                    )}
                     {isEditing && (
                       <button
                         onClick={handleCameraClick}
@@ -796,15 +803,36 @@ const Profile: React.FC = () => {
                       <span className="text-sm text-charcoal">
                         {t('profile.verification.emailVerifiedText')}:
                       </span>
-                      <Badge
-                        variant={user?.email_confirmed_at ? 'success' : 'warning'}
-                        size="sm"
-                      >
-                        {user?.email_confirmed_at
-                          ? t('profile.verification.emailVerified')
-                          : t('profile.verification.emailNotVerified')
-                        }
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={user?.email_confirmed_at ? 'success' : 'warning'}
+                          size="sm"
+                        >
+                          {user?.email_confirmed_at
+                            ? t('profile.verification.emailVerified')
+                            : t('profile.verification.emailNotVerified')
+                          }
+                        </Badge>
+                        {!user?.email_confirmed_at && (
+                          <button
+                            type="button"
+                            className="text-xs text-gold hover:text-navy font-medium underline"
+                            onClick={async () => {
+                              try {
+                                setUpdateError(null);
+                                await resendEmailVerification(profileData.email);
+                                setUpdateSuccess(true);
+                                setTimeout(() => setUpdateSuccess(false), 3000);
+                              } catch (error) {
+                                console.error('Error resending verification email from profile:', error);
+                                setUpdateError(t('profile.verification.emailResendError'));
+                              }
+                            }}
+                          >
+                            {t('profile.verification.emailResend')}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div ref={onboardingRefVerifyPhone} className="flex items-center justify-between mb-2">
                       <span className="text-sm text-charcoal">
@@ -853,22 +881,40 @@ const Profile: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Shield className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm text-charcoal">
-                            {t('profile.verification.twoFactorDisabled')}
-                          </span>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Shield className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm text-charcoal">
+                              {t('profile.verification.twoFactorDisabled')}
+                            </span>
+                          </div>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={handleEnableMFA}
+                            disabled={mfaLoading || !isPhoneVerified}
+                          >
+                            <ShieldCheck className="h-4 w-4 mr-2" />
+                            {mfaLoading ? 'Enabling...' : t('mfa.enable')}
+                          </Button>
                         </div>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={handleEnableMFA}
-                          disabled={mfaLoading}
-                        >
-                          <ShieldCheck className="h-4 w-4 mr-2" />
-                          {mfaLoading ? 'Enabling...' : t('mfa.enable')}
-                        </Button>
+                        {!isPhoneVerified && (
+                          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                            {t('profile.verification.phoneRequiredForMfa')}
+                            {' '}
+                            <button
+                              type="button"
+                              className="underline font-medium"
+                              onClick={() => {
+                                setActiveTab('profile');
+                                setIsEditing(true);
+                              }}
+                            >
+                              {t('profile.verification.updatePhoneCta')}
+                            </button>
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>

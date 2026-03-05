@@ -172,7 +172,7 @@ export interface PropertyThread {
 // MFA types
 export interface MFAFactor {
   id: string;
-  type: 'totp';
+  type: 'totp' | 'phone';
   friendlyName: string;
   status: 'verified' | 'unverified';
   createdAt: string;

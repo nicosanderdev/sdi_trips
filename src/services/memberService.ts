@@ -31,7 +31,7 @@ export interface CreateMemberData {
 /**
  * Transform database member data to frontend User type
  */
-function transformMember(dbMember: DbMember): User {
+function transformMember(dbMember: DbMember, isEmailVerified: boolean = false): User {
   let phone: string | undefined;
 
   if (dbMember.PhonePrefix && dbMember.Phone) {
@@ -58,7 +58,7 @@ function transformMember(dbMember: DbMember): User {
     name: `${dbMember.FirstName || ''} ${dbMember.LastName || ''}`.trim() || 'User',
     email: dbMember.Email || '',
     avatar: dbMember.AvatarUrl || undefined,
-    verified: true, // TODO: Implement verification status
+    verified: isEmailVerified,
     created_at: dbMember.Created,
     phone,
     needsOnboarding: dbMember.NeedsOnboarding ?? false,
@@ -69,12 +69,15 @@ function transformMember(dbMember: DbMember): User {
  * Get member profile by user ID
  */
 export async function getMemberProfile(userId: string): Promise<User | null> {
-  const { data, error } = await supabase
-    .from('Members')
-    .select('*')
-    .eq('UserId', userId)
-    .eq('IsDeleted', false)
-    .single();
+  const [{ data, error }, authResult] = await Promise.all([
+    supabase
+      .from('Members')
+      .select('*')
+      .eq('UserId', userId)
+      .eq('IsDeleted', false)
+      .single(),
+    supabase.auth.getUser(),
+  ]);
 
   if (error) {
     if (error.code === 'PGRST116') {
@@ -85,13 +88,20 @@ export async function getMemberProfile(userId: string): Promise<User | null> {
     throw error;
   }
 
-  return transformMember(data);
+  const authUser = authResult.data.user;
+  const isEmailVerified =
+    !!authUser && authUser.id === userId && !!authUser.email_confirmed_at;
+
+  return transformMember(data, isEmailVerified);
 }
 
 /**
  * Update member profile
  */
-export async function updateMemberProfile(userId: string, updateData: UpdateMemberData): Promise<User> {
+export async function updateMemberProfile(
+  userId: string,
+  updateData: UpdateMemberData,
+): Promise<User> {
   const { data, error } = await supabase
     .from('Members')
     .update({
@@ -108,7 +118,12 @@ export async function updateMemberProfile(userId: string, updateData: UpdateMemb
     throw error;
   }
 
-  return transformMember(data);
+  const { data: authData } = await supabase.auth.getUser();
+  const authUser = authData.user;
+  const isEmailVerified =
+    !!authUser && authUser.id === userId && !!authUser.email_confirmed_at;
+
+  return transformMember(data, isEmailVerified);
 }
 
 /**
@@ -133,7 +148,12 @@ export async function createMemberProfile(memberData: CreateMemberData): Promise
     throw error;
   }
 
-  return transformMember(data);
+  const { data: authData } = await supabase.auth.getUser();
+  const authUser = authData.user;
+  const isEmailVerified =
+    !!authUser && authUser.id === memberData.UserId && !!authUser.email_confirmed_at;
+
+  return transformMember(data, isEmailVerified);
 }
 
 /**
@@ -145,18 +165,17 @@ export async function uploadProfilePicture(userId: string, file: File): Promise<
     throw new Error('File must be an image');
   }
 
-  // Validate file size (5MB max)
-  if (file.size > 5 * 1024 * 1024) {
-    throw new Error('File size must be less than 5MB');
+  // Validate file size (8MB max)
+  if (file.size > 8 * 1024 * 1024) {
+    throw new Error('File size must be less than 8MB');
   }
 
   const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}/${Date.now()}.${fileExt}`;
-  const filePath = `avatars/${fileName}`;
+  const filePath = `${userId}/${Date.now()}.${fileExt}`;
 
   // Upload file to Supabase storage
   const { error: uploadError } = await supabase.storage
-    .from('avatars')
+    .from('profile_pictures')
     .upload(filePath, file, {
       cacheControl: '3600',
       upsert: false,
@@ -169,15 +188,21 @@ export async function uploadProfilePicture(userId: string, file: File): Promise<
 
   // Get public URL
   const { data } = supabase.storage
-    .from('avatars')
+    .from('profile_pictures')
     .getPublicUrl(filePath);
 
   if (!data.publicUrl) {
     throw new Error('Failed to get public URL for uploaded image');
   }
 
-  // Update member's avatar URL in database
-  await updateMemberAvatar(data.publicUrl);
+  // Update member's avatar URL in database.
+  // If this fails (e.g. function not yet created), we still return the URL
+  // so the UI can show the uploaded image immediately.
+  try {
+    await updateMemberAvatar(data.publicUrl);
+  } catch (error) {
+    console.error('Error updating member avatar via RPC:', error);
+  }
 
   return data.publicUrl;
 }
@@ -215,6 +240,7 @@ export async function verifyEmailChange(userId: string, code: string): Promise<v
  */
 export async function requestPhoneChange(userId: string, newPhone: string): Promise<void> {
   // Note: userId is not needed when using Supabase Auth directly, but kept for API consistency
+  void userId;
   const { error } = await supabase.auth.updateUser({
     phone: newPhone,
   });
@@ -230,6 +256,7 @@ export async function requestPhoneChange(userId: string, newPhone: string): Prom
  */
 export async function verifyPhoneChange(userId: string, newPhone: string, code: string): Promise<void> {
   // Note: userId is not needed when using Supabase Auth directly, but kept for API consistency
+  void userId;
   const { error } = await supabase.auth.verifyOtp({
     phone: newPhone,
     token: code,
@@ -277,7 +304,7 @@ export async function getMemberById(memberId: string): Promise<User | null> {
     throw error;
   }
 
-  return transformMember(data);
+  return transformMember(data, false);
 }
 
 /**

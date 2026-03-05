@@ -77,7 +77,7 @@ function transformProperty(dbProperty: PropertyWithRelations): Property {
         dbProperty.Owners?.PhonePrefix && dbProperty.Owners?.Phone
           ? `${dbProperty.Owners.PhonePrefix}${dbProperty.Owners.Phone}`
           : dbProperty.Owners?.Phone || undefined,
-      verified: true, // TODO: Implement verification status
+      verified: !!dbProperty.Owners?.TwoFactorEnabled,
     },
     available: propertyValue.IsActive && propertyValue.IsPropertyVisible,
     coordinates: {

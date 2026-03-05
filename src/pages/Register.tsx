@@ -92,8 +92,13 @@ const Register: React.FC = () => {
       if (error) {
         setAuthError(error.message || t('auth.errors.registrationFailed'));
       } else {
-        // Registration successful - user will be redirected after email confirmation
-        navigate('/login');
+        // Registration successful - ask user to verify email before first login
+        navigate('/login', {
+          state: {
+            fromSignup: true,
+            email: formData.email,
+          },
+        });
       }
     } catch (err) {
       setAuthError(t('auth.errors.unexpectedError'));
@@ -335,7 +340,7 @@ const Register: React.FC = () => {
                   alt={t('auth.luxuryHolidayHomeInterior')}
                   className="w-full h-[600px] object-cover rounded-3xl shadow-2xl"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-3xl"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent rounded-3xl"></div>
 
                 {/* Floating Benefits */}
                 <div className="absolute top-6 left-6 right-6 bg-white/95 backdrop-blur-md rounded-2xl p-6 shadow-gold">
