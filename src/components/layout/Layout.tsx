@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import RentalsCrossAppOnboarding from '../onboarding/RentalsCrossAppOnboarding';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ const Layout: React.FC<LayoutProps> = ({
         {children}
       </main>
       {showFooter && <Footer />}
+      <RentalsCrossAppOnboarding />
     </div>
   );
 };

@@ -568,7 +568,14 @@
     "skip": "Saltar por ahora",
     "next": "Siguiente",
     "done": "Listo",
-    "stepIndicator": "Paso {{current}} de {{total}}"
+    "stepIndicator": "Paso {{current}} de {{total}}",
+    "rentalsCrossApp": {
+      "title": "Bienvenido a la Plataforma de Alquileres Vacacionales",
+      "body1": "Tu cuenta funciona en todos nuestros servicios.",
+      "body2": "Es posible que hayas usado esta cuenta antes en la plataforma de gestión de propiedades. Este sitio es donde puedes buscar y reservar casas vacacionales y espacios para eventos.",
+      "body3": "Puedes usar la misma cuenta en toda nuestra plataforma.",
+      "continue": "Continuar"
+    }
   },
   "mfa": {
     "enable": "Habilitar 2FA",
@@ -671,6 +678,7 @@
       "unableToGetMemberProfile": "No se pudo obtener el perfil del miembro"
     },
     "removeFromWishlist": "Quitar de la lista de deseos",
+    "addToWishlist": "Agregar a la lista de deseos",
     "unavailable": "No disponible",
     "hostedBy": "Alojado por {{hostName}}",
     "verifiedHost": "Anfitrión Verificado",
@@ -682,7 +690,7 @@
     "savedProperties_other": "{{count}} Propiedades Guardadas",
     "lastUpdated": "Última actualización",
     "emptyTitle": "Tu Lista de Deseos Está Vacía",
-    "emptyDescription": "Comienza a guardar tus propiedades favoritas para hacer seguimiento de los lugares que te gustaría visitar.",
+    "emptyDescription": "Comienza a guardar propiedades en tu lista de deseos para hacer seguimiento de los lugares que te gustaría visitar.",
     "exploreProperties": "Explorar Propiedades"
   },
   "contact": {

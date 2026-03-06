@@ -545,7 +545,14 @@
     "skip": "Pular por enquanto",
     "next": "Próximo",
     "done": "Concluir",
-    "stepIndicator": "Etapa {{current}} de {{total}}"
+    "stepIndicator": "Etapa {{current}} de {{total}}",
+    "rentalsCrossApp": {
+      "title": "Bem-vindo à Plataforma de Aluguéis de Férias",
+      "body1": "Sua conta funciona em todos os nossos serviços.",
+      "body2": "Você pode ter usado esta conta anteriormente na plataforma de gestão de propriedades. Este site é onde você pode navegar e reservar casas de férias e espaços para eventos.",
+      "body3": "Você pode usar a mesma conta em toda a nossa plataforma.",
+      "continue": "Continuar"
+    }
   },
   "mfa": {
     "enable": "Ativar 2FA",
@@ -648,6 +655,7 @@
       "unableToGetMemberProfile": "Não foi possível obter o perfil do membro"
     },
     "removeFromWishlist": "Remover da lista de desejos",
+    "addToWishlist": "Adicionar à lista de desejos",
     "unavailable": "Indisponível",
     "hostedBy": "Hospedado por {{hostName}}",
     "verifiedHost": "Anfitrião Verificado",
@@ -659,7 +667,7 @@
     "savedProperties_other": "{{count}} Propriedades Salvas",
     "lastUpdated": "Última atualização",
     "emptyTitle": "Sua Lista de Desejos Está Vazia",
-    "emptyDescription": "Comece a salvar suas propriedades favoritas para acompanhar os lugares que gostaria de visitar.",
+    "emptyDescription": "Comece a salvar propriedades na sua lista de desejos para acompanhar os lugares que gostaria de visitar.",
     "exploreProperties": "Explorar Propriedades"
   },
   "contact": {

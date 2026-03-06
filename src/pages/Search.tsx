@@ -1,14 +1,18 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
 import { Button, Input, RangeSlider, Card } from '../components/ui';
 import PropertyCard from '../components/sections/PropertyCard';
-import { searchProperties } from '../services/propertyService';
+import { getFavoriteProperties, searchProperties } from '../services/propertyService';
 import type { Property } from '../types';
 import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
 import uyCitiesData from '../data/uy-cities.json';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useAuth } from '../hooks/useAuth';
+import { getMemberProfile } from '../services/memberService';
+import { supabase } from '../lib/supabase';
 
 const DEBOUNCE_MS = 450;
 const UY_CITIES_MAX_SUGGESTIONS = 10;
@@ -34,6 +38,8 @@ interface SearchFilters {
 
 const Search: React.FC = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   // Mapbox access token - you'll need to set this in your .env file
 
   const [filters, setFilters] = useState<SearchFilters>({
@@ -48,6 +54,8 @@ const Search: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [memberId, setMemberId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -67,6 +75,35 @@ const Search: React.FC = () => {
   }, [mapboxToken]);
 
   const propertyRefs = useRef<{ [key: string]: HTMLDivElement }>({});
+
+  // Load member profile and favorites when user changes
+  useEffect(() => {
+    const fetchMemberAndFavorites = async () => {
+      if (!user) {
+        setWishlistIds([]);
+        setMemberId(null);
+        return;
+      }
+
+      try {
+        const member = await getMemberProfile(user.id);
+        if (!member) {
+          setWishlistIds([]);
+          setMemberId(null);
+          return;
+        }
+
+        setMemberId(member.id);
+        const favorites = await getFavoriteProperties(member.id);
+        setWishlistIds(favorites.map((property) => property.id));
+      } catch (err) {
+        console.error('Error fetching favorites for search page:', err);
+        setWishlistIds([]);
+      }
+    };
+
+    fetchMemberAndFavorites();
+  }, [user]);
 
   // Debounce search query
   useEffect(() => {
@@ -301,6 +338,60 @@ const Search: React.FC = () => {
     };
   }, [properties, selectedProperty, hoveredProperty, mapboxToken, mapViewport]);
 
+  const handleToggleWishlist = async (propertyId: string) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      let currentMemberId = memberId;
+
+      if (!currentMemberId) {
+        const member = await getMemberProfile(user.id);
+        if (!member) {
+          return;
+        }
+        currentMemberId = member.id;
+        setMemberId(member.id);
+      }
+
+      const isCurrentlyInWishlist = wishlistIds.includes(propertyId);
+
+      if (isCurrentlyInWishlist) {
+        const { error: deleteError } = await supabase
+          .from('Favorites')
+          .delete()
+          .eq('MemberId', currentMemberId)
+          .eq('EstatePropertyId', propertyId);
+
+        if (deleteError) {
+          console.error('Error removing property from wishlist:', deleteError);
+          return;
+        }
+
+        setWishlistIds((prev) => prev.filter((id) => id !== propertyId));
+      } else {
+        const { error: insertError } = await supabase
+          .from('Favorites')
+          .insert({
+            MemberId: currentMemberId,
+            EstatePropertyId: propertyId,
+            FavoritedAt: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('Error adding property to wishlist:', insertError);
+          return;
+        }
+
+        setWishlistIds((prev) => [...prev, propertyId]);
+      }
+    } catch (err) {
+      console.error('Error toggling wishlist status:', err);
+    }
+  };
+
   return (
     <Layout>
       <div className="bg-white">
@@ -476,7 +567,11 @@ const Search: React.FC = () => {
                       hoveredProperty === property.id ? 'scale-[1.02]' : ''
                     }`}
                   >
-                    <PropertyCard property={property} />
+                    <PropertyCard
+                      property={property}
+                      onToggleWishlist={handleToggleWishlist}
+                      isInWishlist={wishlistIds.includes(property.id)}
+                    />
                   </div>
                 ))}
 

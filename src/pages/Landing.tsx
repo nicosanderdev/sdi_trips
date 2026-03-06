@@ -1,35 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Button } from '../components/ui';
 import HeroSplit from '../components/sections/HeroSplit';
 import PropertyCard from '../components/sections/PropertyCard';
 import Testimonials from '../components/sections/Testimonials';
-import { getFeaturedProperties } from '../services/propertyService';
+import { getFeaturedProperties, getFavoriteProperties } from '../services/propertyService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { useAuth } from '../hooks/useAuth';
 import { featureFlags } from '../config/featureFlags';
 import type { Property } from '../types';
+import { getMemberProfile } from '../services/memberService';
+import { supabase } from '../lib/supabase';
 
 const Landing: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isLoggedIn = !!user;
   const showLoggedInAds = isLoggedIn && featureFlags.showLandingAds;
 
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [memberId, setMemberId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchFeaturedProperties = async () => {
+    const fetchFeaturedPropertiesAndFavorites = async () => {
       try {
         setLoading(true);
         setError(null);
         const properties = await getFeaturedProperties();
         setFeaturedProperties(properties);
+
+        if (user) {
+          try {
+            const member = await getMemberProfile(user.id);
+            if (member) {
+              setMemberId(member.id);
+              const favorites = await getFavoriteProperties(member.id);
+              setWishlistIds(favorites.map((property) => property.id));
+            } else {
+              setWishlistIds([]);
+            }
+          } catch (favErr) {
+            console.error('Error fetching favorites for landing page:', favErr);
+          }
+        } else {
+          setWishlistIds([]);
+          setMemberId(null);
+        }
       } catch (err) {
         console.error('Error fetching featured properties:', err);
         setError('Failed to load featured properties. Please try again later.');
@@ -38,8 +61,62 @@ const Landing: React.FC = () => {
       }
     };
 
-    fetchFeaturedProperties();
-  }, []);
+    fetchFeaturedPropertiesAndFavorites();
+  }, [user]);
+
+  const handleToggleWishlist = async (propertyId: string) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      let currentMemberId = memberId;
+
+      if (!currentMemberId) {
+        const member = await getMemberProfile(user.id);
+        if (!member) {
+          return;
+        }
+        currentMemberId = member.id;
+        setMemberId(member.id);
+      }
+
+      const isCurrentlyInWishlist = wishlistIds.includes(propertyId);
+
+      if (isCurrentlyInWishlist) {
+        const { error: deleteError } = await supabase
+          .from('Favorites')
+          .delete()
+          .eq('MemberId', currentMemberId)
+          .eq('EstatePropertyId', propertyId);
+
+        if (deleteError) {
+          console.error('Error removing property from wishlist:', deleteError);
+          return;
+        }
+
+        setWishlistIds((prev) => prev.filter((id) => id !== propertyId));
+      } else {
+        const { error: insertError } = await supabase
+          .from('Favorites')
+          .insert({
+            MemberId: currentMemberId,
+            EstatePropertyId: propertyId,
+            FavoritedAt: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('Error adding property to wishlist:', insertError);
+          return;
+        }
+
+        setWishlistIds((prev) => [...prev, propertyId]);
+      }
+    } catch (err) {
+      console.error('Error toggling wishlist status:', err);
+    }
+  };
 
   return (
     <Layout>
@@ -78,6 +155,8 @@ const Landing: React.FC = () => {
                 <PropertyCard
                   key={property.id}
                   property={property}
+                  onToggleWishlist={handleToggleWishlist}
+                  isInWishlist={wishlistIds.includes(property.id)}
                 />
               ))
             )}

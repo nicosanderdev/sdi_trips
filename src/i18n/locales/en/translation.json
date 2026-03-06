@@ -594,7 +594,14 @@
     "skip": "Skip for now",
     "next": "Next",
     "done": "Done",
-    "stepIndicator": "Step {{current}} of {{total}}"
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "rentalsCrossApp": {
+      "title": "Welcome to the Vacation Rentals Platform",
+      "body1": "Your account works across our services.",
+      "body2": "You may have previously used this account in the property management platform. This website is where you can browse and book vacation houses and event venues.",
+      "body3": "You can use the same account everywhere in our platform.",
+      "continue": "Continue"
+    }
   },
   "mfa": {
     "enable": "Enable 2FA",
@@ -697,6 +704,7 @@
       "unableToGetMemberProfile": "Unable to get member profile"
     },
     "removeFromWishlist": "Remove from wishlist",
+    "addToWishlist": "Add to wishlist",
     "unavailable": "Unavailable",
     "hostedBy": "Hosted by {{hostName}}",
     "verifiedHost": "Verified Host",
@@ -708,7 +716,7 @@
     "savedProperties_other": "{{count}} Saved Properties",
     "lastUpdated": "Last updated",
     "emptyTitle": "Your Wishlist is Empty",
-    "emptyDescription": "Start saving your favorite properties to keep track of places you'd like to visit.",
+    "emptyDescription": "Start saving properties to your wishlist to keep track of places you'd like to visit.",
     "exploreProperties": "Explore Properties"
   },
   "contact": {

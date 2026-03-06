@@ -7,20 +7,20 @@ import type { Property } from '../../types';
 
 interface PropertyCardProps {
   property: Property;
-  onFavorite?: (propertyId: string) => void;
-  isFavorite?: boolean;
+  onToggleWishlist?: (propertyId: string) => void;
+  isInWishlist?: boolean;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
-  onFavorite,
-  isFavorite = false
+  onToggleWishlist,
+  isInWishlist = false
 }) => {
   const { t } = useTranslation();
-  const handleFavorite = (e: React.MouseEvent) => {
+  const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onFavorite?.(property.id);
+    onToggleWishlist?.(property.id);
   };
 
   return (
@@ -34,13 +34,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
           />
 
-          {/* Favorite Button */}
+          {/* Wishlist Button */}
           <button
-            onClick={handleFavorite}
+            type="button"
+            onClick={handleWishlistClick}
             className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
+            aria-label={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
+            title={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
           >
             <Heart
-              className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+              className={`h-5 w-5 ${isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
             />
           </button>
 
