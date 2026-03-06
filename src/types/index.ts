@@ -133,6 +133,23 @@ export interface Review {
   createdAt: string;
 }
 
+/** Single review as returned for property page (from Reviews table). */
+export interface PropertyReviewItem {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  reviewerName?: string;
+  reviewerAvatar?: string | null;
+}
+
+/** Result of getReviewsByPropertyId: list plus aggregate. */
+export interface PropertyReviewsResult {
+  reviews: PropertyReviewItem[];
+  averageRating: number;
+  totalCount: number;
+}
+
 // Date availability types
 export interface DateAvailability {
   date: string; // YYYY-MM-DD

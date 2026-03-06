@@ -11,6 +11,8 @@ import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { getBookingEligibility, type BookingEligibility } from '../services/bookingEligibilityService';
+import { getReviewsByPropertyId } from '../services/reviewService';
+import type { PropertyReviewsResult } from '../types';
 import {
     MapPin,
     Users,
@@ -33,12 +35,6 @@ const fallbackGalleryImages = [
     'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1400&q=80'
 ];
 
-const mockReviews = [
-    { authorName: 'Maria S.', date: 'January 2025', rating: 4.8, text: 'Wonderful stay. The house was spotless and the host was very responsive. We would definitely come back.' },
-    { authorName: 'James L.', date: 'December 2024', rating: 5, text: 'Perfect location and everything we needed was there. The outdoor space was a real highlight for our family.' },
-    { authorName: 'Ana R.', date: 'November 2024', rating: 4.5, text: 'Cozy and well equipped. Great base for exploring the area. Check-in was smooth.' }
-];
-
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
 
@@ -59,6 +55,7 @@ const PropertyDetail: React.FC = () => {
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [eligibility, setEligibility] = useState<BookingEligibility | null>(null);
     const [eligibilityLoading, setEligibilityLoading] = useState(false);
+    const [reviewsResult, setReviewsResult] = useState<PropertyReviewsResult | null>(null);
 
     const { t } = useTranslation();
     const { user } = useAuth();
@@ -123,6 +120,25 @@ const PropertyDetail: React.FC = () => {
         };
 
         fetchProperty();
+    }, [id]);
+
+    // Fetch reviews for this property
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadReviews = async () => {
+            if (!id) return;
+            try {
+                const result = await getReviewsByPropertyId(id);
+                if (isMounted) setReviewsResult(result);
+            } catch (err) {
+                console.error('Error loading reviews:', err);
+                if (isMounted) setReviewsResult({ reviews: [], averageRating: 0, totalCount: 0 });
+            }
+        };
+
+        loadReviews();
+        return () => { isMounted = false; };
     }, [id]);
 
     // Initialize map
@@ -725,25 +741,34 @@ const PropertyDetail: React.FC = () => {
                             <div className="flex items-center gap-2">
                                 <Star className="h-5 w-5 fill-gold text-gold" />
                                 <span className="text-lg font-semibold text-navy">
-                                    {property.rating != null ? property.rating.toFixed(1) : '—'}
+                                    {reviewsResult != null
+                                        ? reviewsResult.averageRating > 0
+                                            ? reviewsResult.averageRating.toFixed(1)
+                                            : '—'
+                                        : (property.rating != null ? property.rating.toFixed(1) : '—')}
+                                </span>
+                                <span className="text-charcoal">
+                                    {t('propertyDetail.reviews.reviewsCount', { count: reviewsResult?.totalCount ?? property.reviewCount ?? 0 })}
                                 </span>
                             </div>
                         </div>
-                        {mockReviews.length > 0 ? (
+                        {reviewsResult && reviewsResult.reviews.length > 0 ? (
                             <div className="space-y-4">
-                                {mockReviews.map((review, index) => (
+                                {reviewsResult.reviews.map((review) => (
                                     <div
-                                        key={index}
+                                        key={review.id}
                                         className="rounded-2xl border border-warm-gray bg-white/80 p-4 space-y-2"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-full bg-warm-gray-light flex items-center justify-center text-navy font-semibold">
-                                                    {review.authorName.charAt(0)}
+                                                    {(review.reviewerName || '?').charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="font-semibold text-navy">{review.authorName}</p>
-                                                    <p className="text-xs text-charcoal/80">{review.date}</p>
+                                                    <p className="font-semibold text-navy">{review.reviewerName || t('reviews.anonymous')}</p>
+                                                    <p className="text-xs text-charcoal/80">
+                                                        {new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1">
@@ -751,7 +776,9 @@ const PropertyDetail: React.FC = () => {
                                                 <span className="text-sm font-medium text-navy">{review.rating.toFixed(1)}</span>
                                             </div>
                                         </div>
-                                        <p className="text-sm text-charcoal leading-relaxed">{review.text}</p>
+                                        {review.comment ? (
+                                            <p className="text-sm text-charcoal leading-relaxed">{review.comment}</p>
+                                        ) : null}
                                     </div>
                                 ))}
                             </div>

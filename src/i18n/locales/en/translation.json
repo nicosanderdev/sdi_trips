@@ -364,7 +364,8 @@
     "reviews": {
       "heading": "Reviews",
       "noReviews": "No reviews yet",
-      "ratingCount": "{{rating}} · {{count}} reviews"
+      "ratingCount": "{{rating}} · {{count}} reviews",
+      "reviewsCount": "({{count}} reviews)"
     },
     "cta": {
       "checkAvailability": "Check Availability",
@@ -564,6 +565,33 @@
       "profileInfoNotFound": "Profile information not found. Please contact support.",
       "failedToLoad": "Failed to load profile information. Please try again.",
       "failedToUpdate": "Failed to update profile. Please try again."
+    }
+  },
+  "reviews": {
+    "leaveReview": "Leave Review",
+    "leaveReviewFor": "Leave a review for {{title}}",
+    "rating": "Rating",
+    "stars": "stars",
+    "comment": "Comment",
+    "commentPlaceholder": "Share your experience (optional)",
+    "anonymous": "Guest",
+    "form": {
+      "cancel": "Cancel",
+      "ratingRequired": "Please select a rating from 1 to 5 stars."
+    },
+    "submit": "Submit Review",
+    "submitting": "Submitting...",
+    "errors": {
+      "unauthorized": "You must be logged in to leave a review.",
+      "bookingNotFound": "Booking not found.",
+      "notYourBooking": "This booking does not belong to you.",
+      "bookingNotCompleted": "You can only review completed stays.",
+      "checkoutNotPassed": "Reviews are available after your checkout date.",
+      "paymentRequired": "Payment is required before leaving a review.",
+      "reviewWindowExpired": "The period to leave a review has ended.",
+      "reviewAlreadyExists": "You have already left a review for this stay.",
+      "ratingInvalid": "Please choose a rating between 1 and 5.",
+      "submitFailed": "Something went wrong. Please try again."
     }
   },
   "onboarding": {

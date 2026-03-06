@@ -5,16 +5,17 @@ import { Card, Button, Input, Badge, MFAEnrollmentModal, Tooltip } from '../comp
 import { User, Edit2, Save, X, Calendar, MapPin, Shield, ShieldCheck, Info, Camera } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { getMemberProfile, updateMemberProfile, uploadProfilePicture, requestEmailChange, verifyEmailChange, requestPhoneChange, verifyPhoneChange, updateMFAStatus } from '../services/memberService';
-import { getUserBookingsCount } from '../services/bookingService';
+import { getUserBookings, getUserBookingsCount } from '../services/bookingService';
 import { enrollMFA, verifyMFAEnrollment, listMFAFactors, unenrollMFA } from '../services/mfaService';
-import { Modal, VerificationModal } from '../components/ui';
+import { Modal, VerificationModal, LeaveReviewModal } from '../components/ui';
 import { OnboardingTour } from '../components/onboarding';
 import type { MFAFactor, MFAEnrollment } from '../types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
-import type { User as UserType } from '../types';
+import type { Booking, User as UserType } from '../types';
 import { getBookingEligibility, type BookingEligibility } from '../services/bookingEligibilityService';
 import { resendEmailVerification } from '../services/authService';
+import { getExistingReviewForBooking, canLeaveReview } from '../services/reviewService';
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
@@ -63,8 +64,9 @@ const Profile: React.FC = () => {
   const onboardingRefProfilePhoto = useRef<HTMLDivElement>(null);
   const onboardingRefMyBookings = useRef<HTMLButtonElement>(null);
 
-  // Mock bookings for now - will be replaced with real API later
-  const userBookings: any[] = [];
+  const [userBookings, setUserBookings] = useState<Booking[]>([]);
+  const [bookingHasReview, setBookingHasReview] = useState<Map<string, boolean>>(new Map());
+  const [reviewModalBooking, setReviewModalBooking] = useState<Booking | null>(null);
 
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -224,9 +226,15 @@ const Profile: React.FC = () => {
             setOnboardingStep(0);
           }
 
-          // Fetch user bookings count
-          const bookingsCount = await getUserBookingsCount(user.id);
+          // Fetch user bookings count and list (use member id for bookings)
+          const bookings = await getUserBookings(memberProfile.id);
+          setUserBookings(bookings);
+          const bookingsCount = bookings.length;
           setUserBookingsCount(bookingsCount);
+
+          // Which bookings already have a review (for "Leave Review" button)
+          const hasReviewArr = await Promise.all(bookings.map((b) => getExistingReviewForBooking(b.id)));
+          setBookingHasReview(new Map(bookings.map((b, i) => [b.id, hasReviewArr[i]])));
 
           // Calculate account age
           if (memberProfile.created_at) {
@@ -1147,13 +1155,22 @@ const Profile: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row gap-3">
+                          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
                             <Button variant="outline" size="sm">
                               {t('profile.bookingsTab.viewDetails')}
                             </Button>
                             {booking.status === 'confirmed' && (
                               <Button variant="primary" size="sm">
                                 {t('profile.bookingsTab.manageBooking')}
+                              </Button>
+                            )}
+                            {canLeaveReview(booking, bookingHasReview.get(booking.id) ?? false) && (
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => setReviewModalBooking(booking)}
+                              >
+                                {t('reviews.leaveReview')}
                               </Button>
                             )}
                           </div>
@@ -1252,6 +1269,19 @@ const Profile: React.FC = () => {
         }}
         enrollmentData={mfaEnrollmentData}
         onVerify={handleMFAEnrollmentVerify}
+      />
+
+      {/* Leave Review Modal */}
+      <LeaveReviewModal
+        isOpen={!!reviewModalBooking}
+        onClose={() => setReviewModalBooking(null)}
+        onSuccess={() => {
+          if (reviewModalBooking) {
+            setBookingHasReview((prev) => new Map(prev).set(reviewModalBooking.id, true));
+          }
+        }}
+        bookingId={reviewModalBooking?.id ?? ''}
+        propertyTitle={reviewModalBooking?.property.title}
       />
 
       {/* Onboarding Tour (contextual guided tour) */}

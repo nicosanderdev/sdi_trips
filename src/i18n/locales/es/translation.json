@@ -337,7 +337,8 @@
     "reviews": {
       "heading": "Comentarios",
       "noReviews": "Aún no hay comentarios",
-      "ratingCount": "{{rating}} · {{count}} reseñas"
+      "ratingCount": "{{rating}} · {{count}} reseñas",
+      "reviewsCount": "({{count}} reseñas)"
     },
     "cta": {
       "checkAvailability": "Ver disponibilidad",
@@ -538,6 +539,33 @@
       "profileInfoNotFound": "Información del perfil no encontrada. Por favor contacta con soporte.",
       "failedToLoad": "Error al cargar la información del perfil. Por favor intenta nuevamente.",
       "failedToUpdate": "Error al actualizar el perfil. Por favor intenta nuevamente."
+    }
+  },
+  "reviews": {
+    "leaveReview": "Dejar reseña",
+    "leaveReviewFor": "Dejar una reseña de {{title}}",
+    "rating": "Calificación",
+    "stars": "estrellas",
+    "comment": "Comentario",
+    "commentPlaceholder": "Comparte tu experiencia (opcional)",
+    "anonymous": "Huésped",
+    "form": {
+      "cancel": "Cancelar",
+      "ratingRequired": "Por favor elige una calificación de 1 a 5 estrellas."
+    },
+    "submit": "Enviar reseña",
+    "submitting": "Enviando...",
+    "errors": {
+      "unauthorized": "Debes iniciar sesión para dejar una reseña.",
+      "bookingNotFound": "Reserva no encontrada.",
+      "notYourBooking": "Esta reserva no te pertenece.",
+      "bookingNotCompleted": "Solo puedes reseñar estancias completadas.",
+      "checkoutNotPassed": "Las reseñas están disponibles después de la fecha de salida.",
+      "paymentRequired": "El pago es necesario para dejar una reseña.",
+      "reviewWindowExpired": "El plazo para dejar una reseña ha terminado.",
+      "reviewAlreadyExists": "Ya has dejado una reseña de esta estancia.",
+      "ratingInvalid": "Por favor elige una calificación entre 1 y 5.",
+      "submitFailed": "Algo salió mal. Por favor intenta de nuevo."
     }
   },
   "onboarding": {

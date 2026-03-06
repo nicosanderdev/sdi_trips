@@ -314,7 +314,8 @@
     "reviews": {
       "heading": "Avaliações",
       "noReviews": "Ainda não há avaliações",
-      "ratingCount": "{{rating}} · {{count}} avaliações"
+      "ratingCount": "{{rating}} · {{count}} avaliações",
+      "reviewsCount": "({{count}} avaliações)"
     },
     "cta": {
       "checkAvailability": "Verificar disponibilidade",
@@ -515,6 +516,33 @@
       "profileInfoNotFound": "Informações do perfil não encontradas. Por favor contacte o suporte.",
       "failedToLoad": "Falha ao carregar informações do perfil. Por favor tente novamente.",
       "failedToUpdate": "Falha ao atualizar perfil. Por favor tente novamente."
+    }
+  },
+  "reviews": {
+    "leaveReview": "Deixar avaliação",
+    "leaveReviewFor": "Deixar uma avaliação de {{title}}",
+    "rating": "Avaliação",
+    "stars": "estrelas",
+    "comment": "Comentário",
+    "commentPlaceholder": "Conte sua experiência (opcional)",
+    "anonymous": "Hóspede",
+    "form": {
+      "cancel": "Cancelar",
+      "ratingRequired": "Por favor escolha uma avaliação de 1 a 5 estrelas."
+    },
+    "submit": "Enviar avaliação",
+    "submitting": "Enviando...",
+    "errors": {
+      "unauthorized": "Você precisa estar logado para deixar uma avaliação.",
+      "bookingNotFound": "Reserva não encontrada.",
+      "notYourBooking": "Esta reserva não pertence a você.",
+      "bookingNotCompleted": "Você só pode avaliar estadias concluídas.",
+      "checkoutNotPassed": "As avaliações ficam disponíveis após a data de checkout.",
+      "paymentRequired": "O pagamento é necessário para deixar uma avaliação.",
+      "reviewWindowExpired": "O prazo para deixar uma avaliação terminou.",
+      "reviewAlreadyExists": "Você já deixou uma avaliação desta estadia.",
+      "ratingInvalid": "Por favor escolha uma avaliação entre 1 e 5.",
+      "submitFailed": "Algo deu errado. Por favor tente novamente."
     }
   },
   "onboarding": {
