@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/supabase';
 import type { Property } from '../types';
+import { getRatingsForProperties } from './reviewService';
 
 type DbProperty = Database['public']['Tables']['EstateProperties']['Row'];
 type DbPropertyValue = Database['public']['Tables']['EstatePropertyValues']['Row'];
@@ -165,6 +166,83 @@ export async function getProperties(limit?: number): Promise<Property[]> {
   }
 
   return data.map(transformProperty);
+}
+
+/**
+ * Get top-rated properties for the landing hero section.
+ *
+ * This uses a limited pool of active, visible properties and enriches them
+ * with real ratings aggregated from the Reviews table.
+ */
+export async function getTopRatedPropertiesForHero(
+  limit: number = 5
+): Promise<Property[]> {
+  const HERO_POOL_LIMIT = 30;
+
+  const { data, error } = await supabase
+    .from('EstateProperties')
+    .select(
+      `
+      *,
+      EstatePropertyValues!inner (
+        *
+      ),
+      EstatePropertyAmenity (
+        AmenityId,
+        Amenities (*)
+      ),
+      Owners:Members (*)
+    `
+    )
+    .eq('IsDeleted', false)
+    .eq('EstatePropertyValues.IsDeleted', false)
+    .eq('EstatePropertyValues.IsActive', true)
+    .eq('EstatePropertyValues.IsPropertyVisible', true)
+    .limit(HERO_POOL_LIMIT);
+
+  if (error) {
+    console.error('Error fetching properties for hero:', error);
+    throw error;
+  }
+
+  const baseProperties = (data as any[]).map(transformProperty);
+
+  if (baseProperties.length === 0) {
+    return [];
+  }
+
+  const ratingsMap = await getRatingsForProperties(
+    baseProperties.map((p) => p.id)
+  );
+
+  const enriched = baseProperties.map((property) => {
+    const stats = ratingsMap[property.id];
+    if (!stats) {
+      return {
+        ...property,
+        rating: 0,
+        reviewCount: 0,
+      };
+    }
+
+    return {
+      ...property,
+      rating: stats.averageRating,
+      reviewCount: stats.reviewCount,
+    };
+  });
+
+  enriched.sort((a, b) => {
+    if (b.rating !== a.rating) {
+      return b.rating - a.rating;
+    }
+    if (b.reviewCount !== a.reviewCount) {
+      return b.reviewCount - a.reviewCount;
+    }
+    return 0;
+  });
+
+  return enriched.slice(0, limit);
 }
 
 /**

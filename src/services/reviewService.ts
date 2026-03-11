@@ -192,3 +192,58 @@ export async function getExistingReviewForBooking(bookingId: string): Promise<bo
 
   return data != null;
 }
+
+/**
+ * Fetch aggregated rating stats (average rating and total count) for multiple properties in one query.
+ *
+ * This is intentionally read-only and does not modify any database structures.
+ */
+export async function getRatingsForProperties(
+  propertyIds: string[]
+): Promise<Record<string, { averageRating: number; reviewCount: number }>> {
+  if (!propertyIds || propertyIds.length === 0) {
+    return {};
+  }
+
+  const { data, error } = await supabase
+    .from('Reviews')
+    .select('EstatePropertyId, Rating')
+    .in('EstatePropertyId', propertyIds);
+
+  if (error) {
+    console.error('Error fetching ratings for properties:', error);
+    return {};
+  }
+
+  const rows =
+    (data ?? []) as Array<{
+      EstatePropertyId: string;
+      Rating: number;
+    }>;
+
+  const stats: Record<string, { sum: number; count: number }> = {};
+
+  for (const row of rows) {
+    const key = row.EstatePropertyId;
+    if (!key) continue;
+    if (!stats[key]) {
+      stats[key] = { sum: 0, count: 0 };
+    }
+    stats[key].sum += row.Rating;
+    stats[key].count += 1;
+  }
+
+  const result: Record<string, { averageRating: number; reviewCount: number }> = {};
+
+  for (const [propertyId, { sum, count }] of Object.entries(stats)) {
+    if (count === 0) continue;
+    const averageRaw = sum / count;
+    const averageRating = Math.round(averageRaw * 10) / 10;
+    result[propertyId] = {
+      averageRating,
+      reviewCount: count,
+    };
+  }
+
+  return result;
+}
