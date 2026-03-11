@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Input, Badge, MFAEnrollmentModal, Tooltip } from '../components/ui';
 import { User, Edit2, Save, X, Calendar, MapPin, Shield, ShieldCheck, Info, Camera } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { getMemberProfile, updateMemberProfile, uploadProfilePicture, requestEmailChange, verifyEmailChange, requestPhoneChange, verifyPhoneChange, updateMFAStatus } from '../services/memberService';
-import { getUserBookings, getUserBookingsCount } from '../services/bookingService';
+import { getUserBookings, cancelBooking } from '../services/bookingService';
 import { enrollMFA, verifyMFAEnrollment, listMFAFactors, unenrollMFA } from '../services/mfaService';
 import { Modal, VerificationModal, LeaveReviewModal } from '../components/ui';
 import { OnboardingTour } from '../components/onboarding';
@@ -67,6 +68,12 @@ const Profile: React.FC = () => {
   const [userBookings, setUserBookings] = useState<Booking[]>([]);
   const [bookingHasReview, setBookingHasReview] = useState<Map<string, boolean>>(new Map());
   const [reviewModalBooking, setReviewModalBooking] = useState<Booking | null>(null);
+  const [manageBooking, setManageBooking] = useState<Booking | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -1156,14 +1163,27 @@ const Profile: React.FC = () => {
                           </div>
 
                           <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-                            <Button variant="outline" size="sm">
-                              {t('profile.bookingsTab.viewDetails')}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => navigate(`/property/${booking.property.id}`)}
+                            >
+                              {t('profile.bookingsTab.goToProperty')}
                             </Button>
-                            {booking.status === 'confirmed' && (
-                              <Button variant="primary" size="sm">
+                            {(booking.status === 'confirmed' || booking.status === 'pending_confirmation') && (
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => {
+                                  setManageBooking(booking);
+                                  setCancelReason('');
+                                  setCancelError(null);
+                                }}
+                              >
                                 {t('profile.bookingsTab.manageBooking')}
                               </Button>
                             )}
+                            {/* Leave Review: shown only for completed stays (checkout passed, within 14 days, paid, no review yet) */}
                             {canLeaveReview(booking, bookingHasReview.get(booking.id) ?? false) && (
                               <Button
                                 variant="primary"
@@ -1283,6 +1303,113 @@ const Profile: React.FC = () => {
         bookingId={reviewModalBooking?.id ?? ''}
         propertyTitle={reviewModalBooking?.property.title}
       />
+
+      {/* Manage Booking Modal */}
+      <Modal
+        isOpen={!!manageBooking}
+        onClose={() => {
+          if (cancelLoading) return;
+          setManageBooking(null);
+          setCancelReason('');
+          setCancelError(null);
+        }}
+        title={t('profile.bookingsTab.manageBooking')}
+      >
+        {manageBooking && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-navy mb-1">
+                {manageBooking.property.title}
+              </h3>
+              <p className="text-sm text-charcoal">
+                {new Date(manageBooking.checkIn).toLocaleDateString()} -{' '}
+                {new Date(manageBooking.checkOut).toLocaleDateString()}
+              </p>
+              <p className="text-sm text-charcoal">
+                {manageBooking.guests} {t('profile.bookingsTab.guests')}
+              </p>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-900">
+              {t('profile.bookingsTab.cancelWarning')}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-navy mb-2">
+                {t('profile.bookingsTab.cancelReasonOptional')}
+              </label>
+              <textarea
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-white text-sm resize-none"
+                rows={4}
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                disabled={cancelLoading}
+              />
+            </div>
+
+            {cancelError && (
+              <p className="text-sm text-red-600">
+                {cancelError}
+              </p>
+            )}
+
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (cancelLoading) return;
+                  setManageBooking(null);
+                  setCancelReason('');
+                  setCancelError(null);
+                }}
+                disabled={cancelLoading}
+              >
+                {t('common.close')}
+              </Button>
+              <Button
+                variant="primary"
+                onClick={async () => {
+                  if (!manageBooking) return;
+                  try {
+                    setCancelLoading(true);
+                    setCancelError(null);
+                    const result = await cancelBooking({
+                      bookingId: manageBooking.id,
+                      reason: cancelReason || undefined,
+                      cancelledBy: 'guest',
+                    });
+
+                    if (!result.success) {
+                      setCancelError(result.error || t('profile.bookingsTab.cancelError'));
+                      return;
+                    }
+
+                    // Optimistically update local state so card reflects cancelled status
+                    setUserBookings((prev) =>
+                      prev.map((b) =>
+                        b.id === manageBooking.id ? { ...b, status: 'cancelled' } : b
+                      )
+                    );
+                    setManageBooking(null);
+                    setCancelReason('');
+                    setCancelError(null);
+                  } catch (err) {
+                    console.error('Error cancelling booking from profile:', err);
+                    setCancelError(t('profile.bookingsTab.cancelError'));
+                  } finally {
+                    setCancelLoading(false);
+                  }
+                }}
+                disabled={cancelLoading}
+              >
+                {cancelLoading
+                  ? t('profile.bookingsTab.cancelling')
+                  : t('profile.bookingsTab.cancelBooking')}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Onboarding Tour (contextual guided tour) */}
       {showOnboarding && (

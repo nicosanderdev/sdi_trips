@@ -103,6 +103,8 @@ export interface Booking {
   guests: number;
   totalPrice: number;
   status: 'pending_confirmation' | 'confirmed' | 'cancelled' | 'completed';
+  /** 0 = Unpaid, 1 = Paid; required for review eligibility */
+  paymentStatus?: number;
   createdAt: string;
 }
 

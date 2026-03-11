@@ -1,9 +1,10 @@
 import { supabase } from '../lib/supabase';
-import type { Booking } from '../types';
+import type { Booking, Property, User } from '../types';
+import { getPropertyById } from './propertyService';
 
 export interface CreateBookingParams {
   propertyId: string;
-  userId: string;
+  memberId: string;
   checkIn: Date;
   checkOut: Date;
   guests: number;
@@ -16,6 +17,85 @@ export interface BookingResponse {
   booking?: Booking;
   error?: string;
   status: 'pending_confirmation' | 'confirmed';
+}
+
+export interface CancelBookingParams {
+  bookingId: string;
+  reason?: string;
+  cancelledBy: 'guest' | 'owner' | 'system';
+}
+
+export interface CancelBookingResponse {
+  success: boolean;
+  error?: string;
+}
+
+/**
+ * Cancel a booking by Id.
+ *
+ * This function is intentionally implemented as a placeholder so that
+ * database changes can be applied manually by the developer.
+ *
+ * Intended behavior (to be wired via Supabase RPC or edge function):
+ * - Validate that the booking exists, is not deleted, and belongs to the caller (if guest).
+ * - Ensure status is in a cancellable state (e.g. pending_confirmation or confirmed).
+ * - Update Bookings.Status to the integer value that maps to 'cancelled'.
+ * - Optionally persist `reason` and `cancelledBy` in audit columns or a separate table.
+ */
+export async function cancelBooking(params: CancelBookingParams): Promise<CancelBookingResponse> {
+  const { bookingId } = params;
+
+  if (!bookingId) {
+    return {
+      success: false,
+      error: 'Missing bookingId',
+    };
+  }
+
+  try {
+    // TODO: replace this with a call to a Supabase RPC or edge function
+    // Example (RPC):
+    // const { error } = await supabase.rpc('rpc_cancel_booking', {
+    //   p_booking_id: bookingId,
+    //   p_reason: params.reason ?? null,
+    //   p_cancelled_by: params.cancelledBy,
+    // });
+    //
+    // if (error) {
+    //   console.error('Error cancelling booking via RPC:', error);
+    //   return { success: false, error: 'Failed to cancel booking. Please try again.' };
+    // }
+
+    console.warn(
+      '[cancelBooking] Placeholder implementation called. Backend RPC/edge function is not yet wired.'
+    );
+
+    // For now, pretend the operation failed so the UI does not mislead users
+    return {
+      success: false,
+      error: 'Cancel booking is not yet available. Please try again later.',
+    };
+  } catch (error) {
+    console.error('Unexpected error in cancelBooking placeholder:', error);
+    return {
+      success: false,
+      error: 'Failed to cancel booking. Please try again.',
+    };
+  }
+}
+
+interface DbBookingRow {
+  Id: string;
+  EstatePropertyId: string;
+  GuestId: string | null;
+  CheckInDate: string;
+  CheckOutDate: string;
+  GuestCount: number;
+  TotalAmount: number | null;
+  Status: number;
+  PaymentStatus?: number;
+  Created: string;
+  IsDeleted: boolean;
 }
 
 /**
@@ -48,7 +128,7 @@ export async function checkPropertyHasCalendarSync(propertyId: string): Promise<
  * Create a new booking with appropriate status based on calendar sync
  */
 export async function createBooking(params: CreateBookingParams): Promise<BookingResponse> {
-  const { propertyId, userId, checkIn, checkOut, guests, totalPrice, notes } = params;
+  const { propertyId, memberId, checkIn, checkOut, guests, totalPrice, notes } = params;
 
   try {
     // Check if property has calendar sync
@@ -63,65 +143,22 @@ export async function createBooking(params: CreateBookingParams): Promise<Bookin
       .from('Bookings')
       .insert({
         EstatePropertyId: propertyId,
-        MemberId: userId,
+        GuestId: memberId,
         CheckInDate: checkIn.toISOString(),
         CheckOutDate: checkOut.toISOString(),
-        NumberOfGuests: guests,
-        TotalPrice: totalPrice,
+        GuestCount: guests,
+        TotalAmount: totalPrice,
         Notes: notes,
         Status: status,
         Created: new Date().toISOString(),
-        CreatedBy: userId,
+        CreatedBy: memberId,
         LastModified: new Date().toISOString(),
-        LastModifiedBy: userId,
+        LastModifiedBy: memberId,
         IsDeleted: false
       })
-      .select(`
-        Id,
-        CheckInDate,
-        CheckOutDate,
-        NumberOfGuests,
-        TotalPrice,
-        Status,
-        Created,
-        EstateProperties!inner (
-          Id,
-          Title,
-          StreetName,
-          HouseNumber,
-          Neighborhood,
-          City,
-          State,
-          LocationLatitude,
-          LocationLongitude,
-          RentPrice,
-          SalePrice,
-          Currency,
-          Bedrooms,
-          Bathrooms,
-          MaxGuests,
-          Description,
-          Amenities,
-          Rating,
-          ReviewCount,
-          Owners:Members (
-            Id,
-            FirstName,
-            LastName,
-            Email,
-            AvatarUrl,
-            Title
-          )
-        ),
-        Members!inner (
-          Id,
-          FirstName,
-          LastName,
-          Email,
-          AvatarUrl,
-          Title
-        )
-      `)
+      .select(
+        'Id,EstatePropertyId,GuestId,CheckInDate,CheckOutDate,GuestCount,TotalAmount,Status,PaymentStatus,Created,IsDeleted'
+      )
       .single();
 
     if (error) {
@@ -141,68 +178,36 @@ export async function createBooking(params: CreateBookingParams): Promise<Bookin
       };
     }
 
-    // Transform database response to Booking type
-    const property = bookingData.EstateProperties as any;
-    const user = bookingData.Members as any;
+    const insertedRow = bookingData as DbBookingRow;
 
-    if (!property || !user) {
+    const property = await getPropertyById(insertedRow.EstatePropertyId);
+
+    if (!property) {
       return {
         success: false,
         error: 'Failed to fetch booking details.',
-        status: statusText
+        status: statusText,
       };
     }
 
-    const location = [
-      property.StreetName,
-      property.HouseNumber,
-      property.Neighborhood,
-      property.City,
-      property.State
-    ].filter(Boolean).join(', ');
+    const bookingUser: User = {
+      id: insertedRow.GuestId ?? '',
+      name: '',
+      email: '',
+      verified: true,
+    };
 
     const booking: Booking = {
-      id: bookingData.Id,
-      property: {
-        id: property.Id,
-        title: property.Title,
-        location: location || 'Location not specified',
-        price: property.RentPrice || property.SalePrice || 0,
-        currency: 'USD', // TODO: Map currency from database
-        images: [], // TODO: Implement image fetching
-        bedrooms: property.Bedrooms,
-        bathrooms: property.Bathrooms,
-        maxGuests: property.MaxGuests || property.Bedrooms * 2,
-        description: property.Description || '',
-        amenities: [], // TODO: Implement amenities fetching
-        rating: property.Rating || 4.5,
-        reviewCount: property.ReviewCount || 0,
-        host: {
-          id: property.Owners?.Id || '',
-          name: `${property.Owners?.FirstName || ''} ${property.Owners?.LastName || ''}`.trim() || 'Host',
-          email: property.Owners?.Email || '',
-          avatar: property.Owners?.AvatarUrl || undefined,
-          verified: true, // TODO: Implement verification status
-        },
-        available: true,
-        coordinates: {
-          lat: property.LocationLatitude,
-          lng: property.LocationLongitude,
-        },
-      },
-      user: {
-        id: user.Id,
-        name: `${user.FirstName || ''} ${user.LastName || ''}`.trim() || 'User',
-        email: user.Email || '',
-        avatar: user.AvatarUrl || undefined,
-        verified: true, // TODO: Implement verification status
-      },
-      checkIn: bookingData.CheckInDate,
-      checkOut: bookingData.CheckOutDate,
-      guests: bookingData.NumberOfGuests,
-      totalPrice: bookingData.TotalPrice,
+      id: insertedRow.Id,
+      property,
+      user: bookingUser,
+      checkIn: insertedRow.CheckInDate,
+      checkOut: insertedRow.CheckOutDate,
+      guests: insertedRow.GuestCount,
+      totalPrice: insertedRow.TotalAmount ?? 0,
       status: statusText as Booking['status'],
-      createdAt: bookingData.Created,
+      paymentStatus: insertedRow.PaymentStatus,
+      createdAt: insertedRow.Created,
     };
 
     // If booking is confirmed, send confirmation email (if enabled)
@@ -248,52 +253,9 @@ export async function getBookingById(bookingId: string): Promise<Booking | null>
   try {
     const { data, error } = await supabase
       .from('Bookings')
-      .select(`
-        Id,
-        CheckInDate,
-        CheckOutDate,
-        NumberOfGuests,
-        TotalPrice,
-        Status,
-        Created,
-        EstateProperties!inner (
-          Id,
-          Title,
-          StreetName,
-          HouseNumber,
-          Neighborhood,
-          City,
-          State,
-          LocationLatitude,
-          LocationLongitude,
-          RentPrice,
-          SalePrice,
-          Currency,
-          Bedrooms,
-          Bathrooms,
-          MaxGuests,
-          Description,
-          Amenities,
-          Rating,
-          ReviewCount,
-          Owners:Members (
-            Id,
-            FirstName,
-            LastName,
-            Email,
-            AvatarUrl,
-            Title
-          )
-        ),
-        Members!inner (
-          Id,
-          FirstName,
-          LastName,
-          Email,
-          AvatarUrl,
-          Title
-        )
-      `)
+      .select(
+        'Id,EstatePropertyId,GuestId,CheckInDate,CheckOutDate,GuestCount,TotalAmount,Status,PaymentStatus,Created,IsDeleted'
+      )
       .eq('Id', bookingId)
       .eq('IsDeleted', false)
       .single();
@@ -307,72 +269,39 @@ export async function getBookingById(bookingId: string): Promise<Booking | null>
       return null;
     }
 
-    // Transform to Booking type (similar to createBooking)
-    const property = data.EstateProperties as any;
-    const user = data.Members as any;
+    const row = data as DbBookingRow;
 
-    if (!property || !user) {
+    const property = await getPropertyById(row.EstatePropertyId);
+
+    if (!property) {
       return null;
     }
 
-    const location = [
-      property.StreetName,
-      property.HouseNumber,
-      property.Neighborhood,
-      property.City,
-      property.State
-    ].filter(Boolean).join(', ');
-
-    // Map status number to string
     const statusMap: { [key: number]: Booking['status'] } = {
       0: 'pending_confirmation',
       1: 'confirmed',
       2: 'cancelled',
-      3: 'completed'
+      3: 'completed',
+    };
+
+    const bookingUser: User = {
+      id: row.GuestId ?? '',
+      name: '',
+      email: '',
+      verified: true,
     };
 
     return {
-      id: data.Id,
-      property: {
-        id: property.Id,
-        title: property.Title,
-        location: location || 'Location not specified',
-        price: property.RentPrice || property.SalePrice || 0,
-        currency: 'USD', // TODO: Map currency from database
-        images: [], // TODO: Implement image fetching
-        bedrooms: property.Bedrooms,
-        bathrooms: property.Bathrooms,
-        maxGuests: property.MaxGuests || property.Bedrooms * 2,
-        description: property.Description || '',
-        amenities: [], // TODO: Implement amenities fetching
-        rating: property.Rating || 4.5,
-        reviewCount: property.ReviewCount || 0,
-        host: {
-          id: property.Owners?.[0]?.Id || '',
-          name: `${property.Owners?.[0]?.FirstName || ''} ${property.Owners?.[0]?.LastName || ''}`.trim() || 'Host',
-          email: property.Owners?.[0]?.Email || '',
-          avatar: property.Owners?.[0]?.AvatarUrl || undefined,
-          verified: true, // TODO: Implement verification status
-        },
-        available: true,
-        coordinates: {
-          lat: property.LocationLatitude,
-          lng: property.LocationLongitude,
-        },
-      },
-      user: {
-        id: user.Id,
-        name: `${user.FirstName || ''} ${user.LastName || ''}`.trim() || 'User',
-        email: user.Email || '',
-        avatar: user.AvatarUrl || undefined,
-        verified: true, // TODO: Implement verification status
-      },
-      checkIn: data.CheckInDate,
-      checkOut: data.CheckOutDate,
-      guests: data.NumberOfGuests,
-      totalPrice: data.TotalPrice,
-      status: statusMap[data.Status] || ('confirmed' as Booking['status']),
-      createdAt: data.Created,
+      id: row.Id,
+      property,
+      user: bookingUser,
+      checkIn: row.CheckInDate,
+      checkOut: row.CheckOutDate,
+      guests: row.GuestCount,
+      totalPrice: row.TotalAmount ?? 0,
+      status: statusMap[row.Status] || 'confirmed',
+      paymentStatus: row.PaymentStatus,
+      createdAt: row.Created,
     };
 
   } catch (error) {
@@ -382,64 +311,21 @@ export async function getBookingById(bookingId: string): Promise<Booking | null>
 }
 
 /**
- * Get all bookings for a user
+ * Get all bookings for a member (linked via GuestId)
  */
-export async function getUserBookings(userId: string): Promise<Booking[]> {
+export async function getUserBookings(memberId: string): Promise<Booking[]> {
   try {
     const { data, error } = await supabase
       .from('Bookings')
-      .select(`
-        Id,
-        CheckInDate,
-        CheckOutDate,
-        NumberOfGuests,
-        TotalPrice,
-        Status,
-        Created,
-        EstateProperties!inner (
-          Id,
-          Title,
-          StreetName,
-          HouseNumber,
-          Neighborhood,
-          City,
-          State,
-          LocationLatitude,
-          LocationLongitude,
-          RentPrice,
-          SalePrice,
-          Currency,
-          Bedrooms,
-          Bathrooms,
-          MaxGuests,
-          Description,
-          Amenities,
-          Rating,
-          ReviewCount,
-          Owners:Members (
-            Id,
-            FirstName,
-            LastName,
-            Email,
-            AvatarUrl,
-            Title
-          )
-        ),
-        Members!inner (
-          Id,
-          FirstName,
-          LastName,
-          Email,
-          AvatarUrl,
-          Title
-        )
-      `)
-      .eq('MemberId', userId)
+      .select(
+        'Id,EstatePropertyId,GuestId,CheckInDate,CheckOutDate,GuestCount,TotalAmount,Status,PaymentStatus,Created,IsDeleted'
+      )
+      .eq('GuestId', memberId)
       .eq('IsDeleted', false)
       .order('Created', { ascending: false });
 
     if (error) {
-      console.error('Error fetching user bookings:', error);
+      console.error('Error fetching user bookings for member', memberId, error);
       return [];
     }
 
@@ -447,79 +333,69 @@ export async function getUserBookings(userId: string): Promise<Booking[]> {
       return [];
     }
 
-    // Transform to Booking array
-    const bookings: Booking[] = [];
+    const rows = (data ?? []) as DbBookingRow[];
 
-    for (const bookingData of data) {
-      const property = bookingData.EstateProperties as any;
-      const user = bookingData.Members as any;
-
-      if (!property || !user) {
-        continue; // Skip invalid data
-      }
-
-      const location = [
-        property.StreetName,
-        property.HouseNumber,
-        property.Neighborhood,
-        property.City,
-        property.State
-      ].filter(Boolean).join(', ');
-
-      // Map status number to string
-      const statusMap: { [key: number]: Booking['status'] } = {
-        0: 'pending_confirmation',
-        1: 'confirmed',
-        2: 'cancelled',
-        3: 'completed'
-      };
-
-      bookings.push({
-        id: bookingData.Id,
-        property: {
-          id: property.Id,
-          title: property.Title,
-          location: location || 'Location not specified',
-          price: property.RentPrice || property.SalePrice || 0,
-          currency: 'USD', // TODO: Map currency from database
-          images: [], // TODO: Implement image fetching
-          bedrooms: property.Bedrooms,
-          bathrooms: property.Bathrooms,
-          maxGuests: property.MaxGuests || property.Bedrooms * 2,
-          description: property.Description || '',
-          amenities: [], // TODO: Implement amenities fetching
-          rating: property.Rating || 4.5,
-          reviewCount: property.ReviewCount || 0,
-          host: {
-            id: property.Owners?.[0]?.Id || '',
-            name: `${property.Owners?.[0]?.FirstName || ''} ${property.Owners?.[0]?.LastName || ''}`.trim() || 'Host',
-            email: property.Owners?.[0]?.Email || '',
-            avatar: property.Owners?.[0]?.AvatarUrl || undefined,
-            verified: true, // TODO: Implement verification status
-          },
-          available: true,
-          coordinates: {
-            lat: property.LocationLatitude,
-            lng: property.LocationLongitude,
-          },
-        },
-        user: {
-          id: user.Id,
-          name: `${user.FirstName || ''} ${user.LastName || ''}`.trim() || 'User',
-          email: user.Email || '',
-          avatar: user.AvatarUrl || undefined,
-          verified: true, // TODO: Implement verification status
-        },
-        checkIn: bookingData.CheckInDate,
-        checkOut: bookingData.CheckOutDate,
-        guests: bookingData.NumberOfGuests,
-        totalPrice: bookingData.TotalPrice,
-        status: statusMap[bookingData.Status] || ('confirmed' as Booking['status']),
-        createdAt: bookingData.Created,
-      });
+    if (rows.length === 0) {
+      return [];
     }
 
-    return bookings;
+    const statusMap: { [key: number]: Booking['status'] } = {
+      0: 'pending_confirmation',
+      1: 'confirmed',
+      2: 'cancelled',
+      3: 'completed',
+    };
+
+    const hydrated = await Promise.all(
+      rows.map(async (row) => {
+        try {
+          const property: Property | null = await getPropertyById(row.EstatePropertyId);
+
+          if (!property) {
+            console.error(
+              'Property not found for booking',
+              row.Id,
+              'with EstatePropertyId',
+              row.EstatePropertyId
+            );
+            return null;
+          }
+
+          const user: User = {
+            id: row.GuestId ?? '',
+            name: '',
+            email: '',
+            verified: true,
+          };
+
+          const booking: Booking = {
+            id: row.Id,
+            property,
+            user,
+            checkIn: row.CheckInDate,
+            checkOut: row.CheckOutDate,
+            guests: row.GuestCount,
+            totalPrice: row.TotalAmount ?? 0,
+            status: statusMap[row.Status] || 'confirmed',
+            paymentStatus: row.PaymentStatus,
+            createdAt: row.Created,
+          };
+
+          return booking;
+        } catch (err) {
+          console.error(
+            'Error hydrating booking property for booking',
+            row.Id,
+            'with EstatePropertyId',
+            row.EstatePropertyId,
+            err
+          );
+          return null;
+        }
+      })
+    );
+
+    return hydrated.filter((b): b is Booking => b !== null);
 
   } catch (error) {
     console.error('Failed to fetch user bookings:', error);
@@ -528,14 +404,14 @@ export async function getUserBookings(userId: string): Promise<Booking[]> {
 }
 
 /**
- * Get the count of user's bookings (non-deleted)
+ * Get the count of a member's bookings (non-deleted)
  */
-export async function getUserBookingsCount(userId: string): Promise<number> {
+export async function getUserBookingsCount(memberId: string): Promise<number> {
   try {
     const { count, error } = await supabase
       .from('Bookings')
       .select('Id', { count: 'exact', head: true })
-      .eq('MemberId', userId)
+      .eq('GuestId', memberId)
       .eq('IsDeleted', false);
 
     if (error) {

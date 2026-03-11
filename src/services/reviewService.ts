@@ -1,14 +1,16 @@
 import { supabase } from '../lib/supabase';
+import { getUserBookings } from './bookingService';
 import { REVIEW_WINDOW_DAYS } from '../constants/reviews';
 import type { Booking, PropertyReviewItem, PropertyReviewsResult } from '../types';
 
 /**
  * Frontend eligibility for showing "Leave Review" (UX only; RPC enforces on submit).
- * Requires: completed stay, checkout passed, within review window, no existing review.
+ * Requires: completed stay, checkout passed, within review window, no existing review, payment done.
  */
 export function canLeaveReview(booking: Booking, hasExistingReview: boolean): boolean {
   if (hasExistingReview) return false;
   if (booking.status !== 'completed') return false;
+  if (booking.paymentStatus != null && booking.paymentStatus !== 1) return false; // 1 = Paid
   const checkOut = new Date(booking.checkOut);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -18,6 +20,55 @@ export function canLeaveReview(booking: Booking, hasExistingReview: boolean): bo
   windowEnd.setDate(windowEnd.getDate() + REVIEW_WINDOW_DAYS);
   if (today > windowEnd) return false; // window expired
   return true;
+}
+
+/**
+ * Returns the translation key for why a booking is ineligible for review, or null if eligible.
+ */
+export function getReviewIneligibilityReason(booking: Booking, hasExistingReview: boolean): string | null {
+  if (hasExistingReview) return 'reviews.errors.reviewAlreadyExists';
+  if (booking.status !== 'completed') return 'reviews.errors.bookingNotCompleted';
+  if (booking.paymentStatus != null && booking.paymentStatus !== 1) return 'reviews.errors.paymentRequired';
+  const checkOut = new Date(booking.checkOut);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  checkOut.setHours(0, 0, 0, 0);
+  if (checkOut > today) return 'reviews.errors.checkoutNotPassed';
+  const windowEnd = new Date(checkOut);
+  windowEnd.setDate(windowEnd.getDate() + REVIEW_WINDOW_DAYS);
+  if (today > windowEnd) return 'reviews.errors.reviewWindowExpired';
+  return null;
+}
+
+export interface ReviewEligibilityResult {
+  canReview: boolean;
+  booking?: Booking;
+  reason?: string;
+}
+
+/**
+ * Determine if the current user can leave a review for a property and return the eligible booking or reason.
+ */
+export async function getReviewEligibilityForProperty(
+  propertyId: string,
+  memberId: string
+): Promise<ReviewEligibilityResult> {
+  const bookings = await getUserBookings(memberId);
+  const forProperty = bookings.filter((b) => b.property.id === propertyId);
+  if (forProperty.length === 0) {
+    return { canReview: false, reason: 'reviews.noBookingForProperty' };
+  }
+  for (const booking of forProperty) {
+    const hasReview = await getExistingReviewForBooking(booking.id);
+    if (canLeaveReview(booking, hasReview)) {
+      return { canReview: true, booking };
+    }
+    const reason = getReviewIneligibilityReason(booking, hasReview);
+    if (reason) {
+      return { canReview: false, reason };
+    }
+  }
+  return { canReview: false, reason: 'reviews.noBookingForProperty' };
 }
 
 const RPC_ERROR_MESSAGES: Record<string, string> = {
@@ -90,7 +141,7 @@ export async function getReviewsByPropertyId(
     return { reviews: [], averageRating: 0, totalCount: 0 };
   }
 
-  const rows = (data ?? []) as Array<{
+  const rows = (data ?? []) as unknown as Array<{
     Id: string;
     Rating: number;
     Comment: string | null;
