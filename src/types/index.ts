@@ -81,6 +81,10 @@ export interface Property {
   maxStayDays?: number;
   leadTimeDays?: number;
   bufferDays?: number;
+  /** Owner id (company or member) for analytics/reports */
+  ownerId?: string;
+  /** Listing type for analytics (e.g. GA property_view) */
+  listingType?: 'rent' | 'sale';
 }
 
 export interface User {

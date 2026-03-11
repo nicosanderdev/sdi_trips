@@ -7,6 +7,8 @@ import { Button, Card, LeaveReviewModal } from '../components/ui';
 import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
 import { createBooking } from '../services/bookingService';
+import { sendPropertyView, getSourceFromUtmOrReferrer } from '../lib/analytics';
+import { logPropertyVisit } from '../services/propertyVisitService';
 import { getMemberProfile } from '../services/memberService';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -129,6 +131,20 @@ const PropertyDetail: React.FC = () => {
 
         fetchProperty();
     }, [id]);
+
+    // Property view tracking: GA property_view + Supabase PropertyVisitLogs (throttled)
+    useEffect(() => {
+        if (!property?.id) return;
+        const source = getSourceFromUtmOrReferrer();
+        sendPropertyView({
+            property_id: property.id,
+            property_slug: id ?? undefined,
+            company_id: property.ownerId,
+            listing_type: property.listingType,
+            source,
+        });
+        logPropertyVisit(property.id, source);
+    }, [property?.id, id, property?.ownerId, property?.listingType]);
 
     // Fetch reviews for this property
     useEffect(() => {

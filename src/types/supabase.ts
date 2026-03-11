@@ -368,6 +368,41 @@ export interface Database {
           ICalSyncToken?: string | null;
         };
       };
+      PropertyVisitLogs: {
+        Row: {
+          Id: string;
+          PropertyId: string;
+          VisitedOnUtc: string;
+          Source: string | null;
+          IsDeleted: boolean;
+          Created: string;
+          CreatedBy: string | null;
+          LastModified: string;
+          LastModifiedBy: string | null;
+        };
+        Insert: {
+          Id?: string;
+          PropertyId: string;
+          VisitedOnUtc: string;
+          Source?: string | null;
+          IsDeleted?: boolean;
+          Created?: string;
+          CreatedBy?: string | null;
+          LastModified?: string;
+          LastModifiedBy?: string | null;
+        };
+        Update: {
+          Id?: string;
+          PropertyId?: string;
+          VisitedOnUtc?: string;
+          Source?: string | null;
+          IsDeleted?: boolean;
+          Created?: string;
+          CreatedBy?: string | null;
+          LastModified?: string;
+          LastModifiedBy?: string | null;
+        };
+      };
     };
   };
 }

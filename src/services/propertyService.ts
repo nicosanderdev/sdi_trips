@@ -89,6 +89,8 @@ function transformProperty(dbProperty: PropertyWithRelations): Property {
     maxStayDays: dbProperty.MaxStayDays || undefined,
     leadTimeDays: dbProperty.LeadTimeDays || undefined,
     bufferDays: dbProperty.BufferDays || undefined,
+    ownerId: dbProperty.OwnerId ?? undefined,
+    listingType: propertyValue.Status === 1 ? 'rent' : 'sale',
   };
 }
 
