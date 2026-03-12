@@ -84,7 +84,17 @@ export interface Property {
   /** Owner id (company or member) for analytics/reports */
   ownerId?: string;
   /** Listing type for analytics (e.g. GA property_view) */
-  listingType?: 'rent' | 'sale';
+  listingType?: 'rent' | 'sale' | 'SummerRent' | 'EventVenue' | 'AnnualRent' | 'RealEstate';
+  /** Infrastructure flags from EstateProperties */
+  hasLaundryRoom?: boolean;
+  hasPool?: boolean;
+  hasBalcony?: boolean;
+  isFurnished?: boolean;
+  /** Capacity from EstateProperties or Listings */
+  capacity?: number;
+  /** Location and view metadata */
+  locationCategory?: 'rural' | 'city' | 'near_shore' | string;
+  viewType?: 'city' | 'mountain' | 'rural' | 'sea' | string;
 }
 
 export interface User {

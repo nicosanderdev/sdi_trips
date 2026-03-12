@@ -298,7 +298,8 @@ const PropertyDetail: React.FC = () => {
     const neighborhoodCopy =
         property.neighborhoodDetails || t('propertyDetail.detailSections.neighborhood.default');
 
-    const attributeItems = [
+    // Grouped attributes (structure, infrastructure, amenities/location)
+    const structureAttributes = [
         {
             title: t('propertyDetail.attributes.sleeping.title'),
             description: t('propertyDetail.attributes.sleeping.description', {
@@ -314,14 +315,17 @@ const PropertyDetail: React.FC = () => {
             icon: <Bath className="h-6 w-6 text-gold" />
         },
         {
-            title: t('propertyDetail.attributes.kitchen.title'),
-            description: t('propertyDetail.attributes.kitchen.description'),
-            icon: <Shield className="h-6 w-6 text-gold" />
-        },
-        {
             title: t('propertyDetail.attributes.comfort.title'),
             description: t('propertyDetail.attributes.comfort.description'),
             icon: <Users className="h-6 w-6 text-gold" />
+        }
+    ];
+
+    const infrastructureAttributes = [
+        {
+            title: t('propertyDetail.attributes.kitchen.title'),
+            description: t('propertyDetail.attributes.kitchen.description'),
+            icon: <Shield className="h-6 w-6 text-gold" />
         },
         {
             title: t('propertyDetail.attributes.wifi.title'),
@@ -608,7 +612,7 @@ const PropertyDetail: React.FC = () => {
                                         {t('propertyDetail.attributes.heading')}
                                     </h2>
                                     <div className="grid gap-4 md:grid-cols-2">
-                                        {attributeItems.map((item) => (
+                                        {[...structureAttributes, ...infrastructureAttributes].map((item) => (
                                             <div
                                                 key={item.title}
                                                 className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4"

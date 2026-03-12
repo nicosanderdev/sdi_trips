@@ -4,17 +4,60 @@ import type { Property } from '../types';
 import { getRatingsForProperties } from './reviewService';
 
 type DbProperty = Database['public']['Tables']['EstateProperties']['Row'];
-type DbPropertyValue = Database['public']['Tables']['EstatePropertyValues']['Row'];
-type DbAmenity = Database['public']['Tables']['Amenities']['Row'];
-type DbMember = Database['public']['Tables']['Members']['Row'];
+type DbListing = Database['public']['Tables']['Listings']['Row'];
 
-interface PropertyWithRelations extends DbProperty {
-  EstatePropertyValues: DbPropertyValue[];
-  EstatePropertyAmenity: Array<{
-    AmenityId: string;
-    Amenities: DbAmenity;
-  }>;
-  Owners?: DbMember | null;
+/**
+ * Shape returned by get_public_summer_rent_properties / get_public_summer_rent_property_by_id.
+ * Must stay in sync with the SQL migrations.
+ */
+interface RpcSummerRentPropertyRow {
+  EstatePropertyId: string;
+  Title: string;
+  StreetName: string | null;
+  HouseNumber: string | null;
+  Neighborhood: string | null;
+  City: string | null;
+  State: string | null;
+  Country: string | null;
+  LocationLatitude: number;
+  LocationLongitude: number;
+  Bedrooms: number;
+  Bathrooms: number;
+  HasGarage: boolean;
+  GarageSpaces: number;
+  Visits: number | null;
+  OwnerId: string | null;
+  PropertyType: DbProperty['PropertyType'];
+  HasLaundryRoom: boolean;
+  HasPool: boolean;
+  HasBalcony: boolean;
+  IsFurnished: boolean;
+  Capacity: number | null;
+  LocationCategory: DbProperty['LocationCategory'];
+  ViewType: DbProperty['ViewType'];
+  ListingId: string;
+  ListingType: DbListing['ListingType'];
+  ListingDescription: string | null;
+  AvailableFrom: string;
+  ListingCapacity: number | null;
+  Currency: number;
+  SalePrice: number | null;
+  RentPrice: number | null;
+  HasCommonExpenses: boolean;
+  CommonExpensesValue: number | null;
+  IsElectricityIncluded: boolean | null;
+  IsWaterIncluded: boolean | null;
+  IsPriceVisible: boolean;
+  Status: number;
+  IsActive: boolean;
+  IsPropertyVisible: boolean;
+  IsFeatured: boolean;
+  BlockedForBooking: boolean;
+  MinStayDays: number | null;
+  MaxStayDays: number | null;
+  LeadTimeDays: number | null;
+  BufferDays: number | null;
+  AmenityNames: string[] | null;
 }
 
 export interface PropertyFilters {
@@ -24,7 +67,6 @@ export interface PropertyFilters {
   amenities?: string[];
   minRating?: number;
   location?: string;
-  propertyType?: number;
 }
 
 export interface PropertySearchResult {
@@ -33,64 +75,59 @@ export interface PropertySearchResult {
 }
 
 /**
- * Transform database property data to frontend Property type
+ * Transform SummerRent RPC row to frontend Property type
  */
-function transformProperty(dbProperty: PropertyWithRelations): Property {
-  const propertyValue = dbProperty.EstatePropertyValues?.[0];
-  if (!propertyValue) {
-    throw new Error(`Property ${dbProperty.Id} has no property values`);
-  }
-
-  const amenities = dbProperty.EstatePropertyAmenity
-    ?.map((epa: any) => epa.Amenities.Name) || [];
-
+function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
   const location = [
-    dbProperty.StreetName,
-    dbProperty.HouseNumber,
-    dbProperty.Neighborhood,
-    dbProperty.City,
-    dbProperty.State
-  ].filter(Boolean).join(', ');
+    row.StreetName,
+    row.HouseNumber,
+    row.Neighborhood,
+    row.City,
+    row.State,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  const maxGuests =
+    row.ListingCapacity ??
+    row.Capacity ??
+    (row.Bedrooms != null ? row.Bedrooms * 2 : 0);
+
+  const amenities = row.AmenityNames ?? [];
 
   return {
-    id: dbProperty.Id,
-    title: dbProperty.Title,
+    id: row.EstatePropertyId,
+    title: row.Title,
     location: location || 'Location not specified',
-    price: propertyValue.RentPrice || propertyValue.SalePrice || 0,
-    currency: getCurrencyCode(propertyValue.Currency),
+    price: row.RentPrice || row.SalePrice || 0,
+    currency: getCurrencyCode(row.Currency),
     images: [], // TODO: Implement image fetching
-    bedrooms: dbProperty.Bedrooms,
-    bathrooms: dbProperty.Bathrooms,
-    maxGuests: propertyValue.Capacity || dbProperty.Bedrooms * 2,
-    description: propertyValue.Description || '',
+    bedrooms: row.Bedrooms,
+    bathrooms: row.Bathrooms,
+    maxGuests,
+    description: row.ListingDescription || '',
     amenities,
-    rating: 4.5, // TODO: Implement real ratings
-    reviewCount: 0, // TODO: Implement real reviews
+    rating: 0,
+    reviewCount: 0,
     host: {
-      id: dbProperty.Owners?.Id || dbProperty.OwnerId || '',
-      name:
-        `${dbProperty.Owners?.FirstName || ''} ${
-          dbProperty.Owners?.LastName || ''
-        }`.trim() || 'Host',
-      email: dbProperty.Owners?.Email || '',
-      avatar: dbProperty.Owners?.AvatarUrl || undefined,
-      phone:
-        dbProperty.Owners?.PhonePrefix && dbProperty.Owners?.Phone
-          ? `${dbProperty.Owners.PhonePrefix}${dbProperty.Owners.Phone}`
-          : dbProperty.Owners?.Phone || undefined,
-      verified: !!dbProperty.Owners?.TwoFactorEnabled,
+      id: row.OwnerId || '',
+      name: 'Host',
+      email: '',
+      avatar: undefined,
+      phone: undefined,
+      verified: false,
     },
-    available: propertyValue.IsActive && propertyValue.IsPropertyVisible,
+    available: row.IsActive && row.IsPropertyVisible && !row.BlockedForBooking,
     coordinates: {
-      lat: dbProperty.LocationLatitude,
-      lng: dbProperty.LocationLongitude,
+      lat: Number(row.LocationLatitude),
+      lng: Number(row.LocationLongitude),
     },
-    minStayDays: dbProperty.MinStayDays || undefined,
-    maxStayDays: dbProperty.MaxStayDays || undefined,
-    leadTimeDays: dbProperty.LeadTimeDays || undefined,
-    bufferDays: dbProperty.BufferDays || undefined,
-    ownerId: dbProperty.OwnerId ?? undefined,
-    listingType: propertyValue.Status === 1 ? 'rent' : 'sale',
+    minStayDays: row.MinStayDays ?? undefined,
+    maxStayDays: row.MaxStayDays ?? undefined,
+    leadTimeDays: row.LeadTimeDays ?? undefined,
+    bufferDays: row.BufferDays ?? undefined,
+    ownerId: row.OwnerId ?? undefined,
+    listingType: 'SummerRent',
   };
 }
 
@@ -105,69 +142,53 @@ function getCurrencyCode(_currencyNumber: number): string {
 /**
  * Get featured properties for landing page
  */
-export async function getFeaturedProperties(limit: number = 6): Promise<Property[]> {
-  const { data, error } = await supabase
-    .from('EstateProperties')
-    .select(`
-      *,
-      EstatePropertyValues!inner (
-        *
-      ),
-      EstatePropertyAmenity (
-        AmenityId,
-        Amenities (*)
-      ),
-      Owners:Members (*)
-    `)
-    .eq('IsDeleted', false)
-    .eq('EstatePropertyValues.IsDeleted', false)
-    .eq('EstatePropertyValues.IsActive', true)
-    .eq('EstatePropertyValues.IsPropertyVisible', true)
-    .eq('EstatePropertyValues.IsFeatured', true)
-    .limit(limit);
+export async function getFeaturedProperties(
+  limit: number = 6,
+): Promise<Property[]> {
+  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+    'get_public_summer_rent_properties',
+    {
+      p_min_price: null,
+      p_max_price: null,
+      p_min_bedrooms: null,
+      p_min_guests: null,
+      p_location: null,
+      p_only_featured: true,
+    },
+  );
 
   if (error) {
     console.error('Error fetching featured properties:', error);
     throw error;
   }
 
-  return data.map(transformProperty);
+  const rows = (data ?? []).slice(0, limit);
+  return rows.map(transformSummerRentProperty);
 }
 
 /**
  * Get all active properties
  */
 export async function getProperties(limit?: number): Promise<Property[]> {
-  let query = supabase
-    .from('EstateProperties')
-    .select(`
-      *,
-      EstatePropertyValues!inner (
-        *
-      ),
-      EstatePropertyAmenity (
-        AmenityId,
-        Amenities (*)
-      ),
-      Owners:Members (*)
-    `)
-    .eq('IsDeleted', false)
-    .eq('EstatePropertyValues.IsDeleted', false)
-    .eq('EstatePropertyValues.IsActive', true)
-    .eq('EstatePropertyValues.IsPropertyVisible', true);
-
-  if (limit) {
-    query = query.limit(limit);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+    'get_public_summer_rent_properties',
+    {
+      p_min_price: null,
+      p_max_price: null,
+      p_min_bedrooms: null,
+      p_min_guests: null,
+      p_location: null,
+      p_only_featured: false,
+    },
+  );
 
   if (error) {
     console.error('Error fetching properties:', error);
     throw error;
   }
 
-  return data.map(transformProperty);
+  const rows = limit ? (data ?? []).slice(0, limit) : data ?? [];
+  return rows.map(transformSummerRentProperty);
 }
 
 /**
@@ -177,37 +198,30 @@ export async function getProperties(limit?: number): Promise<Property[]> {
  * with real ratings aggregated from the Reviews table.
  */
 export async function getTopRatedPropertiesForHero(
-  limit: number = 5
+  limit: number = 5,
 ): Promise<Property[]> {
   const HERO_POOL_LIMIT = 30;
 
-  const { data, error } = await supabase
-    .from('EstateProperties')
-    .select(
-      `
-      *,
-      EstatePropertyValues!inner (
-        *
-      ),
-      EstatePropertyAmenity (
-        AmenityId,
-        Amenities (*)
-      ),
-      Owners:Members (*)
-    `
-    )
-    .eq('IsDeleted', false)
-    .eq('EstatePropertyValues.IsDeleted', false)
-    .eq('EstatePropertyValues.IsActive', true)
-    .eq('EstatePropertyValues.IsPropertyVisible', true)
-    .limit(HERO_POOL_LIMIT);
+  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+    'get_public_summer_rent_properties',
+    {
+      p_min_price: null,
+      p_max_price: null,
+      p_min_bedrooms: null,
+      p_min_guests: null,
+      p_location: null,
+      p_only_featured: false,
+    },
+  );
 
   if (error) {
     console.error('Error fetching properties for hero:', error);
     throw error;
   }
 
-  const baseProperties = (data as any[]).map(transformProperty);
+  const baseProperties = (data ?? [])
+    .slice(0, HERO_POOL_LIMIT)
+    .map(transformSummerRentProperty);
 
   if (baseProperties.length === 0) {
     return [];
@@ -251,34 +265,23 @@ export async function getTopRatedPropertiesForHero(
  * Get property by ID
  */
 export async function getPropertyById(id: string): Promise<Property | null> {
-  const { data, error } = await supabase
-    .from('EstateProperties')
-    .select(`
-      *,
-      EstatePropertyValues!inner (
-        *
-      ),
-      EstatePropertyAmenity (
-        AmenityId,
-        Amenities (*)
-      ),
-      Owners:Members (*)
-    `)
-    .eq('Id', id)
-    .eq('IsDeleted', false)
-    .eq('EstatePropertyValues.IsDeleted', false)
-    .single();
+  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+    'get_public_summer_rent_property_by_id',
+    { p_property_id: id },
+  );
 
   if (error) {
-    if (error.code === 'PGRST116') {
-      // No rows found
-      return null;
-    }
+    // PGRST116 equivalent is not surfaced through rpc in the same way; treat empty data as not found.
     console.error('Error fetching property:', error);
     throw error;
   }
 
-  return transformProperty(data as PropertyWithRelations);
+  const row = (data ?? [])[0];
+  if (!row) {
+    return null;
+  }
+
+  return transformSummerRentProperty(row);
 }
 
 /**
@@ -287,99 +290,114 @@ export async function getPropertyById(id: string): Promise<Property | null> {
 export async function searchProperties(
   filters: PropertyFilters,
   page: number = 1,
-  limit: number = 20
+  limit: number = 20,
 ): Promise<PropertySearchResult> {
-  let query = supabase
-    .from('EstateProperties')
-    .select(`
-      *,
-      EstatePropertyValues!inner (
-        *
-      ),
-      EstatePropertyAmenity (
-        AmenityId,
-        Amenities (*)
-      ),
-      Owners:Members (*)
-    `, { count: 'exact' })
-    .eq('IsDeleted', false)
-    .eq('EstatePropertyValues.IsDeleted', false)
-    .eq('EstatePropertyValues.IsActive', true)
-    .eq('EstatePropertyValues.IsPropertyVisible', true);
+  const [minPrice, maxPrice] = filters.priceRange ?? [null, null];
 
-  // Apply filters
-  if (filters.priceRange) {
-    const [minPrice, maxPrice] = filters.priceRange;
-    query = query
-      .gte('EstatePropertyValues.RentPrice', minPrice)
-      .lte('EstatePropertyValues.RentPrice', maxPrice);
-  }
-
-  if (filters.bedrooms && filters.bedrooms > 0) {
-    query = query.gte('Bedrooms', filters.bedrooms);
-  }
-
-  if (filters.guests && filters.guests > 0) {
-    query = query.gte('EstatePropertyValues.Capacity', filters.guests);
-  }
-
-  if (filters.location) {
-    query = query.or(`City.ilike.%${filters.location}%,State.ilike.%${filters.location}%,Neighborhood.ilike.%${filters.location}%`);
-  }
-
-  if (filters.propertyType !== undefined) {
-    query = query.eq('Type', filters.propertyType);
-  }
-
-  // Pagination
-  const offset = (page - 1) * limit;
-  query = query.range(offset, offset + limit - 1);
-
-  const { data, error, count } = await query;
+  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+    'get_public_summer_rent_properties',
+    {
+      p_min_price: minPrice,
+      p_max_price: maxPrice,
+      p_min_bedrooms: filters.bedrooms ?? null,
+      p_min_guests: filters.guests ?? null,
+      p_location: filters.location ?? null,
+      p_only_featured: false,
+    },
+  );
 
   if (error) {
     console.error('Error searching properties:', error);
     throw error;
   }
 
-  const properties = data.map(transformProperty);
+  let rows = data ?? [];
+
+  // Client-side filter: amenities (by name)
+  if (filters.amenities && filters.amenities.length > 0) {
+    const required = new Set(
+      filters.amenities.map((a) => a.toLowerCase().trim()),
+    );
+    rows = rows.filter((row) => {
+      const names = row.AmenityNames ?? [];
+      const lower = names.map((n) => n.toLowerCase().trim());
+      return Array.from(required).every((req) => lower.includes(req));
+    });
+  }
+
+  // Map to Property objects
+  let properties = rows.map(transformSummerRentProperty);
+
+  // Client-side filter: minimum rating (uses aggregated ratings when available)
+  if (filters.minRating && filters.minRating > 0) {
+    const ratingsMap = await getRatingsForProperties(
+      properties.map((p) => p.id),
+    );
+    properties = properties.filter((p) => {
+      const stats = ratingsMap[p.id];
+      const rating = stats?.averageRating ?? 0;
+      return rating >= (filters.minRating ?? 0);
+    });
+  }
+
+  const totalCount = properties.length;
+  const offset = (page - 1) * limit;
+  const paged = properties.slice(offset, offset + limit);
 
   return {
-    properties,
-    totalCount: count || 0,
+    properties: paged,
+    totalCount,
   };
 }
 
 /**
  * Get favorite properties for a specific member
  */
-export async function getFavoriteProperties(memberId: string): Promise<Property[]> {
+export async function getFavoriteProperties(
+  memberId: string,
+): Promise<Property[]> {
   const { data, error } = await supabase
     .from('Favorites')
-    .select(`
-      EstatePropertyId,
-      EstateProperties!inner (
-        *,
-        EstatePropertyValues!inner (
-          *
-        ),
-        EstatePropertyAmenity (
-          AmenityId,
-          Amenities (*)
-        ),
-        Owners:Members (*)
-      )
-    `)
-    .eq('MemberId', memberId)
-    .eq('EstateProperties.IsDeleted', false)
-    .eq('EstateProperties.EstatePropertyValues.IsDeleted', false)
-    .eq('EstateProperties.EstatePropertyValues.IsActive', true)
-    .eq('EstateProperties.EstatePropertyValues.IsPropertyVisible', true);
+    .select('EstatePropertyId')
+    .eq('MemberId', memberId);
 
   if (error) {
     console.error('Error fetching favorite properties:', error);
     throw error;
   }
 
-  return data.map((favorite: any) => transformProperty(favorite.EstateProperties));
+  const ids = (data ?? []).map((row: any) => row.EstatePropertyId) as string[];
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const { data: rpcData, error: rpcError } = await supabase.rpc<
+    RpcSummerRentPropertyRow
+  >('get_public_summer_rent_properties', {
+    p_min_price: null,
+    p_max_price: null,
+    p_min_bedrooms: null,
+    p_min_guests: null,
+    p_location: null,
+    p_only_featured: false,
+  });
+
+  if (rpcError) {
+    console.error('Error fetching favorite properties via RPC:', rpcError);
+    throw rpcError;
+  }
+
+  const byId = new Map(
+    (rpcData ?? []).map((row) => [row.EstatePropertyId, row]),
+  );
+
+  const favorites: Property[] = [];
+  for (const id of ids) {
+    const row = byId.get(id);
+    if (row) {
+      favorites.push(transformSummerRentProperty(row));
+    }
+  }
+
+  return favorites;
 }
