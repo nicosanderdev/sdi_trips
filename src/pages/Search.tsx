@@ -59,13 +59,18 @@ const Search: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [mapBounds, setMapBounds] = useState<mapboxgl.LngLatBounds | null>(null);
   const [mapViewport, setMapViewport] = useState({
     latitude: -30.901139,
     longitude: -55.543487,
     zoom: 12,
   });
+  const [delayedVisibleProperties, setDelayedVisibleProperties] = useState<Property[]>([]);
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const popupsRef = useRef<mapboxgl.Popup[]>([]);
 
   // Initialize mapbox
   useEffect(() => {
@@ -118,17 +123,15 @@ const Search: React.FC = () => {
     return uyCities.find((c) => c.name.toLowerCase() === q);
   }
 
-  // Fetch properties based on current filters (optional override for immediate apply on city select)
+  // Fetch properties based on current non-location filters
   const fetchProperties = useCallback(
-    async (overrideLocation?: string) => {
-      const locationToUse = overrideLocation ?? debouncedSearchQuery;
+    async () => {
       try {
         const searchFilters = {
           priceRange: filters.priceRange,
           bedrooms: filters.bedrooms > 0 ? filters.bedrooms : undefined,
           guests: filters.guests > 0 ? filters.guests : undefined,
           amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
-          location: locationToUse || undefined,
         };
 
         const result = await searchProperties(searchFilters, 1, 50);
@@ -138,7 +141,7 @@ const Search: React.FC = () => {
         setProperties([]);
       }
     },
-    [filters, debouncedSearchQuery]
+    [filters]
   );
 
   // Fetch properties when debounced location or filters change
@@ -166,6 +169,14 @@ const Search: React.FC = () => {
             longitude: lng,
             zoom: 12,
           }));
+
+          if (mapRef.current) {
+            mapRef.current.flyTo({
+              center: [lng, lat],
+              zoom: 12,
+              essential: true,
+            });
+          }
         }
       })
       .catch((err) => console.error('Geocoding error:', err));
@@ -183,15 +194,26 @@ const Search: React.FC = () => {
   const handleSelectCity = useCallback(
     (city: UyCity) => {
       setSearchQuery(city.name);
+      const lat = parseFloat(city.lat);
+      const lng = parseFloat(city.long);
+      const zoom = parseInt(city.zoom, 10);
+
       setMapViewport({
-        latitude: parseFloat(city.lat),
-        longitude: parseFloat(city.long),
-        zoom: parseInt(city.zoom, 10),
+        latitude: lat,
+        longitude: lng,
+        zoom,
       });
+
+      if (mapRef.current) {
+        mapRef.current.flyTo({
+          center: [lng, lat],
+          zoom,
+          essential: true,
+        });
+      }
       setShowSuggestions(false);
-      fetchProperties(city.name);
     },
-    [fetchProperties]
+    []
   );
 
   // Click outside and Escape to close suggestions
@@ -249,9 +271,39 @@ const Search: React.FC = () => {
     }
   };
 
-  // Initialize and update map
+  const visibleProperties = useMemo(() => {
+    if (!mapBounds) return properties;
+
+    return properties.filter((property) => {
+      const { lng, lat } = property.coordinates;
+      return (
+        lng >= mapBounds.getWest() &&
+        lng <= mapBounds.getEast() &&
+        lat >= mapBounds.getSouth() &&
+        lat <= mapBounds.getNorth()
+      );
+    });
+  }, [properties, mapBounds]);
+
+  const focusOnProperty = useCallback(
+    (property: Property) => {
+      setSelectedProperty(property);
+      const map = mapRef.current;
+      if (map) {
+        map.flyTo({
+          center: [property.coordinates.lng, property.coordinates.lat],
+          zoom: 14,
+          essential: true,
+        });
+      }
+      scrollToProperty(property.id);
+    },
+    [scrollToProperty]
+  );
+
+  // Initialize map once
   useEffect(() => {
-    if (!mapboxToken) return;
+    if (!mapboxToken || mapRef.current) return;
 
     const map = new mapboxgl.Map({
       container: 'search-map',
@@ -260,12 +312,37 @@ const Search: React.FC = () => {
       zoom: mapViewport.zoom,
     });
 
-    // Add markers for filtered properties
-    const markers: mapboxgl.Marker[] = [];
-    const popups: mapboxgl.Popup[] = [];
+    mapRef.current = map;
 
-    properties.forEach((property) => {
-      // Create marker element
+    map.on('load', () => {
+      setMapBounds(map.getBounds());
+    });
+
+    map.on('moveend', () => {
+      setMapBounds(map.getBounds());
+    });
+
+    return () => {
+      markersRef.current.forEach((marker) => marker.remove());
+      popupsRef.current.forEach((popup) => popup.remove());
+      markersRef.current = [];
+      popupsRef.current = [];
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [mapboxToken, mapViewport.latitude, mapViewport.longitude, mapViewport.zoom]);
+
+  // Update markers and popup when properties or selection change
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    markersRef.current.forEach((marker) => marker.remove());
+    popupsRef.current.forEach((popup) => popup.remove());
+    markersRef.current = [];
+    popupsRef.current = [];
+
+    visibleProperties.forEach((property) => {
       const markerElement = document.createElement('div');
       markerElement.className = `w-8 h-8 rounded-full border-2 border-white shadow-lg cursor-pointer transition-all ${
         hoveredProperty === property.id || selectedProperty?.id === property.id
@@ -278,21 +355,17 @@ const Search: React.FC = () => {
         </div>
       `;
 
-      // Create marker
       const marker = new mapboxgl.Marker(markerElement)
         .setLngLat([property.coordinates.lng, property.coordinates.lat])
         .addTo(map);
 
-      // Add click handler
       markerElement.addEventListener('click', () => {
-        setSelectedProperty(property);
-        scrollToProperty(property.id);
+        focusOnProperty(property);
       });
 
-      markers.push(marker);
+      markersRef.current.push(marker);
     });
 
-    // Handle selected property popup
     if (selectedProperty) {
       const popup = new mapboxgl.Popup({ closeOnClick: false, offset: [0, -10] })
         .setLngLat([selectedProperty.coordinates.lng, selectedProperty.coordinates.lat])
@@ -316,27 +389,20 @@ const Search: React.FC = () => {
         `)
         .addTo(map);
 
-      popups.push(popup);
+      popupsRef.current.push(popup);
     }
+  }, [visibleProperties, hoveredProperty, selectedProperty, t]);
 
-    // Fit map to show all properties
-    if (properties.length > 0) {
-      const bounds = new mapboxgl.LngLatBounds();
+  // Delay visible properties list rendering slightly for smoother UX
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDelayedVisibleProperties(visibleProperties);
+    }, 500);
 
-      properties.forEach((property) => {
-        bounds.extend([property.coordinates.lng, property.coordinates.lat]);
-      });
-
-      map.fitBounds(bounds, { padding: 50, maxZoom: 12 });
-    }
-
-    // Cleanup
     return () => {
-      markers.forEach(marker => marker.remove());
-      popups.forEach(popup => popup.remove());
-      map.remove();
+      window.clearTimeout(timer);
     };
-  }, [properties, selectedProperty, hoveredProperty, mapboxToken, mapViewport]);
+  }, [visibleProperties]);
 
   const handleToggleWishlist = async (propertyId: string) => {
     if (!user) {
@@ -555,27 +621,38 @@ const Search: React.FC = () => {
             {/* Properties List */}
             <div className="flex-1 overflow-y-auto">
               <div className="p-6 space-y-6">
-                {properties.map((property) => (
-                  <div
-                    key={property.id}
-                    ref={(el) => {
-                      if (el) propertyRefs.current[property.id] = el;
-                    }}
-                    onMouseEnter={() => setHoveredProperty(property.id)}
-                    onMouseLeave={() => setHoveredProperty(null)}
-                    className={`transition-all duration-200 ${
-                      hoveredProperty === property.id ? 'scale-[1.02]' : ''
-                    }`}
-                  >
-                    <PropertyCard
-                      property={property}
-                      onToggleWishlist={handleToggleWishlist}
-                      isInWishlist={wishlistIds.includes(property.id)}
-                    />
-                  </div>
-                ))}
+                {delayedVisibleProperties.map((property) => {
+                  const isSelected = selectedProperty?.id === property.id;
+                  const isHovered = hoveredProperty === property.id;
 
-                {properties.length === 0 && (
+                  return (
+                    <div
+                      key={property.id}
+                      ref={(el) => {
+                        if (el) propertyRefs.current[property.id] = el;
+                      }}
+                      onMouseEnter={() => setHoveredProperty(property.id)}
+                      onMouseLeave={() => setHoveredProperty(null)}
+                      className={`transition-all duration-200 cursor-pointer rounded-2xl ${
+                        isSelected
+                          ? 'ring-2 ring-gold ring-offset-2 ring-offset-white scale-[1.02] shadow-gold-lg'
+                          : isHovered
+                          ? 'scale-[1.02]'
+                          : ''
+                      }`}
+                      onClick={() => focusOnProperty(property)}
+                    >
+                      <PropertyCard
+                        property={property}
+                        onToggleWishlist={handleToggleWishlist}
+                        isInWishlist={wishlistIds.includes(property.id)}
+                        disableLink
+                      />
+                    </div>
+                  );
+                })}
+
+                {delayedVisibleProperties.length === 0 && (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🏠</div>
                     <h3 className="text-xl font-semibold text-navy mb-2">{t('search.results.empty.title')}</h3>

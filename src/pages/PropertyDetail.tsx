@@ -3,15 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
-import { Button, Card } from '../components/ui';
+import { Button, Card, LeaveReviewModal } from '../components/ui';
 import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
 import { createBooking } from '../services/bookingService';
+import { sendPropertyView, getSourceFromUtmOrReferrer } from '../lib/analytics';
+import { logPropertyVisit } from '../services/propertyVisitService';
+import { getMemberProfile } from '../services/memberService';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { getBookingEligibility, type BookingEligibility } from '../services/bookingEligibilityService';
-import { getReviewsByPropertyId } from '../services/reviewService';
+import { getReviewsByPropertyId, getReviewEligibilityForProperty } from '../services/reviewService';
 import type { PropertyReviewsResult } from '../types';
 import {
     MapPin,
@@ -56,6 +59,13 @@ const PropertyDetail: React.FC = () => {
     const [eligibility, setEligibility] = useState<BookingEligibility | null>(null);
     const [eligibilityLoading, setEligibilityLoading] = useState(false);
     const [reviewsResult, setReviewsResult] = useState<PropertyReviewsResult | null>(null);
+    const [reviewEligibility, setReviewEligibility] = useState<{
+        canReview: boolean;
+        booking?: { id: string };
+        reason?: string;
+    } | null>(null);
+    const [reviewEligibilityLoading, setReviewEligibilityLoading] = useState(false);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
     const { t } = useTranslation();
     const { user } = useAuth();
@@ -122,6 +132,20 @@ const PropertyDetail: React.FC = () => {
         fetchProperty();
     }, [id]);
 
+    // Property view tracking: GA property_view + Supabase PropertyVisitLogs (throttled)
+    useEffect(() => {
+        if (!property?.id) return;
+        const source = getSourceFromUtmOrReferrer();
+        sendPropertyView({
+            property_id: property.id,
+            property_slug: id ?? undefined,
+            company_id: property.ownerId,
+            listing_type: property.listingType,
+            source,
+        });
+        logPropertyVisit(property.id, source);
+    }, [property?.id, id, property?.ownerId, property?.listingType]);
+
     // Fetch reviews for this property
     useEffect(() => {
         let isMounted = true;
@@ -140,6 +164,33 @@ const PropertyDetail: React.FC = () => {
         loadReviews();
         return () => { isMounted = false; };
     }, [id]);
+
+    // Review eligibility for logged-in user (can they leave a review for this property?)
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadReviewEligibility = async () => {
+            if (!user || !id || !property?.id) {
+                if (isMounted) setReviewEligibility(null);
+                return;
+            }
+            try {
+                if (isMounted) setReviewEligibilityLoading(true);
+                const member = await getMemberProfile(user.id);
+                if (!member?.id || !isMounted) return;
+                const result = await getReviewEligibilityForProperty(id, member.id);
+                if (isMounted) setReviewEligibility(result);
+            } catch (err) {
+                console.error('Error loading review eligibility:', err);
+                if (isMounted) setReviewEligibility(null);
+            } finally {
+                if (isMounted) setReviewEligibilityLoading(false);
+            }
+        };
+
+        loadReviewEligibility();
+        return () => { isMounted = false; };
+    }, [user, id, property?.id]);
 
     // Initialize map
     useEffect(() => {
@@ -247,7 +298,8 @@ const PropertyDetail: React.FC = () => {
     const neighborhoodCopy =
         property.neighborhoodDetails || t('propertyDetail.detailSections.neighborhood.default');
 
-    const attributeItems = [
+    // Grouped attributes (structure, infrastructure, amenities/location)
+    const structureAttributes = [
         {
             title: t('propertyDetail.attributes.sleeping.title'),
             description: t('propertyDetail.attributes.sleeping.description', {
@@ -263,14 +315,17 @@ const PropertyDetail: React.FC = () => {
             icon: <Bath className="h-6 w-6 text-gold" />
         },
         {
-            title: t('propertyDetail.attributes.kitchen.title'),
-            description: t('propertyDetail.attributes.kitchen.description'),
-            icon: <Shield className="h-6 w-6 text-gold" />
-        },
-        {
             title: t('propertyDetail.attributes.comfort.title'),
             description: t('propertyDetail.attributes.comfort.description'),
             icon: <Users className="h-6 w-6 text-gold" />
+        }
+    ];
+
+    const infrastructureAttributes = [
+        {
+            title: t('propertyDetail.attributes.kitchen.title'),
+            description: t('propertyDetail.attributes.kitchen.description'),
+            icon: <Shield className="h-6 w-6 text-gold" />
         },
         {
             title: t('propertyDetail.attributes.wifi.title'),
@@ -411,7 +466,7 @@ const PropertyDetail: React.FC = () => {
 
             const result = await createBooking({
                 propertyId: property.id,
-                userId: user.id,
+                memberId: user.id,
                 checkIn,
                 checkOut,
                 guests,
@@ -557,7 +612,7 @@ const PropertyDetail: React.FC = () => {
                                         {t('propertyDetail.attributes.heading')}
                                     </h2>
                                     <div className="grid gap-4 md:grid-cols-2">
-                                        {attributeItems.map((item) => (
+                                        {[...structureAttributes, ...infrastructureAttributes].map((item) => (
                                             <div
                                                 key={item.title}
                                                 className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4"
@@ -752,6 +807,24 @@ const PropertyDetail: React.FC = () => {
                                 </span>
                             </div>
                         </div>
+                        {/* Add review: show button if eligible, or message if not, or login prompt */}
+                        {!user ? (
+                            <p className="text-charcoal text-sm">{t('reviews.loginToReview')}</p>
+                        ) : reviewEligibilityLoading ? null : reviewEligibility?.canReview && reviewEligibility.booking ? (
+                            <div className="mb-4">
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={() => setIsReviewModalOpen(true)}
+                                >
+                                    {t('reviews.addReview')}
+                                </Button>
+                            </div>
+                        ) : reviewEligibility?.reason ? (
+                            <p className="text-charcoal text-sm mb-4">
+                                {reviewEligibility.reason.startsWith('reviews.') ? t(reviewEligibility.reason) : reviewEligibility.reason}
+                            </p>
+                        ) : null}
                         {reviewsResult && reviewsResult.reviews.length > 0 ? (
                             <div className="space-y-4">
                                 {reviewsResult.reviews.map((review) => (
@@ -927,6 +1000,18 @@ const PropertyDetail: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            <LeaveReviewModal
+                isOpen={isReviewModalOpen}
+                onClose={() => setIsReviewModalOpen(false)}
+                onSuccess={() => {
+                    setIsReviewModalOpen(false);
+                    setReviewEligibility((prev) => (prev?.canReview ? { canReview: false, reason: 'reviews.errors.reviewAlreadyExists' } : prev));
+                    getReviewsByPropertyId(id!).then(setReviewsResult);
+                }}
+                bookingId={reviewEligibility?.booking?.id ?? ''}
+                propertyTitle={property?.title}
+            />
         </Layout>
     );
 };

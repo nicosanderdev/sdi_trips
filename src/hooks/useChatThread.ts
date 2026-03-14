@@ -15,7 +15,7 @@ interface UseChatThreadResult {
   error: string | null;
   newMessage: string;
   setNewMessage: React.Dispatch<React.SetStateAction<string>>;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
   handleSendMessage: () => void;
   handleKeyPress: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }

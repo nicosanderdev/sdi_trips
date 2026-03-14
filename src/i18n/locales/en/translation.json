@@ -551,12 +551,20 @@
       },
       "guests": "Guests",
       "perNight": "Per Night",
+      "totalLabel": "Total",
       "viewDetails": "View Details",
+      "goToProperty": "Go to property",
       "manageBooking": "Manage Booking",
+      "cancelWarning": "Are you sure you want to cancel this booking? Depending on the property's policy, cancellation may affect your refund.",
+      "cancelReasonOptional": "Cancellation reason (optional)",
+      "cancelError": "We couldn't cancel this booking. Please try again or contact support.",
+      "cancelling": "Cancelling...",
+      "cancelBooking": "Cancel Booking",
       "status": {
         "confirmed": "confirmed",
-        "completed": "completed",
-        "cancelled": "cancelled"
+        "completed": "finalized",
+        "cancelled": "cancelled",
+        "pending_confirmation": "pending confirmation"
       }
     },
     "errors": {
@@ -575,6 +583,10 @@
     "comment": "Comment",
     "commentPlaceholder": "Share your experience (optional)",
     "anonymous": "Guest",
+    "addReview": "Add review",
+    "loginToReview": "Log in to leave a review.",
+    "noBookingForProperty": "You need a completed stay at this property to leave a review.",
+    "requirements": "To leave a review you need: a completed stay at this property, checkout date passed, payment completed, and within 14 days of checkout. You can leave only one review per stay.",
     "form": {
       "cancel": "Cancel",
       "ratingRequired": "Please select a rating from 1 to 5 stars."

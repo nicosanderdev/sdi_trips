@@ -81,6 +81,20 @@ export interface Property {
   maxStayDays?: number;
   leadTimeDays?: number;
   bufferDays?: number;
+  /** Owner id (company or member) for analytics/reports */
+  ownerId?: string;
+  /** Listing type for analytics (e.g. GA property_view) */
+  listingType?: 'rent' | 'sale' | 'SummerRent' | 'EventVenue' | 'AnnualRent' | 'RealEstate';
+  /** Infrastructure flags from EstateProperties */
+  hasLaundryRoom?: boolean;
+  hasPool?: boolean;
+  hasBalcony?: boolean;
+  isFurnished?: boolean;
+  /** Capacity from EstateProperties or Listings */
+  capacity?: number;
+  /** Location and view metadata */
+  locationCategory?: 'rural' | 'city' | 'near_shore' | string;
+  viewType?: 'city' | 'mountain' | 'rural' | 'sea' | string;
 }
 
 export interface User {
@@ -103,6 +117,8 @@ export interface Booking {
   guests: number;
   totalPrice: number;
   status: 'pending_confirmation' | 'confirmed' | 'cancelled' | 'completed';
+  /** 0 = Unpaid, 1 = Paid; required for review eligibility */
+  paymentStatus?: number;
   createdAt: string;
 }
 

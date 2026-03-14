@@ -2,19 +2,21 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { MapPin, Users, Bed, Bath, Star, Heart } from 'lucide-react';
-import { Card, Badge } from '../ui';
+import { Card, Badge, Button } from '../ui';
 import type { Property } from '../../types';
 
 interface PropertyCardProps {
   property: Property;
   onToggleWishlist?: (propertyId: string) => void;
   isInWishlist?: boolean;
+  disableLink?: boolean;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
   onToggleWishlist,
-  isInWishlist = false
+  isInWishlist = false,
+  disableLink = false,
 }) => {
   const { t } = useTranslation();
   const handleWishlistClick = (e: React.MouseEvent) => {
@@ -23,9 +25,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     onToggleWishlist?.(property.id);
   };
 
-  return (
-    <Link to={`/property/${property.id}`}>
-      <Card variant="elevated" className="group cursor-pointer overflow-hidden hover:shadow-gold-lg transition-all duration-300">
+  const cardContent = (
+    <Card variant="elevated" className="group cursor-pointer overflow-hidden hover:shadow-gold-lg transition-all duration-300">
         {/* Image Container */}
         <div className="relative overflow-hidden rounded-t-2xl">
           <img
@@ -108,22 +109,48 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             </div>
           </div>
 
-          {/* Host Info */}
-          <div className="flex items-center space-x-2 mt-4 pt-4 border-t border-gray-100">
-            <img
-              src={property.host.avatar || `https://ui-avatars.com/api/?name=${property.host.name}&background=E5C469&color=0A1A2F`}
-              alt={property.host.name}
-              className="w-8 h-8 rounded-full"
-            />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-navy">{t('propertyCard.hostedBy', { name: property.host.name })}</p>
-              {property.host.verified && (
-                <p className="text-xs text-green-600 font-medium">{t('propertyCard.verifiedHost')}</p>
-              )}
+          {/* Host Info + View Details (optional) */}
+          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
+            <div className="flex items-center space-x-2">
+              <img
+                src={property.host.avatar || `https://ui-avatars.com/api/?name=${property.host.name}&background=E5C469&color=0A1A2F`}
+                alt={property.host.name}
+                className="w-8 h-8 rounded-full"
+              />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-navy">
+                  {t('propertyCard.hostedBy', { name: property.host.name })}
+                </p>
+                {property.host.verified && (
+                  <p className="text-xs text-green-600 font-medium">{t('propertyCard.verifiedHost')}</p>
+                )}
+              </div>
             </div>
+
+            {disableLink && (
+              <Link
+                to={`/property/${property.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <Button size="sm" variant="primary">
+                  {t('search.map.viewDetails')}
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </Card>
+  );
+
+  if (disableLink) {
+    return cardContent;
+  }
+
+  return (
+    <Link to={`/property/${property.id}`}>
+      {cardContent}
     </Link>
   );
 };

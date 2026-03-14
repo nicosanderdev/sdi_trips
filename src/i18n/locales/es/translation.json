@@ -524,13 +524,20 @@
       },
       "guests": "Huéspedes",
       "perNight": "Por Noche",
-      "total": "Total",
+      "totalLabel": "Total",
       "viewDetails": "Ver Detalles",
+      "goToProperty": "Ir a la propiedad",
       "manageBooking": "Gestionar Reserva",
+      "cancelWarning": "¿Seguro que quieres cancelar esta reserva? Dependiendo de la política de la propiedad, la cancelación puede afectar tu reembolso.",
+      "cancelReasonOptional": "Motivo de la cancelación (opcional)",
+      "cancelError": "No pudimos cancelar esta reserva. Por favor intenta nuevamente o contacta al soporte.",
+      "cancelling": "Cancelando...",
+      "cancelBooking": "Cancelar Reserva",
       "status": {
         "confirmed": "confirmada",
-        "completed": "completada",
-        "cancelled": "cancelada"
+        "completed": "finalizada",
+        "cancelled": "cancelada",
+        "pending_confirmation": "pendiente de confirmación"
       }
     },
     "errors": {
@@ -549,6 +556,10 @@
     "comment": "Comentario",
     "commentPlaceholder": "Comparte tu experiencia (opcional)",
     "anonymous": "Huésped",
+    "addReview": "Dejar reseña",
+    "loginToReview": "Inicia sesión para dejar una reseña.",
+    "noBookingForProperty": "Necesitas una estancia completada en esta propiedad para dejar una reseña.",
+    "requirements": "Para dejar una reseña necesitas: una estancia completada en esta propiedad, fecha de salida pasada, pago realizado y dentro de los 14 días posteriores al checkout. Solo puedes dejar una reseña por estancia.",
     "form": {
       "cancel": "Cancelar",
       "ratingRequired": "Por favor elige una calificación de 1 a 5 estrellas."

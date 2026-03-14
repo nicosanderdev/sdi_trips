@@ -2,67 +2,133 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui';
+import type { Property } from '../../types';
+import { getTopRatedPropertiesForHero } from '../../services/propertyService';
+
+const mockReviews = [
+  {
+    image:
+      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    rating: 4.9,
+    reviewCount: 2500,
+    reviewText:
+      "The most beautiful property we've ever stayed in. Absolutely magical!",
+    language: 'en',
+  },
+  {
+    image:
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    rating: 4.8,
+    reviewCount: 1800,
+    reviewText:
+      'La propiedad más hermosa en la que nos hemos quedado. ¡Absolutamente mágica!',
+    language: 'es',
+  },
+  {
+    image:
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    rating: 5.0,
+    reviewCount: 3200,
+    reviewText:
+      'A propriedade mais linda em que nos ficamos. Absolutamente mágica!',
+    language: 'pt',
+  },
+  {
+    image:
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    rating: 4.7,
+    reviewCount: 1950,
+    reviewText:
+      'La propriété la plus belle dans laquelle nous avons séjourné. Absolument magique!',
+    language: 'fr',
+  },
+  {
+    image:
+      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    rating: 4.6,
+    reviewCount: 1420,
+    reviewText:
+      'La proprietà più bella in cui siamo stati. Assolutamente magica!',
+    language: 'it',
+  },
+];
+
+type HeroSlide = {
+  image: string;
+  rating: number;
+  reviewCount: number;
+  reviewText: string;
+};
 
 const HeroSplit: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Mock review data with different properties, images, ratings, and reviews in multiple languages
-  const mockReviews = [
-    {
-      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      rating: 4.9,
-      reviewCount: 2500,
-      reviewText: "The most beautiful property we've ever stayed in. Absolutely magical!",
-      language: 'en'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      rating: 4.8,
-      reviewCount: 1800,
-      reviewText: "La propiedad más hermosa en la que nos hemos quedado. ¡Absolutamente mágica!",
-      language: 'es'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      rating: 5.0,
-      reviewCount: 3200,
-      reviewText: "A propriedade mais linda em que nos ficamos. Absolutamente mágica!",
-      language: 'pt'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      rating: 4.7,
-      reviewCount: 1950,
-      reviewText: "La propriété la plus belle dans laquelle nous avons séjourné. Absolument magique!",
-      language: 'fr'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      rating: 4.6,
-      reviewCount: 1420,
-      reviewText: "La proprietà più bella in cui siamo stati. Assolutamente magica!",
-      language: 'it'
-    }
-  ];
-
+  const [heroProperties, setHeroProperties] = useState<Property[]>([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
 
-  // Rotate reviews every 9 seconds
   useEffect(() => {
+    let isMounted = true;
+
+    const loadHeroProperties = async () => {
+      try {
+        const properties = await getTopRatedPropertiesForHero(5);
+        if (!isMounted) return;
+        setHeroProperties(properties);
+      } catch (err) {
+        console.error('Error loading hero properties:', err);
+      }
+    };
+
+    loadHeroProperties();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const heroSlides: HeroSlide[] =
+    heroProperties.length > 0
+      ? heroProperties.map((property) => {
+          const image =
+            property.images && property.images.length > 0
+              ? property.images[0]
+              : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+
+          const maxLength = 140;
+          const description = property.description || '';
+          const truncatedDescription =
+            description.length > maxLength
+              ? `${description.slice(0, maxLength).trim()}…`
+              : description || `Guests love staying at ${property.title}.`;
+
+          return {
+            image,
+            rating: property.rating,
+            reviewCount: property.reviewCount,
+            reviewText: truncatedDescription,
+          };
+        })
+      : mockReviews;
+
+  useEffect(() => {
+    if (heroSlides.length === 0) {
+      return;
+    }
+
     const interval = setInterval(() => {
       setIsFading(true);
       setTimeout(() => {
-        setCurrentReviewIndex((prev) => (prev + 1) % mockReviews.length);
+        setCurrentReviewIndex((prev) => (prev + 1) % heroSlides.length);
         setIsFading(false);
       }, 500);
     }, 9000);
 
     return () => clearInterval(interval);
-  }, [mockReviews.length]);
+  }, [heroSlides.length]);
 
-  const currentReview = mockReviews[currentReviewIndex];
+  const currentReview = heroSlides[currentReviewIndex] ?? heroSlides[0];
 
   return (
     <section className="relative min-h-screen overflow-hidden">
