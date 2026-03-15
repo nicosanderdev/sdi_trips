@@ -25,6 +25,7 @@
   },
   "nav": {
     "home": "Início",
+    "explore": "Explorar",
     "about": "Sobre",
     "terms": "Termos",
     "searchPlaceholder": "Buscar destinos...",
@@ -401,6 +402,7 @@
     "pendingConfirmedNote": "Se você tiver o email ativado, receberá confirmação assim que a reserva for aprovada.",
     "error": "Falha ao criar reserva. Por favor, tente novamente.",
     "loginRequired": "Por favor, faça login para fazer uma reserva",
+    "contactForAvailability": "Entre em contato para disponibilidade. A reserva estará disponível em breve.",
     "selectDates": "Por favor, selecione as datas de check-in e check-out",
     "bookingReference": "Referência da Reserva",
     "close": "Fechar"

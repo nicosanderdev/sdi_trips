@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Button } from '../components/ui';
@@ -18,7 +18,6 @@ import { supabase } from '../lib/supabase';
 const Landing: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const isLoggedIn = !!user;
   const showLoggedInAds = isLoggedIn && featureFlags.showLandingAds;
 
@@ -65,10 +64,7 @@ const Landing: React.FC = () => {
   }, [user]);
 
   const handleToggleWishlist = async (propertyId: string) => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
+    if (!user) return;
 
     try {
       let currentMemberId = memberId;
@@ -157,6 +153,7 @@ const Landing: React.FC = () => {
                   property={property}
                   onToggleWishlist={handleToggleWishlist}
                   isInWishlist={wishlistIds.includes(property.id)}
+                  showWishlist={!!user}
                 />
               ))
             )}

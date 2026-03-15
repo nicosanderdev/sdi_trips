@@ -25,6 +25,7 @@
   },
   "nav": {
     "home": "Home",
+    "explore": "Explore",
     "about": "About",
     "terms": "Terms",
     "searchPlaceholder": "Search destinations...",
@@ -451,6 +452,7 @@
     "pendingConfirmedNote": "If you have email enabled, you'll receive confirmation once the booking is approved.",
     "error": "Failed to create booking. Please try again.",
     "loginRequired": "Please log in to make a reservation",
+    "contactForAvailability": "Contact for availability. Booking will be available soon.",
     "selectDates": "Please select check-in and check-out dates",
     "bookingReference": "Booking Reference",
     "close": "Close"

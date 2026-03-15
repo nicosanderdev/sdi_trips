@@ -440,7 +440,7 @@ const PropertyDetail: React.FC = () => {
         }
 
         if (!user) {
-            alert(t('booking.loginRequired'));
+            setBookingError(t('booking.contactForAvailability'));
             return;
         }
 
