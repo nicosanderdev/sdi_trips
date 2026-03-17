@@ -7,7 +7,7 @@ import { Button, Card, LeaveReviewModal } from '../components/ui';
 import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
 import { createBooking } from '../services/bookingService';
-import { sendPropertyView, getSourceFromUtmOrReferrer } from '../lib/analytics';
+import { sendPropertyView, getSourceFromUtmOrReferrer, sendBookingCompleted } from '../lib/analytics';
 import { logPropertyVisit } from '../services/propertyVisitService';
 import { getMemberProfile } from '../services/memberService';
 import { useAuth } from '../hooks/useAuth';
@@ -479,6 +479,27 @@ const PropertyDetail: React.FC = () => {
                 setBookingError(message);
                 alert(message);
                 return;
+            }
+
+            const nights = calculateNights();
+            const source = getSourceFromUtmOrReferrer();
+            const transactionId = (result as any).booking?.id ?? (result as any).id ?? undefined;
+
+            try {
+                sendBookingCompleted({
+                    transaction_id: transactionId,
+                    property_id: property.id,
+                    company_id: property.ownerId,
+                    listing_type: property.listingType,
+                    check_in: checkIn.toISOString(),
+                    check_out: checkOut.toISOString(),
+                    nights,
+                    value: totalPrice,
+                    currency: property.currency || 'USD',
+                    source
+                });
+            } catch (analyticsError) {
+                console.error('Error sending booking_completed analytics event:', analyticsError);
             }
 
             setBookingSuccess(true);

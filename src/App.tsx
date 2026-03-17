@@ -16,6 +16,11 @@ function RouteTracker() {
   const isInitialMount = React.useRef(true);
 
   useEffect(() => {
+    console.log('VITE_GA_MEASUREMENT_ID in app:', import.meta.env.VITE_GA_MEASUREMENT_ID);
+    initAnalytics();
+  }, []);
+
+  useEffect(() => {
     initAnalytics();
   }, []);
 

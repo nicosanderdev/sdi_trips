@@ -83,6 +83,38 @@ export function sendPropertyView(params: PropertyViewParams): void {
   window.gtag?.('event', 'property_view', params);
 }
 
+export interface BookingCompletedParams {
+  transaction_id?: string;
+  property_id: string;
+  company_id?: string;
+  listing_type?: string;
+  check_in?: string;
+  check_out?: string;
+  nights?: number;
+  value?: number;
+  currency?: string;
+  source?: string;
+}
+
+export interface BookingStartedParams {
+  property_id: string;
+  company_id?: string;
+  listing_type?: string;
+  source?: string;
+}
+
+export function sendBookingCompleted(params: BookingCompletedParams): void {
+  if (!MEASUREMENT_ID || !ensureGtag()) return;
+  if (IS_DEV) console.debug('[GA] booking_completed', params);
+  window.gtag?.('event', 'booking_completed', params);
+}
+
+export function sendBookingStarted(params: BookingStartedParams): void {
+  if (!MEASUREMENT_ID || !ensureGtag()) return;
+  if (IS_DEV) console.debug('[GA] booking_started', params);
+  window.gtag?.('event', 'booking_started', params);
+}
+
 /**
  * Derive source label from UTM params and referrer for analytics.
  */
