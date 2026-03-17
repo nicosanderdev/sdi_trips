@@ -59,25 +59,27 @@ export function logPropertyVisit(propertyId: string, source: string): void {
 
   setThrottle(propertyId);
 
-  supabase
-    .from('PropertyVisitLogs')
-    .insert({
-      Id: id,
-      PropertyId: propertyId,
-      VisitedOnUtc: now,
-      Source: source.slice(0, 50) || 'website',
-      IsDeleted: false,
-      Created: now,
-      CreatedBy: null,
-      LastModified: now,
-      LastModifiedBy: null,
-    })
-    .then(({ error }) => {
+  (async () => {
+    try {
+      const { error } = await supabase
+        .from('PropertyVisitLogs')
+        .insert({
+          Id: id,
+          PropertyId: propertyId,
+          VisitedOnUtc: now,
+          Source: source.slice(0, 50) || 'website',
+          IsDeleted: false,
+          Created: now,
+          CreatedBy: null,
+          LastModified: now,
+          LastModifiedBy: null,
+        });
+
       if (error) {
         console.error('[PropertyVisitLog] insert failed:', error.message);
       }
-    })
-    .catch((err) => {
+    } catch (err) {
       console.error('[PropertyVisitLog] error:', err);
-    });
+    }
+  })();
 }

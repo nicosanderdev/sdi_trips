@@ -1,143 +1,163 @@
-/**
- * Google Analytics (GA4) integration for the public app.
- * - page_view on route changes
- * - property_view on property detail pages with custom parameters
- *
- * Set VITE_GA_MEASUREMENT_ID in .env to enable (e.g. G-XXXXXXXXXX).
- * In dev, events show in GA4 DebugView (Realtime > DebugView).
- */
-
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
 const IS_DEV = import.meta.env.DEV;
 
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-    dataLayer?: unknown[];
+const SESSION_STORAGE_KEY = 'sdi_analytics_session';
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+interface AnalyticsSessionState {
+  id: string;
+  lastActivity: number;
+}
+
+export interface TrackEventPayload {
+  property_id?: string;
+  user_id?: string;
+  source?: string | null;
+  medium?: string | null;
+  revenue?: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface UtmSourceMedium {
+  source: string | null;
+  medium: string | null;
+}
+
+function isBrowser(): boolean {
+  return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+}
+
+function readSessionFromStorage(): AnalyticsSessionState | null {
+  if (!isBrowser()) return null;
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as AnalyticsSessionState;
+    if (!parsed?.id || typeof parsed.lastActivity !== 'number') return null;
+    return parsed;
+  } catch {
+    return null;
   }
 }
 
-function ensureGtag(): boolean {
-  if (!MEASUREMENT_ID || typeof window === 'undefined') return false;
-  if (window.gtag) return true;
-
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer?.push(args);
-  };
-  window.gtag('js', new Date());
-
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
-  script.onload = () => {
-    // First page_view only after gtag.js has loaded (avoids race on initial load)
-    sendPageView(window.location.pathname + window.location.search);
-  };
-  document.head.appendChild(script);
-  return true;
+function writeSessionToStorage(session: AnalyticsSessionState): void {
+  if (!isBrowser()) return;
+  try {
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+  } catch {
+    // ignore storage errors
+  }
 }
 
-/**
- * Initialize GA (call once on app load). Config is sent immediately; first page_view is sent when gtag.js loads.
- */
-export function initAnalytics(): void {
-  if (!MEASUREMENT_ID) return;
-  if (IS_DEV) {
-    console.debug('[GA] Measurement ID:', MEASUREMENT_ID, '- use GA4 Realtime > DebugView to see events');
+function generateSessionId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
   }
-  ensureGtag();
-  window.gtag?.('config', MEASUREMENT_ID, {
-    send_page_view: false,
-    ...(IS_DEV && { debug_mode: true }),
+  // Fallback: RFC4122-ish random string
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
   });
 }
 
-/**
- * Send a GA page_view for the current path.
- */
-export function sendPageView(path: string, title?: string): void {
-  if (!MEASUREMENT_ID || !ensureGtag()) return;
-  const payload = {
-    page_path: path,
-    page_title: title ?? document.title,
-    page_location: typeof window !== 'undefined' ? window.location.origin + path : undefined,
-  };
-  if (IS_DEV) console.debug('[GA] page_view', payload);
-  window.gtag?.('event', 'page_view', payload);
+function isSessionExpired(lastActivity: number): boolean {
+  return Date.now() - lastActivity >= SESSION_TIMEOUT_MS;
 }
 
-export interface PropertyViewParams {
-  property_id: string;
-  property_slug?: string;
-  company_id?: string;
-  listing_type?: string;
-  source?: string;
-}
+function getOrCreateSession(emitSessionStart: boolean): { session: AnalyticsSessionState; isNew: boolean } {
+  let session = readSessionFromStorage();
+  let isNew = false;
 
-/**
- * Send custom property_view event (on property detail page).
- */
-export function sendPropertyView(params: PropertyViewParams): void {
-  if (!MEASUREMENT_ID || !ensureGtag()) return;
-  window.gtag?.('event', 'property_view', params);
-}
-
-export interface BookingCompletedParams {
-  transaction_id?: string;
-  property_id: string;
-  company_id?: string;
-  listing_type?: string;
-  check_in?: string;
-  check_out?: string;
-  nights?: number;
-  value?: number;
-  currency?: string;
-  source?: string;
-}
-
-export interface BookingStartedParams {
-  property_id: string;
-  company_id?: string;
-  listing_type?: string;
-  source?: string;
-}
-
-export function sendBookingCompleted(params: BookingCompletedParams): void {
-  if (!MEASUREMENT_ID || !ensureGtag()) return;
-  if (IS_DEV) console.debug('[GA] booking_completed', params);
-  window.gtag?.('event', 'booking_completed', params);
-}
-
-export function sendBookingStarted(params: BookingStartedParams): void {
-  if (!MEASUREMENT_ID || !ensureGtag()) return;
-  if (IS_DEV) console.debug('[GA] booking_started', params);
-  window.gtag?.('event', 'booking_started', params);
-}
-
-/**
- * Derive source label from UTM params and referrer for analytics.
- */
-export function getSourceFromUtmOrReferrer(): string {
-  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const utmSource = params?.get('utm_source')?.toLowerCase();
-  if (utmSource) {
-    if (['facebook', 'twitter', 'instagram', 'linkedin', 'social'].includes(utmSource)) return 'social';
-    if (['google', 'campaign', 'cpc', 'email', 'newsletter'].includes(utmSource)) return 'campaign';
-    return utmSource.slice(0, 50);
+  if (!session || isSessionExpired(session.lastActivity)) {
+    session = {
+      id: generateSessionId(),
+      lastActivity: Date.now(),
+    };
+    isNew = true;
+  } else {
+    session = {
+      ...session,
+      lastActivity: Date.now(),
+    };
   }
-  const referrer = typeof document !== 'undefined' ? document.referrer : '';
-  if (!referrer) return 'website';
+
+  writeSessionToStorage(session);
+
+  if (isNew && emitSessionStart) {
+    const { source, medium } = getUtmSourceAndMedium();
+    internalTrackEvent('session_start', session.id, { source, medium });
+  }
+
+  return { session, isNew };
+}
+
+function internalTrackEvent(eventName: string, sessionId: string, payload: TrackEventPayload = {}): void {
+  if (!isBrowser()) return;
+
+  const body = JSON.stringify({
+    event_name: eventName,
+    session_id: sessionId,
+    property_id: payload.property_id ?? null,
+    user_id: payload.user_id ?? null,
+    source: payload.source ?? null,
+    medium: payload.medium ?? null,
+    revenue: typeof payload.revenue === 'number' ? payload.revenue : null,
+    metadata: payload.metadata ?? null,
+  });
+
   try {
-    const host = new URL(referrer).hostname.toLowerCase();
-    if (/facebook|twitter|instagram|linkedin|t\.co|reddit|pinterest/.test(host)) return 'social';
-    if (/google|bing|yahoo|duckduckgo/.test(host)) return 'organic';
+    if ('sendBeacon' in navigator) {
+      const blob = new Blob([body], { type: 'application/json' });
+      navigator.sendBeacon('/api/track', blob);
+      return;
+    }
   } catch {
-    // ignore
+    // fall through to fetch
   }
-  return 'website';
+
+  try {
+    // Fire-and-forget; do not await
+    void fetch('/api/track', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body,
+      keepalive: true,
+    });
+  } catch (error) {
+    if (IS_DEV) {
+      // eslint-disable-next-line no-console
+      console.debug('[analytics] failed to send event', eventName, error);
+    }
+  }
 }
 
-export function isAnalyticsEnabled(): boolean {
-  return Boolean(MEASUREMENT_ID);
+export function getUtmSourceAndMedium(): UtmSourceMedium {
+  if (!isBrowser()) {
+    return { source: null, medium: null };
+  }
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const source = params.get('utm_source');
+    const medium = params.get('utm_medium');
+    return {
+      source: source ? source.toLowerCase().slice(0, 255) : null,
+      medium: medium ? medium.toLowerCase().slice(0, 255) : null,
+    };
+  } catch {
+    return { source: null, medium: null };
+  }
 }
+
+export function initAnalyticsSession(): void {
+  if (!isBrowser()) return;
+  getOrCreateSession(true);
+}
+
+export function trackEvent(eventName: string, payload: TrackEventPayload = {}): void {
+  if (!isBrowser()) return;
+  const { session } = getOrCreateSession(false);
+  internalTrackEvent(eventName, session.id, payload);
+}
+
