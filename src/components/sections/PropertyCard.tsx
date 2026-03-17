@@ -10,6 +10,8 @@ interface PropertyCardProps {
   onToggleWishlist?: (propertyId: string) => void;
   isInWishlist?: boolean;
   disableLink?: boolean;
+  /** When false, the wishlist heart is hidden (e.g. MVP without auth). */
+  showWishlist?: boolean;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -17,6 +19,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   onToggleWishlist,
   isInWishlist = false,
   disableLink = false,
+  showWishlist = true,
 }) => {
   const { t } = useTranslation();
   const handleWishlistClick = (e: React.MouseEvent) => {
@@ -35,18 +38,20 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
           />
 
-          {/* Wishlist Button */}
-          <button
-            type="button"
-            onClick={handleWishlistClick}
-            className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
-            aria-label={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
-            title={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
-          >
-            <Heart
-              className={`h-5 w-5 ${isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
-            />
-          </button>
+          {/* Wishlist Button (hidden when showWishlist is false, e.g. MVP without auth) */}
+          {showWishlist && (
+            <button
+              type="button"
+              onClick={handleWishlistClick}
+              className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
+              aria-label={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
+              title={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
+            >
+              <Heart
+                className={`h-5 w-5 ${isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+              />
+            </button>
+          )}
 
           {/* Price Badge */}
           <div className="absolute top-4 left-4">

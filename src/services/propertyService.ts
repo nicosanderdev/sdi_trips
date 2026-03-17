@@ -145,7 +145,7 @@ function getCurrencyCode(_currencyNumber: number): string {
 export async function getFeaturedProperties(
   limit: number = 6,
 ): Promise<Property[]> {
-  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+  const { data, error } = await supabase.rpc(
     'get_public_summer_rent_properties',
     {
       p_min_price: null,
@@ -170,7 +170,7 @@ export async function getFeaturedProperties(
  * Get all active properties
  */
 export async function getProperties(limit?: number): Promise<Property[]> {
-  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+  const { data, error } = await supabase.rpc(
     'get_public_summer_rent_properties',
     {
       p_min_price: null,
@@ -202,7 +202,7 @@ export async function getTopRatedPropertiesForHero(
 ): Promise<Property[]> {
   const HERO_POOL_LIMIT = 30;
 
-  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+  const { data, error } = await supabase.rpc(
     'get_public_summer_rent_properties',
     {
       p_min_price: null,
@@ -219,7 +219,7 @@ export async function getTopRatedPropertiesForHero(
     throw error;
   }
 
-  const baseProperties = (data ?? [])
+  const baseProperties: Property[] = (data ?? [])
     .slice(0, HERO_POOL_LIMIT)
     .map(transformSummerRentProperty);
 
@@ -228,10 +228,13 @@ export async function getTopRatedPropertiesForHero(
   }
 
   const ratingsMap = await getRatingsForProperties(
-    baseProperties.map((p) => p.id)
+    baseProperties.map((p: Property) => p.id),
   );
 
-  const enriched = baseProperties.map((property) => {
+  type RatedProperty = Property & { rating: number; reviewCount: number };
+
+  const enriched: RatedProperty[] = baseProperties.map(
+    (property: Property): RatedProperty => {
     const stats = ratingsMap[property.id];
     if (!stats) {
       return {
@@ -246,9 +249,10 @@ export async function getTopRatedPropertiesForHero(
       rating: stats.averageRating,
       reviewCount: stats.reviewCount,
     };
-  });
+  },
+  );
 
-  enriched.sort((a, b) => {
+  enriched.sort((a: RatedProperty, b: RatedProperty) => {
     if (b.rating !== a.rating) {
       return b.rating - a.rating;
     }
@@ -265,7 +269,7 @@ export async function getTopRatedPropertiesForHero(
  * Get property by ID
  */
 export async function getPropertyById(id: string): Promise<Property | null> {
-  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+  const { data, error } = await supabase.rpc(
     'get_public_summer_rent_property_by_id',
     { p_property_id: id },
   );
@@ -294,7 +298,7 @@ export async function searchProperties(
 ): Promise<PropertySearchResult> {
   const [minPrice, maxPrice] = filters.priceRange ?? [null, null];
 
-  const { data, error } = await supabase.rpc<RpcSummerRentPropertyRow>(
+  const { data, error } = await supabase.rpc(
     'get_public_summer_rent_properties',
     {
       p_min_price: minPrice,
@@ -311,29 +315,29 @@ export async function searchProperties(
     throw error;
   }
 
-  let rows = data ?? [];
+  let rows: RpcSummerRentPropertyRow[] = (data ?? []) as RpcSummerRentPropertyRow[];
 
   // Client-side filter: amenities (by name)
   if (filters.amenities && filters.amenities.length > 0) {
     const required = new Set(
       filters.amenities.map((a) => a.toLowerCase().trim()),
     );
-    rows = rows.filter((row) => {
+    rows = rows.filter((row: RpcSummerRentPropertyRow) => {
       const names = row.AmenityNames ?? [];
-      const lower = names.map((n) => n.toLowerCase().trim());
+      const lower = names.map((n: string) => n.toLowerCase().trim());
       return Array.from(required).every((req) => lower.includes(req));
     });
   }
 
   // Map to Property objects
-  let properties = rows.map(transformSummerRentProperty);
+  let properties: Property[] = rows.map(transformSummerRentProperty);
 
   // Client-side filter: minimum rating (uses aggregated ratings when available)
   if (filters.minRating && filters.minRating > 0) {
     const ratingsMap = await getRatingsForProperties(
-      properties.map((p) => p.id),
+      properties.map((p: Property) => p.id),
     );
-    properties = properties.filter((p) => {
+    properties = properties.filter((p: Property) => {
       const stats = ratingsMap[p.id];
       const rating = stats?.averageRating ?? 0;
       return rating >= (filters.minRating ?? 0);
@@ -371,9 +375,10 @@ export async function getFavoriteProperties(
     return [];
   }
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc<
-    RpcSummerRentPropertyRow
-  >('get_public_summer_rent_properties', {
+  const {
+    data: rpcData,
+    error: rpcError,
+  } = await supabase.rpc('get_public_summer_rent_properties', {
     p_min_price: null,
     p_max_price: null,
     p_min_bedrooms: null,
@@ -388,7 +393,9 @@ export async function getFavoriteProperties(
   }
 
   const byId = new Map(
-    (rpcData ?? []).map((row) => [row.EstatePropertyId, row]),
+    ((rpcData ?? []) as RpcSummerRentPropertyRow[]).map(
+      (row: RpcSummerRentPropertyRow) => [row.EstatePropertyId, row],
+    ),
   );
 
   const favorites: Property[] = [];

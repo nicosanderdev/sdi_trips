@@ -161,9 +161,9 @@ const HeroSplit: React.FC = () => {
                   {t('landing.hero.cta.search')}
                 </Button>
               </Link>
-              <Link to="/about">
-                <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
-                  {t('landing.hero.cta.login')}
+              <Link to="/search">
+                <Button variant="outline" size="lg" onClick={() => navigate('/search')}>
+                  {t('nav.explore')}
                 </Button>
               </Link>
             </div>

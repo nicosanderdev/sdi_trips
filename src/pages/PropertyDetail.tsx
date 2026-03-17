@@ -7,7 +7,7 @@ import { Button, Card, LeaveReviewModal } from '../components/ui';
 import BookingDatePicker from '../components/sections/BookingDatePicker';
 import { getPropertyById } from '../services/propertyService';
 import { createBooking } from '../services/bookingService';
-import { sendPropertyView, getSourceFromUtmOrReferrer } from '../lib/analytics';
+import { getUtmSourceAndMedium, trackEvent } from '../lib/analytics';
 import { logPropertyVisit } from '../services/propertyVisitService';
 import { getMemberProfile } from '../services/memberService';
 import { useAuth } from '../hooks/useAuth';
@@ -132,18 +132,19 @@ const PropertyDetail: React.FC = () => {
         fetchProperty();
     }, [id]);
 
-    // Property view tracking: GA property_view + Supabase PropertyVisitLogs (throttled)
+    // Property view tracking: first-party analytics + Supabase PropertyVisitLogs (throttled)
     useEffect(() => {
         if (!property?.id) return;
-        const source = getSourceFromUtmOrReferrer();
-        sendPropertyView({
+        const { source } = getUtmSourceAndMedium();
+        trackEvent('property_view', {
             property_id: property.id,
-            property_slug: id ?? undefined,
-            company_id: property.ownerId,
-            listing_type: property.listingType,
-            source,
+            metadata: {
+                property_slug: id ?? undefined,
+                company_id: property.ownerId,
+                listing_type: property.listingType,
+            },
         });
-        logPropertyVisit(property.id, source);
+        logPropertyVisit(property.id, source ?? 'unknown');
     }, [property?.id, id, property?.ownerId, property?.listingType]);
 
     // Fetch reviews for this property
@@ -440,7 +441,7 @@ const PropertyDetail: React.FC = () => {
         }
 
         if (!user) {
-            alert(t('booking.loginRequired'));
+            setBookingError(t('booking.contactForAvailability'));
             return;
         }
 
@@ -479,6 +480,31 @@ const PropertyDetail: React.FC = () => {
                 setBookingError(message);
                 alert(message);
                 return;
+            }
+
+            const nights = calculateNights();
+            const { source, medium } = getUtmSourceAndMedium();
+            const transactionId = (result as any).booking?.id ?? (result as any).id ?? undefined;
+
+            try {
+                trackEvent('booking_completed', {
+                    property_id: property.id,
+                    user_id: user.id,
+                    revenue: totalPrice,
+                    source,
+                    medium,
+                    metadata: {
+                        transaction_id: transactionId,
+                        company_id: property.ownerId,
+                        listing_type: property.listingType,
+                        check_in: checkIn.toISOString(),
+                        check_out: checkOut.toISOString(),
+                        nights,
+                        currency: property.currency || 'USD',
+                    },
+                });
+            } catch (analyticsError) {
+                console.error('Error sending booking_completed analytics event:', analyticsError);
             }
 
             setBookingSuccess(true);

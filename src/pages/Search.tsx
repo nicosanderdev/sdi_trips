@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../components/layout';
 import { Button, Input, RangeSlider, Card } from '../components/ui';
@@ -39,7 +38,6 @@ interface SearchFilters {
 const Search: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const navigate = useNavigate();
   // Mapbox access token - you'll need to set this in your .env file
 
   const [filters, setFilters] = useState<SearchFilters>({
@@ -405,10 +403,7 @@ const Search: React.FC = () => {
   }, [visibleProperties]);
 
   const handleToggleWishlist = async (propertyId: string) => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
+    if (!user) return;
 
     try {
       let currentMemberId = memberId;
@@ -646,6 +641,7 @@ const Search: React.FC = () => {
                         property={property}
                         onToggleWishlist={handleToggleWishlist}
                         isInWishlist={wishlistIds.includes(property.id)}
+                        showWishlist={!!user}
                         disableLink
                       />
                     </div>

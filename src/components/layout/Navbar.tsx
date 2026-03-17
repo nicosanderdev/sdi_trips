@@ -1,30 +1,17 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User, Heart, MessageCircle, LogOut, Globe } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/config';
-import { Button } from '../ui';
-import { useAuth } from '../../hooks/useAuth';
 
 const Navbar: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const isLoggedIn = !!user;
   const location = useLocation();
   const { t, i18n: i18nInstance } = useTranslation();
 
   const navItems = [
     { path: '/', labelKey: 'nav.home' },
-    { path: '/about', labelKey: 'nav.about' },
-    { path: '/contact', labelKey: 'common.contact', defaultLabel: 'Contact' }
-  ];
-
-  const userMenuItems = [
-    { path: '/profile', labelKey: 'nav.profile', icon: User },
-    { path: '/wishlist', labelKey: 'nav.wishlist', icon: Heart },
-    { path: '/inbox', labelKey: 'nav.inbox', icon: MessageCircle },
+    { path: '/search', labelKey: 'nav.explore' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -37,15 +24,6 @@ const Navbar: React.FC = () => {
 
   const changeLanguage = (languageCode: string) => {
     i18n.changeLanguage(languageCode);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
   };
 
   return (
@@ -75,79 +53,7 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* User Actions */}
-          <div className="flex items-center space-x-3">
-            {isLoggedIn ? (
-              <>
-                {userMenuItems.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`p-2 rounded-full transition-all duration-200 ${
-                      isActive(item.path)
-                        ? 'bg-navy text-gold'
-                        : 'text-navy hover:bg-gold hover:text-navy'
-                    }`}
-                    title={t(item.labelKey)}
-                    aria-label={t(item.labelKey)}
-                  >
-                    <item.icon className="h-5 w-5" />
-                  </Link>
-                ))}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowLogoutConfirm(true)}
-                    className="p-2 rounded-full text-navy hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-                    title={t('nav.logout')}
-                    aria-label={t('nav.logout')}
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </button>
-                  {showLogoutConfirm && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-50">
-                      <p className="text-xs text-gray-700 mb-3">
-                        {t('nav.logoutAlert')}
-                      </p>
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => setShowLogoutConfirm(false)}
-                          className="px-3 py-1 rounded-full text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-                        >
-                          {t('common.cancel', { defaultValue: 'Cancel' })}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            await handleLogout();
-                            setShowLogoutConfirm(false);
-                          }}
-                          className="px-3 py-1 rounded-full text-xs font-medium bg-red-700 text-white hover:bg-red-800 transition-colors"
-                        >
-                          {t('nav.logout')}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <Link to="/login">
-                  <Button variant="outline" size="sm">
-                    {t('nav.signIn')}
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button variant="primary" size="sm">
-                    {t('nav.signUp')}
-                  </Button>
-                </Link>
-              </div>
-            )}
-
-            {/* Language Switcher */}
-            <div className="flex items-center space-x-1 ml-4 pl-4 border-l border-gray-300">
+          <div className="flex items-center space-x-1 ml-4 pl-4 border-l border-gray-300">
               <Globe className="h-4 w-4 text-navy" />
               <select
                 value={i18nInstance.language}
@@ -162,7 +68,6 @@ const Navbar: React.FC = () => {
               </select>
             </div>
           </div>
-        </div>
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center justify-between">
@@ -198,76 +103,6 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
             </div>
-
-            {/* Mobile User Actions */}
-            {isLoggedIn ? (
-              <div className="space-y-2">
-                {userMenuItems.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setIsOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                      isActive(item.path)
-                        ? 'bg-navy text-gold'
-                        : 'text-navy hover:bg-gold hover:text-navy'
-                    }`}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{t(item.labelKey)}</span>
-                  </Link>
-                ))}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowLogoutConfirm(true)}
-                    className="flex items-center space-x-3 w-full px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    <span>{t('nav.logout')}</span>
-                  </button>
-                  {showLogoutConfirm && (
-                    <div className="absolute right-4 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-50">
-                      <p className="text-xs text-gray-700 mb-3">
-                        {t('nav.logoutAlert')}
-                      </p>
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => setShowLogoutConfirm(false)}
-                          className="px-3 py-1 rounded-full text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-                        >
-                          {t('common.cancel', { defaultValue: 'Cancel' })}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            await handleLogout();
-                            setShowLogoutConfirm(false);
-                            setIsOpen(false);
-                          }}
-                          className="px-3 py-1 rounded-full text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
-                        >
-                          {t('nav.logout')}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col space-y-3">
-                <Link to="/login" onClick={() => setIsOpen(false)}>
-                  <Button variant="outline" size="sm" className="w-full">
-                    {t('nav.signIn')}
-                  </Button>
-                </Link>
-                <Link to="/register" onClick={() => setIsOpen(false)}>
-                  <Button variant="primary" size="sm" className="w-full">
-                    {t('nav.signUp')}
-                  </Button>
-                </Link>
-              </div>
-            )}
 
             {/* Mobile Language Switcher */}
             <div className="mt-6 pt-6 border-t border-gray-200">
