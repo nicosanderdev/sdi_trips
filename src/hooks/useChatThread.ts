@@ -15,7 +15,7 @@ interface UseChatThreadResult {
   error: string | null;
   newMessage: string;
   setNewMessage: React.Dispatch<React.SetStateAction<string>>;
-  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  messagesEndRef: React.RefObject<HTMLDivElement>;
   handleSendMessage: () => void;
   handleKeyPress: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
@@ -27,7 +27,7 @@ export function useChatThread(threadId: string | null): UseChatThreadResult {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null!);
 
   useEffect(() => {
     if (!threadId) {
