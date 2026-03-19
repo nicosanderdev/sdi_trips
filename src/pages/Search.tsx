@@ -15,6 +15,7 @@ import { supabase } from '../lib/supabase';
 
 const DEBOUNCE_MS = 450;
 const UY_CITIES_MAX_SUGGESTIONS = 10;
+const DEFAULT_PRICE_RANGE: [number, number] = [100, 600];
 
 interface UyCity {
   name: string;
@@ -41,7 +42,7 @@ const Search: React.FC = () => {
   // Mapbox access token - you'll need to set this in your .env file
 
   const [filters, setFilters] = useState<SearchFilters>({
-    priceRange: [100, 600],
+    priceRange: DEFAULT_PRICE_RANGE,
     bedrooms: 0,
     guests: 1,
     amenities: [],
@@ -125,11 +126,17 @@ const Search: React.FC = () => {
   const fetchProperties = useCallback(
     async () => {
       try {
+        const trimmedLocation = debouncedSearchQuery.trim();
+        const shouldApplyPriceRange =
+          filters.priceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
+          filters.priceRange[1] !== DEFAULT_PRICE_RANGE[1];
         const searchFilters = {
-          priceRange: filters.priceRange,
+          priceRange: shouldApplyPriceRange ? filters.priceRange : undefined,
           bedrooms: filters.bedrooms > 0 ? filters.bedrooms : undefined,
           guests: filters.guests > 0 ? filters.guests : undefined,
           amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
+          minRating: filters.minRating > 0 ? filters.minRating : undefined,
+          location: trimmedLocation.length > 0 ? trimmedLocation : undefined,
         };
 
         const result = await searchProperties(searchFilters, 1, 50);
@@ -139,13 +146,32 @@ const Search: React.FC = () => {
         setProperties([]);
       }
     },
-    [filters]
+    [filters, debouncedSearchQuery]
   );
 
   // Fetch properties when debounced location or filters change
   useEffect(() => {
     fetchProperties();
   }, [fetchProperties]);
+
+  // Keep map in sync with current results so markers/list are visible.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || properties.length === 0) return;
+
+    const bounds = new mapboxgl.LngLatBounds();
+    properties.forEach((property) => {
+      bounds.extend([property.coordinates.lng, property.coordinates.lat]);
+    });
+
+    if (bounds.isEmpty()) return;
+
+    map.fitBounds(bounds, {
+      padding: 80,
+      maxZoom: 13,
+      duration: 600,
+    });
+  }, [properties]);
 
   // When debounced query is set and not from list, geocode and move map
   useEffect(() => {
@@ -254,7 +280,7 @@ const Search: React.FC = () => {
 
   const clearFilters = () => {
     setFilters({
-      priceRange: [100, 600],
+      priceRange: DEFAULT_PRICE_RANGE,
       bedrooms: 0,
       guests: 1,
       amenities: [],
@@ -341,6 +367,8 @@ const Search: React.FC = () => {
     popupsRef.current = [];
 
     visibleProperties.forEach((property) => {
+      const lat = property.coordinates.lat;
+      const lng = property.coordinates.lng;
       const markerElement = document.createElement('div');
       markerElement.className = `w-8 h-8 rounded-full border-2 border-white shadow-lg cursor-pointer transition-all ${
         hoveredProperty === property.id || selectedProperty?.id === property.id
@@ -354,7 +382,7 @@ const Search: React.FC = () => {
       `;
 
       const marker = new mapboxgl.Marker(markerElement)
-        .setLngLat([property.coordinates.lng, property.coordinates.lat])
+        .setLngLat([lng, lat])
         .addTo(map);
 
       markerElement.addEventListener('click', () => {
