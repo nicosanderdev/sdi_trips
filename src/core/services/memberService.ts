@@ -1,0 +1,327 @@
+import { supabase } from '../api/supabaseClient';
+import type { Database } from '../../types/supabase';
+import type { User } from '../models';
+
+type DbMember = Database['public']['Tables']['Members']['Row'];
+
+export interface UpdateMemberData {
+  FirstName?: string;
+  LastName?: string;
+  PhonePrefix?: string;
+  Phone?: string;
+  AvatarUrl?: string;
+  Street?: string;
+  Street2?: string;
+  City?: string;
+  State?: string;
+  PostalCode?: string;
+  Country?: string;
+  NeedsOnboarding?: boolean;
+}
+
+export interface CreateMemberData {
+  UserId: string;
+  FirstName?: string;
+  LastName?: string;
+  Email?: string;
+  PhonePrefix?: string;
+  Phone?: string;
+}
+
+/**
+ * Transform database member data to frontend User type
+ */
+function transformMember(dbMember: DbMember, isEmailVerified: boolean = false): User {
+  let phone: string | undefined;
+
+  if (dbMember.PhonePrefix && dbMember.Phone) {
+    const localDigits = dbMember.Phone.replace(/\D/g, '');
+    const prefixTrimmed = dbMember.PhonePrefix.trim();
+
+    if (localDigits) {
+      const prefixDigits = prefixTrimmed.replace(/\D/g, '');
+      const normalizedPrefix = prefixTrimmed.startsWith('+')
+        ? prefixTrimmed
+        : prefixDigits
+        ? `+${prefixDigits}`
+        : prefixTrimmed;
+
+      phone = `${normalizedPrefix}${localDigits}`;
+    }
+  } else if (dbMember.Phone) {
+    // Legacy: full phone number stored directly in Phone
+    phone = dbMember.Phone;
+  }
+
+  return {
+    id: dbMember.Id,
+    name: `${dbMember.FirstName || ''} ${dbMember.LastName || ''}`.trim() || 'User',
+    email: dbMember.Email || '',
+    avatar: dbMember.AvatarUrl || undefined,
+    verified: isEmailVerified,
+    created_at: dbMember.Created,
+    phone,
+    needsOnboarding: dbMember.NeedsOnboarding ?? false,
+  };
+}
+
+/**
+ * Get member profile by user ID
+ */
+export async function getMemberProfile(userId: string): Promise<User | null> {
+  const [{ data, error }, authResult] = await Promise.all([
+    supabase
+      .from('Members')
+      .select('*')
+      .eq('UserId', userId)
+      .eq('IsDeleted', false)
+      .single(),
+    supabase.auth.getUser(),
+  ]);
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No member profile found
+      return null;
+    }
+    console.error('Error fetching member profile:', error);
+    throw error;
+  }
+
+  const authUser = authResult.data.user;
+  const isEmailVerified =
+    !!authUser && authUser.id === userId && !!authUser.email_confirmed_at;
+
+  return transformMember(data, isEmailVerified);
+}
+
+/**
+ * Update member profile
+ */
+export async function updateMemberProfile(
+  userId: string,
+  updateData: UpdateMemberData,
+): Promise<User> {
+  const { data, error } = await supabase
+    .from('Members')
+    .update({
+      ...updateData,
+      LastModified: new Date().toISOString(),
+    })
+    .eq('UserId', userId)
+    .eq('IsDeleted', false)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating member profile:', error);
+    throw error;
+  }
+
+  const { data: authData } = await supabase.auth.getUser();
+  const authUser = authData.user;
+  const isEmailVerified =
+    !!authUser && authUser.id === userId && !!authUser.email_confirmed_at;
+
+  return transformMember(data, isEmailVerified);
+}
+
+/**
+ * Create new member profile
+ */
+export async function createMemberProfile(memberData: CreateMemberData): Promise<User> {
+  const { data, error } = await supabase
+    .from('Members')
+    .insert({
+      ...memberData,
+      Role: 'user',
+      IsDeleted: false,
+      Created: new Date().toISOString(),
+      LastModified: new Date().toISOString(),
+      NeedsOnboarding: true,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating member profile:', error);
+    throw error;
+  }
+
+  const { data: authData } = await supabase.auth.getUser();
+  const authUser = authData.user;
+  const isEmailVerified =
+    !!authUser && authUser.id === memberData.UserId && !!authUser.email_confirmed_at;
+
+  return transformMember(data, isEmailVerified);
+}
+
+/**
+ * Upload profile picture to Supabase storage
+ */
+export async function uploadProfilePicture(userId: string, file: File): Promise<string> {
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    throw new Error('File must be an image');
+  }
+
+  // Validate file size (8MB max)
+  if (file.size > 8 * 1024 * 1024) {
+    throw new Error('File size must be less than 8MB');
+  }
+
+  const fileExt = file.name.split('.').pop();
+  const filePath = `${userId}/${Date.now()}.${fileExt}`;
+
+  // Upload file to Supabase storage
+  const { error: uploadError } = await supabase.storage
+    .from('profile_pictures')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+  if (uploadError) {
+    console.error('Error uploading profile picture:', uploadError);
+    throw new Error('Failed to upload profile picture');
+  }
+
+  // Get public URL
+  const { data } = supabase.storage
+    .from('profile_pictures')
+    .getPublicUrl(filePath);
+
+  if (!data.publicUrl) {
+    throw new Error('Failed to get public URL for uploaded image');
+  }
+
+  // Update member's avatar URL in database.
+  // If this fails (e.g. function not yet created), we still return the URL
+  // so the UI can show the uploaded image immediately.
+  try {
+    await updateMemberAvatar(data.publicUrl);
+  } catch (error) {
+    console.error('Error updating member avatar via RPC:', error);
+  }
+
+  return data.publicUrl;
+}
+
+/**
+ * Request email change verification
+ */
+export async function requestEmailChange(userId: string, newEmail: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('send-email-verification', {
+    body: { userId, newEmail },
+  });
+
+  if (error) {
+    console.error('Error requesting email change:', error);
+    throw new Error(data?.error || 'Failed to send verification email');
+  }
+}
+
+/**
+ * Verify email change code
+ */
+export async function verifyEmailChange(userId: string, code: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('verify-email-code', {
+    body: { userId, code },
+  });
+
+  if (error) {
+    console.error('Error verifying email code:', error);
+    throw new Error(data?.error || 'Failed to verify email');
+  }
+}
+
+/**
+ * Request phone change verification
+ */
+export async function requestPhoneChange(userId: string, newPhone: string): Promise<void> {
+  // Note: userId is not needed when using Supabase Auth directly, but kept for API consistency
+  void userId;
+  const { error } = await supabase.auth.updateUser({
+    phone: newPhone,
+  });
+
+  if (error) {
+    console.error('Error requesting phone change:', error);
+    throw new Error(error.message || 'Failed to send verification SMS');
+  }
+}
+
+/**
+ * Verify phone change code
+ */
+export async function verifyPhoneChange(userId: string, newPhone: string, code: string): Promise<void> {
+  // Note: userId is not needed when using Supabase Auth directly, but kept for API consistency
+  void userId;
+  const { error } = await supabase.auth.verifyOtp({
+    phone: newPhone,
+    token: code,
+    type: 'phone_change',
+  });
+
+  if (error) {
+    console.error('Error verifying phone code:', error);
+    throw new Error(error.message || 'Failed to verify phone number');
+  }
+}
+
+/**
+ * Update member avatar using the Supabase function
+ */
+export async function updateMemberAvatar(avatarUrl: string): Promise<boolean> {
+  const { error } = await supabase.rpc('update_member_avatar', {
+    avatar_url: avatarUrl,
+  });
+
+  if (error) {
+    console.error('Error updating member avatar:', error);
+    throw error;
+  }
+
+  return true;
+}
+
+/**
+ * Get member by ID
+ */
+export async function getMemberById(memberId: string): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('Members')
+    .select('*')
+    .eq('Id', memberId)
+    .eq('IsDeleted', false)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return null;
+    }
+    console.error('Error fetching member by ID:', error);
+    throw error;
+  }
+
+  return transformMember(data, false);
+}
+
+/**
+ * Update MFA status in the Members table
+ */
+export async function updateMFAStatus(userId: string, enabled: boolean): Promise<void> {
+  const { error } = await supabase
+    .from('Members')
+    .update({
+      TwoFactorEnabled: enabled,
+      LastModified: new Date().toISOString(),
+    })
+    .eq('UserId', userId)
+    .eq('IsDeleted', false);
+
+  if (error) {
+    console.error('Error updating MFA status:', error);
+    throw error;
+  }
+}
