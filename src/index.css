@@ -52,6 +52,49 @@
 
 /* Custom component styles */
 @layer components {
+  .sdi-map-popup.mapboxgl-popup {
+    font-family: 'Manrope', system-ui, sans-serif;
+  }
+
+  .sdi-map-popup .mapboxgl-popup-content {
+    border-radius: 1rem;
+    border: 1px solid rgba(10, 26, 47, 0.12);
+    box-shadow: 0 16px 30px rgba(10, 26, 47, 0.16);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .sdi-map-popup .mapboxgl-popup-close-button {
+    top: 0.45rem;
+    right: 0.65rem;
+    color: rgba(10, 26, 47, 0.72);
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .sdi-map-popup .mapboxgl-popup-close-button:hover {
+    color: #0A1A2F;
+    background: #ffffff;
+  }
+
+  .sdi-map-popup .mapboxgl-popup-tip {
+    border-top-color: rgba(10, 26, 47, 0.12);
+  }
+
+  .sdi-map-popup-card {
+    width: 18rem;
+    padding: 0.9rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(10, 26, 47, 0.06);
+    background: #ffffff;
+    color: #1E1E1E;
+  }
+
   .outline-number {
     -webkit-text-stroke: 2px #E5C469;
     -webkit-text-fill-color: transparent;

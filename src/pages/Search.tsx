@@ -16,6 +16,12 @@ import { supabase } from '../lib/supabase';
 const DEBOUNCE_MS = 450;
 const UY_CITIES_MAX_SUGGESTIONS = 10;
 const DEFAULT_PRICE_RANGE: [number, number] = [100, 600];
+const PRIVACY_OFFSET_METERS = 120;
+const APPROX_ZONE_RADIUS_METERS = 100;
+const APPROX_ZONE_MIN_ZOOM = 14;
+const APPROX_ZONE_SOURCE_ID = 'selected-property-approx-zone-source';
+const APPROX_ZONE_FILL_LAYER_ID = 'selected-property-approx-zone-fill-layer';
+const APPROX_ZONE_STROKE_LAYER_ID = 'selected-property-approx-zone-stroke-layer';
 
 interface UyCity {
   name: string;
@@ -70,6 +76,7 @@ const Search: React.FC = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const popupsRef = useRef<mapboxgl.Popup[]>([]);
+  const privacyOffsetsRef = useRef<Record<string, { lng: number; lat: number }>>({});
 
   // Initialize mapbox
   useEffect(() => {
@@ -79,6 +86,63 @@ const Search: React.FC = () => {
   }, [mapboxToken]);
 
   const propertyRefs = useRef<{ [key: string]: HTMLDivElement }>({});
+
+  const hashPropertyId = useCallback((id: string): number => {
+    let hash = 0;
+    for (let index = 0; index < id.length; index += 1) {
+      hash = (hash << 5) - hash + id.charCodeAt(index);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }, []);
+
+  const getOffsetCoordinates = useCallback(
+    (property: Property) => {
+      const cached = privacyOffsetsRef.current[property.id];
+      if (cached) return cached;
+
+      const baseHash = hashPropertyId(property.id);
+      const angleRadians = ((baseHash % 360) * Math.PI) / 180;
+      const distanceMeters = 60 + (baseHash % (PRIVACY_OFFSET_METERS - 60));
+      const latRadians = (property.coordinates.lat * Math.PI) / 180;
+      const metersPerDegreeLat = 111_320;
+      const metersPerDegreeLng = Math.max(111_320 * Math.cos(latRadians), 0.00001);
+      const latOffset = (distanceMeters * Math.sin(angleRadians)) / metersPerDegreeLat;
+      const lngOffset = (distanceMeters * Math.cos(angleRadians)) / metersPerDegreeLng;
+      const offsetCoordinates = {
+        lat: property.coordinates.lat + latOffset,
+        lng: property.coordinates.lng + lngOffset,
+      };
+
+      privacyOffsetsRef.current[property.id] = offsetCoordinates;
+      return offsetCoordinates;
+    },
+    [hashPropertyId]
+  );
+
+  const createGeoCircleFeature = useCallback((centerLng: number, centerLat: number, radiusMeters: number) => {
+    const points = 64;
+    const coordinates: [number, number][] = [];
+    const latRadians = (centerLat * Math.PI) / 180;
+    const metersPerDegreeLat = 111_320;
+    const metersPerDegreeLng = Math.max(111_320 * Math.cos(latRadians), 0.00001);
+
+    for (let pointIndex = 0; pointIndex <= points; pointIndex += 1) {
+      const angle = (pointIndex / points) * 2 * Math.PI;
+      const lat = centerLat + (radiusMeters * Math.sin(angle)) / metersPerDegreeLat;
+      const lng = centerLng + (radiusMeters * Math.cos(angle)) / metersPerDegreeLng;
+      coordinates.push([lng, lat]);
+    }
+
+    return {
+      type: 'Feature' as const,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [coordinates],
+      },
+      properties: {},
+    };
+  }, []);
 
   // Load member profile and favorites when user changes
   useEffect(() => {
@@ -161,7 +225,8 @@ const Search: React.FC = () => {
 
     const bounds = new mapboxgl.LngLatBounds();
     properties.forEach((property) => {
-      bounds.extend([property.coordinates.lng, property.coordinates.lat]);
+      const offsetCoordinates = getOffsetCoordinates(property);
+      bounds.extend([offsetCoordinates.lng, offsetCoordinates.lat]);
     });
 
     if (bounds.isEmpty()) return;
@@ -171,7 +236,7 @@ const Search: React.FC = () => {
       maxZoom: 13,
       duration: 600,
     });
-  }, [properties]);
+  }, [properties, getOffsetCoordinates]);
 
   // When debounced query is set and not from list, geocode and move map
   useEffect(() => {
@@ -312,17 +377,18 @@ const Search: React.FC = () => {
   const focusOnProperty = useCallback(
     (property: Property) => {
       setSelectedProperty(property);
+      const offsetCoordinates = getOffsetCoordinates(property);
       const map = mapRef.current;
       if (map) {
         map.flyTo({
-          center: [property.coordinates.lng, property.coordinates.lat],
+          center: [offsetCoordinates.lng, offsetCoordinates.lat],
           zoom: 14,
           essential: true,
         });
       }
       scrollToProperty(property.id);
     },
-    [scrollToProperty]
+    [scrollToProperty, getOffsetCoordinates]
   );
 
   // Initialize map once
@@ -367,8 +433,7 @@ const Search: React.FC = () => {
     popupsRef.current = [];
 
     visibleProperties.forEach((property) => {
-      const lat = property.coordinates.lat;
-      const lng = property.coordinates.lng;
+      const offsetCoordinates = getOffsetCoordinates(property);
       const markerElement = document.createElement('div');
       markerElement.className = `w-8 h-8 rounded-full border-2 border-white shadow-lg cursor-pointer transition-all ${
         hoveredProperty === property.id || selectedProperty?.id === property.id
@@ -382,7 +447,7 @@ const Search: React.FC = () => {
       `;
 
       const marker = new mapboxgl.Marker(markerElement)
-        .setLngLat([lng, lat])
+        .setLngLat([offsetCoordinates.lng, offsetCoordinates.lat])
         .addTo(map);
 
       markerElement.addEventListener('click', () => {
@@ -393,21 +458,26 @@ const Search: React.FC = () => {
     });
 
     if (selectedProperty) {
-      const popup = new mapboxgl.Popup({ closeOnClick: false, offset: [0, -10] })
-        .setLngLat([selectedProperty.coordinates.lng, selectedProperty.coordinates.lat])
+      const selectedOffsetCoordinates = getOffsetCoordinates(selectedProperty);
+      const popup = new mapboxgl.Popup({
+        closeOnClick: false,
+        offset: [0, -10],
+        className: 'sdi-map-popup',
+      })
+        .setLngLat([selectedOffsetCoordinates.lng, selectedOffsetCoordinates.lat])
         .setHTML(`
-          <div class="p-3 max-w-xs">
-            <img src="${selectedProperty.images[0]}" alt="${selectedProperty.title}" class="w-full h-24 object-cover rounded-lg mb-2" />
-            <h3 class="font-semibold text-navy text-sm mb-1">${selectedProperty.title}</h3>
-            <p class="text-xs text-charcoal mb-2">${selectedProperty.location}</p>
+          <div class="sdi-map-popup-card">
+            <img src="${selectedProperty.images[0]}" alt="${selectedProperty.title}" class="w-full h-24 object-cover rounded-xl mb-3" />
+            <h3 class="font-semibold text-navy text-sm mb-1 leading-5">${selectedProperty.title}</h3>
+            <p class="text-xs text-charcoal mb-3">${selectedProperty.location}</p>
             <div class="flex items-center justify-between">
               <span class="font-bold text-gold">$${selectedProperty.price}${t('search.map.perNight')}</span>
               <div class="flex items-center space-x-1">
                 <span class="text-xs text-charcoal">★ ${selectedProperty.rating}</span>
               </div>
             </div>
-            <a href="/property/${selectedProperty.id}" class="block mt-2">
-              <button class="w-full bg-gold text-navy px-3 py-1 rounded text-sm font-medium hover:bg-opacity-90">
+            <a href="/property/${selectedProperty.id}" class="block mt-3">
+              <button class="w-full bg-gold text-navy px-3 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90">
                 ${t('search.map.viewDetails')}
               </button>
             </a>
@@ -417,7 +487,80 @@ const Search: React.FC = () => {
 
       popupsRef.current.push(popup);
     }
-  }, [visibleProperties, hoveredProperty, selectedProperty, t]);
+  }, [visibleProperties, hoveredProperty, selectedProperty, t, getOffsetCoordinates]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const clearApproxZone = () => {
+      if (map.getLayer(APPROX_ZONE_FILL_LAYER_ID)) {
+        map.removeLayer(APPROX_ZONE_FILL_LAYER_ID);
+      }
+      if (map.getLayer(APPROX_ZONE_STROKE_LAYER_ID)) {
+        map.removeLayer(APPROX_ZONE_STROKE_LAYER_ID);
+      }
+      if (map.getSource(APPROX_ZONE_SOURCE_ID)) {
+        map.removeSource(APPROX_ZONE_SOURCE_ID);
+      }
+    };
+
+    const renderApproxZone = () => {
+      if (!selectedProperty || map.getZoom() < APPROX_ZONE_MIN_ZOOM) {
+        clearApproxZone();
+        return;
+      }
+
+      const offsetCoordinates = getOffsetCoordinates(selectedProperty);
+      const zoneFeature = createGeoCircleFeature(
+        offsetCoordinates.lng,
+        offsetCoordinates.lat,
+        APPROX_ZONE_RADIUS_METERS
+      );
+
+      clearApproxZone();
+      map.addSource(APPROX_ZONE_SOURCE_ID, {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [zoneFeature],
+        },
+      });
+
+      map.addLayer({
+        id: APPROX_ZONE_FILL_LAYER_ID,
+        type: 'fill',
+        source: APPROX_ZONE_SOURCE_ID,
+        paint: {
+          'fill-color': '#7DC7F2',
+          'fill-opacity': 0.22,
+        },
+      });
+
+      map.addLayer({
+        id: APPROX_ZONE_STROKE_LAYER_ID,
+        type: 'line',
+        source: APPROX_ZONE_SOURCE_ID,
+        paint: {
+          'line-color': '#5AAEDC',
+          'line-width': 2,
+          'line-opacity': 0.65,
+        },
+      });
+    };
+
+    if (map.isStyleLoaded()) {
+      renderApproxZone();
+    } else {
+      map.once('load', renderApproxZone);
+    }
+
+    map.on('zoomend', renderApproxZone);
+    return () => {
+      map.off('zoomend', renderApproxZone);
+      clearApproxZone();
+    };
+  }, [selectedProperty, getOffsetCoordinates, createGeoCircleFeature]);
 
   // Delay visible properties list rendering slightly for smoother UX
   useEffect(() => {

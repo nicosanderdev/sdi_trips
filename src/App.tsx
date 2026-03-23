@@ -10,6 +10,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Search from './pages/Search';
 import PropertyDetail from './pages/PropertyDetail';
+import BookingManage from './pages/BookingManage';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/search" element={<Search />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="/booking/manage" element={<BookingManage />} />
           <Route path="/about" element={<NotFound />} />
           <Route path="/contact" element={<NotFound />} />
           <Route path="/login" element={<NotFound />} />

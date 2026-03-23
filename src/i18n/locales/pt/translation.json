@@ -111,9 +111,35 @@
       "title": "Uma forma confiável de alugar casas",
       "description": "Encontre casas reais, com informações claras e sem complicações.",
       "subtitle": "Alugue com tranquilidade. Publique com confiança.",
+      "support": "Reserva rapida. Sem complicacao. Com seguranca.",
+      "search": {
+        "datePlaceholder": "Datas (check-in - check-out)",
+        "dateAria": "Intervalo de datas",
+        "guestsAria": "Quantidade de hóspedes",
+        "guestsPlaceholder": "Hóspedes",
+        "guests2": "2 hóspedes",
+        "guests4": "4 hóspedes",
+        "guests6": "6 hóspedes",
+        "guests8": "8+ hóspedes",
+        "submit": "Buscar"
+      },
+      "trust": {
+        "verified": "Propriedades verificadas",
+        "payments": "Pagamentos seguros",
+        "bookings": "+100 reservas recentes"
+      },
       "cta": {
         "search": "Buscar casas",
-        "publish": "Entrar"
+        "publish": "Entrar",
+        "manage": "Ver minha reserva"
+      },
+      "links": {
+        "security": "Segurança e identificação",
+        "contact": "Contato"
+      },
+      "story": {
+        "title": "Reserve em minutos",
+        "stepAria": "Etapa {{step}}"
       },
       "stats": {
         "properties": "Propriedades",
@@ -122,12 +148,40 @@
       }
     },
     "featured": {
+      "eyebrow": "Escolha seu estilo",
       "title": "Propriedades em Destaque",
       "subtitle": "Casas selecionadas, nas quais você pode confiar",
       "description": "Explore uma seleção de casas de férias destacadas por sua localização, conforto e clareza nas informações. Publicações cuidadas, sem surpresas nem letras miúdas.",
-      "viewAll": "Ver Todas as Propriedades"
+      "viewAll": "Ver Todas as Propriedades",
+      "popular": "Popular",
+      "empty": "Não há propriedades em destaque no momento.",
+      "errors": {
+        "loadFailed": "Falha ao carregar propriedades em destaque. Tente novamente mais tarde."
+      }
+    },
+    "platform": {
+      "title": "Por que usar nossa plataforma?",
+      "cards": {
+        "1": {
+          "title": "Reserva rápida",
+          "description": "Reserve em poucos passos, sem complicações."
+        },
+        "2": {
+          "title": "Segurança garantida",
+          "description": "Validação de identidade e reservas confiáveis."
+        },
+        "3": {
+          "title": "Opções em Rivera",
+          "description": "Encontre casas disponíveis com facilidade."
+        },
+        "4": {
+          "title": "Sem necessidade de conta",
+          "description": "Reserve sem criar conta."
+        }
+      }
     },
     "howItWorks": {
+      "eyebrow": "Processo simples",
       "title": "Como Funciona",
       "subtitle": "Reservar sua casa de férias dos sonhos é simples e seguro. Aqui está como começar.",
       "steps": {
@@ -142,6 +196,10 @@
         "3": {
           "title": "Aproveite sua Estadia",
           "description": "Chegue sabendo o que esperar. Casas reais, acordos claros e a tranquilidade de alugar em uma plataforma local."
+        },
+        "4": {
+          "title": "Aproveite",
+          "description": "Receba a confirmação e prepare-se para sua próxima estadia."
         }
       }
     },
@@ -326,6 +384,46 @@
       "confirmWithHost": "Você confirmará os detalhes com {{name}} antes de finalizar",
       "noPaymentYet": "Sem pagamento até a reserva ser confirmada",
       "sendMessage": "Enviar mensagem para {{name}}"
+    },
+    "bookingFlow": {
+      "guestsLabel": "Hóspedes",
+      "holdActiveFor": "Reserva temporária ativa por:",
+      "checkingAvailability": "Validando regras e disponibilidade...",
+      "confirmingMessage": "Confirmando sua reserva...",
+      "modal": {
+        "title": "Conclua sua reserva"
+      },
+      "form": {
+        "fullName": "Nome completo",
+        "emailOptional": "E-mail (opcional)",
+        "phone": "Telefone (+598...)",
+        "documentIdOptional": "Documento de identidade (opcional)",
+        "enterOtp": "Digite o OTP"
+      },
+      "actions": {
+        "creatingHold": "Criando reserva temporária...",
+        "continueAsGuest": "Continuar como hóspede",
+        "sendingCode": "Enviando código...",
+        "sendOtpCode": "Enviar código OTP",
+        "resendCode": "Reenviar código",
+        "confirming": "Confirmando...",
+        "verifyAndConfirm": "Verificar e confirmar"
+      },
+      "done": {
+        "reservationConfirmed": "Reserva confirmada.",
+        "codeLabel": "Código",
+        "manageLinkLabel": "Link de gestão:",
+        "openReservationManager": "abrir gestor de reservas"
+      },
+      "errors": {
+        "invalidDateSelection": "Seleção de datas inválida.",
+        "holdExpired": "Sua reserva temporária expirou. Selecione as datas novamente.",
+        "unableToCreateHold": "Não foi possível criar a reserva temporária.",
+        "couldNotSendOtp": "Não foi possível enviar o código OTP.",
+        "invalidOtp": "Código OTP inválido.",
+        "holdNoLongerValid": "Sua reserva temporária não é mais válida.",
+        "couldNotConfirmReservation": "Não foi possível confirmar a reserva."
+      }
     },
     "host": {
       "heading": "Conheça seu anfitrião",
