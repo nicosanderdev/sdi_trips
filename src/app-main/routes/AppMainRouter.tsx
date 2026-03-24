@@ -22,12 +22,9 @@ import Search from '../pages/Search';
 import PropertyDetail from '../pages/PropertyDetail';
 import NotFound from '../pages/NotFound';
 
-function RouteTracker() {
-  const location = useLocation();
-  const isInitialMount = React.useRef(true);
-
+function App() {
   useEffect(() => {
-    initAnalytics();
+    initAnalyticsSession();
   }, []);
 
   useEffect(() => {
@@ -45,26 +42,28 @@ export function AppMainRouter() {
   return (
     <AuthProvider>
       <Router>
-        <RouteTracker />
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-          <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
-          <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/inbox" element={<Inbox />} />
-          <Route path="/inbox/:conversationId" element={<ChatDetail />} />
-          <Route path="/checkout/:propertyId" element={<Checkout />} />
           <Route path="/search" element={<Search />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="/booking/manage" element={<BookingManage />} />
+          <Route path="/reservation-lookup" element={<ReservationLookup />} />
+          <Route path="/about" element={<NotFound />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<NotFound />} />
+          <Route path="/register" element={<NotFound />} />
+          <Route path="/forgot-password" element={<NotFound />} />
+          <Route path="/profile" element={<NotFound />} />
+          <Route path="/wishlist" element={<NotFound />} />
+          <Route path="/inbox" element={<NotFound />} />
+          <Route path="/inbox/:conversationId" element={<NotFound />} />
+          <Route path="/checkout/:propertyId" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+      <Analytics />
     </AuthProvider>
   );
 }

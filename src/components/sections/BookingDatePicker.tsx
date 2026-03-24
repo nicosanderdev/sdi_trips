@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
-import { format, isSameDay, isWithinInterval, startOfWeek, endOfWeek, isSameWeek } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { enUS, es, ptBR } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { getPropertyAvailability, getBlockedDates, validateDateSelection, getEarliestAvailableDate } from '../../services/availabilityService';
@@ -154,64 +154,23 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     const dateStr = format(date, 'yyyy-MM-dd', { locale: dateLocale });
     const today = new Date();
     const isToday = isSameDay(date, today);
-    const isCheckIn = checkIn && isSameDay(date, checkIn);
-    const isCheckOut = checkOut && isSameDay(date, checkOut);
-    const isInRange = checkIn && checkOut && isWithinInterval(date, { start: checkIn, end: checkOut });
     const isBlocked = blockedDates.has(dateStr);
 
     // Calculate hover preview range
     const isInHoverRange = checkIn && !checkOut && hoverDate && date >= checkIn && date <= hoverDate;
-    const isHoverStart = checkIn && !checkOut && isSameDay(date, checkIn);
-    const isHoverEnd = checkIn && !checkOut && hoverDate && isSameDay(date, hoverDate);
+    const isHoverStart = checkIn && !checkOut && isSameDay(date, checkIn) && isInHoverRange;
+    const isHoverEnd = checkIn && !checkOut && hoverDate && isSameDay(date, hoverDate) && isInHoverRange;
 
     const classes = ['react-datepicker__day'];
 
     if (isBlocked) {
       classes.push('blocked-date');
-    } else if (isCheckIn) {
-      classes.push('range-start');
-      // Check if start date is first day of week
-      if (isSameDay(date, startOfWeek(date, { locale: dateLocale }))) {
-        classes.push('range-start-week');
-      }
-    } else if (isCheckOut) {
-      classes.push('range-end');
-      // Check if end date is last day of week
-      if (isSameDay(date, endOfWeek(date, { locale: dateLocale }))) {
-        classes.push('range-end-week');
-      }
-    } else if (isInRange) {
-      classes.push('range-middle');
-      // Check if this is a continuation from previous week
-      if (checkIn && !isSameWeek(date, checkIn, { locale: dateLocale })) {
-        classes.push('range-continuation');
-      }
-      // Add week boundary classes for proper edge rounding
-      const isFirstDayOfWeek = isSameDay(date, startOfWeek(date, { locale: dateLocale }));
-      const isLastDayOfWeek = isSameDay(date, endOfWeek(date, { locale: dateLocale }));
-
-      if (isFirstDayOfWeek) {
-        classes.push('range-week-start');
-      }
-      if (isLastDayOfWeek) {
-        classes.push('range-week-end');
-      }
     } else if (isHoverStart) {
       classes.push('hover-range-start');
     } else if (isHoverEnd) {
       classes.push('hover-range-end');
     } else if (isInHoverRange) {
       classes.push('hover-range-middle');
-      // Add week boundary classes for hover ranges too
-      const isFirstDayOfWeek = isSameDay(date, startOfWeek(date, { locale: dateLocale }));
-      const isLastDayOfWeek = isSameDay(date, endOfWeek(date, { locale: dateLocale }));
-
-      if (isFirstDayOfWeek) {
-        classes.push('hover-range-week-start');
-      }
-      if (isLastDayOfWeek) {
-        classes.push('hover-range-week-end');
-      }
     } else if (isToday) {
       classes.push('today-date');
     } else {

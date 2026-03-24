@@ -25,6 +25,8 @@
   },
   "nav": {
     "home": "Home",
+    "explore": "Explore",
+    "contact": "Contact",
     "about": "About",
     "terms": "Terms",
     "searchPlaceholder": "Search destinations...",
@@ -110,9 +112,36 @@
       "title": "A reliable way to rent homes",
       "description": "Find real homes, with clear information and no complications.",
       "subtitle": "Rent with peace of mind. Publish with confidence.",
+      "support": "Quick booking. No hassle. Secure.",
+      "search": {
+        "datePlaceholder": "Dates (check-in - check-out)",
+        "dateAria": "Date range",
+        "guestsAria": "Number of guests",
+        "guestsPlaceholder": "Guests",
+        "guests2": "2 guests",
+        "guests4": "4 guests",
+        "guests6": "6 guests",
+        "guests8": "8+ guests",
+        "submit": "Search"
+      },
+      "trust": {
+        "verified": "Verified properties",
+        "payments": "Secure payments",
+        "bookings": "+100 recent bookings"
+      },
       "cta": {
         "search": "Search homes",
-        "publish": "Log in"
+        "publish": "Log in",
+        "manage": "Manage my booking"
+      },
+      "links": {
+        "security": "Security and identification",
+        "contact": "Contact",
+        "reservationLookup": "Find my reservation"
+      },
+      "story": {
+        "title": "Book in minutes",
+        "stepAria": "Step {{step}}"
       },
       "stats": {
         "properties": "Properties",
@@ -121,12 +150,40 @@
       }
     },
     "featured": {
+      "eyebrow": "Choose your style",
       "title": "Featured Properties",
       "subtitle": "Selected homes you can trust",
       "description": "Explore a selection of vacation homes highlighted for their location, comfort, and clear information. Carefully crafted listings, without surprises or fine print.",
-      "viewAll": "View All Properties"
+      "viewAll": "View All Properties",
+      "popular": "Popular",
+      "empty": "No featured properties available at the moment.",
+      "errors": {
+        "loadFailed": "Failed to load featured properties. Please try again later."
+      }
+    },
+    "platform": {
+      "title": "Why use our platform?",
+      "cards": {
+        "1": {
+          "title": "Fast booking",
+          "description": "Book in just a few simple steps."
+        },
+        "2": {
+          "title": "Guaranteed security",
+          "description": "Identity validation and reliable bookings."
+        },
+        "3": {
+          "title": "Options in Rivera",
+          "description": "Find available homes quickly and easily."
+        },
+        "4": {
+          "title": "No account required",
+          "description": "Book without creating an account."
+        }
+      }
     },
     "howItWorks": {
+      "eyebrow": "Simple process",
       "title": "How It Works",
       "subtitle": "Booking your dream holiday home is simple and secure. Here's how to get started.",
       "steps": {
@@ -141,6 +198,10 @@
         "3": {
           "title": "Enjoy Your Stay",
           "description": "Arrive knowing what to expect. Real homes, clear agreements and the peace of mind of renting on a local platform."
+        },
+        "4": {
+          "title": "Enjoy",
+          "description": "Get your confirmation and get ready for your next stay."
         }
       }
     },
@@ -376,6 +437,46 @@
       "noPaymentYet": "No payment until booking is confirmed",
       "sendMessage": "Send {{name}} a Message"
     },
+    "bookingFlow": {
+      "guestsLabel": "Guests",
+      "holdActiveFor": "Hold active for:",
+      "checkingAvailability": "Checking rules and availability...",
+      "confirmingMessage": "Confirming your reservation...",
+      "modal": {
+        "title": "Complete your reservation"
+      },
+      "form": {
+        "fullName": "Full name",
+        "emailOptional": "Email (optional)",
+        "phone": "Phone (+598...)",
+        "documentIdOptional": "Document ID (optional)",
+        "enterOtp": "Enter OTP"
+      },
+      "actions": {
+        "creatingHold": "Creating hold...",
+        "continueAsGuest": "Continue as guest",
+        "sendingCode": "Sending code...",
+        "sendOtpCode": "Send OTP code",
+        "resendCode": "Resend code",
+        "confirming": "Confirming...",
+        "verifyAndConfirm": "Verify and confirm"
+      },
+      "done": {
+        "reservationConfirmed": "Reservation confirmed.",
+        "codeLabel": "Code",
+        "manageLinkLabel": "Manage link:",
+        "openReservationManager": "open reservation manager"
+      },
+      "errors": {
+        "invalidDateSelection": "Invalid date selection.",
+        "holdExpired": "Your hold has expired. Please select dates again.",
+        "unableToCreateHold": "Unable to create temporary hold.",
+        "couldNotSendOtp": "Could not send OTP code.",
+        "invalidOtp": "Invalid OTP code.",
+        "holdNoLongerValid": "Your hold is no longer valid.",
+        "couldNotConfirmReservation": "Could not confirm reservation."
+      }
+    },
     "host": {
       "heading": "Meet your host",
       "defaultName": "Host",
@@ -434,6 +535,48 @@
       "noQuestionsMessage": "Be the first to ask a question about this property."
     }
   },
+  "reservationLookup": {
+    "actions": {
+      "searchAnotherCode": "Search with another code",
+      "search": "Search",
+      "searching": "Searching...",
+      "viewProperty": "View Property",
+      "cancelReservation": "Cancel Reservation",
+      "cancelling": "Cancelling..."
+    },
+    "form": {
+      "title": "Find Your Reservation",
+      "subtitle": "Enter your reservation code to view booking details and available actions.",
+      "codeLabel": "Reservation code",
+      "codePlaceholder": "RSV-ABC123"
+    },
+    "details": {
+      "title": "Reservation Details",
+      "codeLabel": "Code:",
+      "propertyLabel": "Property:",
+      "datesLabel": "Dates:",
+      "datesValue": "{{checkIn}} to {{checkOut}}",
+      "statusLabel": "Status:",
+      "guestLabel": "Guest:",
+      "notAvailable": "Not available"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "pending_confirmation": "Pending confirmation",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "messages": {
+      "cancelSuccess": "Reservation cancelled successfully."
+    },
+    "errors": {
+      "invalidCode": "Please enter a valid reservation code (example: RSV-ABC123).",
+      "notFound": "Reservation not found. Check the code and try again.",
+      "expired": "This reservation has expired and can no longer be managed here.",
+      "couldNotFindCode": "Could not find this reservation code.",
+      "cancelFailed": "Could not cancel reservation."
+    }
+  },
   "booking": {
     "checkIn": "Check-in",
     "checkOut": "Check-out",
@@ -451,6 +594,7 @@
     "pendingConfirmedNote": "If you have email enabled, you'll receive confirmation once the booking is approved.",
     "error": "Failed to create booking. Please try again.",
     "loginRequired": "Please log in to make a reservation",
+    "contactForAvailability": "Contact for availability. Booking will be available soon.",
     "selectDates": "Please select check-in and check-out dates",
     "bookingReference": "Booking Reference",
     "close": "Close"
@@ -766,15 +910,11 @@
     },
     "subtitle": "Have a question? We'd love to hear from you.",
     "form": {
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "name": "Name",
       "email": "Email Address",
-      "subject": "Subject",
       "message": "Message",
-      "firstNamePlaceholder": "Enter your first name",
-      "lastNamePlaceholder": "Enter your last name",
+      "namePlaceholder": "Enter your full name",
       "emailPlaceholder": "your@email.com",
-      "subjectPlaceholder": "What is this about?",
       "messagePlaceholder": "Tell us more...",
       "submit": "Send Message",
       "sending": "Sending..."
@@ -798,11 +938,9 @@
       "message": "Thank you for contacting us. We'll get back to you soon."
     },
     "errors": {
-      "firstNameRequired": "First name is required",
-      "lastNameRequired": "Last name is required",
+      "nameRequired": "Name is required",
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email",
-      "subjectRequired": "Subject is required",
       "messageRequired": "Message is required",
       "submitFailed": "Failed to send message. Please try again."
     }

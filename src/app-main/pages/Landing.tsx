@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Layout } from '../../components/layout';
-import { Button } from '../../components/ui';
-import HeroSplit from '../../components/sections/HeroSplit';
-import PropertyCard from '../../components/sections/PropertyCard';
-import Testimonials from '../../components/sections/Testimonials';
-import { getFeaturedProperties, getFavoriteProperties } from '../../services/propertyService';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import ErrorMessage from '../../components/common/ErrorMessage';
-import { useAuth } from '../../hooks/useAuth';
-import { appConfig } from '../config/appConfig';
-import type { Property } from '../../types';
-import { getMemberProfile } from '../../services/memberService';
-import { supabase } from '../../lib/supabase';
+import { Layout } from '../components/layout';
+import { Button } from '../components/ui';
+import HeroSplit from '../components/sections/HeroSplit';
+import { getFeaturedProperties, getFavoriteProperties } from '../services/propertyService';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
+import { useAuth } from '../hooks/useAuth';
+import type { Property } from '../types';
+import { getMemberProfile } from '../services/memberService';
+import { supabase } from '../lib/supabase';
 
 const Landing: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const isLoggedIn = !!user;
-  const showLoggedInAds = isLoggedIn && appConfig.featureFlags.showLandingAds;
 
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,10 +59,7 @@ const Landing: React.FC = () => {
   }, [user]);
 
   const handleToggleWishlist = async (propertyId: string) => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
+    if (!user) return;
 
     try {
       let currentMemberId = memberId;
@@ -126,43 +117,60 @@ const Landing: React.FC = () => {
       {/* Featured Properties Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-8">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-              <span className="font-bold text-gold">{t('landing.featured.title')}</span>
-            </h2>
-            <p className="text-xl text-charcoal max-w-2xl mx-auto">
-              {t('landing.featured.description')}
-            </p>
+          <div className="text-center mb-10">
+            <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('landing.featured.eyebrow')}</p>
+            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-navy">{t('landing.featured.title')}</h2>
+            <p className="mt-3 text-charcoal/80 max-w-3xl mx-auto">{t('landing.featured.description')}</p>
           </div>
 
-          {/* Properties Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
             {loading ? (
               <div className="col-span-full flex justify-center py-12">
                 <LoadingSpinner size="lg" />
               </div>
             ) : error ? (
               <div className="col-span-full">
-                <ErrorMessage message={error} />
+                <ErrorMessage message={t('landing.featured.errors.loadFailed')} />
               </div>
             ) : featuredProperties.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <p className="text-charcoal text-lg">No featured properties available at the moment.</p>
+              <div className="col-span-full text-center py-12 text-charcoal text-lg">
+                {t('landing.featured.empty')}
               </div>
             ) : (
-              featuredProperties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  property={property}
-                  onToggleWishlist={handleToggleWishlist}
-                  isInWishlist={wishlistIds.includes(property.id)}
-                />
-              ))
+              featuredProperties.slice(0, 6).map((property, index) => {
+                const image = property.images?.[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80';
+                return (
+                  <article key={property.id} className="relative min-h-[220px] border border-navy/15 rounded-2xl overflow-hidden bg-navy group">
+                    <Link to={`/property/${property.id}`} className="absolute inset-0 z-10" aria-label={property.title} />
+                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105" style={{ backgroundImage: `url("${image}")` }} />
+                    <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/35" />
+                    <div className="absolute left-4 right-4 bottom-4 z-20 flex items-end justify-between gap-3">
+                      <div>
+                        <h3 className="m-0 text-white text-lg font-semibold">{property.title}</h3>
+                        <p className="m-0 mt-1 text-white/85 text-sm">{property.location}</p>
+                      </div>
+                      {index === 0 && (
+                        <span className="rounded-full px-3 py-1 text-xs font-bold bg-gold text-navy whitespace-nowrap">
+                          {t('landing.featured.popular')}
+                        </span>
+                      )}
+                    </div>
+                    {!!user && (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleWishlist(property.id)}
+                        className="absolute right-3 top-3 z-20 h-9 w-9 rounded-full bg-white/90 text-navy text-base font-bold hover:bg-white"
+                        aria-label={wishlistIds.includes(property.id) ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
+                      >
+                        {wishlistIds.includes(property.id) ? '♥' : '♡'}
+                      </button>
+                    )}
+                  </article>
+                );
+              })
             )}
           </div>
 
-          {/* View All Button */}
           <div className="text-center">
             <Link to="/search">
               <Button variant="outline" size="lg">
@@ -173,270 +181,47 @@ const Landing: React.FC = () => {
         </div>
       </section>
 
-      {!isLoggedIn && (
-        /* How It Works Section */
-        <section className="py-20 bg-warm-gray-light">
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-                {t('landing.howItWorks.title').split(' ')[0]} <span className="font-bold text-gold">{t('landing.howItWorks.title').split(' ').slice(1).join(' ')}</span>
-              </h2>
-              <p className="text-xl text-charcoal max-w-2xl mx-auto">
-                {t('landing.howItWorks.subtitle')}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {/* Step 1 */}
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-gold">
-                  <span className="text-2xl font-bold text-navy">1</span>
-                </div>
-                <h3 className="text-2xl font-semibold text-navy mb-4">{t('landing.howItWorks.steps.1.title')}</h3>
-                <p className="text-charcoal leading-relaxed">
-                  {t('landing.howItWorks.steps.1.description')}
-                </p>
-              </div>
-
-              {/* Step 2 */}
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-gold">
-                  <span className="text-2xl font-bold text-navy">2</span>
-                </div>
-                <h3 className="text-2xl font-semibold text-navy mb-4">{t('landing.howItWorks.steps.2.title')}</h3>
-                <p className="text-charcoal leading-relaxed">
-                  {t('landing.howItWorks.steps.2.description')}
-                </p>
-              </div>
-
-              {/* Step 3 */}
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-gold">
-                  <span className="text-2xl font-bold text-navy">3</span>
-                </div>
-                <h3 className="text-2xl font-semibold text-navy mb-4">{t('landing.howItWorks.steps.3.title')}</h3>
-                <p className="text-charcoal leading-relaxed">
-                  {t('landing.howItWorks.steps.3.description')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {!isLoggedIn && (
-        /* Why Choose Us Section */
-        <section className="py-20 bg-white">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Left Side - Content */}
-            <div>
-              <h2 className="text-4xl md:text-5xl font-thin text-navy mb-6">
-                {t('landing.whyChooseUs.title')}
-              </h2>
-              <p className="text-xl text-charcoal mb-8 leading-relaxed">
-                {t('landing.whyChooseUs.subtitle')}
-              </p>
-
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-navy font-bold text-sm">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.local')}</p>
-                  </div>
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy">{t('landing.platform.title')}</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((card) => (
+              <article key={`platform-${card}`} className="rounded-2xl border border-navy/15 bg-warm-gray p-5 hover:-translate-y-1 hover:shadow-lg transition-all">
+                <div className="w-10 h-10 rounded-full grid place-items-center bg-white text-navy border border-navy/15 font-bold">
+                  {card}
                 </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-navy font-bold text-sm">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.clear')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-navy font-bold text-sm">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.human')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-navy font-bold text-sm">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.simple')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-navy font-bold text-sm">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-charcoal text-lg">{t('landing.whyChooseUs.features.alternative')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-navy font-bold text-sm">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-charcoal text-lg text-gold font-semibold">{t('landing.whyChooseUs.features.trust')}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side - Image */}
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                alt="Luxury holiday experience"
-                className="rounded-3xl shadow-2xl w-full"
-              />
-              <div className="absolute -bottom-6 -left-6 bg-white/95 backdrop-blur-md rounded-2xl p-6 shadow-gold border border-gold/20">
-                <div className="text-3xl font-bold text-navy mb-1">98%</div>
-                <div className="text-sm text-charcoal font-medium">Guest Satisfaction</div>
-              </div>
-            </div>
+                <h3 className="mt-4 mb-2 text-lg font-semibold text-navy">{t(`landing.platform.cards.${card}.title`)}</h3>
+                <p className="m-0 text-sm text-charcoal/85">{t(`landing.platform.cards.${card}.description`)}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
-      )}
 
-      {/* Logged-in user ads (feature-flag controlled) */}
-      {showLoggedInAds && (
-        <section className="py-20 bg-warm-gray-light">
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-                <span className="font-bold text-gold">{t('landing.ads.title')}</span>
-              </h2>
-              <p className="text-xl text-charcoal max-w-2xl mx-auto">
-                {t('landing.ads.subtitle')}
-              </p>
-            </div>
-
-            {/* Insurance partners */}
-            <div className="mb-16">
-              <h3 className="text-2xl font-semibold text-navy mb-6">{t('landing.ads.insurance.title')}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <a href="#" className="block bg-white rounded-2xl p-6 shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                  <div className="w-14 h-14 bg-navy/10 rounded-xl flex items-center justify-center mb-4 text-navy font-bold text-lg">A</div>
-                  <h4 className="text-lg font-semibold text-navy mb-2">{t('landing.ads.insurance.partner1.name')}</h4>
-                  <p className="text-charcoal text-sm">{t('landing.ads.insurance.partner1.tagline')}</p>
-                </a>
-                <a href="#" className="block bg-white rounded-2xl p-6 shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                  <div className="w-14 h-14 bg-navy/10 rounded-xl flex items-center justify-center mb-4 text-navy font-bold text-lg">B</div>
-                  <h4 className="text-lg font-semibold text-navy mb-2">{t('landing.ads.insurance.partner2.name')}</h4>
-                  <p className="text-charcoal text-sm">{t('landing.ads.insurance.partner2.tagline')}</p>
-                </a>
-                <a href="#" className="block bg-white rounded-2xl p-6 shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                  <div className="w-14 h-14 bg-navy/10 rounded-xl flex items-center justify-center mb-4 text-navy font-bold text-lg">C</div>
-                  <h4 className="text-lg font-semibold text-navy mb-2">{t('landing.ads.insurance.partner3.name')}</h4>
-                  <p className="text-charcoal text-sm">{t('landing.ads.insurance.partner3.tagline')}</p>
-                </a>
-              </div>
-            </div>
-
-            {/* Special properties */}
-            <div className="mb-16">
-              <h3 className="text-2xl font-semibold text-navy mb-6">{t('landing.ads.specialProperties.title')}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Link to="/search" className="block group">
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                    <div className="aspect-[4/3] bg-warm-gray-light bg-cover bg-center" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80)' }} />
-                    <div className="p-4">
-                      <h4 className="font-semibold text-navy group-hover:text-gold">{t('landing.ads.specialProperties.property1.title')}</h4>
-                      <p className="text-charcoal text-sm mt-1">{t('landing.ads.specialProperties.property1.location')}</p>
-                      <span className="inline-block mt-2 text-gold text-sm font-medium">{t('landing.ads.specialProperties.explore')}</span>
-                    </div>
-                  </div>
-                </Link>
-                <Link to="/search" className="block group">
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                    <div className="aspect-[4/3] bg-warm-gray-light bg-cover bg-center" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80)' }} />
-                    <div className="p-4">
-                      <h4 className="font-semibold text-navy group-hover:text-gold">{t('landing.ads.specialProperties.property2.title')}</h4>
-                      <p className="text-charcoal text-sm mt-1">{t('landing.ads.specialProperties.property2.location')}</p>
-                      <span className="inline-block mt-2 text-gold text-sm font-medium">{t('landing.ads.specialProperties.explore')}</span>
-                    </div>
-                  </div>
-                </Link>
-                <Link to="/search" className="block group">
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                    <div className="aspect-[4/3] bg-warm-gray-light bg-cover bg-center" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=400&q=80)' }} />
-                    <div className="p-4">
-                      <h4 className="font-semibold text-navy group-hover:text-gold">{t('landing.ads.specialProperties.property3.title')}</h4>
-                      <p className="text-charcoal text-sm mt-1">{t('landing.ads.specialProperties.property3.location')}</p>
-                      <span className="inline-block mt-2 text-gold text-sm font-medium">{t('landing.ads.specialProperties.explore')}</span>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            </div>
-
-            {/* Real estate & travel partners */}
-            <div>
-              <h3 className="text-2xl font-semibold text-navy mb-6">{t('landing.ads.partners.title')}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <a href="#" className="block bg-white rounded-2xl p-6 shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                  <div className="w-14 h-14 bg-gold/20 rounded-xl flex items-center justify-center mb-4 text-navy font-bold text-lg">R</div>
-                  <h4 className="text-lg font-semibold text-navy mb-2">{t('landing.ads.partners.partner1.name')}</h4>
-                  <p className="text-charcoal text-sm">{t('landing.ads.partners.partner1.description')}</p>
-                </a>
-                <a href="#" className="block bg-white rounded-2xl p-6 shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                  <div className="w-14 h-14 bg-gold/20 rounded-xl flex items-center justify-center mb-4 text-navy font-bold text-lg">T</div>
-                  <h4 className="text-lg font-semibold text-navy mb-2">{t('landing.ads.partners.partner2.name')}</h4>
-                  <p className="text-charcoal text-sm">{t('landing.ads.partners.partner2.description')}</p>
-                </a>
-                <a href="#" className="block bg-white rounded-2xl p-6 shadow-md hover:shadow-gold border border-gold/20 transition-shadow">
-                  <div className="w-14 h-14 bg-gold/20 rounded-xl flex items-center justify-center mb-4 text-navy font-bold text-lg">V</div>
-                  <h4 className="text-lg font-semibold text-navy mb-2">{t('landing.ads.partners.partner3.name')}</h4>
-                  <p className="text-charcoal text-sm">{t('landing.ads.partners.partner3.description')}</p>
-                </a>
-              </div>
-            </div>
+      <section className="py-20 bg-warm-gray">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="text-center mb-10">
+            <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('landing.howItWorks.eyebrow')}</p>
+            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-navy">{t('landing.howItWorks.title')}</h2>
+            <p className="mt-3 text-charcoal/80 max-w-3xl mx-auto">{t('landing.howItWorks.subtitle')}</p>
           </div>
-        </section>
-      )}
 
-      {/* Testimonials Section */}
-      <Testimonials />
-
-      {!isLoggedIn && (
-        /* CTA Section */
-        <section className="py-20 bg-navy text-white">
-          <div className="max-w-4xl mx-auto px-8 text-center">
-            <h2 className="text-4xl md:text-5xl font-thin mb-6">
-              {t('landing.cta.title')}
-            </h2>
-            <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">
-              {t('landing.cta.description')}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register">
-                <Button variant="primary" size="lg" className="bg-gold text-navy hover:bg-white hover:text-navy">
-                  Get Started Today
-                </Button>
-              </Link>
-              <Link to="/search">
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-navy">
-                  {t('landing.cta.button')}
-                </Button>
-              </Link>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((step) => (
+              <article key={`how-${step}`} className="rounded-2xl border border-navy/15 bg-white p-5">
+                <div className="w-10 h-10 rounded-full grid place-items-center bg-warm-gray text-navy border border-navy/15 font-bold">
+                  {step}
+                </div>
+                <h3 className="mt-4 mb-2 text-lg font-semibold text-navy">{t(`landing.howItWorks.steps.${step}.title`)}</h3>
+                <p className="m-0 text-sm text-charcoal/85">{t(`landing.howItWorks.steps.${step}.description`)}</p>
+              </article>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
+
     </Layout>
   );
 };

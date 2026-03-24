@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export interface ModalProps {
@@ -18,11 +18,55 @@ const Modal: React.FC<ModalProps> = ({
   size = 'md',
   showCloseButton = true,
 }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !containerRef.current) {
+      return;
+    }
+
+    const focusable = containerRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    } else {
+      containerRef.current.focus();
+    }
+  }, [isOpen]);
+
   // Handle escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && containerRef.current) {
+        const focusable = Array.from(
+          containerRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter((element) => !element.hasAttribute('disabled'));
+
+        if (focusable.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+
+        if (event.shiftKey && active === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
 
@@ -58,10 +102,15 @@ const Modal: React.FC<ModalProps> = ({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
       onClick={handleBackdropClick}
+      role="presentation"
     >
       <div
+        ref={containerRef}
         className={`w-full ${sizeClasses[size]} bg-white rounded-xl shadow-xl transform transition-all duration-300 ease-out`}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
       >
         {/* Header */}
         {(title || showCloseButton) && (
