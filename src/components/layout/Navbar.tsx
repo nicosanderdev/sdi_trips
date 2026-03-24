@@ -12,6 +12,7 @@ const Navbar: React.FC = () => {
   const navItems = [
     { path: '/', labelKey: 'nav.home' },
     { path: '/search', labelKey: 'nav.explore' },
+    { path: '/contact', labelKey: 'nav.contact' },
   ];
 
   const isActive = (path: string) => location.pathname === path;

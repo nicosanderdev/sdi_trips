@@ -3,14 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout';
 import { Card, Button, Input, Textarea } from '../components/ui';
 import { Mail, MessageSquare, Bug, Handshake } from 'lucide-react';
+import { sendContactMessage } from '../services/contactService';
 
 const Contact: React.FC = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
-    subject: '',
     message: ''
   });
 
@@ -26,22 +25,14 @@ const Contact: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = t('contact.errors.firstNameRequired');
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = t('contact.errors.lastNameRequired');
+    if (!formData.name.trim()) {
+      newErrors.name = t('contact.errors.nameRequired');
     }
 
     if (!formData.email.trim()) {
       newErrors.email = t('contact.errors.emailRequired');
     } else if (!validateEmail(formData.email)) {
       newErrors.email = t('contact.errors.emailInvalid');
-    }
-
-    if (!formData.subject.trim()) {
-      newErrors.subject = t('contact.errors.subjectRequired');
     }
 
     if (!formData.message.trim()) {
@@ -70,22 +61,23 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await sendContactMessage({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+      });
 
       // Reset form and show success
       setFormData({
-        firstName: '',
-        lastName: '',
+        name: '',
         email: '',
-        subject: '',
         message: ''
       });
       setIsSuccess(true);
 
       // Hide success message after 5 seconds
       setTimeout(() => setIsSuccess(false), 5000);
-    } catch (error) {
+    } catch {
       setErrors({ submit: t('contact.errors.submitFailed') });
     } finally {
       setIsSubmitting(false);
@@ -191,24 +183,14 @@ const Contact: React.FC = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label={t('contact.form.firstName')}
-                      placeholder={t('contact.form.firstNamePlaceholder')}
-                      value={formData.firstName}
-                      onChange={(value) => handleInputChange('firstName', value)}
-                      error={errors.firstName}
-                      required
-                    />
-                    <Input
-                      label={t('contact.form.lastName')}
-                      placeholder={t('contact.form.lastNamePlaceholder')}
-                      value={formData.lastName}
-                      onChange={(value) => handleInputChange('lastName', value)}
-                      error={errors.lastName}
-                      required
-                    />
-                  </div>
+                  <Input
+                    label={t('contact.form.name')}
+                    placeholder={t('contact.form.namePlaceholder')}
+                    value={formData.name}
+                    onChange={(value) => handleInputChange('name', value)}
+                    error={errors.name}
+                    required
+                  />
 
                   <Input
                     type="email"
@@ -217,15 +199,6 @@ const Contact: React.FC = () => {
                     value={formData.email}
                     onChange={(value) => handleInputChange('email', value)}
                     error={errors.email}
-                    required
-                  />
-
-                  <Input
-                    label={t('contact.form.subject')}
-                    placeholder={t('contact.form.subjectPlaceholder')}
-                    value={formData.subject}
-                    onChange={(value) => handleInputChange('subject', value)}
-                    error={errors.subject}
                     required
                   />
 

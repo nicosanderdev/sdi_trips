@@ -59,9 +59,37 @@ export interface OtpResponse {
   error?: string;
 }
 
+export interface ReservationLookupData {
+  bookingId: string;
+  reservationCode: string;
+  propertyId: string;
+  propertyTitle: string;
+  checkIn: string;
+  checkOut: string;
+  status: string;
+  guestName?: string | null;
+  guestEmail?: string | null;
+  guestPhone?: string | null;
+  canCancel: boolean;
+  isExpired: boolean;
+}
+
+export interface ReservationLookupResponse {
+  success: boolean;
+  reservation?: ReservationLookupData;
+  error?: string;
+}
+
 export interface ConfirmGuestBookingParams {
   holdId: string;
   profile: GuestBookingProfile & { totalPrice?: number };
+}
+
+const RESERVATION_CODE_PATTERN = /^RSV-[A-Z0-9]{6}$/;
+
+export function normalizeReservationCode(code: string): string | null {
+  const normalized = code.trim().toUpperCase();
+  return RESERVATION_CODE_PATTERN.test(normalized) ? normalized : null;
 }
 
 function mapHoldRow(row: Record<string, unknown>): BookingHold {
@@ -318,6 +346,64 @@ export async function cancelBookingByManageToken(token: string, reason?: string)
     };
   } catch (error) {
     console.error('Failed to cancel booking by token:', error);
+    return { success: false, error: 'Failed to cancel reservation.' };
+  }
+}
+
+export async function getReservationByCode(reservationCode: string): Promise<ReservationLookupResponse> {
+  const normalizedCode = normalizeReservationCode(reservationCode);
+  if (!normalizedCode) {
+    return { success: false, error: 'Invalid reservation code format.' };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('get_reservation_by_code', {
+      reservation_code: normalizedCode,
+    });
+
+    if (error) {
+      return { success: false, error: 'Failed to load reservation.' };
+    }
+
+    const payload = data as Record<string, unknown> | null;
+    if (!payload?.success || !payload?.reservation) {
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'Reservation not found.',
+      };
+    }
+
+    return {
+      success: true,
+      reservation: payload.reservation as ReservationLookupData,
+    };
+  } catch (serviceError) {
+    console.error('Failed to get reservation by code:', serviceError);
+    return { success: false, error: 'Failed to load reservation.' };
+  }
+}
+
+export async function cancelReservation(reservationId: string): Promise<CancelBookingResponse> {
+  if (!reservationId) {
+    return { success: false, error: 'Missing reservation id.' };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('cancel_reservation', {
+      reservation_id: reservationId,
+    });
+
+    if (error) {
+      return { success: false, error: 'Failed to cancel reservation.' };
+    }
+
+    const payload = data as Record<string, unknown> | null;
+    return {
+      success: Boolean(payload?.success),
+      error: payload?.success ? undefined : (payload?.error as string | undefined) ?? 'Could not cancel reservation.',
+    };
+  } catch (serviceError) {
+    console.error('Failed to cancel reservation:', serviceError);
     return { success: false, error: 'Failed to cancel reservation.' };
   }
 }

@@ -197,7 +197,7 @@ const HeroSplit: React.FC = () => {
                 {t('landing.hero.cta.search')}
               </Button>
             </Link>
-            <Link to="/profile">
+            <Link to="/reservation-lookup">
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold">
                 {t('landing.hero.cta.manage')}
               </Button>
@@ -207,8 +207,8 @@ const HeroSplit: React.FC = () => {
           <Link to="/privacy" className="inline-block mt-4 text-white/80 underline underline-offset-4 hover:text-white">
             {t('landing.hero.links.security')}
           </Link>
-          <Link to="/contact" className="block mt-3 text-white/80 hover:text-white text-sm">
-            {t('landing.hero.links.contact')}
+          <Link to="/reservation-lookup" className="block mt-3 text-white/80 hover:text-white text-sm">
+            {t('landing.hero.links.reservationLookup')}
           </Link>
         </div>
 

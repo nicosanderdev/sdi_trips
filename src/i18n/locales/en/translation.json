@@ -26,6 +26,7 @@
   "nav": {
     "home": "Home",
     "explore": "Explore",
+    "contact": "Contact",
     "about": "About",
     "terms": "Terms",
     "searchPlaceholder": "Search destinations...",
@@ -135,7 +136,8 @@
       },
       "links": {
         "security": "Security and identification",
-        "contact": "Contact"
+        "contact": "Contact",
+        "reservationLookup": "Find my reservation"
       },
       "story": {
         "title": "Book in minutes",
@@ -533,6 +535,48 @@
       "noQuestionsMessage": "Be the first to ask a question about this property."
     }
   },
+  "reservationLookup": {
+    "actions": {
+      "searchAnotherCode": "Search with another code",
+      "search": "Search",
+      "searching": "Searching...",
+      "viewProperty": "View Property",
+      "cancelReservation": "Cancel Reservation",
+      "cancelling": "Cancelling..."
+    },
+    "form": {
+      "title": "Find Your Reservation",
+      "subtitle": "Enter your reservation code to view booking details and available actions.",
+      "codeLabel": "Reservation code",
+      "codePlaceholder": "RSV-ABC123"
+    },
+    "details": {
+      "title": "Reservation Details",
+      "codeLabel": "Code:",
+      "propertyLabel": "Property:",
+      "datesLabel": "Dates:",
+      "datesValue": "{{checkIn}} to {{checkOut}}",
+      "statusLabel": "Status:",
+      "guestLabel": "Guest:",
+      "notAvailable": "Not available"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "pending_confirmation": "Pending confirmation",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "messages": {
+      "cancelSuccess": "Reservation cancelled successfully."
+    },
+    "errors": {
+      "invalidCode": "Please enter a valid reservation code (example: RSV-ABC123).",
+      "notFound": "Reservation not found. Check the code and try again.",
+      "expired": "This reservation has expired and can no longer be managed here.",
+      "couldNotFindCode": "Could not find this reservation code.",
+      "cancelFailed": "Could not cancel reservation."
+    }
+  },
   "booking": {
     "checkIn": "Check-in",
     "checkOut": "Check-out",
@@ -866,15 +910,11 @@
     },
     "subtitle": "Have a question? We'd love to hear from you.",
     "form": {
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "name": "Name",
       "email": "Email Address",
-      "subject": "Subject",
       "message": "Message",
-      "firstNamePlaceholder": "Enter your first name",
-      "lastNamePlaceholder": "Enter your last name",
+      "namePlaceholder": "Enter your full name",
       "emailPlaceholder": "your@email.com",
-      "subjectPlaceholder": "What is this about?",
       "messagePlaceholder": "Tell us more...",
       "submit": "Send Message",
       "sending": "Sending..."
@@ -898,11 +938,9 @@
       "message": "Thank you for contacting us. We'll get back to you soon."
     },
     "errors": {
-      "firstNameRequired": "First name is required",
-      "lastNameRequired": "Last name is required",
+      "nameRequired": "Name is required",
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email",
-      "subjectRequired": "Subject is required",
       "messageRequired": "Message is required",
       "submitFailed": "Failed to send message. Please try again."
     }

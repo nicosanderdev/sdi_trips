@@ -6,11 +6,13 @@ import { initAnalyticsSession } from './lib/analytics';
 
 // Pages (MVP: Home, Terms, Privacy, Search, Property detail; rest show NotFound)
 import Landing from './pages/Landing';
+import Contact from './pages/Contact';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Search from './pages/Search';
 import PropertyDetail from './pages/PropertyDetail';
 import BookingManage from './pages/BookingManage';
+import ReservationLookup from './pages/ReservationLookup';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -28,8 +30,9 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/booking/manage" element={<BookingManage />} />
+          <Route path="/reservation-lookup" element={<ReservationLookup />} />
           <Route path="/about" element={<NotFound />} />
-          <Route path="/contact" element={<NotFound />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<NotFound />} />
           <Route path="/register" element={<NotFound />} />
           <Route path="/forgot-password" element={<NotFound />} />

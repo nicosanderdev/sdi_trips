@@ -433,15 +433,18 @@ const Search: React.FC = () => {
     popupsRef.current = [];
 
     visibleProperties.forEach((property) => {
+      if (selectedProperty?.id === property.id) {
+        return;
+      }
       const offsetCoordinates = getOffsetCoordinates(property);
       const markerElement = document.createElement('div');
-      markerElement.className = `w-8 h-8 rounded-full border-2 border-white shadow-lg cursor-pointer transition-all ${
-        hoveredProperty === property.id || selectedProperty?.id === property.id
-          ? 'bg-gold scale-125'
-          : 'bg-navy'
+      markerElement.className = `w-10 h-10 rounded-full shadow-lg cursor-pointer transition-all ${
+        hoveredProperty === property.id
+          ? 'bg-gold scale-110'
+          : 'bg-[#1F4D8B]'
       }`;
       markerElement.innerHTML = `
-        <div class="w-full h-full rounded-full border-2 border-white flex items-center justify-center">
+        <div class="w-full h-full rounded-full flex items-center justify-center">
           <span class="text-xs font-bold text-white">$${property.price}</span>
         </div>
       `;
@@ -466,18 +469,18 @@ const Search: React.FC = () => {
       })
         .setLngLat([selectedOffsetCoordinates.lng, selectedOffsetCoordinates.lat])
         .setHTML(`
-          <div class="sdi-map-popup-card">
-            <img src="${selectedProperty.images[0]}" alt="${selectedProperty.title}" class="w-full h-24 object-cover rounded-xl mb-3" />
-            <h3 class="font-semibold text-navy text-sm mb-1 leading-5">${selectedProperty.title}</h3>
-            <p class="text-xs text-charcoal mb-3">${selectedProperty.location}</p>
+          <div class="sdi-map-popup-card flex flex-col gap-2.5">
+            <img src="${selectedProperty.images[0]}" alt="${selectedProperty.title}" class="w-full h-20 object-cover rounded-xl" />
+            <h3 class="font-semibold text-navy text-sm leading-5 max-h-10 overflow-hidden wrap-break-word">${selectedProperty.title}</h3>
+            <p class="text-xs text-charcoal truncate">${selectedProperty.location}</p>
             <div class="flex items-center justify-between">
               <span class="font-bold text-gold">$${selectedProperty.price}${t('search.map.perNight')}</span>
               <div class="flex items-center space-x-1">
                 <span class="text-xs text-charcoal">★ ${selectedProperty.rating}</span>
               </div>
             </div>
-            <a href="/property/${selectedProperty.id}" class="block mt-3">
-              <button class="w-full bg-gold text-navy px-3 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90">
+            <a href="/property/${selectedProperty.id}" class="block mt-1">
+              <button class="w-full bg-gold text-navy px-3 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 active:bg-navy active:text-white cursor-pointer">
                 ${t('search.map.viewDetails')}
               </button>
             </a>
@@ -494,6 +497,9 @@ const Search: React.FC = () => {
     if (!map) return;
 
     const clearApproxZone = () => {
+      if (!map.isStyleLoaded()) {
+        return;
+      }
       if (map.getLayer(APPROX_ZONE_FILL_LAYER_ID)) {
         map.removeLayer(APPROX_ZONE_FILL_LAYER_ID);
       }
@@ -506,6 +512,9 @@ const Search: React.FC = () => {
     };
 
     const renderApproxZone = () => {
+      if (!map.isStyleLoaded()) {
+        return;
+      }
       if (!selectedProperty || map.getZoom() < APPROX_ZONE_MIN_ZOOM) {
         clearApproxZone();
         return;

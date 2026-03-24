@@ -26,6 +26,7 @@
   "nav": {
     "home": "Início",
     "explore": "Explorar",
+    "contact": "Contato",
     "about": "Sobre",
     "terms": "Termos",
     "searchPlaceholder": "Buscar destinos...",
@@ -135,7 +136,8 @@
       },
       "links": {
         "security": "Segurança e identificação",
-        "contact": "Contato"
+        "contact": "Contato",
+        "reservationLookup": "Encontrar minha reserva"
       },
       "story": {
         "title": "Reserve em minutos",
@@ -483,6 +485,48 @@
       "noQuestionsMessage": "Seja o primeiro a fazer uma pergunta sobre esta propriedade."
     }
   },
+  "reservationLookup": {
+    "actions": {
+      "searchAnotherCode": "Buscar com outro código",
+      "search": "Buscar",
+      "searching": "Buscando...",
+      "viewProperty": "Ver propriedade",
+      "cancelReservation": "Cancelar reserva",
+      "cancelling": "Cancelando..."
+    },
+    "form": {
+      "title": "Encontre sua reserva",
+      "subtitle": "Digite seu código de reserva para ver os detalhes e as ações disponíveis.",
+      "codeLabel": "Código da reserva",
+      "codePlaceholder": "RSV-ABC123"
+    },
+    "details": {
+      "title": "Detalhes da reserva",
+      "codeLabel": "Código:",
+      "propertyLabel": "Propriedade:",
+      "datesLabel": "Datas:",
+      "datesValue": "{{checkIn}} a {{checkOut}}",
+      "statusLabel": "Status:",
+      "guestLabel": "Hóspede:",
+      "notAvailable": "Não disponível"
+    },
+    "status": {
+      "confirmed": "Confirmada",
+      "pending_confirmation": "Pendente de confirmação",
+      "cancelled": "Cancelada",
+      "completed": "Finalizada"
+    },
+    "messages": {
+      "cancelSuccess": "Reserva cancelada com sucesso."
+    },
+    "errors": {
+      "invalidCode": "Insira um código de reserva válido (exemplo: RSV-ABC123).",
+      "notFound": "Reserva não encontrada. Verifique o código e tente novamente.",
+      "expired": "Esta reserva expirou e não pode mais ser gerenciada aqui.",
+      "couldNotFindCode": "Não foi possível encontrar este código de reserva.",
+      "cancelFailed": "Não foi possível cancelar a reserva."
+    }
+  },
   "booking": {
     "checkIn": "Check-in",
     "checkOut": "Check-out",
@@ -816,15 +860,11 @@
     },
     "subtitle": "Tem uma pergunta? Adoraríamos ouvir de você.",
     "form": {
-      "firstName": "Nome",
-      "lastName": "Sobrenome",
+      "name": "Nome",
       "email": "Endereço de E-mail",
-      "subject": "Assunto",
       "message": "Mensagem",
-      "firstNamePlaceholder": "Digite seu nome",
-      "lastNamePlaceholder": "Digite seu sobrenome",
+      "namePlaceholder": "Digite seu nome completo",
       "emailPlaceholder": "seu@email.com",
-      "subjectPlaceholder": "Sobre o que é?",
       "messagePlaceholder": "Conte-nos mais...",
       "submit": "Enviar Mensagem",
       "sending": "Enviando..."
@@ -848,11 +888,9 @@
       "message": "Obrigado por nos contactar. Entraremos em contato em breve."
     },
     "errors": {
-      "firstNameRequired": "O nome é obrigatório",
-      "lastNameRequired": "O sobrenome é obrigatório",
+      "nameRequired": "O nome é obrigatório",
       "emailRequired": "O e-mail é obrigatório",
       "emailInvalid": "Por favor, digite um endereço de e-mail válido",
-      "subjectRequired": "O assunto é obrigatório",
       "messageRequired": "A mensagem é obrigatória",
       "submitFailed": "Falha ao enviar mensagem. Por favor, tente novamente."
     }
