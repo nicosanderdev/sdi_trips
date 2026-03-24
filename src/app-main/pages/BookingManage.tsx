@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Layout } from '../components/layout';
-import { Button, Card } from '../components/ui';
-import type { ManageBookingView } from '../types';
-import { cancelBookingByManageToken, getBookingByManageToken } from '../services/bookingService';
+import { Layout } from '../../components/layout';
+import { Button, Card } from '../../components/ui';
+import type { ManageBookingView } from '../../types';
+import { cancelBookingByManageToken, getBookingByManageToken } from '../../services/bookingService';
 
 const BookingManage: React.FC = () => {
   const [searchParams] = useSearchParams();

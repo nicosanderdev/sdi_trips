@@ -2,19 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
-import { Layout } from '../components/layout';
-import { Button, Card, LeaveReviewModal } from '../components/ui';
-import GuestBookingFlow from '../components/sections/GuestBookingFlow';
-import { getPropertyById } from '../services/propertyService';
-import { getUtmSourceAndMedium, trackEvent } from '../lib/analytics';
-import { logPropertyVisit } from '../services/propertyVisitService';
-import { getMemberProfile } from '../services/memberService';
-import { useAuth } from '../hooks/useAuth';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import ErrorMessage from '../components/common/ErrorMessage';
-import { getReviewsByPropertyId, getReviewEligibilityForProperty } from '../services/reviewService';
-import type { PropertyReviewsResult } from '../types';
-import type { Property } from '../types';
+import { Layout } from '../../components/layout';
+import { Button, Card, LeaveReviewModal } from '../../components/ui';
+import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
+import { getPropertyById } from '../../services/propertyService';
+import { getUtmSourceAndMedium, trackEvent } from '../../lib/analytics';
+import { logPropertyVisit } from '../../services/propertyVisitService';
+import { getMemberProfile } from '../../services/memberService';
+import { useAuth } from '../../hooks/useAuth';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import ErrorMessage from '../../components/common/ErrorMessage';
+import { getReviewsByPropertyId, getReviewEligibilityForProperty } from '../../services/reviewService';
+import type { PropertyReviewsResult } from '../../types';
+import type { Property } from '../../types';
 import {
     MapPin,
     Users,

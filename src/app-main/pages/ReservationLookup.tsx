@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Layout } from '../components/layout';
-import ReservationLookupForm from '../components/reservation/ReservationLookupForm';
-import ReservationDetails from '../components/reservation/ReservationDetails';
+import { Layout } from '../../components/layout';
+import ReservationLookupForm from '../../components/reservation/ReservationLookupForm';
+import ReservationDetails from '../../components/reservation/ReservationDetails';
 import {
   cancelReservation,
   getReservationByCode,
   normalizeReservationCode,
   type ReservationLookupData,
-} from '../services/bookingService';
+} from '../../services/bookingService';
 
 function mapLookupError(error: string | undefined, t: (key: string) => string): string {
   if (!error) return t('reservationLookup.errors.couldNotFindCode');

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import { Card, Button, Input, Textarea } from '../../components/ui';
 import { Mail, MessageSquare, Bug, Handshake } from 'lucide-react';
-import { sendContactMessage } from '../services/contactService';
+import { sendContactMessage } from '../../services/contactService';
 
 const Contact: React.FC = () => {
   const { t } = useTranslation();

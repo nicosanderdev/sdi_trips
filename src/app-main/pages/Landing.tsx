@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Layout } from '../components/layout';
-import { Button } from '../components/ui';
-import HeroSplit from '../components/sections/HeroSplit';
-import { getFeaturedProperties, getFavoriteProperties } from '../services/propertyService';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import ErrorMessage from '../components/common/ErrorMessage';
-import { useAuth } from '../hooks/useAuth';
-import type { Property } from '../types';
-import { getMemberProfile } from '../services/memberService';
-import { supabase } from '../lib/supabase';
+import { Layout } from '../../components/layout';
+import { Button } from '../../components/ui';
+import HeroSplit from '../../components/sections/HeroSplit';
+import { getFeaturedProperties, getFavoriteProperties } from '../../services/propertyService';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import ErrorMessage from '../../components/common/ErrorMessage';
+import { useAuth } from '../../hooks/useAuth';
+import type { Property } from '../../types';
+import { getMemberProfile } from '../../services/memberService';
+import { supabase } from '../../lib/supabase';
 
 const Landing: React.FC = () => {
   const { t } = useTranslation();

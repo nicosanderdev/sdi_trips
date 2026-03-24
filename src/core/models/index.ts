@@ -62,6 +62,8 @@ export interface OutlineNumberProps extends BaseComponentProps {
 export interface Property {
   id: string;
   title: string;
+  /** Short line under title on detail page */
+  subtitle?: string;
   location: string;
   price: number;
   currency: string;
@@ -97,6 +99,12 @@ export interface Property {
   /** Location and view metadata */
   locationCategory?: 'rural' | 'city' | 'near_shore' | string;
   viewType?: 'city' | 'mountain' | 'rural' | 'sea' | string;
+  /** Rich detail copy (property detail page) */
+  outdoorDescription?: string;
+  outdoorHighlights?: string;
+  homeLayout?: string;
+  outdoorDetails?: string;
+  neighborhoodDetails?: string;
 }
 
 export interface User {
@@ -108,6 +116,10 @@ export interface User {
   created_at?: string;
   phone?: string;
   needsOnboarding?: boolean;
+  /** Host profile (property detail) */
+  sinceYear?: string | number;
+  bio?: string;
+  responseTimeHours?: number;
 }
 
 export interface Booking {
