@@ -1,22 +1,25 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from '../../core/auth/AuthProvider';
-
-import AltHome from '../pages/AltHome';
-import AltLogin from '../pages/AltLogin';
-import AltProfile from '../pages/AltProfile';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AltLayout } from '../components/layout/AltLayout';
+import AltContact from '../pages/AltContact';
+import AltLanding from '../pages/AltLanding';
 import AltNotFound from '../pages/AltNotFound';
+import AltReservations from '../pages/AltReservations';
+import AltSearchProperties from '../pages/AltSearchProperties';
+import AltTermsAndConditions from '../pages/AltTermsAndConditions';
 
 export function AppAltRouter() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<AltHome />} />
-          <Route path="/login" element={<AltLogin />} />
-          <Route path="/profile" element={<AltProfile />} />
+    <Router>
+      <Routes>
+        <Route element={<AltLayout />}>
+          <Route path="/" element={<AltLanding />} />
+          <Route path="/search" element={<AltSearchProperties />} />
+          <Route path="/contact" element={<AltContact />} />
+          <Route path="/reservations" element={<AltReservations />} />
+          <Route path="/terms-and-conditions" element={<AltTermsAndConditions />} />
           <Route path="*" element={<AltNotFound />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+        </Route>
+      </Routes>
+    </Router>
   );
 }

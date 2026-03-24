@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --open /index-app-main.html",
-    "dev:main": "vite --port 5173 --strictPort --open /index-app-main.html",
-    "dev:alt": "vite --port 5174 --strictPort --open /index-app-alt.html",
+    "dev": "vite --mode main --open /",
+    "dev:main": "vite --mode main --port 5173 --strictPort --open /",
+    "dev:alt": "vite --mode alt --port 5174 --strictPort --open /",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
