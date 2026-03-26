@@ -1,64 +1,7 @@
 import { supabase } from '../lib/supabase';
-import type { Database } from '../types/supabase';
+import type { RpcSummerRentPropertyRow } from '../models/summerRentProperty';
 import type { Property } from '../types';
 import { getRatingsForProperties } from './reviewService';
-
-type DbProperty = Database['public']['Tables']['EstateProperties']['Row'];
-type DbListing = Database['public']['Tables']['Listings']['Row'];
-
-/**
- * Shape returned by get_public_summer_rent_properties / get_public_summer_rent_property_by_id.
- * Must stay in sync with the SQL migrations.
- */
-interface RpcSummerRentPropertyRow {
-  EstatePropertyId: string;
-  Title: string;
-  StreetName: string | null;
-  HouseNumber: string | null;
-  Neighborhood: string | null;
-  City: string | null;
-  State: string | null;
-  Country: string | null;
-  LocationLatitude: number;
-  LocationLongitude: number;
-  Bedrooms: number;
-  Bathrooms: number;
-  HasGarage: boolean;
-  GarageSpaces: number;
-  Visits: number | null;
-  OwnerId: string | null;
-  PropertyType: DbProperty['PropertyType'];
-  HasLaundryRoom: boolean;
-  HasPool: boolean;
-  HasBalcony: boolean;
-  IsFurnished: boolean;
-  Capacity: number | null;
-  LocationCategory: DbProperty['LocationCategory'];
-  ViewType: DbProperty['ViewType'];
-  ListingId: string;
-  ListingType: DbListing['ListingType'];
-  ListingDescription: string | null;
-  AvailableFrom: string;
-  ListingCapacity: number | null;
-  Currency: number;
-  SalePrice: number | null;
-  RentPrice: number | null;
-  HasCommonExpenses: boolean;
-  CommonExpensesValue: number | null;
-  IsElectricityIncluded: boolean | null;
-  IsWaterIncluded: boolean | null;
-  IsPriceVisible: boolean;
-  Status: number;
-  IsActive: boolean;
-  IsPropertyVisible: boolean;
-  IsFeatured: boolean;
-  BlockedForBooking: boolean;
-  MinStayDays: number | null;
-  MaxStayDays: number | null;
-  LeadTimeDays: number | null;
-  BufferDays: number | null;
-  AmenityNames: string[] | null;
-}
 
 export interface PropertyFilters {
   priceRange?: [number, number];
@@ -79,8 +22,6 @@ export interface PropertySearchResult {
  */
 function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
   const location = [
-    row.StreetName,
-    row.HouseNumber,
     row.Neighborhood,
     row.City,
     row.State,
@@ -97,7 +38,7 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
 
   return {
     id: row.EstatePropertyId,
-    title: row.Title,
+    title: row.Title ?? 'Untitled property',
     location: location || 'Location not specified',
     price: row.RentPrice || row.SalePrice || 0,
     currency: getCurrencyCode(row.Currency),

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { DateAvailability, PropertyBookingRules } from '../types';
+import type { BookingSelectionValidation, DateAvailability, PropertyBookingRules } from '../types';
 
 /**
  * Get property availability for a date range
@@ -34,15 +34,18 @@ export async function getPropertyAvailability(
 /**
  * Transform raw availability data from Supabase to frontend format
  */
-export function transformAvailabilityData(data: any[]): DateAvailability[] {
+export function transformAvailabilityData(data: unknown[]): DateAvailability[] {
   if (!Array.isArray(data)) {
     return [];
   }
 
-  return data.map(item => ({
-    date: item.date,
-    status: item.is_available ? 'available' : 'blocked' as const
-  }));
+  return data.map((item) => {
+    const row = item as { date?: string; is_available?: boolean };
+    return {
+      date: row.date ?? '',
+      status: row.is_available ? 'available' : 'blocked' as const
+    };
+  });
 }
 
 /**
@@ -149,4 +152,45 @@ export function getEarliestAvailableDate(leadTimeDays?: number): Date {
     date.setDate(date.getDate() + leadTimeDays);
   }
   return date;
+}
+
+/**
+ * Validate a booking selection against server-side rules and availability.
+ */
+export async function validateBookingSelection(
+  propertyId: string,
+  checkIn: Date,
+  checkOut: Date,
+  guests: number
+): Promise<BookingSelectionValidation> {
+  try {
+    const { data, error } = await supabase.rpc('validate_booking_selection', {
+      p_property_id: propertyId,
+      p_check_in: checkIn.toISOString().split('T')[0],
+      p_check_out: checkOut.toISOString().split('T')[0],
+      p_guests: guests,
+    });
+
+    if (error) {
+      console.error('Error validating booking selection:', error);
+      return {
+        isValid: false,
+        errors: ['Failed to validate booking selection. Please try again.'],
+      };
+    }
+
+    const response = data as Record<string, unknown> | null;
+    return {
+      isValid: Boolean(response?.is_valid),
+      errors: Array.isArray(response?.errors) ? (response.errors as string[]) : [],
+      pricing: (response?.pricing as BookingSelectionValidation['pricing']) ?? undefined,
+      normalized_rules: (response?.normalized_rules as BookingSelectionValidation['normalized_rules']) ?? undefined,
+    };
+  } catch (error) {
+    console.error('Failed to validate booking selection:', error);
+    return {
+      isValid: false,
+      errors: ['Unexpected validation error. Please try again.'],
+    };
+  }
 }

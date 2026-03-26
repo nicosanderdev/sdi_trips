@@ -1,0 +1,25 @@
+/* Venue alt palette: overrides @theme tokens for descendants of .alt-site */
+
+.alt-site {
+  --color-navy: #2b2b2b;
+  --color-charcoal: #2b2b2b;
+  --color-gold: #f23e50;
+  --color-gold-dark: #d93647;
+  --color-warm-gray: #f3e9dd;
+  --color-warm-gray-light: #efe4d6;
+  --color-venue-accent: #1a936f;
+  --shadow-gold: 0 4px 14px 0 rgba(242, 62, 80, 0.15);
+  --shadow-gold-lg: 0 10px 25px 0 rgba(242, 62, 80, 0.2);
+}
+
+@layer utilities {
+  .text-venue-accent {
+    color: var(--color-venue-accent);
+  }
+  .bg-venue-accent {
+    background-color: var(--color-venue-accent);
+  }
+  .border-venue-accent {
+    border-color: var(--color-venue-accent);
+  }
+}

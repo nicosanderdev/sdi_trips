@@ -1,7 +1,4 @@
-/**
- * Log property page views to Supabase PropertyVisitLogs.
- * Throttled per property + session so refreshes don't inflate counts.
- */
+export * from '../core/services/propertyVisitService';
 
 import { supabase } from '../lib/supabase';
 

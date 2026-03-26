@@ -1,0 +1,284 @@
+{
+  "layout": {
+    "documentTitle": "VenueSpace — Event venues"
+  },
+  "brand": {
+    "venue": "Venue",
+    "space": "Space",
+    "full": "VenueSpace"
+  },
+  "nav": {
+    "mainNavAria": "Main navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "languageSelectAria": "Language"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "pt": "Português"
+  },
+  "landing": {
+    "hero": {
+      "title": "Find the venue your guests will remember",
+      "subtitle": "Weddings, corporate events, and private parties—discover spaces with clear capacity, amenities, and transparent pricing hints.",
+      "searchPlaceholder": "Search by city or venue style",
+      "searchAria": "Search venues",
+      "searchCta": "Search venues",
+      "badgeCurated": "Curated listings",
+      "badgeCapacity": "Capacity & layout notes",
+      "badgeHoldDemo": "Date hold demo",
+      "exploreCta": "Explore venues",
+      "talkCta": "Talk to us",
+      "storiesHeading": "Planner & host stories",
+      "storyDotAria": "Show story {{n}}",
+      "slides": {
+        "0": {
+          "quote": "Our wedding felt effortless—the team handled the flip from ceremony to reception in under an hour."
+        },
+        "1": {
+          "quote": "We hosted a product launch for 150 guests. AV, load-in, and security were dialed in from day one."
+        },
+        "2": {
+          "quote": "The ballroom photos at golden hour were unreal. Guests are still talking about the dance floor."
+        }
+      }
+    },
+    "occasions": {
+      "eyebrow": "Every occasion",
+      "heading": "Built for your event type",
+      "sub": "Same rigor as a hospitality platform—applied to venues you can actually book."
+    },
+    "features": {
+      "weddings": {
+        "title": "Weddings",
+        "description": "Ceremony and reception spaces with room for your traditions, timeline, and dance floor."
+      },
+      "corporate": {
+        "title": "Corporate",
+        "description": "Summits, offsites, and client dinners with flexible seating and professional AV options."
+      },
+      "parties": {
+        "title": "Parties",
+        "description": "Milestones, fundraisers, and celebrations with capacity and layout options to match."
+      }
+    },
+    "popular": {
+      "eyebrow": "Featured",
+      "heading": "Popular venues this season",
+      "sub": "Hand-picked spaces with strong lighting, flow, and guest experience.",
+      "popularBadge": "Popular",
+      "guestsLine": "Up to {{count}} guests · {{priceHint}}",
+      "cta": "Find your perfect venue"
+    },
+    "howItWorks": {
+      "heading": "How it works",
+      "sub": "A simple path from discovery to a confident hold request.",
+      "step1Title": "Browse venues",
+      "step1Desc": "Filter by capacity, event type, and location across curated listings.",
+      "step2Title": "Compare details",
+      "step2Desc": "Review amenities, layouts, and pricing hints before you reach out.",
+      "step3Title": "Hold your date",
+      "step3Desc": "Pick event dates on the calendar and submit a hold request (demo UI).",
+      "step4Title": "Plan with confidence",
+      "step4Desc": "Work with venue coordinators using clear policies and timelines."
+    },
+    "ctaBand": {
+      "titleBefore": "Ready to ",
+      "titleHighlight": "shortlist",
+      "titleAfter": " your venue?",
+      "sub": "Browse the full catalog, compare capacity, and open any listing to try the date picker (demo).",
+      "button": "Start browsing"
+    }
+  },
+  "search": {
+    "heroTitleBefore": "Discover ",
+    "heroTitleHighlight": "venues",
+    "heroTitleAfter": " for your event",
+    "heroSub": "No map—just a focused list. Use filters to narrow the grid (demo UI; refine logic as you like).",
+    "filtersHeading": "Filters",
+    "filtersHint": "Filters update the list below for quick exploration.",
+    "eventType": "Event type",
+    "capacity": "Capacity",
+    "priceTier": "Price hint",
+    "resetFilters": "Reset filters",
+    "optionAny": "Any",
+    "eventWedding": "Weddings",
+    "eventCorporate": "Corporate",
+    "eventParty": "Parties",
+    "eventWorkshop": "Workshops",
+    "capSmall": "Up to 80",
+    "capMedium": "81 – 150",
+    "capLarge": "151+",
+    "priceBudget": "Under ~$3k",
+    "pricePremium": "$4k+",
+    "resultsLine": "Showing {{count}} venues",
+    "guestsUpTo": "Up to {{count}} guests",
+    "viewDetails": "View details"
+  },
+  "venueDetail": {
+    "notFoundTitle": "Venue not found",
+    "notFoundBody": "This listing may have moved. Browse all venues to keep exploring.",
+    "backToVenues": "Back to venues",
+    "curatedBadge": "VenueSpace curated",
+    "guestsCount": "Up to {{count}} guests",
+    "eventCategoriesCount": "{{count}} event categories",
+    "whyWorks": "Why this space works",
+    "capacityLayoutTitle": "Capacity & layout",
+    "capacityLayoutDesc": "Up to {{capacity}} guests. {{layoutNotes}}",
+    "eventTypesTitle": "Event types",
+    "pricingHintTitle": "Pricing hint",
+    "pricingHintDesc": "{{priceHint}}. {{suffix}}",
+    "pricingHintSuffix": "Final quotes depend on date, staffing, and add-ons.",
+    "amenities": "Amenities",
+    "policies": "Policies & logistics",
+    "prevImage": "Previous image",
+    "nextImage": "Next image",
+    "coordinatorTeam": "Venue team",
+    "coordinatorNames": "Alex & Jordan",
+    "coordinatorRole": "Coordinators for this listing (demo)",
+    "coordinatorBullet1": "Site visit windows available",
+    "coordinatorBullet2": "Preferred vendor list on request",
+    "messageVenue": "Message the venue",
+    "startingFrom": "Starting from",
+    "taxesNote": "Taxes, staffing, and rentals may apply.",
+    "checkAvailability": "Check availability",
+    "calendarDemoNote": "Select event dates (demo calendar—no backend). This uses the same date picker styling as the main site.",
+    "eventStart": "Event start",
+    "eventEnd": "Event end",
+    "placeholderStart": "Select start date",
+    "placeholderEnd": "Select end date",
+    "requestHoldDemo": "Request a hold (demo)"
+  },
+  "contact": {
+    "heroTitleBefore": "Let's plan ",
+    "heroTitleHighlight": "something memorable",
+    "heroSub": "Tell us about your event. This form is UI-only—nothing is sent to a server in this demo.",
+    "whyHeading": "Why reach out",
+    "reasonPlanningTitle": "Event planning",
+    "reasonPlanningDesc": "Ask about capacity, load-in, or timeline for your wedding or corporate program.",
+    "reasonVenueTitle": "Venue partnerships",
+    "reasonVenueDesc": "List a new space or update imagery and pricing hints for our catalog.",
+    "reasonSponsorTitle": "Sponsorships",
+    "reasonSponsorDesc": "Collaborate on city guides, open houses, or industry events.",
+    "directLineHeading": "Direct line",
+    "directLineBody": "hello@venuespace.example · We typically reply within one business day.",
+    "successTitle": "Thanks for your note",
+    "successBody": "In a live app, we would route this to your inbox. Here, it's a static demo only.",
+    "messagePlaceholder": "Event date, guest count, venue style…",
+    "submitDemo": "Send message (demo)",
+    "listVenueHeading": "List your venue",
+    "listVenueSub": "Join curated collections for planners searching by capacity, aesthetic, and neighborhood.",
+    "partnerDemo": "Partner inquiry (demo)"
+  },
+  "terms": {
+    "heroTitleBefore": "Terms & ",
+    "heroTitleHighlight": "conditions",
+    "heroSub": "Venue rental context, written for the Alt demo. Not legal advice—have counsel review production terms.",
+    "lastUpdated": "Last updated",
+    "footerTitle": "Still unsure?",
+    "footerBody": "Reach out through the contact page—we're happy to clarify how the demo works.",
+    "footerCta": "Contact",
+    "sections": [
+      {
+        "id": "acceptance",
+        "title": "Acceptance of terms",
+        "paragraphs": [
+          "By accessing VenueSpace (demo), you agree to these terms. If you do not agree, please discontinue use of the site.",
+          "Content is provided for illustration. Availability, pricing, and policies on live listings may differ."
+        ]
+      },
+      {
+        "id": "services",
+        "title": "Nature of the service",
+        "paragraphs": [
+          "VenueSpace is a discovery layer for event venues. We do not guarantee third-party performance, staffing, or permitting."
+        ],
+        "bullets": [
+          "Listings may include approximate capacity and pricing hints.",
+          "Contracts are between you and the venue unless otherwise stated in writing.",
+          "Hold requests in the demo UI are not stored or transmitted."
+        ]
+      },
+      {
+        "id": "bookings",
+        "title": "Bookings, deposits, and cancellations",
+        "paragraphs": [
+          "Real bookings would be governed by each venue's contract. Deposits, payment schedules, and force-majeure clauses should be reviewed with your legal and finance teams.",
+          "For this demo, no payment processing occurs and no reservation is created."
+        ]
+      },
+      {
+        "id": "conduct",
+        "title": "Acceptable use & conduct",
+        "paragraphs": [
+          "Users agree not to misuse the platform: no scraping that harms site performance, no unlawful activity, and no harassment of venues or staff.",
+          "We may suspend demo access for behavior that risks security or integrity."
+        ]
+      },
+      {
+        "id": "liability",
+        "title": "Liability",
+        "paragraphs": [
+          "To the fullest extent permitted by law, VenueSpace (demo) disclaims warranties and limits liability for indirect or consequential damages arising from use of the site or reliance on sample content."
+        ]
+      },
+      {
+        "id": "changes",
+        "title": "Changes",
+        "paragraphs": [
+          "We may update these terms periodically. Continued use after changes constitutes acceptance of the revised terms."
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Contact",
+        "paragraphs": ["Questions about these terms (demo):"],
+        "contactEmailLabel": "Email",
+        "contactMailLabel": "Mail",
+        "contactEmail": "legal@venuespace.example",
+        "contactAddress": "400 Event Row, Austin, TX"
+      }
+    ]
+  },
+  "footer": {
+    "email": "hello@venuespace.example",
+    "phone": "+1 (555) 010-2030",
+    "address": "Austin, TX",
+    "tagline": "Find and book exceptional event venues for weddings, corporate gatherings, and celebrations. Curated spaces with transparent capacity and pricing hints.",
+    "companyHeading": "Company",
+    "termsLink": "Terms & conditions",
+    "exploreHeading": "Explore",
+    "browseVenues": "Browse venues",
+    "weddingVenues": "Wedding venues",
+    "corporateEvents": "Corporate events",
+    "privateParties": "Private parties",
+    "copyright": "© {{year}} VenueSpace. All rights reserved.",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "instagram": "Instagram"
+  },
+  "reservations": {
+    "titleBefore": "Your ",
+    "titleHighlight": "reservations",
+    "subtitle": "Demo view of holds and bookings. Status chips help you scan what is upcoming, completed, or cancelled.",
+    "colVenue": "Venue",
+    "colDate": "Date",
+    "colGuests": "Guests",
+    "colStatus": "Status",
+    "viewVenues": "View venues",
+    "guestsCount": "{{count}} guests",
+    "statusUpcoming": "Upcoming",
+    "statusPast": "Past",
+    "statusCancelled": "Cancelled",
+    "ctaQuestion": "Need another date or venue?",
+    "ctaBrowse": "Browse venues"
+  },
+  "notFound": {
+    "code": "404",
+    "titleBefore": "This page isn't on the ",
+    "titleHighlight": "guest list",
+    "body": "The link may be outdated, or the venue page moved. Head home to keep browsing beautiful event spaces.",
+    "cta": "Back to homepage"
+  }
+}
