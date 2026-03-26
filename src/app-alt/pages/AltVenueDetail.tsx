@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
+import { useTranslation } from 'react-i18next';
+import { enUS, es as esLocale, ptBR } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
 import { Button, Card } from '../../components/ui';
 import {
   MapPin,
@@ -12,11 +15,18 @@ import {
   Sparkles,
   MessageCircle,
 } from 'lucide-react';
-import { getVenueById } from '../data/staticVenues';
+import { getLocalizedVenueById } from '../data/venueLocale';
+
+function datePickerLocale(i18nLang: string): Locale {
+  if (i18nLang.startsWith('pt')) return ptBR;
+  if (i18nLang.startsWith('es')) return esLocale;
+  return enUS;
+}
 
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
-  const venue = id ? getVenueById(id) : undefined;
+  const { t, i18n } = useTranslation();
+  const venue = id ? getLocalizedVenueById(id, t) : undefined;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [galleryOpacity, setGalleryOpacity] = useState(1);
@@ -39,32 +49,35 @@ export default function AltVenueDetail() {
     }, 200);
   };
 
+  const dfLocale = datePickerLocale(i18n.language);
+
   if (!venue) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
-        <h1 className="text-2xl font-bold text-navy mb-4">Venue not found</h1>
-        <p className="text-charcoal mb-6 text-center max-w-md">This listing may have moved. Browse all venues to keep exploring.</p>
+        <h1 className="text-2xl font-bold text-navy mb-4">{t('alt.venueDetail.notFoundTitle')}</h1>
+        <p className="text-charcoal mb-6 text-center max-w-md">{t('alt.venueDetail.notFoundBody')}</p>
         <Link to="/search">
-          <Button variant="primary">Back to venues</Button>
+          <Button variant="primary">{t('alt.venueDetail.backToVenues')}</Button>
         </Link>
       </div>
     );
   }
 
+  const suffix = t('alt.venueDetail.pricingHintSuffix');
   const attributeBlocks = [
     {
-      title: 'Capacity & layout',
-      description: `Up to ${venue.capacity} guests. ${venue.layoutNotes}`,
+      title: t('alt.venueDetail.capacityLayoutTitle'),
+      description: t('alt.venueDetail.capacityLayoutDesc', { capacity: venue.capacity, layoutNotes: venue.layoutNotes }),
       icon: <Users className="h-6 w-6 text-gold" />,
     },
     {
-      title: 'Event types',
+      title: t('alt.venueDetail.eventTypesTitle'),
       description: venue.eventTypes.join(' · '),
       icon: <Sparkles className="h-6 w-6 text-gold" />,
     },
     {
-      title: 'Pricing hint',
-      description: `${venue.priceHint}. Final quotes depend on date, staffing, and add-ons.`,
+      title: t('alt.venueDetail.pricingHintTitle'),
+      description: t('alt.venueDetail.pricingHintDesc', { priceHint: venue.priceHint, suffix }),
       icon: <CalendarDays className="h-6 w-6 text-gold" />,
     },
   ];
@@ -75,7 +88,7 @@ export default function AltVenueDetail() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-charcoal">
           <Link to="/search" className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
             <ChevronLeft className="h-4 w-4" />
-            <span>Back to venues</span>
+            <span>{t('alt.venueDetail.backToVenues')}</span>
           </Link>
           <div className="flex items-center gap-2 text-sm text-charcoal/80">
             <MapPin className="h-4 w-4 text-gold" />
@@ -100,7 +113,7 @@ export default function AltVenueDetail() {
                     transitionThenSetIndex((displayImageIndex - 1 + heroImageCount) % heroImageCount)
                   }
                   className="absolute top-1/2 left-6 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-lg transition-colors hover:bg-white"
-                  aria-label="Previous image"
+                  aria-label={t('alt.venueDetail.prevImage')}
                 >
                   <ChevronLeft className="h-5 w-5 text-navy" />
                 </button>
@@ -108,7 +121,7 @@ export default function AltVenueDetail() {
                   type="button"
                   onClick={() => transitionThenSetIndex((displayImageIndex + 1) % heroImageCount)}
                   className="absolute top-1/2 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-lg transition-colors hover:bg-white"
-                  aria-label="Next image"
+                  aria-label={t('alt.venueDetail.nextImage')}
                 >
                   <ChevronRight className="h-5 w-5 text-navy" />
                 </button>
@@ -142,7 +155,7 @@ export default function AltVenueDetail() {
                 <MapPin className="h-4 w-4 text-gold" />
                 <span>{venue.location}</span>
                 <span aria-hidden>•</span>
-                <span className="text-venue-accent font-medium">VenueSpace curated</span>
+                <span className="text-venue-accent font-medium">{t('alt.venueDetail.curatedBadge')}</span>
               </div>
               <h1 className="text-4xl font-thin leading-tight text-navy">{venue.name}</h1>
               <p className="max-w-3xl text-lg text-charcoal">{venue.subtitle}</p>
@@ -151,16 +164,16 @@ export default function AltVenueDetail() {
               <div className="flex flex-wrap gap-6 text-sm text-charcoal">
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-gold" />
-                  <span>Up to {venue.capacity} guests</span>
+                  <span>{t('alt.venueDetail.guestsCount', { count: venue.capacity })}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-venue-accent" />
-                  <span>{venue.eventTypes.length} event categories</span>
+                  <span>{t('alt.venueDetail.eventCategoriesCount', { count: venue.eventTypes.length })}</span>
                 </div>
               </div>
 
               <section className="space-y-4 pt-4">
-                <h2 className="text-2xl font-semibold text-navy">Why this space works</h2>
+                <h2 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.whyWorks')}</h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   {attributeBlocks.map((item) => (
                     <div
@@ -177,7 +190,7 @@ export default function AltVenueDetail() {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-navy">Amenities</h3>
+                  <h3 className="text-lg font-semibold text-navy">{t('alt.venueDetail.amenities')}</h3>
                   <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                     {venue.amenities.map((a) => (
                       <div
@@ -192,7 +205,7 @@ export default function AltVenueDetail() {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-navy">Policies & logistics</h3>
+                  <h3 className="text-lg font-semibold text-navy">{t('alt.venueDetail.policies')}</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {venue.policies.map((p) => (
                       <div key={p.title} className="rounded-2xl border border-navy/10 bg-white p-4">
@@ -214,19 +227,19 @@ export default function AltVenueDetail() {
                     className="h-16 w-16 rounded-full object-cover"
                   />
                   <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-charcoal/70">Venue team</p>
-                    <h3 className="text-xl font-semibold text-navy">Alex & Jordan</h3>
-                    <p className="text-sm text-charcoal">Coordinators for this listing (demo)</p>
+                    <p className="text-xs uppercase tracking-[0.25em] text-charcoal/70">{t('alt.venueDetail.coordinatorTeam')}</p>
+                    <h3 className="text-xl font-semibold text-navy">{t('alt.venueDetail.coordinatorNames')}</h3>
+                    <p className="text-sm text-charcoal">{t('alt.venueDetail.coordinatorRole')}</p>
                   </div>
                 </div>
                 <div className="space-y-2 text-sm text-charcoal">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-gold" />
-                    <span>Site visit windows available</span>
+                    <span>{t('alt.venueDetail.coordinatorBullet1')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-gold" />
-                    <span>Preferred vendor list on request</span>
+                    <span>{t('alt.venueDetail.coordinatorBullet2')}</span>
                   </div>
                 </div>
                 <Link
@@ -234,27 +247,25 @@ export default function AltVenueDetail() {
                   className="flex items-center justify-center gap-2 rounded-full border border-warm-gray px-4 py-2 text-sm font-medium text-navy hover:border-gold transition-colors"
                 >
                   <MessageCircle className="h-4 w-4 text-venue-accent" />
-                  Message the venue
+                  {t('alt.venueDetail.messageVenue')}
                 </Link>
               </Card>
 
               <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(43,43,43,0.35)]">
                 <div className="space-y-1 text-center">
-                  <p className="text-xs uppercase tracking-[0.35em] text-charcoal/70">Starting from</p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-charcoal/70">{t('alt.venueDetail.startingFrom')}</p>
                   <div className="text-2xl font-semibold text-navy">{venue.priceHint}</div>
-                  <p className="text-sm text-charcoal">Taxes, staffing, and rentals may apply.</p>
+                  <p className="text-sm text-charcoal">{t('alt.venueDetail.taxesNote')}</p>
                 </div>
                 <Button variant="primary" size="lg" className="w-full" type="button" onClick={() => setShowCalendar((s) => !s)}>
-                  Check availability
+                  {t('alt.venueDetail.checkAvailability')}
                 </Button>
 
                 {showCalendar && (
                   <div className="pt-4 border-t border-warm-gray space-y-4">
-                    <p className="text-xs text-charcoal/80">
-                      Select event dates (demo calendar—no backend). This uses the same date picker styling as the main site.
-                    </p>
+                    <p className="text-xs text-charcoal/80">{t('alt.venueDetail.calendarDemoNote')}</p>
                     <div>
-                      <label className="block text-sm font-medium text-navy mb-2">Event start</label>
+                      <label className="block text-sm font-medium text-navy mb-2">{t('alt.venueDetail.eventStart')}</label>
                       <DatePicker
                         selected={checkIn}
                         onChange={(date) => {
@@ -265,14 +276,15 @@ export default function AltVenueDetail() {
                         startDate={checkIn}
                         endDate={checkOut}
                         minDate={minDate}
-                        placeholderText="Select start date"
+                        placeholderText={t('alt.venueDetail.placeholderStart')}
                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold focus:border-transparent"
                         calendarClassName="custom-datepicker"
-                        dateFormat="MMM d, yyyy"
+                        dateFormat="PPP"
+                        locale={dfLocale}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-navy mb-2">Event end</label>
+                      <label className="block text-sm font-medium text-navy mb-2">{t('alt.venueDetail.eventEnd')}</label>
                       <DatePicker
                         selected={checkOut}
                         onChange={(date) => setCheckOut(date)}
@@ -281,10 +293,11 @@ export default function AltVenueDetail() {
                         endDate={checkOut}
                         minDate={checkIn ?? minDate}
                         disabled={!checkIn}
-                        placeholderText="Select end date"
+                        placeholderText={t('alt.venueDetail.placeholderEnd')}
                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         calendarClassName="custom-datepicker"
-                        dateFormat="MMM d, yyyy"
+                        dateFormat="PPP"
+                        locale={dfLocale}
                       />
                     </div>
                     <Button
@@ -295,7 +308,7 @@ export default function AltVenueDetail() {
                         /* demo only */
                       }}
                     >
-                      Request a hold (demo)
+                      {t('alt.venueDetail.requestHoldDemo')}
                     </Button>
                   </div>
                 )}

@@ -105,6 +105,23 @@
       "loginFailed": "Falha ao fazer login. Por favor, tente novamente.",
       "registrationFailed": "Falha no cadastro. Por favor, tente novamente.",
       "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."
+    },
+    "forgotPasswordPage": {
+      "backToSignIn": "Voltar ao login",
+      "checkEmailTitle": "Verifique seu e-mail",
+      "checkEmailIntro": "Enviamos um link para redefinir a senha para",
+      "resendHint": "Não recebeu o e-mail? Verifique o spam ou",
+      "tryAgain": "tente novamente",
+      "forgotTitle": "Esqueceu sua senha?",
+      "forgotSubtitle": "Sem problemas. Digite seu e-mail e enviaremos um link para redefinir.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "Digite seu e-mail",
+      "sendResetLink": "Enviar link",
+      "sending": "Enviando...",
+      "rememberPassword": "Lembra da sua senha?",
+      "needHelp": "Precisa de ajuda?",
+      "havingTrouble": "Com dificuldades?",
+      "contactSupport": "Contatar suporte"
     }
   },
   "landing": {
@@ -756,8 +773,13 @@
     "verification": {
       "title": "Autenticação de Dois Fatores",
       "description": "Digite o código de 6 dígitos do seu aplicativo autenticador",
+      "codeLabel": "Digite o código de 6 dígitos do seu aplicativo autenticador",
       "verify": "Verificar",
+      "verifying": "Verificando...",
+      "incompleteCode": "Digite o código completo de 6 dígitos",
+      "verifyFailed": "A verificação falhou. Tente novamente.",
       "invalid": "Código inválido. Por favor tente novamente.",
+      "invalidCodeFallback": "Código de autenticação inválido",
       "required": "Verificação 2FA necessária para fazer login"
     },
     "management": {

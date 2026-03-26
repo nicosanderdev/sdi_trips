@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui';
 import { Calendar, MapPin } from 'lucide-react';
 
@@ -47,28 +48,37 @@ const rows: {
 ];
 
 function StatusPill({ status }: { status: ReservationStatus }) {
+  const { t } = useTranslation();
   const map = {
     upcoming: 'bg-venue-accent/15 text-venue-accent border-venue-accent/30',
     past: 'bg-navy/10 text-navy border-navy/15',
     cancelled: 'bg-gold/15 text-gold border-gold/30',
   } as const;
-  const label = status === 'upcoming' ? 'Upcoming' : status === 'past' ? 'Past' : 'Cancelled';
+  const label =
+    status === 'upcoming'
+      ? t('alt.reservations.statusUpcoming')
+      : status === 'past'
+        ? t('alt.reservations.statusPast')
+        : t('alt.reservations.statusCancelled');
   return (
-    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${map[status]}`}>{label}</span>
+    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${map[status]}`}>
+      {label}
+    </span>
   );
 }
 
 export default function AltReservations() {
+  const { t } = useTranslation();
+
   return (
     <>
       <section className="py-20 bg-linear-to-br from-warm-gray-light to-white border-b border-navy/10">
         <div className="max-w-4xl mx-auto px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-            Your <span className="font-bold text-gold">reservations</span>
+            {t('alt.reservations.titleBefore')}
+            <span className="font-bold text-gold">{t('alt.reservations.titleHighlight')}</span>
           </h1>
-          <p className="text-lg text-charcoal/90 max-w-2xl mx-auto">
-            Demo view of holds and bookings. Status chips help you scan what is upcoming, completed, or cancelled.
-          </p>
+          <p className="text-lg text-charcoal/90 max-w-2xl mx-auto">{t('alt.reservations.subtitle')}</p>
         </div>
       </section>
 
@@ -78,10 +88,10 @@ export default function AltReservations() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-navy/10 bg-warm-gray/50 text-navy">
-                  <th className="px-6 py-4 font-semibold">Venue</th>
-                  <th className="px-6 py-4 font-semibold">Date</th>
-                  <th className="px-6 py-4 font-semibold">Guests</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
+                  <th className="px-6 py-4 font-semibold">{t('alt.reservations.colVenue')}</th>
+                  <th className="px-6 py-4 font-semibold">{t('alt.reservations.colDate')}</th>
+                  <th className="px-6 py-4 font-semibold">{t('alt.reservations.colGuests')}</th>
+                  <th className="px-6 py-4 font-semibold">{t('alt.reservations.colStatus')}</th>
                   <th className="px-6 py-4 font-semibold" />
                 </tr>
               </thead>
@@ -107,7 +117,7 @@ export default function AltReservations() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link to="/search" className="text-sm font-medium text-venue-accent hover:underline">
-                        View venues
+                        {t('alt.reservations.viewVenues')}
                       </Link>
                     </td>
                   </tr>
@@ -133,18 +143,16 @@ export default function AltReservations() {
                   <Calendar className="h-4 w-4 text-gold" />
                   {r.date}
                 </div>
-                <p className="text-sm text-charcoal m-0">
-                  <span className="font-medium text-navy">{r.guests}</span> guests
-                </p>
+                <p className="text-sm text-charcoal m-0">{t('alt.reservations.guestsCount', { count: r.guests })}</p>
               </article>
             ))}
           </div>
 
           <div className="mt-12 text-center">
-            <p className="text-charcoal/80 mb-4">Need another date or venue?</p>
+            <p className="text-charcoal/80 mb-4">{t('alt.reservations.ctaQuestion')}</p>
             <Link to="/search">
               <Button variant="primary" size="lg">
-                Browse venues
+                {t('alt.reservations.ctaBrowse')}
               </Button>
             </Link>
           </div>

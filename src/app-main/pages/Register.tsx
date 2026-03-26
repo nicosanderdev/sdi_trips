@@ -7,10 +7,16 @@ import { Eye, EyeOff, ArrowLeft, Check } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import ErrorMessage from '../../components/common/ErrorMessage';
 
-const Register: React.FC = () => {
+type RegisterProps = {
+  variant?: 'main' | 'alt';
+};
+
+const Register: React.FC<RegisterProps> = ({ variant = 'main' }) => {
   const navigate = useNavigate();
   const { signUp } = useAuth();
   const { t } = useTranslation();
+  const termsPath = variant === 'alt' ? '/terms-and-conditions' : '/terms';
+  const privacyPath = variant === 'alt' ? '/terms-and-conditions' : '/privacy';
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -114,9 +120,8 @@ const Register: React.FC = () => {
     { text: t('auth.passwordRequirements.oneNumber'), met: /\d/.test(formData.password) },
   ];
 
-  return (
-    <Layout showFooter={false}>
-      <div className="min-h-screen flex items-center justify-center py-12 px-8">
+  const inner = (
+    <div className="min-h-screen flex items-center justify-center py-12 px-8">
         <div className="max-w-6xl w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
@@ -260,11 +265,11 @@ const Register: React.FC = () => {
                       />
                       <span className="text-sm text-charcoal leading-relaxed">
                         {t('auth.agreeToTerms')}{' '}
-                        <Link to="/terms" className="text-gold hover:text-navy transition-colors font-medium">
+                        <Link to={termsPath} className="text-gold hover:text-navy transition-colors font-medium">
                           {t('auth.termsOfService')}
                         </Link>
                         {' '}{t('auth.and')}{' '}
-                        <Link to="/privacy" className="text-gold hover:text-navy transition-colors font-medium">
+                        <Link to={privacyPath} className="text-gold hover:text-navy transition-colors font-medium">
                           {t('auth.privacyPolicy')}
                         </Link>
                       </span>
@@ -365,8 +370,12 @@ const Register: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
   );
+
+  if (variant === 'main') {
+    return <Layout showFooter={false}>{inner}</Layout>;
+  }
+  return inner;
 };
 
 export default Register;

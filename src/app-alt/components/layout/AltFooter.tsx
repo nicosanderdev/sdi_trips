@@ -1,26 +1,28 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
 export function AltFooter() {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     company: [
-      { label: 'Terms & conditions', path: '/terms-and-conditions' },
-      { label: 'Contact', path: '/contact' },
+      { labelKey: 'alt.footer.termsLink' as const, path: '/terms-and-conditions' },
+      { labelKey: 'common.contact' as const, path: '/contact' },
     ],
     explore: [
-      { label: 'Browse venues', path: '/search' },
-      { label: 'Wedding venues', path: '/search' },
-      { label: 'Corporate events', path: '/search' },
-      { label: 'Private parties', path: '/search' },
+      { labelKey: 'alt.footer.browseVenues' as const, path: '/search' },
+      { labelKey: 'alt.footer.weddingVenues' as const, path: '/search' },
+      { labelKey: 'alt.footer.corporateEvents' as const, path: '/search' },
+      { labelKey: 'alt.footer.privateParties' as const, path: '/search' },
     ],
   };
 
   const socialLinks = [
-    { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Instagram, href: '#', label: 'Instagram' },
+    { icon: Facebook, labelKey: 'alt.footer.facebook' as const, href: '#' },
+    { icon: Twitter, labelKey: 'alt.footer.twitter' as const, href: '#' },
+    { icon: Instagram, labelKey: 'alt.footer.instagram' as const, href: '#' },
   ];
 
   return (
@@ -29,37 +31,35 @@ export function AltFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           <div className="lg:col-span-2">
             <Link to="/" className="text-2xl font-bold text-gold mb-4 block">
-              VenueSpace
+              {t('alt.brand.full')}
             </Link>
-            <p className="text-warm-gray-light mb-6 max-w-md">
-              Find and book exceptional event venues for weddings, corporate gatherings, and celebrations. Curated spaces with transparent capacity and pricing hints.
-            </p>
+            <p className="text-warm-gray-light mb-6 max-w-md">{t('alt.footer.tagline')}</p>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gold shrink-0" />
-                <span className="text-sm">hello@venuespace.example</span>
+                <Mail className="h-5 w-5 text-gold shrink-0" aria-hidden />
+                <span className="text-sm">{t('alt.footer.email')}</span>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-gold shrink-0" />
-                <span className="text-sm">+1 (555) 010-2030</span>
+                <Phone className="h-5 w-5 text-gold shrink-0" aria-hidden />
+                <span className="text-sm">{t('alt.footer.phone')}</span>
               </div>
               <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-gold shrink-0" />
-                <span className="text-sm">Austin, TX</span>
+                <MapPin className="h-5 w-5 text-gold shrink-0" aria-hidden />
+                <span className="text-sm">{t('alt.footer.address')}</span>
               </div>
             </div>
           </div>
 
           <div>
-            <h3 className="font-semibold text-gold mb-4">Company</h3>
+            <h3 className="font-semibold text-gold mb-4">{t('alt.footer.companyHeading')}</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
-                <li key={link.path}>
+                <li key={link.path + link.labelKey}>
                   <Link
                     to={link.path}
                     className="text-warm-gray-light hover:text-gold transition-colors text-sm"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -67,15 +67,15 @@ export function AltFooter() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-gold mb-4">Explore</h3>
+            <h3 className="font-semibold text-gold mb-4">{t('alt.footer.exploreHeading')}</h3>
             <ul className="space-y-2">
               {footerLinks.explore.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                   <Link
                     to={link.path}
                     className="text-warm-gray-light hover:text-gold transition-colors text-sm"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -85,15 +85,13 @@ export function AltFooter() {
 
         <div className="border-t border-white/15 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-warm-gray-light text-sm">
-              © {currentYear} VenueSpace. All rights reserved.
-            </p>
+            <p className="text-warm-gray-light text-sm">{t('alt.footer.copyright', { year: currentYear })}</p>
             <div className="flex items-center space-x-4">
               {socialLinks.map((social) => (
                 <a
-                  key={social.label}
+                  key={social.labelKey}
                   href={social.href}
-                  aria-label={social.label}
+                  aria-label={t(social.labelKey)}
                   className="text-warm-gray-light hover:text-gold transition-colors"
                 >
                   <social.icon className="h-5 w-5" />

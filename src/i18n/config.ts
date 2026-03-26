@@ -6,15 +6,38 @@ import enTranslations from './locales/en/translation.json';
 import esTranslations from './locales/es/translation.json';
 import ptTranslations from './locales/pt/translation.json';
 
+import enAltCommon from './locales/en/alt-common.json';
+import enAltVenuesById from './locales/en/alt-venues-byId.json';
+import esAltCommon from './locales/es/alt-common.json';
+import esAltVenuesById from './locales/es/alt-venues-byId.json';
+import ptAltCommon from './locales/pt/alt-common.json';
+import ptAltVenuesById from './locales/pt/alt-venues-byId.json';
+
+function mergeAltLocales<T extends Record<string, unknown>>(
+  base: T,
+  altCommon: Record<string, unknown>,
+  altVenuesById: Record<string, unknown>,
+): T & { alt: Record<string, unknown> } {
+  return {
+    ...base,
+    alt: {
+      ...altCommon,
+      venues: {
+        byId: altVenuesById,
+      },
+    },
+  };
+}
+
 const resources = {
   en: {
-    translation: enTranslations,
+    translation: mergeAltLocales(enTranslations, enAltCommon, enAltVenuesById),
   },
   es: {
-    translation: esTranslations,
+    translation: mergeAltLocales(esTranslations, esAltCommon, esAltVenuesById),
   },
   pt: {
-    translation: ptTranslations,
+    translation: mergeAltLocales(ptTranslations, ptAltCommon, ptAltVenuesById),
   },
 };
 

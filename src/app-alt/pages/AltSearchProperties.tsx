@@ -1,30 +1,27 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Users, SlidersHorizontal } from 'lucide-react';
-import { listVenues } from '../data/staticVenues';
+import { listLocalizedVenues } from '../data/venueLocale';
+import type { VenueEventTag } from '../data/staticVenues';
 
 export default function AltSearchProperties() {
-  const allVenues = listVenues();
+  const { t } = useTranslation();
+  const allVenues = listLocalizedVenues(t);
   const [eventType, setEventType] = useState('');
   const [capacityFilter, setCapacityFilter] = useState('');
   const [priceTier, setPriceTier] = useState('');
 
   const filtered = useMemo(() => {
     return allVenues.filter((v) => {
-      if (eventType && !v.eventTypes.some((t) => t.toLowerCase().includes(eventType.toLowerCase()))) {
+      if (eventType && !v.eventTypeTags.includes(eventType as VenueEventTag)) {
         return false;
       }
       if (capacityFilter === 'small' && v.capacity > 80) return false;
       if (capacityFilter === 'medium' && (v.capacity <= 80 || v.capacity > 150)) return false;
       if (capacityFilter === 'large' && v.capacity <= 150) return false;
-      if (priceTier === 'budget') {
-        const n = parseInt(v.priceHint.replace(/\D/g, ''), 10);
-        if (!Number.isNaN(n) && n >= 3000) return false;
-      }
-      if (priceTier === 'premium') {
-        const n = parseInt(v.priceHint.replace(/\D/g, ''), 10);
-        if (!Number.isNaN(n) && n < 4000) return false;
-      }
+      if (priceTier === 'budget' && v.priceFrom >= 3000) return false;
+      if (priceTier === 'premium' && v.priceFrom < 4000) return false;
       return true;
     });
   }, [allVenues, eventType, capacityFilter, priceTier]);
@@ -38,11 +35,11 @@ export default function AltSearchProperties() {
         </div>
         <div className="relative max-w-4xl mx-auto px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-            Discover <span className="font-bold text-gold">venues</span> for your event
+            {t('alt.search.heroTitleBefore')}
+            <span className="font-bold text-gold">{t('alt.search.heroTitleHighlight')}</span>
+            {t('alt.search.heroTitleAfter')}
           </h1>
-          <p className="text-lg text-charcoal/90 max-w-2xl mx-auto leading-relaxed">
-            No map—just a focused list. Use filters to narrow the grid (demo UI; refine logic as you like).
-          </p>
+          <p className="text-lg text-charcoal/90 max-w-2xl mx-auto leading-relaxed">{t('alt.search.heroSub')}</p>
         </div>
       </section>
 
@@ -51,49 +48,49 @@ export default function AltSearchProperties() {
           <div className="flex flex-col lg:flex-row lg:items-end gap-6 lg:justify-between mb-8">
             <div className="flex items-center gap-2 text-navy">
               <SlidersHorizontal className="h-5 w-5 text-venue-accent" />
-              <h2 className="text-xl font-semibold m-0">Filters</h2>
+              <h2 className="text-xl font-semibold m-0">{t('alt.search.filtersHeading')}</h2>
             </div>
-            <p className="text-sm text-charcoal/70 m-0 lg:text-right">Filters update the list below for quick exploration.</p>
+            <p className="text-sm text-charcoal/70 m-0 lg:text-right">{t('alt.search.filtersHint')}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <label className="flex flex-col gap-2 text-sm font-medium text-navy">
-              Event type
+              {t('alt.search.eventType')}
               <select
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value)}
                 className="rounded-xl border-2 border-gray-200 bg-white px-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
               >
-                <option value="">Any</option>
-                <option value="wedding">Weddings</option>
-                <option value="corporate">Corporate</option>
-                <option value="party">Parties</option>
-                <option value="workshop">Workshops</option>
+                <option value="">{t('alt.search.optionAny')}</option>
+                <option value="wedding">{t('alt.search.eventWedding')}</option>
+                <option value="corporate">{t('alt.search.eventCorporate')}</option>
+                <option value="party">{t('alt.search.eventParty')}</option>
+                <option value="workshop">{t('alt.search.eventWorkshop')}</option>
               </select>
             </label>
             <label className="flex flex-col gap-2 text-sm font-medium text-navy">
-              Capacity
+              {t('alt.search.capacity')}
               <select
                 value={capacityFilter}
                 onChange={(e) => setCapacityFilter(e.target.value)}
                 className="rounded-xl border-2 border-gray-200 bg-white px-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
               >
-                <option value="">Any</option>
-                <option value="small">Up to 80</option>
-                <option value="medium">81 – 150</option>
-                <option value="large">151+</option>
+                <option value="">{t('alt.search.optionAny')}</option>
+                <option value="small">{t('alt.search.capSmall')}</option>
+                <option value="medium">{t('alt.search.capMedium')}</option>
+                <option value="large">{t('alt.search.capLarge')}</option>
               </select>
             </label>
             <label className="flex flex-col gap-2 text-sm font-medium text-navy">
-              Price hint
+              {t('alt.search.priceTier')}
               <select
                 value={priceTier}
                 onChange={(e) => setPriceTier(e.target.value)}
                 className="rounded-xl border-2 border-gray-200 bg-white px-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
               >
-                <option value="">Any</option>
-                <option value="budget">Under ~$3k</option>
-                <option value="premium">$4k+</option>
+                <option value="">{t('alt.search.optionAny')}</option>
+                <option value="budget">{t('alt.search.priceBudget')}</option>
+                <option value="premium">{t('alt.search.pricePremium')}</option>
               </select>
             </label>
             <div className="flex items-end">
@@ -106,7 +103,7 @@ export default function AltSearchProperties() {
                   setPriceTier('');
                 }}
               >
-                Reset filters
+                {t('alt.search.resetFilters')}
               </button>
             </div>
           </div>
@@ -115,9 +112,7 @@ export default function AltSearchProperties() {
 
       <section className="py-16 bg-warm-gray min-h-[40vh]">
         <div className="max-w-7xl mx-auto px-8">
-          <p className="text-sm text-charcoal/70 mb-6">
-            Showing <span className="font-semibold text-navy">{filtered.length}</span> venues
-          </p>
+          <p className="text-sm text-charcoal/70 mb-6">{t('alt.search.resultsLine', { count: filtered.length })}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filtered.map((venue) => (
               <article
@@ -127,16 +122,16 @@ export default function AltSearchProperties() {
                 <Link to={`/venue/${venue.id}`} className="block relative aspect-[4/3] overflow-hidden bg-navy/10">
                   <img
                     src={venue.images[0]}
-                    alt=""
+                    alt={venue.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                   <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                    {venue.eventTypes.slice(0, 2).map((t) => (
+                    {venue.eventTypes.slice(0, 2).map((et) => (
                       <span
-                        key={t}
+                        key={et}
                         className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-semibold text-navy border border-navy/10"
                       >
-                        {t}
+                        {et}
                       </span>
                     ))}
                   </div>
@@ -153,14 +148,14 @@ export default function AltSearchProperties() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-charcoal">
                     <Users className="h-4 w-4 text-gold" />
-                    <span>Up to {venue.capacity} guests</span>
+                    <span>{t('alt.search.guestsUpTo', { count: venue.capacity })}</span>
                   </div>
                   <p className="text-sm font-semibold text-venue-accent m-0">{venue.priceHint}</p>
                   <Link
                     to={`/venue/${venue.id}`}
                     className="inline-flex text-sm font-medium text-navy underline underline-offset-4 hover:text-gold"
                   >
-                    View details
+                    {t('alt.search.viewDetails')}
                   </Link>
                 </div>
               </article>

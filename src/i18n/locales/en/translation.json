@@ -105,6 +105,23 @@
       "loginFailed": "Login failed. Please try again.",
       "registrationFailed": "Registration failed. Please try again.",
       "unexpectedError": "An unexpected error occurred. Please try again."
+    },
+    "forgotPasswordPage": {
+      "backToSignIn": "Back to Sign In",
+      "checkEmailTitle": "Check Your Email",
+      "checkEmailIntro": "We've sent a password reset link to",
+      "resendHint": "Didn't receive the email? Check your spam folder or",
+      "tryAgain": "try again",
+      "forgotTitle": "Forgot Your Password?",
+      "forgotSubtitle": "No worries! Enter your email address and we'll send you a link to reset your password.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "sendResetLink": "Send Reset Link",
+      "sending": "Sending...",
+      "rememberPassword": "Remember your password?",
+      "needHelp": "Need help?",
+      "havingTrouble": "Having trouble?",
+      "contactSupport": "Contact Support"
     }
   },
   "landing": {
@@ -806,8 +823,13 @@
     "verification": {
       "title": "Two-Factor Authentication",
       "description": "Enter the 6-digit code from your authenticator app",
+      "codeLabel": "Enter the 6-digit code from your authenticator app",
       "verify": "Verify",
+      "verifying": "Verifying...",
+      "incompleteCode": "Please enter the complete 6-digit code",
+      "verifyFailed": "Verification failed. Please try again.",
       "invalid": "Invalid code. Please try again.",
+      "invalidCodeFallback": "Invalid authentication code",
       "required": "2FA verification required to sign in"
     },
     "management": {
