@@ -52,6 +52,15 @@
 
 /* Custom component styles */
 @layer components {
+  @keyframes heroBgEntryZoom {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.06);
+    }
+  }
+
   .sdi-map-popup.mapboxgl-popup {
     font-family: 'Manrope', system-ui, sans-serif;
   }

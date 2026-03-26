@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Layout } from '../../components/layout';
-import { Card, Button, Input, Textarea } from '../../components/ui';
+import { Layout } from '../components/layout';
+import { Card, Button, Input, Textarea } from '../components/ui';
+import HeroTitleSection from '../components/sections/HeroTitleSection';
 import { Mail, MessageSquare, Bug, Handshake } from 'lucide-react';
 import { sendContactMessage } from '../../services/contactService';
 
@@ -105,21 +106,16 @@ const Contact: React.FC = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative py-32 bg-linear-to-br from-warm-gray-light to-white">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 right-20 w-96 h-96 bg-gold rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-20 w-80 h-80 bg-navy rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative max-w-4xl mx-auto px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-thin text-navy mb-6">
+      <HeroTitleSection className="py-24 md:py-32" contentClassName="max-w-4xl mx-auto px-8 text-center flex flex-col items-center justify-center">
+        <div>
+          <h1 className="text-5xl md:text-6xl font-thin text-white mb-6">
             {t('contact.title.first')} <span className="font-bold text-gold">{t('contact.title.second')}</span>
           </h1>
-          <p className="text-xl text-charcoal leading-relaxed max-w-2xl mx-auto">
+          <p className="text-xl text-white/95 leading-relaxed max-w-2xl mx-auto">
             {t('contact.subtitle')}
           </p>
         </div>
-      </section>
+      </HeroTitleSection>
 
       {/* Contact Form Section */}
       <section className="py-20 bg-white">

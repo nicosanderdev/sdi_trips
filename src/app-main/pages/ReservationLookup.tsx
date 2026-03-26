@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Layout } from '../../components/layout';
-import ReservationLookupForm from '../../components/reservation/ReservationLookupForm';
-import ReservationDetails from '../../components/reservation/ReservationDetails';
+import { Layout } from '../components/layout';
+import HeroTitleSection from '../components/sections/HeroTitleSection';
+import ReservationLookupForm from '../components/reservation/ReservationLookupForm';
+import ReservationDetails from '../components/reservation/ReservationDetails';
 import {
   cancelReservation,
   getReservationByCode,
@@ -97,6 +98,14 @@ const ReservationLookup: React.FC = () => {
 
   return (
     <Layout>
+      <HeroTitleSection className="py-20 md:py-24" contentClassName="mx-auto max-w-4xl px-6 text-center flex flex-col items-center justify-center">
+        <h1 className="text-4xl md:text-5xl font-thin text-white mb-4">
+          {t('reservationLookup.form.title')}
+        </h1>
+        <p className="text-lg md:text-xl text-white/95 leading-relaxed max-w-2xl">
+          {t('reservationLookup.form.subtitle')}
+        </p>
+      </HeroTitleSection>
       <div className="px-6 py-12 md:py-16">
         <div className="mx-auto max-w-4xl flex flex-col items-center gap-6">
           <ReservationLookupForm
