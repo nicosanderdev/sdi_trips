@@ -1,0 +1,284 @@
+{
+  "layout": {
+    "documentTitle": "VenueSpace — Espaços para eventos"
+  },
+  "brand": {
+    "venue": "Venue",
+    "space": "Space",
+    "full": "VenueSpace"
+  },
+  "nav": {
+    "mainNavAria": "Navegação principal",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "languageSelectAria": "Idioma"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "pt": "Português"
+  },
+  "landing": {
+    "hero": {
+      "title": "Encontre o espaço que seus convidados vão lembrar",
+      "subtitle": "Casamentos, eventos corporativos e festas privativas: descubra locais com capacidade clara, comodidades e valores indicativos transparentes.",
+      "searchPlaceholder": "Busque por cidade ou estilo de espaço",
+      "searchAria": "Buscar espaços",
+      "searchCta": "Buscar espaços",
+      "badgeCurated": "Listagens curadas",
+      "badgeCapacity": "Capacidade e layout",
+      "badgeHoldDemo": "Demo de reserva de data",
+      "exploreCta": "Explorar espaços",
+      "talkCta": "Fale conosco",
+      "storiesHeading": "Histórias de produtores e anfitriões",
+      "storyDotAria": "Mostrar história {{n}}",
+      "slides": {
+        "0": {
+          "quote": "Nosso casamento foi tranquilo: a equipe fez a virada da cerimônia para a festa em menos de uma hora."
+        },
+        "1": {
+          "quote": "Fizemos um lançamento para 150 convidados. Som, montagem e segurança impecáveis desde o primeiro dia."
+        },
+        "2": {
+          "quote": "As fotos do salão no pôr do sol ficaram incríveis. Os convidados ainda falam da pista de dança."
+        }
+      }
+    },
+    "occasions": {
+      "eyebrow": "Toda ocasião",
+      "heading": "Feito para o seu tipo de evento",
+      "sub": "O mesmo rigor de uma plataforma hoteleira, aplicado a espaços que você realmente pode reservar."
+    },
+    "features": {
+      "weddings": {
+        "title": "Casamentos",
+        "description": "Espaços para cerimônia e recepção com margem para tradições, cronograma e pista de dança."
+      },
+      "corporate": {
+        "title": "Corporativo",
+        "description": "Summits, offsites e jantares com clientes com assentos flexíveis e AV profissional."
+      },
+      "parties": {
+        "title": "Festas",
+        "description": "Marcos, arrecadações e celebrações com capacidade e layout sob medida."
+      }
+    },
+    "popular": {
+      "eyebrow": "Em destaque",
+      "heading": "Espaços populares nesta temporada",
+      "sub": "Escolhidos por iluminação, fluxo e experiência do convidado.",
+      "popularBadge": "Popular",
+      "guestsLine": "Até {{count}} convidados · {{priceHint}}",
+      "cta": "Encontre o espaço ideal"
+    },
+    "howItWorks": {
+      "heading": "Como funciona",
+      "sub": "Um caminho claro da descoberta a um pedido de reserva com confiança.",
+      "step1Title": "Explore espaços",
+      "step1Desc": "Filtre por capacidade, tipo de evento e localização em listagens curadas.",
+      "step2Title": "Compare detalhes",
+      "step2Desc": "Revise comodidades, layouts e valores indicativos antes de contatar.",
+      "step3Title": "Segure sua data",
+      "step3Desc": "Escolha datas no calendário e envie um pedido (interface demo).",
+      "step4Title": "Planeje com segurança",
+      "step4Desc": "Trabalhe com coordenadores do espaço com políticas e prazos claros."
+    },
+    "ctaBand": {
+      "titleBefore": "Pronto para ",
+      "titleHighlight": "pré-selecionar",
+      "titleAfter": " seu espaço?",
+      "sub": "Percorra o catálogo, compare capacidade e abra qualquer ficha para testar o calendário (demo).",
+      "button": "Começar a explorar"
+    }
+  },
+  "search": {
+    "heroTitleBefore": "Descubra ",
+    "heroTitleHighlight": "espaços",
+    "heroTitleAfter": " para o seu evento",
+    "heroSub": "Sem mapa—apenas uma lista objetiva. Use filtros para refinar a grade (demo; ajuste a lógica como quiser).",
+    "filtersHeading": "Filtros",
+    "filtersHint": "Os filtros atualizam a lista para explorar rápido.",
+    "eventType": "Tipo de evento",
+    "capacity": "Capacidade",
+    "priceTier": "Valor indicativo",
+    "resetFilters": "Redefinir filtros",
+    "optionAny": "Qualquer",
+    "eventWedding": "Casamentos",
+    "eventCorporate": "Corporativo",
+    "eventParty": "Festas",
+    "eventWorkshop": "Workshops",
+    "capSmall": "Até 80",
+    "capMedium": "81 – 150",
+    "capLarge": "151+",
+    "priceBudget": "Abaixo de ~US$ 3k",
+    "pricePremium": "US$ 4k+",
+    "resultsLine": "Mostrando {{count}} espaços",
+    "guestsUpTo": "Até {{count}} convidados",
+    "viewDetails": "Ver detalhes"
+  },
+  "venueDetail": {
+    "notFoundTitle": "Espaço não encontrado",
+    "notFoundBody": "Esta listagem pode ter mudado. Explore todos os espaços para continuar.",
+    "backToVenues": "Voltar aos espaços",
+    "curatedBadge": "Curadoria VenueSpace",
+    "guestsCount": "Até {{count}} convidados",
+    "eventCategoriesCount": "{{count}} categorias de evento",
+    "whyWorks": "Por que este espaço funciona",
+    "capacityLayoutTitle": "Capacidade e layout",
+    "capacityLayoutDesc": "Até {{capacity}} convidados. {{layoutNotes}}",
+    "eventTypesTitle": "Tipos de evento",
+    "pricingHintTitle": "Valor indicativo",
+    "pricingHintDesc": "{{priceHint}}. {{suffix}}",
+    "pricingHintSuffix": "Orçamentos finais dependem da data, equipe e extras.",
+    "amenities": "Comodidades",
+    "policies": "Políticas e logística",
+    "prevImage": "Imagem anterior",
+    "nextImage": "Próxima imagem",
+    "coordinatorTeam": "Equipe do espaço",
+    "coordinatorNames": "Alex e Jordan",
+    "coordinatorRole": "Coordenadores desta listagem (demo)",
+    "coordinatorBullet1": "Janelas para visitas in loco",
+    "coordinatorBullet2": "Lista de fornecedores preferenciais sob pedido",
+    "messageVenue": "Mensagem ao espaço",
+    "startingFrom": "A partir de",
+    "taxesNote": "Taxas, equipe e locações podem se aplicar.",
+    "checkAvailability": "Ver disponibilidade",
+    "calendarDemoNote": "Selecione as datas do evento (calendário demo—sem backend). Mesmo estilo de seletor do site principal.",
+    "eventStart": "Início do evento",
+    "eventEnd": "Fim do evento",
+    "placeholderStart": "Selecione a data de início",
+    "placeholderEnd": "Selecione a data de fim",
+    "requestHoldDemo": "Solicitar reserva (demo)"
+  },
+  "contact": {
+    "heroTitleBefore": "Vamos planejar ",
+    "heroTitleHighlight": "algo memorável",
+    "heroSub": "Conte seu evento. Este formulário é só interface—nada é enviado ao servidor nesta demo.",
+    "whyHeading": "Por que falar conosco",
+    "reasonPlanningTitle": "Produção de eventos",
+    "reasonPlanningDesc": "Dúvidas sobre capacidade, montagem ou cronograma para casamentos ou programas corporativos.",
+    "reasonVenueTitle": "Parcerias com espaços",
+    "reasonVenueDesc": "Publique um novo espaço ou atualize imagens e valores indicativos no catálogo.",
+    "reasonSponsorTitle": "Patrocínios",
+    "reasonSponsorDesc": "Colabore em guias de cidade, portas abertas ou eventos do setor.",
+    "directLineHeading": "Contato direto",
+    "directLineBody": "hello@venuespace.example · Em geral respondemos em um dia útil.",
+    "successTitle": "Obrigado pela mensagem",
+    "successBody": "Em produção isso iria para sua caixa de entrada. Aqui é apenas demo estática.",
+    "messagePlaceholder": "Data do evento, número de convidados, estilo do espaço…",
+    "submitDemo": "Enviar mensagem (demo)",
+    "listVenueHeading": "Liste seu espaço",
+    "listVenueSub": "Entre em coleções curadas para produtores que buscam por capacidade, estética e bairro.",
+    "partnerDemo": "Consulta de parceiro (demo)"
+  },
+  "terms": {
+    "heroTitleBefore": "Termos e ",
+    "heroTitleHighlight": "condições",
+    "heroSub": "Contexto de locação para a demo Alt. Não é assessoria jurídica—revise termos de produção com seu advogado.",
+    "lastUpdated": "Última atualização",
+    "footerTitle": "Ainda em dúvida?",
+    "footerBody": "Fale pela página de contato—explicamos como a demo funciona.",
+    "footerCta": "Contato",
+    "sections": [
+      {
+        "id": "acceptance",
+        "title": "Aceitação dos termos",
+        "paragraphs": [
+          "Ao acessar o VenueSpace (demo), você aceita estes termos. Se não concordar, interrompa o uso do site.",
+          "O conteúdo é ilustrativo. Disponibilidade, preços e políticas em listagens reais podem diferir."
+        ]
+      },
+      {
+        "id": "services",
+        "title": "Natureza do serviço",
+        "paragraphs": [
+          "O VenueSpace é uma camada de descoberta de espaços para eventos. Não garantimos desempenho de terceiros, equipe ou licenças."
+        ],
+        "bullets": [
+          "As listagens podem incluir capacidade aproximada e valores indicativos.",
+          "Os contratos são entre você e o espaço salvo disposição escrita diferente.",
+          "Pedidos de reserva na demo não são armazenados nem transmitidos."
+        ]
+      },
+      {
+        "id": "bookings",
+        "title": "Reservas, depósitos e cancelamentos",
+        "paragraphs": [
+          "Reservas reais seguiriam o contrato de cada espaço. Depósitos, calendários de pagamento e força maior devem ser revisados com jurídico e financeiro.",
+          "Nesta demo não há pagamento nem reserva criada."
+        ]
+      },
+      {
+        "id": "conduct",
+        "title": "Uso aceitável e conduta",
+        "paragraphs": [
+          "Não misuse a plataforma: sem scraping que prejudique desempenho, sem atividade ilegal ou assédio a espaços ou equipe.",
+          "Podemos suspender o acesso demo diante de riscos à segurança ou integridade."
+        ]
+      },
+      {
+        "id": "liability",
+        "title": "Responsabilidade",
+        "paragraphs": [
+          "Na extensão máxima permitida por lei, o VenueSpace (demo) exclui garantias e limita responsabilidade por danos indiretos ou consequentes pelo uso do site ou confiança em conteúdo de amostra."
+        ]
+      },
+      {
+        "id": "changes",
+        "title": "Alterações",
+        "paragraphs": [
+          "Podemos atualizar estes termos periodicamente. O uso contínuo após mudanças implica aceitação dos termos revisados."
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Contato",
+        "paragraphs": ["Dúvidas sobre estes termos (demo):"],
+        "contactEmailLabel": "E-mail",
+        "contactMailLabel": "Correio",
+        "contactEmail": "legal@venuespace.example",
+        "contactAddress": "400 Event Row, Austin, TX"
+      }
+    ]
+  },
+  "footer": {
+    "email": "hello@venuespace.example",
+    "phone": "+1 (555) 010-2030",
+    "address": "Austin, TX",
+    "tagline": "Encontre e reserve espaços excepcionais para casamentos, encontros corporativos e celebrações. Locais curados com capacidade e valores indicativos transparentes.",
+    "companyHeading": "Empresa",
+    "termsLink": "Termos e condições",
+    "exploreHeading": "Explorar",
+    "browseVenues": "Ver espaços",
+    "weddingVenues": "Espaços para casamento",
+    "corporateEvents": "Eventos corporativos",
+    "privateParties": "Festas privativas",
+    "copyright": "© {{year}} VenueSpace. Todos os direitos reservados.",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "instagram": "Instagram"
+  },
+  "reservations": {
+    "titleBefore": "Suas ",
+    "titleHighlight": "reservas",
+    "subtitle": "Visão demo de reservas e cortesias. Os status ajudam a ver o que está por vir, concluído ou cancelado.",
+    "colVenue": "Espaço",
+    "colDate": "Data",
+    "colGuests": "Convidados",
+    "colStatus": "Status",
+    "viewVenues": "Ver espaços",
+    "guestsCount": "{{count}} convidados",
+    "statusUpcoming": "Próxima",
+    "statusPast": "Passada",
+    "statusCancelled": "Cancelada",
+    "ctaQuestion": "Outra data ou espaço?",
+    "ctaBrowse": "Explorar espaços"
+  },
+  "notFound": {
+    "code": "404",
+    "titleBefore": "Esta página não está na ",
+    "titleHighlight": "lista de convidados",
+    "body": "O link pode estar desatualizado ou a ficha mudou. Volte ao início para seguir explorando.",
+    "cta": "Voltar ao início"
+  }
+}

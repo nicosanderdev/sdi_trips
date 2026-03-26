@@ -7,16 +7,8 @@ const Footer: React.FC = () => {
 
   const footerLinks = {
     company: [
-      { label: 'About Us', path: '/about' },
       { label: 'Terms of Service', path: '/terms' },
       { label: 'Privacy Policy', path: '/privacy' },
-      { label: 'Contact', path: '/contact' },
-    ],
-    support: [
-      { label: 'Help Center', path: '/help' },
-      { label: 'Host Guide', path: '/host-guide' },
-      { label: 'Trust & Safety', path: '/trust-safety' },
-      { label: 'Community', path: '/community' },
     ],
     destinations: [
       { label: 'Beach Houses', path: '/search?type=beach' },
@@ -68,23 +60,6 @@ const Footer: React.FC = () => {
             <h3 className="font-semibold text-gold mb-4">Company</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className="text-warm-gray-light hover:text-gold transition-colors text-sm"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Support Links */}
-          <div>
-            <h3 className="font-semibold text-gold mb-4">Support</h3>
-            <ul className="space-y-2">
-              {footerLinks.support.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}

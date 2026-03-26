@@ -1,7 +1,4 @@
-/**
- * Feature flags for the application.
- * Can be extended later (e.g. env-based overrides).
- */
-export const featureFlags = {
-  showLandingAds: true,
-};
+/** @deprecated Use `app-main/config/appConfig` or `app-alt/config/appConfig`. */
+import { appConfig } from '../app-main/config/appConfig';
+
+export const featureFlags = appConfig.featureFlags;

@@ -55,8 +55,6 @@ const mockReviews = [
 
 type HeroSlide = {
   image: string;
-  rating: number;
-  reviewCount: number;
   reviewText: string;
 };
 
@@ -105,8 +103,6 @@ const HeroSplit: React.FC = () => {
 
           return {
             image,
-            rating: property.rating,
-            reviewCount: property.reviewCount,
             reviewText: truncatedDescription,
           };
         })
@@ -131,87 +127,107 @@ const HeroSplit: React.FC = () => {
   const currentReview = heroSlides[currentReviewIndex] ?? heroSlides[0];
 
   return (
-    <section className="relative min-h-screen overflow-hidden">
-      {/* Rich Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gold via-warm-gray-light to-white"></div>
-      
-      {/* Enhanced Background Pattern with More Color Presence */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-gold rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-navy rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold-dark rounded-full blur-3xl opacity-30"></div>
-      </div>
+    <section className="relative min-h-screen overflow-hidden bg-navy isolate">
+      <div
+        className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${isFading ? 'opacity-70 scale-105' : 'opacity-100 scale-110'}`}
+        style={{ backgroundImage: `url("${currentReview.image}")` }}
+        aria-hidden="true"
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(10,26,47,0.85)_0%,rgba(10,26,47,0.74)_45%,rgba(10,26,47,0.56)_100%)]" aria-hidden="true" />
 
-      <div className="relative max-w-7xl mx-auto px-8 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-screen">
-          {/* Left Side - Text Content */}
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-thin text-navy leading-tight">
-                {t('landing.hero.title')}
-              </h1>
-              <p className="text-xl text-charcoal max-w-md leading-relaxed">
-                {t('landing.hero.description')}
-              </p>
-            </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-8 py-16 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="animate-[fadeInUp_700ms_ease-out_both]">
+          <h1 className="m-0 text-white font-bold text-[clamp(2rem,4vw,4rem)] leading-[1.1] max-w-[13ch]">
+            {t('landing.hero.title')}
+          </h1>
+          <p className="mt-4 text-white/95 text-[clamp(1rem,1.8vw,1.35rem)] max-w-[34ch]">
+            {t('landing.hero.description')}
+          </p>
+          <p className="mt-3 text-white/85 text-base font-medium">{t('landing.hero.support')}</p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/search">
-                <Button variant="primary" size="lg" onClick={() => navigate('/search')}>
-                  {t('landing.hero.cta.search')}
-                </Button>
-              </Link>
-              <Link to="/about">
-                <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
-                  {t('landing.hero.cta.login')}
-                </Button>
-              </Link>
-            </div>
+          <form
+            className="mt-5 grid grid-cols-1 md:grid-cols-[1.2fr_0.9fr_auto] gap-2 w-full max-w-[720px] p-3 rounded-2xl border border-gold/40 bg-white/95 backdrop-blur-sm"
+            onSubmit={(event) => {
+              event.preventDefault();
+              navigate('/search');
+            }}
+          >
+            <input
+              className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+              type="text"
+              name="dates"
+              placeholder={t('landing.hero.search.datePlaceholder')}
+              aria-label={t('landing.hero.search.dateAria')}
+            />
+            <select
+              className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+              name="guests"
+              aria-label={t('landing.hero.search.guestsAria')}
+              defaultValue=""
+            >
+              <option value="">{t('landing.hero.search.guestsPlaceholder')}</option>
+              <option value="2">{t('landing.hero.search.guests2')}</option>
+              <option value="4">{t('landing.hero.search.guests4')}</option>
+              <option value="6">{t('landing.hero.search.guests6')}</option>
+              <option value="8">{t('landing.hero.search.guests8')}</option>
+            </select>
+            <button
+              className="inline-flex items-center justify-center rounded-full border-2 border-gold bg-gold text-navy font-semibold px-6 py-3 transition-all hover:scale-[1.04] hover:bg-navy hover:text-gold"
+              type="submit"
+            >
+              {t('landing.hero.search.submit')}
+            </button>
+          </form>
 
-            {/* Stats */}
-            <div className="flex items-center space-x-8 pt-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-navy">800+</div>
-                <div className="text-sm text-charcoal font-medium">{t('landing.hero.stats.properties')}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-navy">50+</div>
-                <div className="text-sm text-charcoal font-medium">{t('landing.hero.stats.countries')}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-navy">10K+</div>
-                <div className="text-sm text-charcoal font-medium">{t('landing.hero.stats.happyGuests')}</div>
-              </div>
-            </div>
+          <div className="mt-4 flex flex-wrap gap-4">
+            <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+              {t('landing.hero.trust.verified')}
+            </p>
+            <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+              {t('landing.hero.trust.payments')}
+            </p>
+            <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+              {t('landing.hero.trust.bookings')}
+            </p>
           </div>
 
-          {/* Right Side - Image and Decorative Number */}
-          <div className="relative">
-            {/* Main Property Image */}
-            <div className={`relative rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 ${isFading ? 'opacity-50' : 'opacity-100'}`}>
-              <img
-                src={currentReview.image}
-                alt="Luxury holiday home"
-                className={`w-full h-[600px] object-cover transition-all duration-500 ${isFading ? 'opacity-50' : 'opacity-100'}`}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link to="/search">
+              <Button variant="primary" size="lg">
+                {t('landing.hero.cta.search')}
+              </Button>
+            </Link>
+            <Link to="/reservation-lookup">
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold">
+                {t('landing.hero.cta.manage')}
+              </Button>
+            </Link>
+          </div>
 
-            {/* Floating Card */}
-            <div className={`absolute -bottom-6 -left-6 bg-white/95 backdrop-blur-md rounded-2xl p-6 shadow-gold border border-gold/20 max-w-xs transition-all duration-500 ${isFading ? 'opacity-50' : 'opacity-100'}`}>
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center">
-                  <span className="text-navy font-bold text-lg">★</span>
-                </div>
-                <div>
-                  <div className="font-semibold text-navy">{currentReview.rating} Rating</div>
-                  <div className="text-sm text-charcoal">From {currentReview.reviewCount.toLocaleString()} reviews</div>
-                </div>
-              </div>
-              <p className={`text-sm text-charcoal italic transition-all duration-500 ${isFading ? 'opacity-50' : 'opacity-100'}`}>
-                {currentReview.reviewText}
-              </p>
-            </div>
+          <Link to="/privacy" className="inline-block mt-4 text-white/80 underline underline-offset-4 hover:text-white">
+            {t('landing.hero.links.security')}
+          </Link>
+          <Link to="/reservation-lookup" className="block mt-3 text-white/80 hover:text-white text-sm">
+            {t('landing.hero.links.reservationLookup')}
+          </Link>
+        </div>
+
+        <div className="relative min-h-[430px] rounded-3xl overflow-hidden border border-gold/30 shadow-2xl bg-white/10 backdrop-blur-sm">
+          <div className={`absolute inset-0 p-8 flex flex-col justify-end bg-cover bg-center transition-all duration-500 ${isFading ? 'opacity-70 translate-x-2' : 'opacity-100 translate-x-0'}`}>
+            <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/15" />
+            <h3 className="relative z-10 m-0 text-xl font-bold text-white">{t('landing.hero.story.title')}</h3>
+            <p className="relative z-10 mt-2 text-white/90">{currentReview.reviewText}</p>
+          </div>
+          <div className="absolute left-1/2 bottom-4 -translate-x-1/2 z-20 flex gap-2">
+            {heroSlides.map((_, index) => (
+              <button
+                key={`dot-${index}`}
+                type="button"
+                onClick={() => setCurrentReviewIndex(index)}
+                className={`h-2 w-2 rounded-full transition-all ${index === currentReviewIndex ? 'bg-gold scale-125' : 'bg-white/50'}`}
+                aria-label={t('landing.hero.story.stepAria', { step: index + 1 })}
+              />
+            ))}
           </div>
         </div>
       </div>

@@ -25,6 +25,8 @@
   },
   "nav": {
     "home": "Inicio",
+    "explore": "Explorar",
+    "contact": "Contacto",
     "about": "Acerca",
     "terms": "Términos",
     "searchPlaceholder": "Buscar destinos...",
@@ -103,6 +105,23 @@
       "loginFailed": "Error al iniciar sesión. Por favor intenta nuevamente.",
       "registrationFailed": "Error en el registro. Por favor intenta nuevamente.",
       "unexpectedError": "Ocurrió un error inesperado. Por favor intenta nuevamente."
+    },
+    "forgotPasswordPage": {
+      "backToSignIn": "Volver a iniciar sesión",
+      "checkEmailTitle": "Revisa tu correo",
+      "checkEmailIntro": "Enviamos un enlace para restablecer la contraseña a",
+      "resendHint": "¿No recibiste el correo? Revisa spam o",
+      "tryAgain": "intenta de nuevo",
+      "forgotTitle": "¿Olvidaste tu contraseña?",
+      "forgotSubtitle": "Sin problema. Ingresa tu correo y te enviaremos un enlace para restablecerla.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "Ingresa tu correo",
+      "sendResetLink": "Enviar enlace",
+      "sending": "Enviando...",
+      "rememberPassword": "¿Recuerdas tu contraseña?",
+      "needHelp": "¿Necesitas ayuda?",
+      "havingTrouble": "¿Problemas?",
+      "contactSupport": "Contactar soporte"
     }
   },
   "landing": {
@@ -110,9 +129,36 @@
       "title": "Una forma confiable de alquilar casas",
       "description": "Encontrá casas reales, con información clara y sin complicaciones.",
       "subtitle": "Alquilá con tranquilidad. Publicá con confianza.",
+      "support": "Reserva rápida. Sin vueltas. Con seguridad.",
+      "search": {
+        "datePlaceholder": "Fechas (check-in - check-out)",
+        "dateAria": "Rango de fechas",
+        "guestsAria": "Cantidad de huéspedes",
+        "guestsPlaceholder": "Huéspedes",
+        "guests2": "2 huéspedes",
+        "guests4": "4 huéspedes",
+        "guests6": "6 huéspedes",
+        "guests8": "8+ huéspedes",
+        "submit": "Buscar"
+      },
+      "trust": {
+        "verified": "Propiedades verificadas",
+        "payments": "Pagos seguros",
+        "bookings": "+100 reservas recientes"
+      },
       "cta": {
         "search": "Buscar casas",
-        "login": "Ingresar"
+        "login": "Ingresar",
+        "manage": "Ver mi reserva"
+      },
+      "links": {
+        "security": "Seguridad e identificación",
+        "contact": "Contacto",
+        "reservationLookup": "Encontrá mi reserva"
+      },
+      "story": {
+        "title": "Reservá en minutos",
+        "stepAria": "Paso {{step}}"
       },
       "stats": {
         "properties": "Propiedades",
@@ -121,12 +167,40 @@
       }
     },
     "featured": {
+      "eyebrow": "Elegí tu estilo",
       "title": "Propiedades destacadas",
       "subtitle": "Casas seleccionadas, en las que podés confiar",
       "description": "Explorá una selección de casas de veraneo destacadas por su ubicación, comodidad y claridad en la información. Publicaciones cuidadas, sin sorpresas ni letra chica.",
-      "viewAll": "Ver Todas las Propiedades"
+      "viewAll": "Ver Todas las Propiedades",
+      "popular": "Popular",
+      "empty": "No hay propiedades destacadas disponibles por el momento.",
+      "errors": {
+        "loadFailed": "No se pudieron cargar las propiedades destacadas. Inténtalo de nuevo más tarde."
+      }
+    },
+    "platform": {
+      "title": "¿Por qué usar nuestra plataforma?",
+      "cards": {
+        "1": {
+          "title": "Reserva rápida",
+          "description": "Reservá en pocos pasos sin complicaciones."
+        },
+        "2": {
+          "title": "Seguridad garantizada",
+          "description": "Validación de identidad y reservas confiables."
+        },
+        "3": {
+          "title": "Opciones en Rivera",
+          "description": "Encontrá casas disponibles fácilmente."
+        },
+        "4": {
+          "title": "Sin necesidad de cuenta",
+          "description": "Reservá sin registrarte."
+        }
+      }
     },
     "howItWorks": {
+      "eyebrow": "Proceso simple",
       "title": "Cómo funciona",
       "subtitle": "Reservar tu casa de vacaciones soñada es simple y seguro. Aquí te mostramos cómo comenzar.",
       "steps": {
@@ -141,6 +215,10 @@
         "3": {
           "title": "Disfrutá",
           "description": "Llegá sabiendo qué esperar. Casas reales, acuerdos claros y la tranquilidad de alquilar en una plataforma local."
+        },
+        "4": {
+          "title": "Disfrutá",
+          "description": "Recibí la confirmación y preparate para tu próxima estadía."
         }
       }
     },
@@ -349,6 +427,52 @@
       "noPaymentYet": "Sin pago hasta que se confirme la reserva",
       "sendMessage": "Enviar mensaje a {{name}}"
     },
+    "bookingFlow": {
+      "bookingModeLabel": "Tipo de reserva",
+      "bookingModes": {
+        "singleNight": "Una noche",
+        "multipleDays": "Varios días"
+      },
+      "singleNightHint": "Selecciona un solo día. El check-out será automáticamente al día siguiente.",
+      "holdActiveFor": "Reserva temporal activa por:",
+      "checkingAvailability": "Validando reglas y disponibilidad...",
+      "confirmingMessage": "Confirmando tu reserva...",
+      "modal": {
+        "title": "Completa tu reserva"
+      },
+      "form": {
+        "fullName": "Nombre completo",
+        "emailOptional": "Correo electrónico (opcional)",
+        "phone": "Teléfono (+598...)",
+        "documentIdOptional": "Documento de identidad (opcional)",
+        "estimatedGuests": "Cantidad estimada de invitados (opcional)",
+        "enterOtp": "Ingresa el OTP"
+      },
+      "actions": {
+        "creatingHold": "Creando reserva temporal...",
+        "continueAsGuest": "Continuar como huésped",
+        "sendingCode": "Enviando código...",
+        "sendOtpCode": "Enviar código OTP",
+        "resendCode": "Reenviar código",
+        "confirming": "Confirmando...",
+        "verifyAndConfirm": "Verificar y confirmar"
+      },
+      "done": {
+        "reservationConfirmed": "Reserva confirmada.",
+        "codeLabel": "Código",
+        "manageLinkLabel": "Enlace de gestión:",
+        "openReservationManager": "abrir gestor de reservas"
+      },
+      "errors": {
+        "invalidDateSelection": "Selección de fechas inválida.",
+        "holdExpired": "Tu reserva temporal expiró. Selecciona fechas nuevamente.",
+        "unableToCreateHold": "No se pudo crear la reserva temporal.",
+        "couldNotSendOtp": "No se pudo enviar el código OTP.",
+        "invalidOtp": "Código OTP inválido.",
+        "holdNoLongerValid": "Tu reserva temporal ya no es válida.",
+        "couldNotConfirmReservation": "No se pudo confirmar la reserva."
+      }
+    },
     "host": {
       "heading": "Conoce a tu anfitrión",
       "defaultName": "Anfitrión",
@@ -407,6 +531,48 @@
       "noQuestionsMessage": "Sé el primero en hacer una pregunta sobre esta propiedad."
     }
   },
+  "reservationLookup": {
+    "actions": {
+      "searchAnotherCode": "Buscar con otro código",
+      "search": "Buscar",
+      "searching": "Buscando...",
+      "viewProperty": "Ver propiedad",
+      "cancelReservation": "Cancelar reserva",
+      "cancelling": "Cancelando..."
+    },
+    "form": {
+      "title": "Encontrá tu reserva",
+      "subtitle": "Ingresa tu código de reserva para ver los detalles y las acciones disponibles.",
+      "codeLabel": "Código de reserva",
+      "codePlaceholder": "RSV-ABC123"
+    },
+    "details": {
+      "title": "Detalles de la reserva",
+      "codeLabel": "Código:",
+      "propertyLabel": "Propiedad:",
+      "datesLabel": "Fechas:",
+      "datesValue": "{{checkIn}} a {{checkOut}}",
+      "statusLabel": "Estado:",
+      "guestLabel": "Huésped:",
+      "notAvailable": "No disponible"
+    },
+    "status": {
+      "confirmed": "Confirmada",
+      "pending_confirmation": "Pendiente de confirmación",
+      "cancelled": "Cancelada",
+      "completed": "Finalizada"
+    },
+    "messages": {
+      "cancelSuccess": "Reserva cancelada correctamente."
+    },
+    "errors": {
+      "invalidCode": "Ingresa un código de reserva válido (ejemplo: RSV-ABC123).",
+      "notFound": "Reserva no encontrada. Verifica el código e inténtalo de nuevo.",
+      "expired": "Esta reserva ha vencido y ya no se puede gestionar aquí.",
+      "couldNotFindCode": "No se pudo encontrar este código de reserva.",
+      "cancelFailed": "No se pudo cancelar la reserva."
+    }
+  },
   "booking": {
     "checkIn": "Entrada",
     "checkOut": "Salida",
@@ -424,6 +590,7 @@
     "pendingConfirmedNote": "Si tienes activado el correo electrónico, recibirás confirmación una vez que la reserva sea aprobada.",
     "error": "Error al crear la reserva. Por favor, inténtalo de nuevo.",
     "loginRequired": "Por favor, inicia sesión para hacer una reserva",
+    "contactForAvailability": "Contacta para disponibilidad. La reserva estará disponible pronto.",
     "selectDates": "Por favor, selecciona las fechas de entrada y salida",
     "bookingReference": "Referencia de Reserva",
     "close": "Cerrar"
@@ -635,8 +802,13 @@
     "verification": {
       "title": "Autenticación de Dos Factores",
       "description": "Ingresa el código de 6 dígitos de tu aplicación autenticadora",
+      "codeLabel": "Ingresa el código de 6 dígitos de tu aplicación autenticadora",
       "verify": "Verificar",
+      "verifying": "Verificando...",
+      "incompleteCode": "Ingresa el código completo de 6 dígitos",
+      "verifyFailed": "La verificación falló. Intenta nuevamente.",
       "invalid": "Código inválido. Por favor intenta nuevamente.",
+      "invalidCodeFallback": "Código de autenticación inválido",
       "required": "Se requiere verificación 2FA para iniciar sesión"
     },
     "management": {
@@ -739,15 +911,11 @@
     },
     "subtitle": "¿Tienes una pregunta? Nos encantaría escucharte.",
     "form": {
-      "firstName": "Nombre",
-      "lastName": "Apellido",
+      "name": "Nombre",
       "email": "Dirección de Correo Electrónico",
-      "subject": "Asunto",
       "message": "Mensaje",
-      "firstNamePlaceholder": "Ingresa tu nombre",
-      "lastNamePlaceholder": "Ingresa tu apellido",
+      "namePlaceholder": "Ingresa tu nombre completo",
       "emailPlaceholder": "tu@email.com",
-      "subjectPlaceholder": "¿De qué se trata?",
       "messagePlaceholder": "Cuéntanos más...",
       "submit": "Enviar Mensaje",
       "sending": "Enviando..."
@@ -771,11 +939,9 @@
       "message": "Gracias por contactarnos. Te responderemos pronto."
     },
     "errors": {
-      "firstNameRequired": "El nombre es obligatorio",
-      "lastNameRequired": "El apellido es obligatorio",
+      "nameRequired": "El nombre es obligatorio",
       "emailRequired": "El correo electrónico es obligatorio",
       "emailInvalid": "Por favor ingresa una dirección de correo electrónico válida",
-      "subjectRequired": "El asunto es obligatorio",
       "messageRequired": "El mensaje es obligatorio",
       "submitFailed": "Error al enviar el mensaje. Por favor intenta nuevamente."
     }

@@ -1,0 +1,148 @@
+{
+  "1": {
+    "name": "Salón Gran Elm Ballroom",
+    "location": "Centro, Austin",
+    "priceHint": "Desde 4.500 USD / evento",
+    "subtitle": "Lámparas de cristal, pista de baile amortiguada y suite nupcial dedicada.",
+    "description": "Un salón atemporal con techos de casi cuatro metros, suelos de roble cálido y ventanales al atardecer. Ideal para recepciones con un primer baile memorable y distribuciones flexibles. Nuestro equipo coordina cambios de sala y acceso de proveedores.",
+    "amenities": [
+      "AV e iluminación in situ",
+      "Suite nupcial",
+      "Acceso a cocina industrial",
+      "Acuerdos de valet",
+      "Entradas accesibles"
+    ],
+    "eventTypes": ["Bodas", "Galas", "Ceremonias de premiación"],
+    "layoutNotes": "Teatro: 280 · Banquete: 220 · Cóctel: 320",
+    "policies": [
+      {
+        "title": "Montaje y horarios",
+        "body": "Acceso de proveedores desde las 8:00; eventos terminan a medianoche con 1 hora de desmontaje."
+      },
+      {
+        "title": "Catering",
+        "body": "Elige de nuestra lista preferida o trae un caterer autorizado con certificado de seguro."
+      },
+      {
+        "title": "Decoración",
+        "body": "Fuego abierto y confeti requieren aprobación; instalaciones en techo solo con puntos de rigging del espacio."
+      }
+    ]
+  },
+  "2": {
+    "name": "Finca Cypress Garden",
+    "location": "Hill Country, TX",
+    "priceHint": "Desde 3.200 USD / evento",
+    "subtitle": "Césped para ceremonia al aire libre, pabellón cubierto y patio con guirnaldas.",
+    "description": "Intercambia votos bajo robles centenarios y celebra en un pabellón climatizado a pocos pasos. La finca incluye cottage de preparación, fogatas para noches frescas y carpas opcionales para más invitados.",
+    "amenities": ["Aparcamiento in situ (120)", "Grupo electrógeno", "Baños móviles premium", "Mobiliario de jardín"],
+    "eventTypes": ["Bodas", "Fiestas de hitos", "Recaudaciones"],
+    "layoutNotes": "Ceremonia en césped: 200 · Pabellón sentado: 150",
+    "policies": [
+      {
+        "title": "Clima",
+        "body": "Plan lluvia incluido con pabellón; presupuestos de carpa disponibles con 90 días de antelación."
+      },
+      {
+        "title": "Ruido",
+        "body": "Música amplificada al aire libre termina a las 22:00 según ordenanza del condado."
+      }
+    ]
+  },
+  "3": {
+    "name": "Foundry Hall",
+    "location": "East Austin",
+    "priceHint": "Desde 2.800 USD / evento",
+    "subtitle": "Ladrillo visto, vigas de acero y mezzanine para activaciones de marca.",
+    "description": "Carácter industrial con hormigón pulido y potencia para producciones. A las marcas les encanta el mezzanine para lounges VIP; a los planificadores, la planta libre para pasarelas y cenas sentadas.",
+    "amenities": ["Tomas de 200 A", "Puerta de carga enrollable", "Camerinos (2)", "Wi‑Fi incluido"],
+    "eventTypes": ["Corporativo", "Lanzamientos", "Moda", "Conciertos privados"],
+    "layoutNotes": "Cóctel de pie: 350 · Sentados: 180",
+    "policies": [
+      {
+        "title": "Producción",
+        "body": "Rigging y pirotecnia requieren visita previa con el director técnico del espacio."
+      }
+    ]
+  },
+  "4": {
+    "name": "Skyline Rooftop 12",
+    "location": "Austin central",
+    "priceHint": "Desde 5.000 USD / evento",
+    "subtitle": "Vistas panorámicas con muros de cristal retráctiles.",
+    "description": "Un rooftop íntimo para cócteles al atardecer y cenas ejecutivas. Interior climatizado que se abre a terraza: ideal para reuniones con inversores y fiestas privadas de alto nivel.",
+    "amenities": ["Ascensor privado", "Interior climatizado", "Opciones de bar premium"],
+    "eventTypes": ["Corporativo", "Cenas de ensayo", "Recepciones VIP"],
+    "layoutNotes": "Interior: 80 · Cóctel en terraza: 120",
+    "policies": [
+      {
+        "title": "Capacidad",
+        "body": "La terraza depende del clima; el interior alberga el aforo completo si hay mal tiempo."
+      }
+    ]
+  },
+  "5": {
+    "name": "Red Barn Gathering",
+    "location": "Driftwood, TX",
+    "priceHint": "Desde 2.400 USD / evento",
+    "subtitle": "Encanto rústico con baños modernos y comedor climatizado.",
+    "description": "Vigas auténticas de granero con comodidades actuales. Paquetes de fin de semana incluyen opción de hora de ensayo y estación de s'mores junto al fuego.",
+    "amenities": ["Nave climatizada", "Fogata", "Juegos en el césped", "Socios BBQ recomendados"],
+    "eventTypes": ["Bodas", "Reuniones familiares", "Fiestas de graduación"],
+    "layoutNotes": "Comedor sentado: 130 · Césped + carpa: 200",
+    "policies": [
+      {
+        "title": "Alcohol",
+        "body": "Se requieren bartenders con licencia TABC; el espacio puede coordinarlo."
+      }
+    ]
+  },
+  "6": {
+    "name": "Galería North Loop",
+    "location": "North Austin",
+    "priceHint": "Desde 1.900 USD / evento",
+    "subtitle": "Caja blanca con riel de luces y muros modulares.",
+    "description": "Muros minimalistas e iluminación profesional: favorita para talleres creativos, retail pop‑up y cenas íntimas con fondo artístico.",
+    "amenities": ["Riel de luces", "Muros modulares", "Proyector", "Altavoces"],
+    "eventTypes": ["Talleres", "Pop-ups", "Cenas privadas", "Sesiones de foto"],
+    "layoutNotes": "De pie: 120 · Sentados: 90",
+    "policies": [
+      {
+        "title": "Instalaciones",
+        "body": "Trabajos en pared requieren tarifas de parche y pintura."
+      }
+    ]
+  },
+  "7": {
+    "name": "Riverstone Boathouse",
+    "location": "Lake Austin",
+    "priceHint": "Desde 4.200 USD / evento",
+    "subtitle": "Acceso al muelle, terraza al atardecer e interior náutico.",
+    "description": "Vistas al agua desde todos los ángulos. Ideal para retiros corporativos boutique y cenas de ensayo con fotos de llegada en barco opcional.",
+    "amenities": ["Muelle (temporada)", "Calefactores en terraza", "Salón interior", "Kayaks para team building"],
+    "eventTypes": ["Retiros corporativos", "Cenas de ensayo", "Cumpleaños de hito"],
+    "layoutNotes": "Terraza: 100 · Salón: 60",
+    "policies": [
+      {
+        "title": "Seguridad acuática",
+        "body": "Uso del muelle con waivers; chalecos solo para demos."
+      }
+    ]
+  },
+  "8": {
+    "name": "Loft Studio 9",
+    "location": "South Congress",
+    "priceHint": "Desde 1.200 USD / evento",
+    "subtitle": "Loft luminoso con isla de cocina y zonas Sonos.",
+    "description": "Un loft céntrico flexible para offsites, grabaciones de podcast y celebraciones pequeñas. Luz natural hasta media tarde; opción de oscurecimiento total.",
+    "amenities": ["Isla de cocina", "Sonos", "Pantalla móvil 85\"", "Cabinas telefónicas (2)"],
+    "eventTypes": ["Offsites", "Despedidas de soltera/o", "Grabaciones de podcast"],
+    "layoutNotes": "Mesas taller: 40 · Lounge: 75",
+    "policies": [
+      {
+        "title": "Edificio",
+        "body": "Carga por montacargas; horario de silencio después de las 22:00."
+      }
+    ]
+  }
+}
