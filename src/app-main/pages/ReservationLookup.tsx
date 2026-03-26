@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Layout } from '../components/layout';
-import HeroTitleSection from '../components/sections/HeroTitleSection';
-import ReservationLookupForm from '../components/reservation/ReservationLookupForm';
-import ReservationDetails from '../components/reservation/ReservationDetails';
+import { Layout } from '../../components/layout';
+import HeroTitleSection from '../../components/sections/HeroTitleSection';
+import ReservationLookupForm from '../../components/reservation/ReservationLookupForm';
+import ReservationDetails from '../../components/reservation/ReservationDetails';
 import {
   cancelReservation,
   getReservationByCode,

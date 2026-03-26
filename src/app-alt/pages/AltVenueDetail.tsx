@@ -1,45 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import DatePicker from 'react-datepicker';
 import { useTranslation } from 'react-i18next';
-import { enUS, es as esLocale, ptBR } from 'date-fns/locale';
-import type { Locale } from 'date-fns';
 import { Button, Card } from '../../components/ui';
+import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
 import {
   MapPin,
   Users,
-  CalendarDays,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
   Sparkles,
   MessageCircle,
 } from 'lucide-react';
-import { getLocalizedVenueById } from '../data/venueLocale';
-
-function datePickerLocale(i18nLang: string): Locale {
-  if (i18nLang.startsWith('pt')) return ptBR;
-  if (i18nLang.startsWith('es')) return esLocale;
-  return enUS;
-}
+import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
 
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
-  const { t, i18n } = useTranslation();
-  const venue = id ? getLocalizedVenueById(id, t) : undefined;
+  const { t } = useTranslation();
+  const [venue, setVenue] = useState<EventVenue | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [galleryOpacity, setGalleryOpacity] = useState(1);
-  const [checkIn, setCheckIn] = useState<Date | null>(null);
-  const [checkOut, setCheckOut] = useState<Date | null>(null);
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [showBookingFlow, setShowBookingFlow] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getEventVenueById(id);
+        setVenue(data);
+      } catch (_error) {
+        setError('Failed to load venue details.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [id]);
 
   const heroImages = venue?.images ?? [];
   const heroImageCount = heroImages.length;
   const displayImageIndex = heroImageCount > 0 ? currentImageIndex % heroImageCount : 0;
-
-  const minDate = new Date();
-  minDate.setHours(0, 0, 0, 0);
 
   const transitionThenSetIndex = (nextIndex: number) => {
     setGalleryOpacity(0);
@@ -49,13 +55,19 @@ export default function AltVenueDetail() {
     }, 200);
   };
 
-  const dfLocale = datePickerLocale(i18n.language);
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
+        <p className="text-charcoal">Loading venue details...</p>
+      </div>
+    );
+  }
 
-  if (!venue) {
+  if (!venue || error) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
         <h1 className="text-2xl font-bold text-navy mb-4">{t('alt.venueDetail.notFoundTitle')}</h1>
-        <p className="text-charcoal mb-6 text-center max-w-md">{t('alt.venueDetail.notFoundBody')}</p>
+        <p className="text-charcoal mb-6 text-center max-w-md">{error ?? t('alt.venueDetail.notFoundBody')}</p>
         <Link to="/search">
           <Button variant="primary">{t('alt.venueDetail.backToVenues')}</Button>
         </Link>
@@ -78,7 +90,7 @@ export default function AltVenueDetail() {
     {
       title: t('alt.venueDetail.pricingHintTitle'),
       description: t('alt.venueDetail.pricingHintDesc', { priceHint: venue.priceHint, suffix }),
-      icon: <CalendarDays className="h-6 w-6 text-gold" />,
+      icon: <Sparkles className="h-6 w-6 text-gold" />,
     },
   ];
 
@@ -97,7 +109,7 @@ export default function AltVenueDetail() {
         </div>
 
         <section className="space-y-6">
-          <div className="relative rounded-[2rem] overflow-hidden bg-white shadow-[0_25px_60px_-25px_rgba(43,43,43,0.35)] aspect-[4/3]">
+          <div className="relative rounded-4xl overflow-hidden bg-white shadow-[0_25px_60px_-25px_rgba(43,43,43,0.35)] aspect-4/3">
             <img
               key={displayImageIndex}
               src={heroImages[displayImageIndex]}
@@ -219,7 +231,7 @@ export default function AltVenueDetail() {
             </div>
 
             <div className="space-y-4">
-              <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white/80 p-6 shadow-[0_20px_40px_-20px_rgba(43,43,43,0.35)]">
+              <Card className="space-y-4 rounded-4xl border border-warm-gray bg-white/80 p-6 shadow-[0_20px_40px_-20px_rgba(43,43,43,0.35)]">
                 <div className="flex items-center gap-4">
                   <img
                     src="https://ui-avatars.com/api/?name=Venue+Coordinator&background=F3E9DD&color=2B2B2B"
@@ -251,65 +263,19 @@ export default function AltVenueDetail() {
                 </Link>
               </Card>
 
-              <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(43,43,43,0.35)]">
+              <Card className="space-y-4 rounded-4xl border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(43,43,43,0.35)]">
                 <div className="space-y-1 text-center">
                   <p className="text-xs uppercase tracking-[0.35em] text-charcoal/70">{t('alt.venueDetail.startingFrom')}</p>
                   <div className="text-2xl font-semibold text-navy">{venue.priceHint}</div>
                   <p className="text-sm text-charcoal">{t('alt.venueDetail.taxesNote')}</p>
                 </div>
-                <Button variant="primary" size="lg" className="w-full" type="button" onClick={() => setShowCalendar((s) => !s)}>
+                <Button variant="primary" size="lg" className="w-full" type="button" onClick={() => setShowBookingFlow((s) => !s)}>
                   {t('alt.venueDetail.checkAvailability')}
                 </Button>
 
-                {showCalendar && (
+                {showBookingFlow && (
                   <div className="pt-4 border-t border-warm-gray space-y-4">
-                    <p className="text-xs text-charcoal/80">{t('alt.venueDetail.calendarDemoNote')}</p>
-                    <div>
-                      <label className="block text-sm font-medium text-navy mb-2">{t('alt.venueDetail.eventStart')}</label>
-                      <DatePicker
-                        selected={checkIn}
-                        onChange={(date) => {
-                          setCheckIn(date);
-                          if (checkOut && date && checkOut < date) setCheckOut(null);
-                        }}
-                        selectsStart
-                        startDate={checkIn}
-                        endDate={checkOut}
-                        minDate={minDate}
-                        placeholderText={t('alt.venueDetail.placeholderStart')}
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold focus:border-transparent"
-                        calendarClassName="custom-datepicker"
-                        dateFormat="PPP"
-                        locale={dfLocale}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-navy mb-2">{t('alt.venueDetail.eventEnd')}</label>
-                      <DatePicker
-                        selected={checkOut}
-                        onChange={(date) => setCheckOut(date)}
-                        selectsEnd
-                        startDate={checkIn}
-                        endDate={checkOut}
-                        minDate={checkIn ?? minDate}
-                        disabled={!checkIn}
-                        placeholderText={t('alt.venueDetail.placeholderEnd')}
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gold focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                        calendarClassName="custom-datepicker"
-                        dateFormat="PPP"
-                        locale={dfLocale}
-                      />
-                    </div>
-                    <Button
-                      variant="outline"
-                      className="w-full rounded-2xl"
-                      type="button"
-                      onClick={() => {
-                        /* demo only */
-                      }}
-                    >
-                      {t('alt.venueDetail.requestHoldDemo')}
-                    </Button>
+                    <GuestBookingFlow property={venue} />
                   </div>
                 )}
               </Card>

@@ -33,6 +33,7 @@ export interface GuestBookingProfile {
   email?: string;
   phone: string;
   documentId?: string;
+  estimatedGuests?: number;
 }
 
 export interface GuestBookingConfirmation {

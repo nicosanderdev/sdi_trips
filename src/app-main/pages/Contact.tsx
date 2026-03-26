@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Layout } from '../components/layout';
-import { Card, Button, Input, Textarea } from '../components/ui';
-import HeroTitleSection from '../components/sections/HeroTitleSection';
+import { Layout } from '../../components/layout';
+import { Card, Button, Input, Textarea } from '../../components/ui';
+import HeroTitleSection from '../../components/sections/HeroTitleSection';
 import { Mail, MessageSquare, Bug, Handshake } from 'lucide-react';
 import { sendContactMessage } from '../../services/contactService';
 

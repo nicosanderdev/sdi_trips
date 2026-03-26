@@ -42,7 +42,9 @@ export interface CreateBookingHoldParams {
   propertyId: string;
   checkIn: Date;
   checkOut: Date;
+  blockedCheckOut?: Date;
   guests: number;
+  estimatedGuests?: number;
   ipHash?: string;
   idempotencyKey?: string;
 }
@@ -164,8 +166,10 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
     const { data, error } = await supabase.rpc('create_booking_hold', {
       p_property_id: params.propertyId,
       p_check_in: params.checkIn.toISOString().split('T')[0],
-      p_check_out: params.checkOut.toISOString().split('T')[0],
+      p_check_out: (params.blockedCheckOut ?? params.checkOut).toISOString().split('T')[0],
+      p_visible_check_out: params.checkOut.toISOString().split('T')[0],
       p_guests: params.guests,
+      p_estimated_guests: params.estimatedGuests ?? null,
       p_ip_hash: params.ipHash ?? null,
       p_idempotency_key: params.idempotencyKey ?? null,
     });
@@ -285,6 +289,7 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
         email: params.profile.email ?? null,
         phone: params.profile.phone,
         documentId: params.profile.documentId ?? null,
+        estimatedGuests: params.profile.estimatedGuests ?? null,
         totalPrice: params.profile.totalPrice ?? null,
       },
     });

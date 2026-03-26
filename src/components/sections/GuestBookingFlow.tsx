@@ -14,6 +14,7 @@ import {
 } from '../../services/bookingService';
 
 type BookingStep = 'dates' | 'guest' | 'otp' | 'confirming' | 'done';
+type BookingMode = 'singleNight' | 'multipleDays';
 
 interface GuestBookingFlowProps {
   property: Property;
@@ -27,7 +28,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
   const [step, setStep] = useState<BookingStep>('dates');
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
-  const [guests, setGuests] = useState(1);
+  const [bookingMode, setBookingMode] = useState<BookingMode>('singleNight');
+  const [estimatedGuests, setEstimatedGuests] = useState<string>('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [validationLoading, setValidationLoading] = useState(false);
   const [holdId, setHoldId] = useState<string | null>(null);
@@ -44,7 +46,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
   const [manageUrl, setManageUrl] = useState<string | null>(null);
   const [flowError, setFlowError] = useState<string | null>(null);
 
-  const canValidate = Boolean(checkIn && checkOut && guests > 0);
+  const canValidate = Boolean(checkIn && checkOut);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,7 +59,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
 
     const timer = window.setTimeout(async () => {
       setValidationLoading(true);
-      const result = await validateBookingSelection(property.id, checkIn, checkOut, guests);
+      const result = await validateBookingSelection(property.id, checkIn, checkOut, 1);
       if (!cancelled) {
         setValidationError(result.isValid ? null : (result.errors[0] ?? t('propertyDetail.bookingFlow.errors.invalidDateSelection')));
       }
@@ -68,7 +70,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [canValidate, checkIn, checkOut, guests, property.id, t]);
+  }, [canValidate, checkIn, checkOut, property.id, t]);
 
   useEffect(() => {
     if (!holdExpiresAt) {
@@ -112,6 +114,12 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
 
   const totalPrice = nights * (property.price || 0);
 
+  const addDays = (date: Date, days: number): Date => {
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    return next;
+  };
+
   const handleCreateHold = async () => {
     if (!checkIn || !checkOut || validationError) return;
     setActionLoading(true);
@@ -120,8 +128,10 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
       propertyId: property.id,
       checkIn,
       checkOut,
-      guests,
-      idempotencyKey: `${property.id}-${checkIn.toISOString()}-${checkOut.toISOString()}-${guests}`,
+      blockedCheckOut: addDays(checkOut, 1),
+      guests: 1,
+      estimatedGuests: estimatedGuests.trim() ? Number(estimatedGuests) : undefined,
+      idempotencyKey: `${property.id}-${checkIn.toISOString()}-${checkOut.toISOString()}-${bookingMode}`,
     });
     setActionLoading(false);
 
@@ -175,6 +185,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
         email: email.trim() || undefined,
         phone: phone.trim(),
         documentId: documentId.trim() || undefined,
+        estimatedGuests: estimatedGuests.trim() ? Number(estimatedGuests) : undefined,
         totalPrice,
       },
     });
@@ -195,8 +206,30 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
 
   return (
     <div className="space-y-4">
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-navy">{t('propertyDetail.bookingFlow.bookingModeLabel')}</label>
+        <select
+          value={bookingMode}
+          onChange={(e) => {
+            const nextMode = e.target.value as BookingMode;
+            setBookingMode(nextMode);
+            setCheckIn(null);
+            setCheckOut(null);
+            setValidationError(null);
+          }}
+          className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+        >
+          <option value="singleNight">{t('propertyDetail.bookingFlow.bookingModes.singleNight')}</option>
+          <option value="multipleDays">{t('propertyDetail.bookingFlow.bookingModes.multipleDays')}</option>
+        </select>
+        {bookingMode === 'singleNight' && (
+          <p className="text-xs text-charcoal/80">{t('propertyDetail.bookingFlow.singleNightHint')}</p>
+        )}
+      </div>
+
       <BookingDatePicker
         propertyId={property.id}
+        bookingMode={bookingMode}
         checkIn={checkIn}
         checkOut={checkOut}
         onCheckInChange={setCheckIn}
@@ -206,18 +239,6 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
         leadTimeDays={property.leadTimeDays}
         bufferDays={property.bufferDays}
       />
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-navy">{t('propertyDetail.bookingFlow.guestsLabel')}</label>
-        <input
-          type="number"
-          min={1}
-          max={property.maxGuests || 20}
-          value={guests}
-          onChange={(e) => setGuests(Math.max(1, Number(e.target.value || 1)))}
-          className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
-        />
-      </div>
 
       {holdExpiresAt && step !== 'done' && (
         <p className="text-xs text-charcoal">
@@ -281,6 +302,15 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
               value={documentId}
               onChange={(e) => setDocumentId(e.target.value)}
               placeholder={t('propertyDetail.bookingFlow.form.documentIdOptional')}
+              className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+            />
+            <input
+              type="number"
+              min={1}
+              max={property.maxGuests || 2000}
+              value={estimatedGuests}
+              onChange={(e) => setEstimatedGuests(e.target.value)}
+              placeholder={t('propertyDetail.bookingFlow.form.estimatedGuests')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
             <Button

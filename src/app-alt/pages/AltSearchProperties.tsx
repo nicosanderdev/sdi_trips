@@ -1,16 +1,38 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Users, SlidersHorizontal } from 'lucide-react';
-import { listLocalizedVenues } from '../data/venueLocale';
-import type { VenueEventTag } from '../data/staticVenues';
+import {
+  searchEventVenues,
+  type EventVenue,
+  type VenueEventTag,
+} from '../../services/eventVenueService';
 
 export default function AltSearchProperties() {
   const { t } = useTranslation();
-  const allVenues = listLocalizedVenues(t);
+  const [allVenues, setAllVenues] = useState<EventVenue[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [eventType, setEventType] = useState('');
   const [capacityFilter, setCapacityFilter] = useState('');
   const [priceTier, setPriceTier] = useState('');
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const result = await searchEventVenues();
+        setAllVenues(result.venues);
+      } catch (_error) {
+        setError('Failed to load venues. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [t]);
 
   const filtered = useMemo(() => {
     return allVenues.filter((v) => {
@@ -119,7 +141,7 @@ export default function AltSearchProperties() {
                 key={venue.id}
                 className="group rounded-2xl border border-navy/10 bg-white overflow-hidden shadow-sm hover:shadow-gold transition-shadow"
               >
-                <Link to={`/venue/${venue.id}`} className="block relative aspect-[4/3] overflow-hidden bg-navy/10">
+                <Link to={`/venue/${venue.id}`} className="block relative aspect-4/3 overflow-hidden bg-navy/10">
                   <img
                     src={venue.images[0]}
                     alt={venue.name}
@@ -161,6 +183,11 @@ export default function AltSearchProperties() {
               </article>
             ))}
           </div>
+          {loading && <p className="text-sm text-charcoal/70">Loading venues...</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          {!loading && !error && filtered.length === 0 && (
+            <p className="text-sm text-charcoal/70">No venues found for the selected filters.</p>
+          )}
         </div>
       </section>
     </>

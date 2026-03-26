@@ -428,7 +428,12 @@
       "sendMessage": "Enviar mensaje a {{name}}"
     },
     "bookingFlow": {
-      "guestsLabel": "Huéspedes",
+      "bookingModeLabel": "Tipo de reserva",
+      "bookingModes": {
+        "singleNight": "Una noche",
+        "multipleDays": "Varios días"
+      },
+      "singleNightHint": "Selecciona un solo día. El check-out será automáticamente al día siguiente.",
       "holdActiveFor": "Reserva temporal activa por:",
       "checkingAvailability": "Validando reglas y disponibilidad...",
       "confirmingMessage": "Confirmando tu reserva...",
@@ -440,6 +445,7 @@
         "emailOptional": "Correo electrónico (opcional)",
         "phone": "Teléfono (+598...)",
         "documentIdOptional": "Documento de identidad (opcional)",
+        "estimatedGuests": "Cantidad estimada de invitados (opcional)",
         "enterOtp": "Ingresa el OTP"
       },
       "actions": {
