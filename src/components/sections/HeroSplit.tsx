@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui';
 import type { Property } from '../../types';
 import { getTopRatedPropertiesForHero } from '../../services/propertyService';
+import uyCitiesData from '../../data/uy-cities.json';
+
+interface UyCity {
+  name: string;
+  lat: string;
+  long: string;
+  zoom: string;
+}
+
+const uyCities: UyCity[] = uyCitiesData as UyCity[];
+const HERO_CITY_OPTIONS_CAP = 40;
 
 const mockReviews = [
   {
@@ -61,6 +72,15 @@ type HeroSlide = {
 const HeroSplit: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const heroCityOptions = useMemo(
+    () =>
+      [...uyCities]
+        .map((city) => city.name)
+        .sort((a, b) => a.localeCompare(b, 'es'))
+        .slice(0, HERO_CITY_OPTIONS_CAP),
+    []
+  );
 
   const [heroProperties, setHeroProperties] = useState<Property[]>([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
@@ -143,33 +163,46 @@ const HeroSplit: React.FC = () => {
           <p className="mt-4 text-white/95 text-[clamp(1rem,1.8vw,1.35rem)] max-w-[34ch]">
             {t('landing.hero.description')}
           </p>
+          {t('landing.hero.valueProposition').trim() ? (
+            <p className="mt-3 text-white/90 text-[clamp(0.95rem,1.5vw,1.1rem)] max-w-[40ch] leading-snug">
+              {t('landing.hero.valueProposition')}
+            </p>
+          ) : null}
           <p className="mt-3 text-white/85 text-base font-medium">{t('landing.hero.support')}</p>
 
           <form
             className="mt-5 grid grid-cols-1 md:grid-cols-[1.2fr_0.9fr_auto] gap-2 w-full max-w-[720px] p-3 rounded-2xl border border-gold/40 bg-white/95 backdrop-blur-sm"
             onSubmit={(event) => {
               event.preventDefault();
-              navigate('/search');
+              const form = event.currentTarget;
+              const fd = new FormData(form);
+              const locationText = String(fd.get('location') ?? '').trim();
+              const city = String(fd.get('city') ?? '').trim();
+              // Prefer free-text location; otherwise use the city picked from the Uruguay list.
+              const q = locationText || city;
+              navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search');
             }}
           >
             <input
               className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
               type="text"
-              name="dates"
-              placeholder={t('landing.hero.search.datePlaceholder')}
-              aria-label={t('landing.hero.search.dateAria')}
+              name="location"
+              autoComplete="off"
+              placeholder={t('landing.hero.search.locationPlaceholder')}
+              aria-label={t('landing.hero.search.locationAria')}
             />
             <select
               className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-              name="guests"
-              aria-label={t('landing.hero.search.guestsAria')}
+              name="city"
+              aria-label={t('landing.hero.search.cityAria')}
               defaultValue=""
             >
-              <option value="">{t('landing.hero.search.guestsPlaceholder')}</option>
-              <option value="2">{t('landing.hero.search.guests2')}</option>
-              <option value="4">{t('landing.hero.search.guests4')}</option>
-              <option value="6">{t('landing.hero.search.guests6')}</option>
-              <option value="8">{t('landing.hero.search.guests8')}</option>
+              <option value="">{t('landing.hero.search.cityPlaceholder')}</option>
+              {heroCityOptions.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
             </select>
             <button
               className="inline-flex items-center justify-center rounded-full border-2 border-gold bg-gold text-navy font-semibold px-6 py-3 transition-all hover:scale-[1.04] hover:bg-navy hover:text-gold"
@@ -191,22 +224,27 @@ const HeroSplit: React.FC = () => {
             </p>
           </div>
 
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-3 items-start">
             <Link to="/search">
               <Button variant="primary" size="lg">
                 {t('landing.hero.cta.search')}
               </Button>
             </Link>
-            <Link to="/reservation-lookup">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold">
-                {t('landing.hero.cta.manage')}
-              </Button>
-            </Link>
+            <div className="flex flex-col items-start gap-2">
+              <Link to="/reservation-lookup">
+                <Button variant="outline" size="lg" className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold">
+                  {t('landing.hero.cta.manage')}
+                </Button>
+              </Link>
+              <p className="m-0 text-sm text-white/80">{t('landing.hero.links.reservationPrompt')}</p>
+            </div>
           </div>
 
-          <Link to="/privacy" className="inline-block mt-4 text-white/80 underline underline-offset-4 hover:text-white">
-            {t('landing.hero.links.security')}
-          </Link>
+          {t('landing.hero.links.security').trim() ? (
+            <Link to="/privacy" className="inline-block mt-4 text-white/80 underline underline-offset-4 hover:text-white">
+              {t('landing.hero.links.security')}
+            </Link>
+          ) : null}
           <Link to="/reservation-lookup" className="block mt-3 text-white/80 hover:text-white text-sm">
             {t('landing.hero.links.reservationLookup')}
           </Link>

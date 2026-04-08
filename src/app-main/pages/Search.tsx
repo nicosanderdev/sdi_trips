@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
@@ -45,6 +46,7 @@ interface SearchFilters {
 const Search: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   // Mapbox access token - you'll need to set this in your .env file
 
   const [filters, setFilters] = useState<SearchFilters>({
@@ -172,6 +174,16 @@ const Search: React.FC = () => {
 
     fetchMemberAndFavorites();
   }, [user]);
+
+  // Seed location from deep link (?q=) from the landing hero form (layout effect so debounce effect sees updated searchQuery)
+  useLayoutEffect(() => {
+    const q = searchParams.get('q');
+    if (!q) return;
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    setSearchQuery(trimmed);
+    setDebouncedSearchQuery(trimmed);
+  }, [searchParams]);
 
   // Debounce search query
   useEffect(() => {

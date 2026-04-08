@@ -118,9 +118,7 @@ const Landing: React.FC = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
-            <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('landing.featured.eyebrow')}</p>
-            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-navy">{t('landing.featured.title')}</h2>
-            <p className="mt-3 text-charcoal/80 max-w-3xl mx-auto">{t('landing.featured.description')}</p>
+            <h2 className="m-0 text-3xl md:text-4xl font-bold text-navy">{t('landing.featured.title')}</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
@@ -209,15 +207,22 @@ const Landing: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((step) => (
-              <article key={`how-${step}`} className="rounded-2xl border border-navy/15 bg-white p-5">
-                <div className="w-10 h-10 rounded-full grid place-items-center bg-warm-gray text-navy border border-navy/15 font-bold">
-                  {step}
-                </div>
-                <h3 className="mt-4 mb-2 text-lg font-semibold text-navy">{t(`landing.howItWorks.steps.${step}.title`)}</h3>
-                <p className="m-0 text-sm text-charcoal/85">{t(`landing.howItWorks.steps.${step}.description`)}</p>
-              </article>
-            ))}
+            {[1, 2, 3, 4].map((step) => {
+              const subtitle = t(`landing.howItWorks.steps.${step}.subtitle`);
+              const body = t(`landing.howItWorks.steps.${step}.description`);
+              return (
+                <article key={`how-${step}`} className="rounded-2xl border border-navy/15 bg-white p-5">
+                  <div className="w-10 h-10 rounded-full grid place-items-center bg-warm-gray text-navy border border-navy/15 font-bold">
+                    {step}
+                  </div>
+                  <h3 className="mt-4 mb-1 text-lg font-semibold text-navy">{t(`landing.howItWorks.steps.${step}.title`)}</h3>
+                  {subtitle.trim() ? (
+                    <p className="m-0 mb-2 text-sm font-medium text-navy/80">{subtitle}</p>
+                  ) : null}
+                  {body.trim() ? <p className="m-0 text-sm text-charcoal/85">{body}</p> : null}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
