@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Input, Textarea } from '../../components/ui';
 import { Mail, MessageSquare, Building2, Handshake } from 'lucide-react';
+import { sendContactMessage } from '../../services/contactService';
 
 export default function AltContact() {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const reasons = [
     { icon: MessageSquare, titleKey: 'alt.contact.reasonPlanningTitle', descKey: 'alt.contact.reasonPlanningDesc' },
@@ -72,9 +75,24 @@ export default function AltContact() {
               ) : (
                 <form
                   className="space-y-6"
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setSubmitted(true);
+                    setSubmitError('');
+                    setIsSubmitting(true);
+
+                    try {
+                      await sendContactMessage({
+                        name: formData.name.trim(),
+                        email: formData.email.trim(),
+                        message: formData.message.trim(),
+                      });
+                      setSubmitted(true);
+                      setFormData({ name: '', email: '', message: '' });
+                    } catch {
+                      setSubmitError(t('contact.errors.submitFailed'));
+                    } finally {
+                      setIsSubmitting(false);
+                    }
                   }}
                 >
                   <Input
@@ -100,8 +118,13 @@ export default function AltContact() {
                     rows={6}
                     required
                   />
-                  <Button type="submit" variant="primary" size="lg" className="w-full">
-                    {t('alt.contact.submitDemo')}
+                  {submitError ? (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                      <p className="text-red-600 font-medium">{submitError}</p>
+                    </div>
+                  ) : null}
+                  <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? t('contact.form.sending') : t('alt.contact.submitDemo')}
                   </Button>
                 </form>
               )}

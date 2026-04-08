@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
@@ -32,11 +34,9 @@ const Footer: React.FC = () => {
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <Link to="/" className="text-2xl font-bold text-gold mb-4 block">
-              Holiday Trips
+              {t('nav.logo')}
             </Link>
-            <p className="text-warm-gray-light mb-6 max-w-md">
-              Discover extraordinary holiday homes around the world. Experience luxury, comfort, and unforgettable memories in the most beautiful destinations.
-            </p>
+            <p className="text-warm-gray-light mb-6 max-w-md">{t('footer.brandDescription')}</p>
 
             {/* Contact Info */}
             <div className="space-y-3">
@@ -53,6 +53,7 @@ const Footer: React.FC = () => {
                 <span className="text-sm">San Francisco, CA</span>
               </div>
             </div>
+
           </div>
 
           {/* Company Links */}
@@ -95,7 +96,7 @@ const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
             <p className="text-warm-gray-light text-sm">
-              © {currentYear} Holiday Trips. All rights reserved.
+              © {currentYear} {t('nav.logo')}. {t('footer.allRightsReserved')}
             </p>
 
             {/* Social Links */}
