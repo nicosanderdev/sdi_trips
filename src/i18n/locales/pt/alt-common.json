@@ -1,11 +1,11 @@
 {
   "layout": {
-    "documentTitle": "VenueSpace — Espaços para eventos"
+    "documentTitle": "Event venues: En cartelera - Espacios"
   },
   "brand": {
-    "venue": "Venue",
-    "space": "Space",
-    "full": "VenueSpace"
+    "venue": "En cartelera - ",
+    "space": "Espacios",
+    "full": "Event venues: En cartelera - Espacios"
   },
   "nav": {
     "mainNavAria": "Navegação principal",
@@ -120,7 +120,7 @@
     "notFoundTitle": "Espaço não encontrado",
     "notFoundBody": "Esta listagem pode ter mudado. Explore todos os espaços para continuar.",
     "backToVenues": "Voltar aos espaços",
-    "curatedBadge": "Curadoria VenueSpace",
+    "curatedBadge": "Curadoria En cartelera - Espacios",
     "guestsCount": "Até {{count}} convidados",
     "eventCategoriesCount": "{{count}} categorias de evento",
     "whyWorks": "Por que este espaço funciona",
@@ -184,7 +184,7 @@
         "id": "acceptance",
         "title": "Aceitação dos termos",
         "paragraphs": [
-          "Ao acessar o VenueSpace (demo), você aceita estes termos. Se não concordar, interrompa o uso do site.",
+          "Ao acessar Event venues: En cartelera - Espacios (demo), você aceita estes termos. Se não concordar, interrompa o uso do site.",
           "O conteúdo é ilustrativo. Disponibilidade, preços e políticas em listagens reais podem diferir."
         ]
       },
@@ -192,7 +192,7 @@
         "id": "services",
         "title": "Natureza do serviço",
         "paragraphs": [
-          "O VenueSpace é uma camada de descoberta de espaços para eventos. Não garantimos desempenho de terceiros, equipe ou licenças."
+          "Event venues: En cartelera - Espacios é uma camada de descoberta de espaços para eventos. Não garantimos desempenho de terceiros, equipe ou licenças."
         ],
         "bullets": [
           "As listagens podem incluir capacidade aproximada e valores indicativos.",
@@ -220,7 +220,7 @@
         "id": "liability",
         "title": "Responsabilidade",
         "paragraphs": [
-          "Na extensão máxima permitida por lei, o VenueSpace (demo) exclui garantias e limita responsabilidade por danos indiretos ou consequentes pelo uso do site ou confiança em conteúdo de amostra."
+          "Na extensão máxima permitida por lei, Event venues: En cartelera - Espacios (demo) exclui garantias e limita responsabilidade por danos indiretos ou consequentes pelo uso do site ou confiança em conteúdo de amostra."
         ]
       },
       {
@@ -253,7 +253,7 @@
     "weddingVenues": "Espaços para casamento",
     "corporateEvents": "Eventos corporativos",
     "privateParties": "Festas privativas",
-    "copyright": "© {{year}} VenueSpace. Todos os direitos reservados.",
+    "copyright": "© {{year}} Event venues: En cartelera - Espacios. Todos os direitos reservados.",
     "facebook": "Facebook",
     "twitter": "Twitter",
     "instagram": "Instagram"

@@ -35,7 +35,7 @@
     "myTrips": "Minhas viagens",
     "wishlist": "Lista de desejos",
     "inbox": "Caixa de entrada",
-    "logo": "En Cartelera - Escapadas",
+    "logo": "Summer rentals: En cartelera - Escapadas",
     "profile": "Perfil",
     "logout": "Sair",
     "logoutAlert": "Sua sessão será encerrada."
@@ -55,7 +55,7 @@
     "signingIn": "Entrando...",
     "dontHaveAccount": "Não tem uma conta?",
     "signUpHere": "Cadastre-se aqui",
-    "joinHolidayTrips": "Junte-se ao Holiday Trips",
+    "joinHolidayTrips": "Junte-se ao Summer rentals: En cartelera - Escapadas",
     "createYourAccount": "Crie sua conta e comece a explorar propriedades extraordinárias",
     "backToHome": "Voltar ao início",
     "enterYourEmail": "Digite seu e-mail",
@@ -732,7 +732,7 @@
   },
   "onboarding": {
     "welcome": {
-      "title": "Bem-vindo ao Holiday Trips",
+      "title": "Bem-vindo ao Summer rentals: En cartelera - Escapadas",
       "message": "Seu perfil está pronto. Vamos mostrar o essencial para você começar a reservar."
     },
     "verifyEmail": {
@@ -933,16 +933,16 @@
   "about": {
     "hero": {
       "title": "Sobre",
-      "titleHighlight": "Holiday Trips",
+      "titleHighlight": "En cartelera - Escapadas",
       "description": "Estamos em uma missão para transformar como as pessoas experimentam casas de férias. Ao selecionar propriedades extraordinárias e fornecer um serviço incomparável, criamos memórias que duram toda a vida."
     },
     "story": {
       "title": "Nossa",
       "titleHighlight": "História",
-      "paragraph1": "Holiday Trips começou com uma ideia simples: aluguéis de férias devem ser tão luxuosos e memoráveis quanto os melhores hotéis, mas com o espaço e a privacidade de uma casa.",
+      "paragraph1": "En cartelera - Escapadas começou com uma ideia simples: aluguéis de férias devem ser tão luxuosos e memoráveis quanto os melhores hotéis, mas com o espaço e a privacidade de uma casa.",
       "paragraph2": "Nossa fundadora, Anna Svensson, experimentou isso em primeira mão ao procurar a casa de férias perfeita para sua família. Frustrada pela falta de opções de qualidade e experiências inconsistentes, ela decidiu criar uma plataforma que mudaria a indústria de aluguéis de férias para sempre.",
       "paragraph3": "Hoje, selecionamos mais de 800 propriedades excepcionais em mais de 50 países, cada uma inspecionada e verificada pessoalmente para garantir que atendam aos nossos padrões intransigentes de luxo, conforto e autenticidade.",
-      "imageAlt": "Equipe Holiday Trips"
+      "imageAlt": "Equipe En cartelera - Escapadas"
     },
     "stats": {
       "curatedProperties": "Propriedades Selecionadas",
@@ -974,12 +974,12 @@
     "team": {
       "title": "Conheça Nossa",
       "titleHighlight": "Equipe",
-      "subtitle": "Os indivíduos apaixonados por trás do Holiday Trips, dedicados a criar experiências extraordinárias para nossos hóspedes.",
+      "subtitle": "Os indivíduos apaixonados por trás do En cartelera - Escapadas, dedicados a criar experiências extraordinárias para nossos hóspedes.",
       "members": {
         "anna": {
           "name": "Anna Svensson",
           "role": "Fundadora e CEO",
-          "bio": "Com mais de 15 anos em hospitalidade de luxo, Anna fundou o Holiday Trips para revolucionar como as pessoas experimentam casas de férias."
+          "bio": "Com mais de 15 anos em hospitalidade de luxo, Anna fundou En cartelera - Escapadas para revolucionar como as pessoas experimentam casas de férias."
         },
         "marcus": {
           "name": "Marcus Johnson",
@@ -1064,19 +1064,19 @@
     "hero": {
       "title": "Termos de",
       "titleHighlight": "Serviço",
-      "description1": "Leia estes termos com atenção antes de usar o Holiday Trips.",
+      "description1": "Leia estes termos com atenção antes de usar En cartelera - Escapadas.",
       "description2": "Ao utilizar nossos serviços, você concorda em ficar vinculado a estes termos.",
       "lastUpdated": "Última atualização:"
     },
     "sections": {
       "acceptance": {
         "title": "Aceitação dos Termos",
-        "paragraph1": "Ao acessar e utilizar o Holiday Trips, você aceita e concorda em cumprir os termos e disposições deste acordo. Se você não concorda com o acima, por favor não utilize este serviço.",
+        "paragraph1": "Ao acessar e utilizar En cartelera - Escapadas, você aceita e concorda em cumprir os termos e disposições deste acordo. Se você não concorda com o acima, por favor não utilize este serviço.",
         "paragraph2": "Estes Termos de Serviço se aplicam a todos os visitantes, usuários e demais pessoas que acessam ou utilizam nossos serviços. Ao utilizar nossos serviços, você concorda em ficar vinculado a estes termos."
       },
       "useLicense": {
         "title": "Licença de uso",
-        "paragraph1": "É concedida permissão para baixar temporariamente uma cópia dos materiais do Holiday Trips apenas para visualização transitória, pessoal e não comercial.",
+        "paragraph1": "É concedida permissão para baixar temporariamente uma cópia dos materiais do En cartelera - Escapadas apenas para visualização transitória, pessoal e não comercial.",
         "paragraph2": "Esta é a concessão de uma licença, não uma transferência de propriedade, e sob esta licença você não pode:",
         "item1": "modificar ou copiar os materiais",
         "item2": "utilizar os materiais para qualquer finalidade comercial ou para qualquer exibição pública",
@@ -1101,7 +1101,7 @@
       },
       "liability": {
         "title": "Limitação de responsabilidade",
-        "paragraph1": "Em nenhuma circunstância o Holiday Trips ou seus fornecedores serão responsáveis por quaisquer danos (incluindo, sem limitação, danos por perda de dados ou lucros, ou por interrupção de negócios) decorrentes do uso ou da impossibilidade de uso dos materiais em nossa plataforma.",
+        "paragraph1": "Em nenhuma circunstância En cartelera - Escapadas ou seus fornecedores serão responsáveis por quaisquer danos (incluindo, sem limitação, danos por perda de dados ou lucros, ou por interrupção de negócios) decorrentes do uso ou da impossibilidade de uso dos materiais em nossa plataforma.",
         "paragraph2": "Não seremos responsáveis por quaisquer danos diretos, indiretos, incidentais, consequentes ou punitivos decorrentes do uso que você fizer de nossos serviços."
       },
       "privacy": {

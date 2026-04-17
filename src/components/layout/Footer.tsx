@@ -33,8 +33,12 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <Link to="/" className="text-2xl font-bold text-gold mb-4 block">
-              {t('nav.logo')}
+            <Link to="/" className="mb-4 inline-block hover:opacity-90 transition-opacity">
+              <img
+                src="/logo-en-cartelera.png"
+                alt="Summer rentals: En cartelera - Escapadas"
+                className="h-12 w-auto"
+              />
             </Link>
             <p className="text-warm-gray-light mb-6 max-w-md">{t('footer.brandDescription')}</p>
 

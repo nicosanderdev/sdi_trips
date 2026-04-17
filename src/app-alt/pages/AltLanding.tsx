@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui';
 import { Heart, Briefcase, PartyPopper } from 'lucide-react';
 import { listLocalizedVenues } from '../data/venueLocale';
+import { getFeaturedEventVenues, type EventVenue } from '../../services/eventVenueService';
 
 const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1519167758481-83f29da3a0a6?auto=format&fit=crop&w=1400&q=80',
@@ -13,11 +14,36 @@ const HERO_IMAGES = [
 
 const SLIDE_COUNT = HERO_IMAGES.length;
 
+interface LandingVenueCard {
+  id: string;
+  name: string;
+  location: string;
+  capacity: number;
+  priceHint: string;
+  images: string[];
+}
+
+function mapFeaturedVenueToCard(venue: EventVenue): LandingVenueCard {
+  const capacity = venue.capacity || venue.maxGuests || 0;
+  const fallbackPriceHint = `From $${venue.priceFrom.toLocaleString()} per event`;
+  return {
+    id: venue.id,
+    name: venue.name,
+    location: venue.location,
+    capacity,
+    priceHint: venue.priceHint || fallbackPriceHint,
+    images: venue.images?.length ? venue.images : HERO_IMAGES,
+  };
+}
+
 export default function AltLanding() {
   const { t } = useTranslation();
   const [slideIndex, setSlideIndex] = useState(0);
   const [fade, setFade] = useState(false);
-  const venues = listLocalizedVenues(t);
+  const [popularVenues, setPopularVenues] = useState<LandingVenueCard[]>([]);
+  const [loadingPopularVenues, setLoadingPopularVenues] = useState(true);
+  const [popularVenuesFetchFailed, setPopularVenuesFetchFailed] = useState(false);
+  const fallbackPopularVenues = listLocalizedVenues(t).slice(0, 6);
 
   const featureCards = [
     { icon: Heart, titleKey: 'alt.landing.features.weddings.title', descKey: 'alt.landing.features.weddings.description' },
@@ -43,8 +69,39 @@ export default function AltLanding() {
     return () => window.clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFeaturedVenues = async () => {
+      setLoadingPopularVenues(true);
+      setPopularVenuesFetchFailed(false);
+
+      try {
+        const featuredVenues = await getFeaturedEventVenues(6);
+        if (!isMounted) return;
+        setPopularVenues(featuredVenues.map(mapFeaturedVenueToCard));
+      } catch (error) {
+        console.error('Failed to load featured event venues for alt landing:', error);
+        if (!isMounted) return;
+        setPopularVenues([]);
+        setPopularVenuesFetchFailed(true);
+      } finally {
+        if (isMounted) {
+          setLoadingPopularVenues(false);
+        }
+      }
+    };
+
+    void loadFeaturedVenues();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const heroImage = HERO_IMAGES[slideIndex];
   const heroQuote = t(`alt.landing.hero.slides.${slideIndex}.quote`);
+  const popularCards = popularVenuesFetchFailed ? fallbackPopularVenues : popularVenues;
 
   return (
     <>
@@ -168,33 +225,50 @@ export default function AltLanding() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-            {venues.slice(0, 6).map((venue, index) => {
-              const image = venue.images[0];
-              return (
-                <article key={venue.id} className="relative min-h-[220px] border border-navy/15 rounded-2xl overflow-hidden bg-navy group">
-                  <Link to={`/venue/${venue.id}`} className="absolute inset-0 z-10" aria-label={venue.name} />
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                    style={{ backgroundImage: `url("${image}")` }}
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/35" />
-                  <div className="absolute left-4 right-4 bottom-4 z-20 flex items-end justify-between gap-3">
-                    <div>
-                      <h3 className="m-0 text-white text-lg font-semibold">{venue.name}</h3>
-                      <p className="m-0 mt-1 text-white/85 text-sm">{venue.location}</p>
-                      <p className="m-0 mt-1 text-white/75 text-xs">
-                        {t('alt.landing.popular.guestsLine', { count: venue.capacity, priceHint: venue.priceHint })}
-                      </p>
+            {loadingPopularVenues &&
+              Array.from({ length: 6 }).map((_, index) => (
+                <article
+                  key={`popular-skeleton-${index}`}
+                  className="relative min-h-[220px] border border-navy/15 rounded-2xl overflow-hidden bg-white/70 animate-pulse"
+                />
+              ))}
+
+            {!loadingPopularVenues &&
+              popularCards.map((venue, index) => {
+                const image = venue.images[0] ?? HERO_IMAGES[0];
+                return (
+                  <article key={venue.id} className="relative min-h-[220px] border border-navy/15 rounded-2xl overflow-hidden bg-navy group">
+                    <Link to={`/venue/${venue.id}`} className="absolute inset-0 z-10" aria-label={venue.name} />
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                      style={{ backgroundImage: `url("${image}")` }}
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/35" />
+                    <div className="absolute left-4 right-4 bottom-4 z-20 flex items-end justify-between gap-3">
+                      <div>
+                        <h3 className="m-0 text-white text-lg font-semibold">{venue.name}</h3>
+                        <p className="m-0 mt-1 text-white/85 text-sm">{venue.location}</p>
+                        <p className="m-0 mt-1 text-white/75 text-xs">
+                          {t('alt.landing.popular.guestsLine', { count: venue.capacity, priceHint: venue.priceHint })}
+                        </p>
+                      </div>
+                      {index === 0 && (
+                        <span className="rounded-full px-3 py-1 text-xs font-bold bg-gold text-navy whitespace-nowrap">
+                          {t('alt.landing.popular.popularBadge')}
+                        </span>
+                      )}
                     </div>
-                    {index === 0 && (
-                      <span className="rounded-full px-3 py-1 text-xs font-bold bg-gold text-navy whitespace-nowrap">
-                        {t('alt.landing.popular.popularBadge')}
-                      </span>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
+                  </article>
+                );
+              })}
+
+            {!loadingPopularVenues && !popularVenuesFetchFailed && popularCards.length === 0 && (
+              <article className="col-span-full rounded-2xl border border-navy/15 bg-white px-6 py-10 text-center">
+                <p className="m-0 text-charcoal/85">
+                  {t('alt.landing.popular.empty', { defaultValue: 'No featured venues are available right now.' })}
+                </p>
+              </article>
+            )}
           </div>
 
           <div className="text-center">

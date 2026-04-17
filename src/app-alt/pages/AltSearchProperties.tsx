@@ -7,6 +7,7 @@ import {
   type EventVenue,
   type VenueEventTag,
 } from '../../services/eventVenueService';
+import HeroTitleSection from '../../components/sections/HeroTitleSection';
 
 export default function AltSearchProperties() {
   const { t } = useTranslation();
@@ -50,20 +51,21 @@ export default function AltSearchProperties() {
 
   return (
     <>
-      <section className="relative py-24 bg-linear-to-br from-warm-gray-light to-white">
-        <div className="absolute inset-0 opacity-[0.07] pointer-events-none">
-          <div className="absolute top-16 right-16 w-80 h-80 bg-gold rounded-full blur-3xl" />
-          <div className="absolute bottom-16 left-16 w-72 h-72 bg-venue-accent rounded-full blur-3xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-thin text-navy mb-4">
+      <HeroTitleSection
+        className="py-24"
+        contentClassName="max-w-4xl mx-auto px-8 text-center flex flex-col items-center justify-center"
+        minHeightClassName="min-h-[300px] md:min-h-[340px]"
+        backgroundImageUrl="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1800&q=80"
+      >
+        <div>
+          <h1 className="text-4xl md:text-5xl font-thin text-white mb-4">
             {t('alt.search.heroTitleBefore')}
             <span className="font-bold text-gold">{t('alt.search.heroTitleHighlight')}</span>
             {t('alt.search.heroTitleAfter')}
           </h1>
-          <p className="text-lg text-charcoal/90 max-w-2xl mx-auto leading-relaxed">{t('alt.search.heroSub')}</p>
+          <p className="text-lg text-white/95 max-w-2xl mx-auto leading-relaxed">{t('alt.search.heroSub')}</p>
         </div>
-      </section>
+      </HeroTitleSection>
 
       <section className="py-12 bg-white border-b border-navy/10">
         <div className="max-w-7xl mx-auto px-8">
