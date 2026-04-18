@@ -6,6 +6,14 @@ import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react'
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
+  const contact = t('footer.contact', {
+    returnObjects: true,
+    defaultValue: {
+      email: 'admin@encartelera.uy',
+      phone: '+598 99 205 886',
+      address: 'Rivera, Uruguay',
+    },
+  }) as { email: string; phone: string; address: string };
 
   const footerLinks = {
     company: [
@@ -46,15 +54,15 @@ const Footer: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gold" />
-                <span className="text-sm">hello@holidaytrips.com</span>
+                <span className="text-sm">{contact.email}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gold" />
-                <span className="text-sm">+1 (555) 123-4567</span>
+                <span className="text-sm">{contact.phone}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-gold" />
-                <span className="text-sm">San Francisco, CA</span>
+                <span className="text-sm">{contact.address}</span>
               </div>
             </div>
 

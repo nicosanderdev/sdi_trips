@@ -21,15 +21,18 @@
   "landing": {
     "hero": {
       "title": "Find the venue your guests will remember",
-      "subtitle": "Weddings, corporate events, and private parties—discover spaces with clear capacity, amenities, and transparent pricing hints.",
-      "searchPlaceholder": "Search by city or venue style",
-      "searchAria": "Search venues",
-      "searchCta": "Search venues",
-      "badgeCurated": "Curated listings",
+      "subtitle": "Check real availability, pick a date, and coordinate directly with the venue. No middlemen. No delays.",
+      "searchDateLabel": "Event date",
+      "searchDateAria": "Event date",
+      "searchGuestsLabel": "Number of guests",
+      "searchGuestsPlaceholder": "e.g. 120",
+      "searchGuestsAria": "Number of guests",
+      "searchCta": "Search",
+      "badgeCurated": "Verified spaces",
       "badgeCapacity": "Capacity & layout notes",
       "badgeHoldDemo": "Date hold demo",
-      "exploreCta": "Explore venues",
-      "talkCta": "Talk to us",
+      "exploreCta": "Explore local venues",
+      "talkCta": "View reservation",
       "storiesHeading": "Planner & host stories",
       "storyDotAria": "Show story {{n}}",
       "slides": {
@@ -46,8 +49,7 @@
     },
     "occasions": {
       "eyebrow": "Every occasion",
-      "heading": "Built for your event type",
-      "sub": "Same rigor as a hospitality platform—applied to venues you can actually book."
+      "heading": "Spaces for your event"
     },
     "features": {
       "weddings": {
@@ -66,28 +68,26 @@
     "popular": {
       "eyebrow": "Featured",
       "heading": "Popular venues this season",
-      "sub": "Hand-picked spaces with strong lighting, flow, and guest experience.",
+      "sub": "Selected for quality and availability.",
       "popularBadge": "Popular",
       "guestsLine": "Up to {{count}} guests · {{priceHint}}",
       "cta": "Find your perfect venue"
     },
     "howItWorks": {
       "heading": "How it works",
-      "sub": "A simple path from discovery to a confident hold request.",
       "step1Title": "Browse venues",
-      "step1Desc": "Filter by capacity, event type, and location across curated listings.",
-      "step2Title": "Compare details",
-      "step2Desc": "Review amenities, layouts, and pricing hints before you reach out.",
-      "step3Title": "Hold your date",
-      "step3Desc": "Pick event dates on the calendar and submit a hold request (demo UI).",
-      "step4Title": "Plan with confidence",
-      "step4Desc": "Work with venue coordinators using clear policies and timelines."
+      "step1Desc": "Filter by capacity, event type, and location.",
+      "step2Title": "Choose a date",
+      "step2Desc": "Check availability in real time",
+      "step3Title": "Book",
+      "step3Desc": "Complete the requested information and confirm your event",
+      "step4Title": "Coordinate directly",
+      "step4Desc": "Connect with the venue without middlemen"
     },
     "ctaBand": {
       "titleBefore": "Ready to ",
       "titleHighlight": "shortlist",
       "titleAfter": " your venue?",
-      "sub": "Browse the full catalog, compare capacity, and open any listing to try the date picker (demo).",
       "button": "Start browsing"
     }
   },
@@ -245,7 +245,7 @@
     "email": "hello@venuespace.example",
     "phone": "+1 (555) 010-2030",
     "address": "Austin, TX",
-    "tagline": "Find and book exceptional event venues for weddings, corporate gatherings, and celebrations. Curated spaces with transparent capacity and pricing hints.",
+    "tagline": "Find and book exceptional event venues for weddings, corporate gatherings, and celebrations.",
     "companyHeading": "Company",
     "termsLink": "Terms & conditions",
     "exploreHeading": "Explore",

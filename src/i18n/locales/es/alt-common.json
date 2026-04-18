@@ -21,15 +21,18 @@
   "landing": {
     "hero": {
       "title": "Encuentra el espacio que tus invitados recordarán",
-      "subtitle": "Bodas, eventos corporativos y fiestas privadas: descubre lugares con capacidad clara, servicios y precios orientativos transparentes.",
-      "searchPlaceholder": "Busca por ciudad o estilo de espacio",
-      "searchAria": "Buscar espacios",
-      "searchCta": "Buscar espacios",
-      "badgeCurated": "Listados curados",
+      "subtitle": "Consultá disponibilidad real, elegí fecha y coordiná directo con el local. Sin intermediarios. Sin demoras.",
+      "searchDateLabel": "Fecha del evento",
+      "searchDateAria": "Fecha del evento",
+      "searchGuestsLabel": "Número de personas",
+      "searchGuestsPlaceholder": "Ej. 120",
+      "searchGuestsAria": "Número de personas",
+      "searchCta": "Buscar",
+      "badgeCurated": "Espacios verificados",
       "badgeCapacity": "Capacidad y distribución",
       "badgeHoldDemo": "Demo de reserva de fecha",
-      "exploreCta": "Explorar espacios",
-      "talkCta": "Hablemos",
+      "exploreCta": "Explorar locales",
+      "talkCta": "Ver reserva",
       "storiesHeading": "Historias de planificadores y anfitriones",
       "storyDotAria": "Mostrar historia {{n}}",
       "slides": {
@@ -46,8 +49,7 @@
     },
     "occasions": {
       "eyebrow": "Cada ocasión",
-      "heading": "Pensado para tu tipo de evento",
-      "sub": "El mismo rigor que una plataforma hotelera, aplicado a espacios que realmente puedes reservar."
+      "heading": "Espacios según tu evento"
     },
     "features": {
       "weddings": {
@@ -66,28 +68,26 @@
     "popular": {
       "eyebrow": "Destacados",
       "heading": "Espacios populares esta temporada",
-      "sub": "Seleccionados por luz, flujo y experiencia del invitado.",
+      "sub": "Seleccionados por calidad y disponibilidad.",
       "popularBadge": "Popular",
       "guestsLine": "Hasta {{count}} invitados · {{priceHint}}",
       "cta": "Encuentra tu espacio ideal"
     },
     "howItWorks": {
       "heading": "Cómo funciona",
-      "sub": "Un camino claro desde el descubrimiento hasta una solicitud de cortesía con confianza.",
       "step1Title": "Explora espacios",
-      "step1Desc": "Filtra por capacidad, tipo de evento y ubicación en listados curados.",
-      "step2Title": "Compara detalles",
-      "step2Desc": "Revisa servicios, distribución y precios orientativos antes de contactar.",
-      "step3Title": "Reserva tu fecha",
-      "step3Desc": "Elige fechas en el calendario y envía una solicitud (interfaz demo).",
-      "step4Title": "Planifica con claridad",
-      "step4Desc": "Trabaja con coordinadores del espacio con políticas y plazos claros."
+      "step1Desc": "Filtra por capacidad, tipo de evento y ubicación.",
+      "step2Title": "Elegir fecha",
+      "step2Desc": "Consultá disponibilidad en tiempo real",
+      "step3Title": "Reservá",
+      "step3Desc": "Completá la información solicitada y confirmá tu evento",
+      "step4Title": "Coordiná directo",
+      "step4Desc": "Conectá el local sin intermediarios"
     },
     "ctaBand": {
       "titleBefore": "¿Listo para ",
-      "titleHighlight": "preseleccionar",
+      "titleHighlight": "escoger",
       "titleAfter": " tu espacio?",
-      "sub": "Recorre el catálogo, compara capacidad y abre cualquier ficha para probar el calendario (demo).",
       "button": "Empezar a explorar"
     }
   },
@@ -242,10 +242,10 @@
     ]
   },
   "footer": {
-    "email": "hello@venuespace.example",
-    "phone": "+1 (555) 010-2030",
-    "address": "Austin, TX",
-    "tagline": "Encuentra y reserva espacios excepcionales para bodas, encuentros corporativos y celebraciones. Lugares curados con capacidad y precios orientativos transparentes.",
+    "email": "admin@encartelera.uy",
+    "phone": "+598 99 205 886",
+    "address": "Rivera, Uruguay",
+    "tagline": "Encuentra y reserva espacios excepcionales para bodas, encuentros corporativos y celebraciones.",
     "companyHeading": "Empresa",
     "termsLink": "Términos y condiciones",
     "exploreHeading": "Explorar",
@@ -253,7 +253,7 @@
     "weddingVenues": "Espacios para bodas",
     "corporateEvents": "Eventos corporativos",
     "privateParties": "Fiestas privadas",
-    "copyright": "© {{year}} Event venues: En cartelera - Espacios. Todos los derechos reservados.",
+    "copyright": "© {{year}} En cartelera - Eventos. Todos los derechos reservados.",
     "facebook": "Facebook",
     "twitter": "Twitter",
     "instagram": "Instagram"

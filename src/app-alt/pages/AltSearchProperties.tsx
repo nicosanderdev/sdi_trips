@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Users, SlidersHorizontal } from 'lucide-react';
 import {
@@ -9,13 +9,26 @@ import {
 } from '../../services/eventVenueService';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 
+/** Same cutoffs as client-side capacity filter (≤80 small, 81–150 medium, >150 large). */
+function capacityTierFromGuestCount(count: number): '' | 'small' | 'medium' | 'large' {
+  if (!Number.isFinite(count) || count < 1) return '';
+  if (count <= 80) return 'small';
+  if (count <= 150) return 'medium';
+  return 'large';
+}
+
 export default function AltSearchProperties() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const [allVenues, setAllVenues] = useState<EventVenue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventType, setEventType] = useState('');
-  const [capacityFilter, setCapacityFilter] = useState('');
+  const [capacityFilter, setCapacityFilter] = useState(() => {
+    const raw = searchParams.get('guests');
+    const n = parseInt(raw ?? '', 10);
+    return capacityTierFromGuestCount(n);
+  });
   const [priceTier, setPriceTier] = useState('');
 
   useEffect(() => {
@@ -55,7 +68,7 @@ export default function AltSearchProperties() {
         className="py-24"
         contentClassName="max-w-4xl mx-auto px-8 text-center flex flex-col items-center justify-center"
         minHeightClassName="min-h-[300px] md:min-h-[340px]"
-        backgroundImageUrl="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1800&q=80"
+        backgroundImageUrl="/alt-explore.jpg"
       >
         <div>
           <h1 className="text-4xl md:text-5xl font-thin text-white mb-4">

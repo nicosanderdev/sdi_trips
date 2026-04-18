@@ -42,7 +42,12 @@
   },
   "footer": {
     "brandDescription": "Propiedades disponibles en la zona, sin intermediarios. Entrá en contacto y conocé nuestros demás servicios.",
-    "allRightsReserved": "Todos los derechos reservados."
+    "allRightsReserved": "Todos los derechos reservados.",
+    "contact": {
+      "email": "admin@encartelera.uy",
+      "phone": "+598 99 205 886",
+      "address": "Rivera, Uruguay"
+    }
   },
   "auth": {
     "welcomeBack": "Bienvenido de vuelta",

@@ -33,7 +33,7 @@ export function AltFooter() {
             <Link to="/" className="mb-4 inline-block hover:opacity-90 transition-opacity">
               <img
                 src="/logo-en-cartelera-alt.png"
-                alt="Event venues: En cartelera - Espacios"
+                alt="En cartelera - Eventos"
                 className="h-12 w-auto"
               />
             </Link>

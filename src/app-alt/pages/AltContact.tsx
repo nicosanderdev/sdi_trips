@@ -23,7 +23,7 @@ export default function AltContact() {
       <HeroTitleSection
         className="py-32"
         contentClassName="max-w-4xl mx-auto px-8 text-center flex flex-col items-center justify-center"
-        backgroundImageUrl="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1800&q=80"
+        backgroundImageUrl="/alt-contact.jpg"
       >
         <div>
           <h1 className="text-5xl md:text-6xl font-thin text-white mb-6">
