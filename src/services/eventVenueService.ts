@@ -168,6 +168,11 @@ export async function searchEventVenues(
   };
 }
 
+export async function getFeaturedEventVenues(limit: number = 6): Promise<EventVenue[]> {
+  const { venues } = await searchEventVenues({ onlyFeatured: true }, 1, limit);
+  return venues;
+}
+
 export async function getEventVenueById(id: string): Promise<EventVenue | null> {
   const { data, error } = await supabase.rpc('get_public_event_venue_property_by_id', {
     p_property_id: id,

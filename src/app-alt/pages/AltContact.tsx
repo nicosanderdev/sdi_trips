@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Card, Input, Textarea } from '../../components/ui';
 import { Mail, MessageSquare, Building2, Handshake } from 'lucide-react';
 import { sendContactMessage } from '../../services/contactService';
+import HeroTitleSection from '../../components/sections/HeroTitleSection';
 
 export default function AltContact() {
   const { t } = useTranslation();
@@ -19,19 +20,19 @@ export default function AltContact() {
 
   return (
     <>
-      <section className="relative py-32 bg-linear-to-br from-warm-gray-light to-white">
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none">
-          <div className="absolute top-20 right-20 w-96 h-96 bg-gold rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-20 w-80 h-80 bg-venue-accent rounded-full blur-3xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-thin text-navy mb-6">
+      <HeroTitleSection
+        className="py-32"
+        contentClassName="max-w-4xl mx-auto px-8 text-center flex flex-col items-center justify-center"
+        backgroundImageUrl="/alt-contact.jpg"
+      >
+        <div>
+          <h1 className="text-5xl md:text-6xl font-thin text-white mb-6">
             {t('alt.contact.heroTitleBefore')}
             <span className="font-bold text-gold">{t('alt.contact.heroTitleHighlight')}</span>
           </h1>
-          <p className="text-xl text-charcoal leading-relaxed max-w-2xl mx-auto">{t('alt.contact.heroSub')}</p>
+          <p className="text-xl text-white/95 leading-relaxed max-w-2xl mx-auto">{t('alt.contact.heroSub')}</p>
         </div>
-      </section>
+      </HeroTitleSection>
 
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-8">

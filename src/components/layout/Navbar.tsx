@@ -33,8 +33,12 @@ const Navbar: React.FC = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           {/* Logo */}
-          <Link to="/" className="text-navy font-bold text-xl hover:text-gold transition-colors">
-            {t('nav.logo')}
+          <Link to="/" className="hover:opacity-90 transition-opacity">
+            <img
+              src="/logo-en-cartelera.png"
+              alt="Summer rentals: En cartelera - Escapadas"
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Navigation Links */}
@@ -72,8 +76,12 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center justify-between">
-          <Link to="/" className="text-navy font-bold text-lg">
-            {t('nav.logo')}
+          <Link to="/" className="hover:opacity-90 transition-opacity">
+            <img
+              src="/logo-en-cartelera.png"
+              alt="Summer rentals: En cartelera - Escapadas"
+              className="h-9 w-auto"
+            />
           </Link>
 
           <button

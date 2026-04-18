@@ -34,9 +34,12 @@ export function AltNavbar() {
     >
       <div className="bg-white/95 backdrop-blur-md rounded-full px-4 sm:px-6 py-3 shadow-gold border border-gold/20">
         <div className="hidden md:flex items-center justify-between gap-4 flex-wrap">
-          <Link to="/" className="text-navy font-bold text-xl hover:text-gold transition-colors shrink-0">
-            {t('alt.brand.venue')}
-            <span className="text-venue-accent">{t('alt.brand.space')}</span>
+          <Link to="/" className="shrink-0 hover:opacity-90 transition-opacity">
+            <img
+              src="/logo-en-cartelera-alt.png"
+              alt="Event venues: En cartelera - Espacios"
+              className="h-10 w-auto"
+            />
           </Link>
           <div className="flex items-center flex-wrap justify-end gap-1 sm:gap-2">
             {navItems.map((item) => (
@@ -71,9 +74,12 @@ export function AltNavbar() {
         </div>
 
         <div className="md:hidden flex items-center justify-between gap-2">
-          <Link to="/" className="text-navy font-bold text-lg">
-            {t('alt.brand.venue')}
-            <span className="text-venue-accent">{t('alt.brand.space')}</span>
+          <Link to="/" className="hover:opacity-90 transition-opacity">
+            <img
+              src="/logo-en-cartelera-alt.png"
+              alt="Event venues: En cartelera - Espacios"
+              className="h-9 w-auto"
+            />
           </Link>
           <div className="flex items-center gap-2">
             <select

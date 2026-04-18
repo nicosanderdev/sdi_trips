@@ -1,11 +1,11 @@
 {
   "layout": {
-    "documentTitle": "VenueSpace — Event venues"
+    "documentTitle": "Event venues: En cartelera - Espacios"
   },
   "brand": {
-    "venue": "Venue",
-    "space": "Space",
-    "full": "VenueSpace"
+    "venue": "En cartelera - ",
+    "space": "Espacios",
+    "full": "Event venues: En cartelera - Espacios"
   },
   "nav": {
     "mainNavAria": "Main navigation",
@@ -21,15 +21,18 @@
   "landing": {
     "hero": {
       "title": "Find the venue your guests will remember",
-      "subtitle": "Weddings, corporate events, and private parties—discover spaces with clear capacity, amenities, and transparent pricing hints.",
-      "searchPlaceholder": "Search by city or venue style",
-      "searchAria": "Search venues",
-      "searchCta": "Search venues",
-      "badgeCurated": "Curated listings",
+      "subtitle": "Check real availability, pick a date, and coordinate directly with the venue. No middlemen. No delays.",
+      "searchDateLabel": "Event date",
+      "searchDateAria": "Event date",
+      "searchGuestsLabel": "Number of guests",
+      "searchGuestsPlaceholder": "e.g. 120",
+      "searchGuestsAria": "Number of guests",
+      "searchCta": "Search",
+      "badgeCurated": "Verified spaces",
       "badgeCapacity": "Capacity & layout notes",
       "badgeHoldDemo": "Date hold demo",
-      "exploreCta": "Explore venues",
-      "talkCta": "Talk to us",
+      "exploreCta": "Explore local venues",
+      "talkCta": "View reservation",
       "storiesHeading": "Planner & host stories",
       "storyDotAria": "Show story {{n}}",
       "slides": {
@@ -46,8 +49,7 @@
     },
     "occasions": {
       "eyebrow": "Every occasion",
-      "heading": "Built for your event type",
-      "sub": "Same rigor as a hospitality platform—applied to venues you can actually book."
+      "heading": "Spaces for your event"
     },
     "features": {
       "weddings": {
@@ -66,28 +68,26 @@
     "popular": {
       "eyebrow": "Featured",
       "heading": "Popular venues this season",
-      "sub": "Hand-picked spaces with strong lighting, flow, and guest experience.",
+      "sub": "Selected for quality and availability.",
       "popularBadge": "Popular",
       "guestsLine": "Up to {{count}} guests · {{priceHint}}",
       "cta": "Find your perfect venue"
     },
     "howItWorks": {
       "heading": "How it works",
-      "sub": "A simple path from discovery to a confident hold request.",
       "step1Title": "Browse venues",
-      "step1Desc": "Filter by capacity, event type, and location across curated listings.",
-      "step2Title": "Compare details",
-      "step2Desc": "Review amenities, layouts, and pricing hints before you reach out.",
-      "step3Title": "Hold your date",
-      "step3Desc": "Pick event dates on the calendar and submit a hold request (demo UI).",
-      "step4Title": "Plan with confidence",
-      "step4Desc": "Work with venue coordinators using clear policies and timelines."
+      "step1Desc": "Filter by capacity, event type, and location.",
+      "step2Title": "Choose a date",
+      "step2Desc": "Check availability in real time",
+      "step3Title": "Book",
+      "step3Desc": "Complete the requested information and confirm your event",
+      "step4Title": "Coordinate directly",
+      "step4Desc": "Connect with the venue without middlemen"
     },
     "ctaBand": {
       "titleBefore": "Ready to ",
       "titleHighlight": "shortlist",
       "titleAfter": " your venue?",
-      "sub": "Browse the full catalog, compare capacity, and open any listing to try the date picker (demo).",
       "button": "Start browsing"
     }
   },
@@ -120,7 +120,7 @@
     "notFoundTitle": "Venue not found",
     "notFoundBody": "This listing may have moved. Browse all venues to keep exploring.",
     "backToVenues": "Back to venues",
-    "curatedBadge": "VenueSpace curated",
+    "curatedBadge": "En cartelera - Espacios curated",
     "guestsCount": "Up to {{count}} guests",
     "eventCategoriesCount": "{{count}} event categories",
     "whyWorks": "Why this space works",
@@ -184,7 +184,7 @@
         "id": "acceptance",
         "title": "Acceptance of terms",
         "paragraphs": [
-          "By accessing VenueSpace (demo), you agree to these terms. If you do not agree, please discontinue use of the site.",
+          "By accessing Event venues: En cartelera - Espacios (demo), you agree to these terms. If you do not agree, please discontinue use of the site.",
           "Content is provided for illustration. Availability, pricing, and policies on live listings may differ."
         ]
       },
@@ -192,7 +192,7 @@
         "id": "services",
         "title": "Nature of the service",
         "paragraphs": [
-          "VenueSpace is a discovery layer for event venues. We do not guarantee third-party performance, staffing, or permitting."
+          "Event venues: En cartelera - Espacios is a discovery layer for event venues. We do not guarantee third-party performance, staffing, or permitting."
         ],
         "bullets": [
           "Listings may include approximate capacity and pricing hints.",
@@ -220,7 +220,7 @@
         "id": "liability",
         "title": "Liability",
         "paragraphs": [
-          "To the fullest extent permitted by law, VenueSpace (demo) disclaims warranties and limits liability for indirect or consequential damages arising from use of the site or reliance on sample content."
+          "To the fullest extent permitted by law, Event venues: En cartelera - Espacios (demo) disclaims warranties and limits liability for indirect or consequential damages arising from use of the site or reliance on sample content."
         ]
       },
       {
@@ -245,7 +245,7 @@
     "email": "hello@venuespace.example",
     "phone": "+1 (555) 010-2030",
     "address": "Austin, TX",
-    "tagline": "Find and book exceptional event venues for weddings, corporate gatherings, and celebrations. Curated spaces with transparent capacity and pricing hints.",
+    "tagline": "Find and book exceptional event venues for weddings, corporate gatherings, and celebrations.",
     "companyHeading": "Company",
     "termsLink": "Terms & conditions",
     "exploreHeading": "Explore",
@@ -253,7 +253,7 @@
     "weddingVenues": "Wedding venues",
     "corporateEvents": "Corporate events",
     "privateParties": "Private parties",
-    "copyright": "© {{year}} VenueSpace. All rights reserved.",
+    "copyright": "© {{year}} Event venues: En cartelera - Espacios. All rights reserved.",
     "facebook": "Facebook",
     "twitter": "Twitter",
     "instagram": "Instagram"
