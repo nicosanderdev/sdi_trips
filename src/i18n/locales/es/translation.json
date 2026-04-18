@@ -35,14 +35,19 @@
     "myTrips": "Mis viajes",
     "wishlist": "Lista de deseos",
     "inbox": "Bandeja de entrada",
-    "logo": "En Cartelera - Escapadas",
+    "logo": "Summer rentals: En cartelera - Escapadas",
     "profile": "Perfil",
     "logout": "Cerrar sesión",
     "logoutAlert": "Tu sesión se cerrará."
   },
   "footer": {
     "brandDescription": "Propiedades disponibles en la zona, sin intermediarios. Entrá en contacto y conocé nuestros demás servicios.",
-    "allRightsReserved": "Todos los derechos reservados."
+    "allRightsReserved": "Todos los derechos reservados.",
+    "contact": {
+      "email": "admin@encartelera.uy",
+      "phone": "+598 99 205 886",
+      "address": "Rivera, Uruguay"
+    }
   },
   "auth": {
     "welcomeBack": "Bienvenido de vuelta",
@@ -55,7 +60,7 @@
     "signingIn": "Iniciando sesión...",
     "dontHaveAccount": "¿No tienes una cuenta?",
     "signUpHere": "Regístrate aquí",
-    "joinHolidayTrips": "Únete a Holiday Trips",
+    "joinHolidayTrips": "Únete a Summer rentals: En cartelera - Escapadas",
     "createYourAccount": "Crea tu cuenta y comienza a explorar propiedades extraordinarias",
     "backToHome": "Volver al inicio",
     "enterYourEmail": "Ingresa tu correo electrónico",
@@ -755,7 +760,7 @@
   },
   "onboarding": {
     "welcome": {
-      "title": "Bienvenido a Holiday Trips",
+      "title": "Bienvenido a Summer rentals: En cartelera - Escapadas",
       "message": "Tu perfil está listo. Te mostramos lo esencial para empezar a reservar."
     },
     "verifyEmail": {
@@ -956,16 +961,16 @@
   "about": {
     "hero": {
       "title": "Acerca de",
-      "titleHighlight": "Holiday Trips",
+      "titleHighlight": "En cartelera - Escapadas",
       "description": "Estamos en una misión para transformar cómo las personas experimentan las casas de vacaciones. Al seleccionar propiedades extraordinarias y brindar un servicio sin igual, creamos recuerdos que duran toda la vida."
     },
     "story": {
       "title": "Nuestra",
       "titleHighlight": "Historia",
-      "paragraph1": "Holiday Trips comenzó con una idea simple: los alquileres vacacionales deberían ser tan lujosos y memorables como los mejores hoteles, pero con el espacio y la privacidad de un hogar.",
+      "paragraph1": "En cartelera - Escapadas comenzó con una idea simple: los alquileres vacacionales deberían ser tan lujosos y memorables como los mejores hoteles, pero con el espacio y la privacidad de un hogar.",
       "paragraph2": "Nuestra fundadora, Anna Svensson, experimentó esto de primera mano al buscar la casa de vacaciones perfecta para su familia. Frustrada por la falta de opciones de calidad y experiencias inconsistentes, decidió crear una plataforma que cambiaría la industria de alquileres vacacionales para siempre.",
       "paragraph3": "Hoy, hemos seleccionado más de 800 propiedades excepcionales en más de 50 países, cada una inspeccionada y verificada personalmente para asegurar que cumplan con nuestros estándares inquebrantables de lujo, comodidad y autenticidad.",
-      "imageAlt": "Equipo de Holiday Trips"
+      "imageAlt": "Equipo de En cartelera - Escapadas"
     },
     "stats": {
       "curatedProperties": "Propiedades Seleccionadas",
@@ -997,12 +1002,12 @@
     "team": {
       "title": "Conoce a Nuestro",
       "titleHighlight": "Equipo",
-      "subtitle": "Los individuos apasionados detrás de Holiday Trips, dedicados a crear experiencias extraordinarias para nuestros huéspedes.",
+      "subtitle": "Los individuos apasionados detrás de En cartelera - Escapadas, dedicados a crear experiencias extraordinarias para nuestros huéspedes.",
       "members": {
         "anna": {
           "name": "Anna Svensson",
           "role": "Fundadora y CEO",
-          "bio": "Con más de 15 años en hospitalidad de lujo, Anna fundó Holiday Trips para revolucionar cómo las personas experimentan las casas de vacaciones."
+          "bio": "Con más de 15 años en hospitalidad de lujo, Anna fundó En cartelera - Escapadas para revolucionar cómo las personas experimentan las casas de vacaciones."
         },
         "marcus": {
           "name": "Marcus Johnson",
@@ -1087,19 +1092,19 @@
     "hero": {
       "title": "Términos de",
       "titleHighlight": "Servicio",
-      "description1": "Lee estos términos cuidadosamente antes de usar Holiday Trips.",
+      "description1": "Lee estos términos cuidadosamente antes de usar En cartelera - Escapadas.",
       "description2": "Al utilizar nuestros servicios, aceptas quedar sujeto a estos términos.",
       "lastUpdated": "Última actualización:"
     },
     "sections": {
       "acceptance": {
         "title": "Aceptación de los Términos",
-        "paragraph1": "Al acceder y utilizar Holiday Trips, aceptas y te comprometes a cumplir los términos y disposiciones de este acuerdo. Si no estás de acuerdo con lo anterior, por favor no utilices este servicio.",
+        "paragraph1": "Al acceder y utilizar En cartelera - Escapadas, aceptas y te comprometes a cumplir los términos y disposiciones de este acuerdo. Si no estás de acuerdo con lo anterior, por favor no utilices este servicio.",
         "paragraph2": "Estos Términos de Servicio se aplican a todos los visitantes, usuarios y demás personas que accedan o utilicen nuestros servicios. Al utilizar nuestros servicios, aceptas quedar sujeto a estos términos."
       },
       "useLicense": {
         "title": "Licencia de uso",
-        "paragraph1": "Se concede permiso para descargar temporalmente una copia de los materiales de Holiday Trips solo para visualización transitoria personal y no comercial.",
+        "paragraph1": "Se concede permiso para descargar temporalmente una copia de los materiales de En cartelera - Escapadas solo para visualización transitoria personal y no comercial.",
         "paragraph2": "Se trata de la concesión de una licencia, no de una transferencia de propiedad, y bajo esta licencia no puedes:",
         "item1": "modificar o copiar los materiales",
         "item2": "utilizar los materiales con fines comerciales o para cualquier exhibición pública",
@@ -1124,7 +1129,7 @@
       },
       "liability": {
         "title": "Limitación de responsabilidad",
-        "paragraph1": "En ningún caso Holiday Trips ni sus proveedores serán responsables por ningún daño (incluyendo, sin limitación, daños por pérdida de datos o de ganancias, o por interrupción del negocio) que surja del uso o la imposibilidad de uso de los materiales en nuestra plataforma.",
+        "paragraph1": "En ningún caso En cartelera - Escapadas ni sus proveedores serán responsables por ningún daño (incluyendo, sin limitación, daños por pérdida de datos o de ganancias, o por interrupción del negocio) que surja del uso o la imposibilidad de uso de los materiales en nuestra plataforma.",
         "paragraph2": "No seremos responsables por daños directos, indirectos, incidentales, consecuentes o punitivos que se deriven del uso que hagas de nuestros servicios."
       },
       "privacy": {

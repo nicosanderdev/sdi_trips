@@ -1,11 +1,11 @@
 {
   "layout": {
-    "documentTitle": "VenueSpace — Espaços para eventos"
+    "documentTitle": "Event venues: En cartelera - Espacios"
   },
   "brand": {
-    "venue": "Venue",
-    "space": "Space",
-    "full": "VenueSpace"
+    "venue": "En cartelera - ",
+    "space": "Espacios",
+    "full": "Event venues: En cartelera - Espacios"
   },
   "nav": {
     "mainNavAria": "Navegação principal",
@@ -21,15 +21,18 @@
   "landing": {
     "hero": {
       "title": "Encontre o espaço que seus convidados vão lembrar",
-      "subtitle": "Casamentos, eventos corporativos e festas privativas: descubra locais com capacidade clara, comodidades e valores indicativos transparentes.",
-      "searchPlaceholder": "Busque por cidade ou estilo de espaço",
-      "searchAria": "Buscar espaços",
-      "searchCta": "Buscar espaços",
-      "badgeCurated": "Listagens curadas",
+      "subtitle": "Consulte disponibilidade real, escolha a data e coordene direto com o local. Sem intermediários. Sem demoras.",
+      "searchDateLabel": "Data do evento",
+      "searchDateAria": "Data do evento",
+      "searchGuestsLabel": "Número de pessoas",
+      "searchGuestsPlaceholder": "Ex.: 120",
+      "searchGuestsAria": "Número de pessoas",
+      "searchCta": "Buscar",
+      "badgeCurated": "Espaços verificados",
       "badgeCapacity": "Capacidade e layout",
       "badgeHoldDemo": "Demo de reserva de data",
-      "exploreCta": "Explorar espaços",
-      "talkCta": "Fale conosco",
+      "exploreCta": "Explorar locais",
+      "talkCta": "Ver reserva",
       "storiesHeading": "Histórias de produtores e anfitriões",
       "storyDotAria": "Mostrar história {{n}}",
       "slides": {
@@ -46,8 +49,7 @@
     },
     "occasions": {
       "eyebrow": "Toda ocasião",
-      "heading": "Feito para o seu tipo de evento",
-      "sub": "O mesmo rigor de uma plataforma hoteleira, aplicado a espaços que você realmente pode reservar."
+      "heading": "Espaços conforme o seu evento"
     },
     "features": {
       "weddings": {
@@ -66,28 +68,26 @@
     "popular": {
       "eyebrow": "Em destaque",
       "heading": "Espaços populares nesta temporada",
-      "sub": "Escolhidos por iluminação, fluxo e experiência do convidado.",
+      "sub": "Escolhidos por qualidade e disponibilidade.",
       "popularBadge": "Popular",
       "guestsLine": "Até {{count}} convidados · {{priceHint}}",
       "cta": "Encontre o espaço ideal"
     },
     "howItWorks": {
       "heading": "Como funciona",
-      "sub": "Um caminho claro da descoberta a um pedido de reserva com confiança.",
       "step1Title": "Explore espaços",
-      "step1Desc": "Filtre por capacidade, tipo de evento e localização em listagens curadas.",
-      "step2Title": "Compare detalhes",
-      "step2Desc": "Revise comodidades, layouts e valores indicativos antes de contatar.",
-      "step3Title": "Segure sua data",
-      "step3Desc": "Escolha datas no calendário e envie um pedido (interface demo).",
-      "step4Title": "Planeje com segurança",
-      "step4Desc": "Trabalhe com coordenadores do espaço com políticas e prazos claros."
+      "step1Desc": "Filtre por capacidade, tipo de evento e localização.",
+      "step2Title": "Escolher data",
+      "step2Desc": "Consulte disponibilidade em tempo real",
+      "step3Title": "Reserve",
+      "step3Desc": "Complete as informações solicitadas e confirme seu evento",
+      "step4Title": "Coordene direto",
+      "step4Desc": "Conecte-se ao local sem intermediários"
     },
     "ctaBand": {
       "titleBefore": "Pronto para ",
       "titleHighlight": "pré-selecionar",
       "titleAfter": " seu espaço?",
-      "sub": "Percorra o catálogo, compare capacidade e abra qualquer ficha para testar o calendário (demo).",
       "button": "Começar a explorar"
     }
   },
@@ -120,7 +120,7 @@
     "notFoundTitle": "Espaço não encontrado",
     "notFoundBody": "Esta listagem pode ter mudado. Explore todos os espaços para continuar.",
     "backToVenues": "Voltar aos espaços",
-    "curatedBadge": "Curadoria VenueSpace",
+    "curatedBadge": "Curadoria En cartelera - Espacios",
     "guestsCount": "Até {{count}} convidados",
     "eventCategoriesCount": "{{count}} categorias de evento",
     "whyWorks": "Por que este espaço funciona",
@@ -184,7 +184,7 @@
         "id": "acceptance",
         "title": "Aceitação dos termos",
         "paragraphs": [
-          "Ao acessar o VenueSpace (demo), você aceita estes termos. Se não concordar, interrompa o uso do site.",
+          "Ao acessar Event venues: En cartelera - Espacios (demo), você aceita estes termos. Se não concordar, interrompa o uso do site.",
           "O conteúdo é ilustrativo. Disponibilidade, preços e políticas em listagens reais podem diferir."
         ]
       },
@@ -192,7 +192,7 @@
         "id": "services",
         "title": "Natureza do serviço",
         "paragraphs": [
-          "O VenueSpace é uma camada de descoberta de espaços para eventos. Não garantimos desempenho de terceiros, equipe ou licenças."
+          "Event venues: En cartelera - Espacios é uma camada de descoberta de espaços para eventos. Não garantimos desempenho de terceiros, equipe ou licenças."
         ],
         "bullets": [
           "As listagens podem incluir capacidade aproximada e valores indicativos.",
@@ -220,7 +220,7 @@
         "id": "liability",
         "title": "Responsabilidade",
         "paragraphs": [
-          "Na extensão máxima permitida por lei, o VenueSpace (demo) exclui garantias e limita responsabilidade por danos indiretos ou consequentes pelo uso do site ou confiança em conteúdo de amostra."
+          "Na extensão máxima permitida por lei, Event venues: En cartelera - Espacios (demo) exclui garantias e limita responsabilidade por danos indiretos ou consequentes pelo uso do site ou confiança em conteúdo de amostra."
         ]
       },
       {
@@ -245,7 +245,7 @@
     "email": "hello@venuespace.example",
     "phone": "+1 (555) 010-2030",
     "address": "Austin, TX",
-    "tagline": "Encontre e reserve espaços excepcionais para casamentos, encontros corporativos e celebrações. Locais curados com capacidade e valores indicativos transparentes.",
+    "tagline": "Encontre e reserve espaços excepcionais para casamentos, encontros corporativos e celebrações.",
     "companyHeading": "Empresa",
     "termsLink": "Termos e condições",
     "exploreHeading": "Explorar",
@@ -253,7 +253,7 @@
     "weddingVenues": "Espaços para casamento",
     "corporateEvents": "Eventos corporativos",
     "privateParties": "Festas privativas",
-    "copyright": "© {{year}} VenueSpace. Todos os direitos reservados.",
+    "copyright": "© {{year}} Event venues: En cartelera - Espacios. Todos os direitos reservados.",
     "facebook": "Facebook",
     "twitter": "Twitter",
     "instagram": "Instagram"

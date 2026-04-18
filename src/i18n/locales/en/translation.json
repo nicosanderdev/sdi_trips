@@ -35,14 +35,19 @@
     "myTrips": "My Trips",
     "wishlist": "Wishlist",
     "inbox": "Inbox",
-    "logo": "En Cartelera - Escapadas",
+    "logo": "Summer rentals: En cartelera - Escapadas",
     "profile": "Profile",
     "logout": "Logout",
     "logoutAlert": "Your session will be closed."
   },
   "footer": {
     "brandDescription": "Properties available in your area, with no middlemen. Get in touch and learn about our other services.",
-    "allRightsReserved": "All rights reserved."
+    "allRightsReserved": "All rights reserved.",
+    "contact": {
+      "email": "admin@encartelera.uy",
+      "phone": "+598 99 205 886",
+      "address": "Rivera, Uruguay"
+    }
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -55,7 +60,7 @@
     "signingIn": "Signing In...",
     "dontHaveAccount": "Don't have an account?",
     "signUpHere": "Sign up here",
-    "joinHolidayTrips": "Join Holiday Trips",
+    "joinHolidayTrips": "Join Summer rentals: En cartelera - Escapadas",
     "createYourAccount": "Create your account and start exploring extraordinary properties",
     "backToHome": "Back to Home",
     "enterYourEmail": "Enter your email",
@@ -782,7 +787,7 @@
   },
   "onboarding": {
     "welcome": {
-      "title": "Welcome to Holiday Trips",
+      "title": "Welcome to Summer rentals: En cartelera - Escapadas",
       "message": "Your profile is ready. We will point out a few things so you can start booking."
     },
     "verifyEmail": {
@@ -983,16 +988,16 @@
   "about": {
     "hero": {
       "title": "About",
-      "titleHighlight": "Holiday Trips",
+      "titleHighlight": "En cartelera - Escapadas",
       "description": "We're on a mission to transform how people experience vacation homes. By curating extraordinary properties and providing unparalleled service, we create memories that last a lifetime."
     },
     "story": {
       "title": "Our",
       "titleHighlight": "Story",
-      "paragraph1": "Holiday Trips began with a simple idea: vacation rentals should be as luxurious and memorable as the finest hotels, but with the space and privacy of a home.",
+      "paragraph1": "En cartelera - Escapadas began with a simple idea: vacation rentals should be as luxurious and memorable as the finest hotels, but with the space and privacy of a home.",
       "paragraph2": "Our founder, Anna Svensson, experienced this firsthand when searching for the perfect holiday home for her family. Frustrated by the lack of quality options and inconsistent experiences, she decided to create a platform that would change the vacation rental industry forever.",
       "paragraph3": "Today, we've curated over 800 exceptional properties across 50+ countries, each personally inspected and vetted to ensure they meet our uncompromising standards for luxury, comfort, and authenticity.",
-      "imageAlt": "Holiday Trips team"
+      "imageAlt": "En cartelera - Escapadas team"
     },
     "stats": {
       "curatedProperties": "Curated Properties",
@@ -1024,12 +1029,12 @@
     "team": {
       "title": "Meet Our",
       "titleHighlight": "Team",
-      "subtitle": "The passionate individuals behind Holiday Trips, dedicated to creating extraordinary experiences for our guests.",
+      "subtitle": "The passionate individuals behind En cartelera - Escapadas, dedicated to creating extraordinary experiences for our guests.",
       "members": {
         "anna": {
           "name": "Anna Svensson",
           "role": "Founder & CEO",
-          "bio": "With over 15 years in luxury hospitality, Anna founded Holiday Trips to revolutionize how people experience vacation homes."
+          "bio": "With over 15 years in luxury hospitality, Anna founded En cartelera - Escapadas to revolutionize how people experience vacation homes."
         },
         "marcus": {
           "name": "Marcus Johnson",
@@ -1114,19 +1119,19 @@
     "hero": {
       "title": "Terms of",
       "titleHighlight": "Service",
-      "description1": "Please read these terms carefully before using Holiday Trips.",
+      "description1": "Please read these terms carefully before using En cartelera - Escapadas.",
       "description2": "By using our services, you agree to be bound by these terms.",
       "lastUpdated": "Last updated:"
     },
     "sections": {
       "acceptance": {
         "title": "Acceptance of Terms",
-        "paragraph1": "By accessing and using Holiday Trips, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.",
+        "paragraph1": "By accessing and using En cartelera - Escapadas, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.",
         "paragraph2": "These Terms of Service apply to all visitors, users, and others who access or use our services. By using our services, you agree to be bound by these terms."
       },
       "useLicense": {
         "title": "Use License",
-        "paragraph1": "Permission is granted to temporarily download one copy of the materials on Holiday Trips for personal, non-commercial transitory viewing only.",
+        "paragraph1": "Permission is granted to temporarily download one copy of the materials on En cartelera - Escapadas for personal, non-commercial transitory viewing only.",
         "paragraph2": "This is the grant of a license, not a transfer of title, and under this license you may not:",
         "item1": "modify or copy the materials",
         "item2": "use the materials for any commercial purpose or for any public display",
@@ -1151,7 +1156,7 @@
       },
       "liability": {
         "title": "Limitation of Liability",
-        "paragraph1": "In no event shall Holiday Trips or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on our platform.",
+        "paragraph1": "In no event shall En cartelera - Escapadas or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on our platform.",
         "paragraph2": "We shall not be held responsible for any direct, indirect, incidental, consequential, or punitive damages arising from your use of our services."
       },
       "privacy": {

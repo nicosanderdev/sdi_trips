@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Users, SlidersHorizontal } from 'lucide-react';
 import {
@@ -7,14 +7,35 @@ import {
   type EventVenue,
   type VenueEventTag,
 } from '../../services/eventVenueService';
+import HeroTitleSection from '../../components/sections/HeroTitleSection';
+
+type CapacityTier = '' | 'small' | 'medium' | 'large';
+
+function capacityTierFromSelectValue(value: string): CapacityTier {
+  if (value === 'small' || value === 'medium' || value === 'large') return value;
+  return '';
+}
+
+/** Same cutoffs as client-side capacity filter (≤80 small, 81–150 medium, >150 large). */
+function capacityTierFromGuestCount(count: number): CapacityTier {
+  if (!Number.isFinite(count) || count < 1) return '';
+  if (count <= 80) return 'small';
+  if (count <= 150) return 'medium';
+  return 'large';
+}
 
 export default function AltSearchProperties() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const [allVenues, setAllVenues] = useState<EventVenue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventType, setEventType] = useState('');
-  const [capacityFilter, setCapacityFilter] = useState('');
+  const [capacityFilter, setCapacityFilter] = useState<CapacityTier>(() => {
+    const raw = searchParams.get('guests');
+    const n = parseInt(raw ?? '', 10);
+    return capacityTierFromGuestCount(n);
+  });
   const [priceTier, setPriceTier] = useState('');
 
   useEffect(() => {
@@ -50,20 +71,21 @@ export default function AltSearchProperties() {
 
   return (
     <>
-      <section className="relative py-24 bg-linear-to-br from-warm-gray-light to-white">
-        <div className="absolute inset-0 opacity-[0.07] pointer-events-none">
-          <div className="absolute top-16 right-16 w-80 h-80 bg-gold rounded-full blur-3xl" />
-          <div className="absolute bottom-16 left-16 w-72 h-72 bg-venue-accent rounded-full blur-3xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-thin text-navy mb-4">
+      <HeroTitleSection
+        className="py-24"
+        contentClassName="max-w-4xl mx-auto px-8 text-center flex flex-col items-center justify-center"
+        minHeightClassName="min-h-[300px] md:min-h-[340px]"
+        backgroundImageUrl="/alt-explore.jpg"
+      >
+        <div>
+          <h1 className="text-4xl md:text-5xl font-thin text-white mb-4">
             {t('alt.search.heroTitleBefore')}
             <span className="font-bold text-gold">{t('alt.search.heroTitleHighlight')}</span>
             {t('alt.search.heroTitleAfter')}
           </h1>
-          <p className="text-lg text-charcoal/90 max-w-2xl mx-auto leading-relaxed">{t('alt.search.heroSub')}</p>
+          <p className="text-lg text-white/95 max-w-2xl mx-auto leading-relaxed">{t('alt.search.heroSub')}</p>
         </div>
-      </section>
+      </HeroTitleSection>
 
       <section className="py-12 bg-white border-b border-navy/10">
         <div className="max-w-7xl mx-auto px-8">
@@ -94,7 +116,7 @@ export default function AltSearchProperties() {
               {t('alt.search.capacity')}
               <select
                 value={capacityFilter}
-                onChange={(e) => setCapacityFilter(e.target.value)}
+                onChange={(e) => setCapacityFilter(capacityTierFromSelectValue(e.target.value))}
                 className="rounded-xl border-2 border-gray-200 bg-white px-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
               >
                 <option value="">{t('alt.search.optionAny')}</option>
