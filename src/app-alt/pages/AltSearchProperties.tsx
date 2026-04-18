@@ -9,8 +9,15 @@ import {
 } from '../../services/eventVenueService';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 
+type CapacityTier = '' | 'small' | 'medium' | 'large';
+
+function capacityTierFromSelectValue(value: string): CapacityTier {
+  if (value === 'small' || value === 'medium' || value === 'large') return value;
+  return '';
+}
+
 /** Same cutoffs as client-side capacity filter (≤80 small, 81–150 medium, >150 large). */
-function capacityTierFromGuestCount(count: number): '' | 'small' | 'medium' | 'large' {
+function capacityTierFromGuestCount(count: number): CapacityTier {
   if (!Number.isFinite(count) || count < 1) return '';
   if (count <= 80) return 'small';
   if (count <= 150) return 'medium';
@@ -24,7 +31,7 @@ export default function AltSearchProperties() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventType, setEventType] = useState('');
-  const [capacityFilter, setCapacityFilter] = useState(() => {
+  const [capacityFilter, setCapacityFilter] = useState<CapacityTier>(() => {
     const raw = searchParams.get('guests');
     const n = parseInt(raw ?? '', 10);
     return capacityTierFromGuestCount(n);
@@ -109,7 +116,7 @@ export default function AltSearchProperties() {
               {t('alt.search.capacity')}
               <select
                 value={capacityFilter}
-                onChange={(e) => setCapacityFilter(e.target.value)}
+                onChange={(e) => setCapacityFilter(capacityTierFromSelectValue(e.target.value))}
                 className="rounded-xl border-2 border-gray-200 bg-white px-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
               >
                 <option value="">{t('alt.search.optionAny')}</option>
