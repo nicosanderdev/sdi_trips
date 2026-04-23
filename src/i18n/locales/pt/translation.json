@@ -136,15 +136,17 @@
   "landing": {
     "hero": {
       "title": "Uma forma confiável de alugar casas",
-      "description": "Escolha a propriedade, combine o horário e fale direto com o proprietário. Sem rodeios.",
+      "description": "Escolha a propriedade, combine o horário e fale direto com o proprietário.",
       "valueProposition": "",
       "subtitle": "Alugue com tranquilidade. Publique com confiança.",
       "support": "Reserva rapida. Sem complicacao. Com seguranca.",
       "search": {
         "locationPlaceholder": "Localização",
         "locationAria": "Localização ou região",
+        "locationLabel": "Localização",
         "datePlaceholder": "Datas (check-in - check-out)",
         "dateAria": "Intervalo de datas",
+        "dateLabel": "Data da viagem",
         "cityPlaceholder": "Localização",
         "cityAria": "Cidade ou localidade (Uruguai)",
         "submit": "Buscar"

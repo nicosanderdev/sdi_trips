@@ -54,6 +54,7 @@ interface EventVenueRpcRow {
   HasSoundSystem: boolean | null;
   ClosingHour: string | null;
   AllowedEventsDescription: string | null;
+  SectionData?: RpcPropertySectionRow[] | null;
 }
 
 const FALLBACK_IMAGES = [
@@ -61,6 +62,57 @@ const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80',
   'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80',
 ];
+
+interface RpcPropertySectionImageRow {
+  Id: string;
+  PropertyImageId: string | null;
+  R2Url: string;
+  Title: string | null;
+  Metadata: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+}
+
+interface RpcPropertySectionRow {
+  Id: string;
+  Name: string;
+  Description: string | null;
+  LayoutType: 'split' | 'carousel' | 'stacked' | null;
+  LayoutConfig: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+  Images: RpcPropertySectionImageRow[] | null;
+}
+
+function isValidLayoutType(value: string | null | undefined): value is 'split' | 'carousel' | 'stacked' {
+  return value === 'split' || value === 'carousel' || value === 'stacked';
+}
+
+function mapPropertySections(rawSections: RpcPropertySectionRow[] | null | undefined): Property['sections'] {
+  if (!rawSections?.length) {
+    return [];
+  }
+
+  return rawSections
+    .map((section) => ({
+      id: section.Id,
+      name: section.Name,
+      description: section.Description,
+      layoutType: isValidLayoutType(section.LayoutType) ? section.LayoutType : 'split',
+      layoutConfig: section.LayoutConfig ?? undefined,
+      displayOrder: section.DisplayOrder ?? undefined,
+      images: (section.Images ?? [])
+        .slice()
+        .sort((a, b) => (a.DisplayOrder ?? 0) - (b.DisplayOrder ?? 0))
+        .map((image) => ({
+          id: image.Id,
+          imageId: image.PropertyImageId ?? undefined,
+          url: image.R2Url,
+          title: image.Title,
+          metadata: image.Metadata,
+          displayOrder: image.DisplayOrder ?? undefined,
+        })),
+    }))
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+}
 
 function inferEventTypes(allowed: string | null | undefined): string[] {
   if (!allowed) return ['Private events'];
@@ -134,6 +186,7 @@ function mapRow(row: EventVenueRpcRow): EventVenue {
     hasSoundSystem: Boolean(row.HasSoundSystem),
     closingHour: row.ClosingHour,
     allowedEventsDescription: row.AllowedEventsDescription,
+    sections: mapPropertySections(row.SectionData),
   };
 }
 

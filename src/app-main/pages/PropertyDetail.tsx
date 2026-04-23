@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
 import { Button, Card, LeaveReviewModal } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
+import PropertySection from '../../components/sections/PropertySection';
 import { getPropertyById } from '../../services/propertyService';
 import { getUtmSourceAndMedium, trackEvent } from '../../lib/analytics';
 import { logPropertyVisit } from '../../services/propertyVisitService';
@@ -247,12 +248,11 @@ const PropertyDetail: React.FC = () => {
         property.outdoorDescription ||
         property.outdoorHighlights ||
         t('propertyDetail.attributes.outdoor.descriptionDefault');
-    const homeLayoutCopy =
-        property.homeLayout || t('propertyDetail.detailSections.homeLayout.default');
-    const outdoorCopy =
-        property.outdoorDetails || t('propertyDetail.detailSections.outdoorAreas.default');
     const neighborhoodCopy =
         property.neighborhoodDetails || t('propertyDetail.detailSections.neighborhood.default');
+    const orderedSections = (property.sections ?? [])
+        .slice()
+        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
     // Grouped attributes (structure, infrastructure, amenities/location)
     const structureAttributes = [
@@ -680,21 +680,9 @@ const PropertyDetail: React.FC = () => {
                             <p className="text-charcoal text-sm">{t('propertyDetail.reviews.noReviews')}</p>
                         )}
 
-                        {/* House distribution */}
-                        <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
-                            <h3 className="text-xl font-semibold text-navy">
-                                {t('propertyDetail.detailSections.homeLayout.heading')}
-                            </h3>
-                            <p className="text-sm leading-relaxed text-charcoal">{homeLayoutCopy}</p>
-                        </div>
-
-                        {/* Exterior areas */}
-                        <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
-                            <h3 className="text-xl font-semibold text-navy">
-                                {t('propertyDetail.detailSections.outdoorAreas.heading')}
-                            </h3>
-                            <p className="text-sm leading-relaxed text-charcoal">{outdoorCopy}</p>
-                        </div>
+                        {orderedSections.map((section) => (
+                            <PropertySection key={section.id} section={section} />
+                        ))}
 
                         {/* Neighborhood & map */}
                         <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">

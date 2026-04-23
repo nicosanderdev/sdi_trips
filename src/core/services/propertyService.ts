@@ -58,6 +58,26 @@ interface RpcSummerRentPropertyRow {
   LeadTimeDays: number | null;
   BufferDays: number | null;
   AmenityNames: string[] | null;
+  SectionData?: RpcPropertySectionRow[] | null;
+}
+
+interface RpcPropertySectionImageRow {
+  Id: string;
+  PropertyImageId: string | null;
+  R2Url: string;
+  Title: string | null;
+  Metadata: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+}
+
+interface RpcPropertySectionRow {
+  Id: string;
+  Name: string;
+  Description: string | null;
+  LayoutType: 'split' | 'carousel' | 'stacked' | null;
+  LayoutConfig: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+  Images: RpcPropertySectionImageRow[] | null;
 }
 
 export interface PropertyFilters {
@@ -72,6 +92,38 @@ export interface PropertyFilters {
 export interface PropertySearchResult {
   properties: Property[];
   totalCount: number;
+}
+
+function isValidLayoutType(value: string | null | undefined): value is 'split' | 'carousel' | 'stacked' {
+  return value === 'split' || value === 'carousel' || value === 'stacked';
+}
+
+function mapPropertySections(rawSections: RpcPropertySectionRow[] | null | undefined): Property['sections'] {
+  if (!rawSections?.length) {
+    return [];
+  }
+
+  return rawSections
+    .map((section) => ({
+      id: section.Id,
+      name: section.Name,
+      description: section.Description,
+      layoutType: isValidLayoutType(section.LayoutType) ? section.LayoutType : 'split',
+      layoutConfig: section.LayoutConfig ?? undefined,
+      displayOrder: section.DisplayOrder ?? undefined,
+      images: (section.Images ?? [])
+        .slice()
+        .sort((a, b) => (a.DisplayOrder ?? 0) - (b.DisplayOrder ?? 0))
+        .map((image) => ({
+          id: image.Id,
+          imageId: image.PropertyImageId ?? undefined,
+          url: image.R2Url,
+          title: image.Title,
+          metadata: image.Metadata,
+          displayOrder: image.DisplayOrder ?? undefined,
+        })),
+    }))
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 }
 
 /**
@@ -128,6 +180,7 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     bufferDays: row.BufferDays ?? undefined,
     ownerId: row.OwnerId ?? undefined,
     listingType: 'SummerRent',
+    sections: mapPropertySections(row.SectionData),
   };
 }
 

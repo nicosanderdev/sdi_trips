@@ -136,15 +136,17 @@
   "landing": {
     "hero": {
       "title": "A reliable way to rent homes",
-      "description": "Choose the property, coordinate the time, and talk directly with the owner. No runaround.",
+      "description": "Choose the property, coordinate the time, and talk directly with the owner.",
       "valueProposition": "",
       "subtitle": "Rent with peace of mind. Publish with confidence.",
       "support": "Quick booking. No hassle. Secure.",
       "search": {
         "locationPlaceholder": "Location",
         "locationAria": "Location or area",
+        "locationLabel": "Location",
         "datePlaceholder": "Dates (check-in - check-out)",
         "dateAria": "Date range",
+        "dateLabel": "Travel date",
         "cityPlaceholder": "Location",
         "cityAria": "City or locality (Uruguay)",
         "submit": "Search"
