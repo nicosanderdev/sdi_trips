@@ -18,12 +18,17 @@ type BookingMode = 'singleNight' | 'multipleDays';
 
 interface GuestBookingFlowProps {
   property: Property;
+  /** Base path for the post-booking manage link (query `token` is appended). Default: `/reservation-lookup`. */
+  reservationManagePath?: string;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^\+[1-9]\d{7,14}$/;
 
-const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
+const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
+  property,
+  reservationManagePath = '/reservation-lookup',
+}) => {
   const { t } = useTranslation();
   const [step, setStep] = useState<BookingStep>('dates');
   const [checkIn, setCheckIn] = useState<Date | null>(null);
@@ -200,7 +205,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({ property }) => {
     const token = confirmResult.manageToken;
     const appUrl = window.location.origin;
     setReservationCode(confirmResult.reservationCode ?? null);
-    setManageUrl(token ? `${appUrl}/booking/manage?token=${encodeURIComponent(token)}` : null);
+    const path = reservationManagePath.startsWith('/') ? reservationManagePath : `/${reservationManagePath}`;
+    setManageUrl(token ? `${appUrl}${path}?token=${encodeURIComponent(token)}` : null);
     setStep('done');
   };
 

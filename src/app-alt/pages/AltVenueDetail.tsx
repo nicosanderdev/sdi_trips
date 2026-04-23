@@ -287,7 +287,7 @@ export default function AltVenueDetail() {
 
                 {showBookingFlow && (
                   <div className="pt-4 border-t border-warm-gray space-y-4">
-                    <GuestBookingFlow property={venue} />
+                    <GuestBookingFlow property={venue} reservationManagePath="/reservation-lookup" />
                   </div>
                 )}
               </Card>

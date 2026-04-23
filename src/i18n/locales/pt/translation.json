@@ -545,7 +545,14 @@
       "datesValue": "{{checkIn}} a {{checkOut}}",
       "statusLabel": "Status:",
       "guestLabel": "Hóspede:",
+      "guestsLabel": "Convidados:",
+      "guestsCount": "{{count}} convidados",
       "notAvailable": "Não disponível"
+    },
+    "manageToken": {
+      "loading": "A carregar a reserva…",
+      "missingToken": "Falta o token neste link de gestão. Verifique o URL completo no e-mail de confirmação.",
+      "invalidOrExpired": "Link de gestão inválido ou expirado."
     },
     "status": {
       "confirmed": "Confirmada",

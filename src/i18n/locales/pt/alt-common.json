@@ -261,7 +261,16 @@
   "reservations": {
     "titleBefore": "Suas ",
     "titleHighlight": "reservas",
-    "subtitle": "Visão demo de reservas e cortesias. Os status ajudam a ver o que está por vir, concluído ou cancelado.",
+    "subtitle": "Consulte uma reserva com o seu código ou abra o link do e-mail de confirmação. Veja detalhes e cancele quando a reserva permitir.",
+    "lookupHeading": "Encontrar uma reserva",
+    "lookupHint": "Introduza o código da confirmação (formato RSV-XXXXXX) ou use o link de gestão recebido por e-mail.",
+    "loadingFromLink": "A carregar a reserva a partir do seu link…",
+    "browseVenues": "Explorar espaços",
+    "guestsNotShown": "Não mostrado na pesquisa por código",
+    "errors": {
+      "missingToken": "Falta o token neste link de gestão. Verifique o URL completo no e-mail de confirmação.",
+      "invalidOrExpiredToken": "Link de gestão inválido ou expirado."
+    },
     "colVenue": "Espaço",
     "colDate": "Data",
     "colGuests": "Convidados",

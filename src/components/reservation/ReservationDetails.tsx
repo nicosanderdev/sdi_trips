@@ -4,11 +4,16 @@ import { Link } from 'react-router-dom';
 import { Button, Card } from '../ui';
 import type { ReservationLookupData } from '../../services/bookingService';
 
+const defaultPropertyPath = (propertyId: string) => `/property/${propertyId}`;
+
 interface ReservationDetailsProps {
   reservation: ReservationLookupData;
   cancelMessage: string | null;
   onCancel: () => void;
   isCancelling: boolean;
+  /** Build destination URL for "View property" (default: `/property/:id`). */
+  propertyPath?: (propertyId: string) => string;
+  cardVariant?: 'default' | 'elevated' | 'glass' | 'surface';
 }
 
 const ReservationDetails: React.FC<ReservationDetailsProps> = ({
@@ -16,6 +21,8 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
   cancelMessage,
   onCancel,
   isCancelling,
+  propertyPath = defaultPropertyPath,
+  cardVariant = 'default',
 }) => {
   const { t } = useTranslation();
   const guestInfo = [reservation.guestName, reservation.guestEmail, reservation.guestPhone]
@@ -31,7 +38,7 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
     false;
 
   return (
-    <Card className="w-full max-w-2xl p-8 space-y-4">
+    <Card variant={cardVariant} className="w-full max-w-2xl p-8 space-y-4">
       <h2 className="text-2xl font-semibold text-navy">{t('reservationLookup.details.title')}</h2>
       <p><span className="font-semibold">{t('reservationLookup.details.codeLabel')}</span> {reservation.reservationCode}</p>
       <p><span className="font-semibold">{t('reservationLookup.details.propertyLabel')}</span> {reservation.propertyTitle}</p>
@@ -43,7 +50,7 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
       <p><span className="font-semibold">{t('reservationLookup.details.guestLabel')}</span> {guestInfo || t('reservationLookup.details.notAvailable')}</p>
 
       <div className="pt-2 flex flex-wrap gap-3">
-        <Link to={`/property/${reservation.propertyId}`}>
+        <Link to={propertyPath(reservation.propertyId)}>
           <Button variant="outline">{t('reservationLookup.actions.viewProperty')}</Button>
         </Link>
 

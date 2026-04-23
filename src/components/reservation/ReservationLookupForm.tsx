@@ -8,6 +8,8 @@ interface ReservationLookupFormProps {
   onSubmit: (event: React.FormEvent) => void;
   isLoading: boolean;
   error: string | null;
+  /** Card surface style (e.g. `surface` = white panel on warm page backgrounds). */
+  cardVariant?: 'default' | 'elevated' | 'glass' | 'surface';
 }
 
 const ReservationLookupForm: React.FC<ReservationLookupFormProps> = ({
@@ -16,11 +18,12 @@ const ReservationLookupForm: React.FC<ReservationLookupFormProps> = ({
   onSubmit,
   isLoading,
   error,
+  cardVariant = 'default',
 }) => {
   const { t } = useTranslation();
 
   return (
-    <Card variant="default" className="w-full max-w-2xl p-8">
+    <Card variant={cardVariant} className="w-full max-w-2xl p-8">
       <h1 className="text-3xl font-semibold text-navy mb-2">{t('reservationLookup.form.title')}</h1>
       <p className="text-charcoal mb-6">
         {t('reservationLookup.form.subtitle')}

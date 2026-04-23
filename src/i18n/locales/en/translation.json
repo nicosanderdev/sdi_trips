@@ -595,7 +595,14 @@
       "datesValue": "{{checkIn}} to {{checkOut}}",
       "statusLabel": "Status:",
       "guestLabel": "Guest:",
+      "guestsLabel": "Guests:",
+      "guestsCount": "{{count}} guests",
       "notAvailable": "Not available"
+    },
+    "manageToken": {
+      "loading": "Loading reservation…",
+      "missingToken": "This manage link is missing a token. Check the full URL from your confirmation email.",
+      "invalidOrExpired": "Invalid or expired management link."
     },
     "status": {
       "confirmed": "Confirmed",

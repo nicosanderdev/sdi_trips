@@ -17,7 +17,7 @@ export interface ButtonProps extends BaseComponentProps {
 
 // Card component props
 export interface CardProps extends BaseComponentProps {
-  variant?: 'default' | 'elevated' | 'glass';
+  variant?: 'default' | 'elevated' | 'glass' | 'surface';
   padding?: 'sm' | 'md' | 'lg' | 'xl';
 }
 

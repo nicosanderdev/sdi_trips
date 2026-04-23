@@ -261,7 +261,16 @@
   "reservations": {
     "titleBefore": "Your ",
     "titleHighlight": "reservations",
-    "subtitle": "Demo view of holds and bookings. Status chips help you scan what is upcoming, completed, or cancelled.",
+    "subtitle": "Look up a reservation with your code, or open the link from your confirmation email. View details and cancel when your booking allows it.",
+    "lookupHeading": "Find a reservation",
+    "lookupHint": "Enter the reservation code from your confirmation (format RSV-XXXXXX), or use the manage link you received by email.",
+    "loadingFromLink": "Loading reservation from your link…",
+    "browseVenues": "Browse venues",
+    "guestsNotShown": "Not shown for code lookup",
+    "errors": {
+      "missingToken": "This manage link is missing a token. Check the full URL from your confirmation email.",
+      "invalidOrExpiredToken": "Invalid or expired management link."
+    },
     "colVenue": "Venue",
     "colDate": "Date",
     "colGuests": "Guests",
