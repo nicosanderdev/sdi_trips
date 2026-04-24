@@ -28,25 +28,22 @@ export function AltNavbar() {
   };
 
   return (
-    <nav
-      className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl"
-      aria-label={t('alt.nav.mainNavAria')}
-    >
-      <div className="bg-white/95 backdrop-blur-md rounded-full px-4 sm:px-6 py-3 shadow-gold border border-gold/20">
-        <div className="hidden md:flex items-center justify-between gap-4 flex-wrap">
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50" aria-label={t('alt.nav.mainNavAria')}>
+      <div className="bg-white/95 backdrop-blur-md rounded-full px-6 py-4 shadow-gold border border-gold/20">
+        <div className="hidden md:flex items-center space-x-8">
           <Link to="/" className="shrink-0 hover:opacity-90 transition-opacity">
             <img
               src="/logo-en-cartelera-alt.png"
               alt="Event venues: En cartelera - Espacios"
-              className="h-10 w-auto"
+              className="h-14 w-auto"
             />
           </Link>
-          <div className="flex items-center flex-wrap justify-end gap-1 sm:gap-2">
+          <div className="flex items-center space-x-6">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                   isActive(item.path)
                     ? 'bg-navy text-gold'
                     : 'text-navy hover:bg-gold hover:text-navy'
@@ -55,13 +52,13 @@ export function AltNavbar() {
                 {t(item.labelKey)}
               </Link>
             ))}
-            <div className="flex items-center gap-1 ml-2 pl-3 border-l border-gray-300">
+            <div className="flex items-center space-x-1 ml-4 pl-4 border-l border-gray-300">
               <Globe className="h-4 w-4 text-navy shrink-0" aria-hidden />
               <select
                 aria-label={t('alt.nav.languageSelectAria')}
                 value={LANG_CODES.includes(i18nInstance.language as (typeof LANG_CODES)[number]) ? i18nInstance.language : 'en'}
                 onChange={(e) => changeLanguage(e.target.value)}
-                className="bg-transparent text-sm text-navy font-medium focus:outline-none cursor-pointer max-w-[7rem]"
+                className="bg-transparent text-sm text-navy font-medium focus:outline-none cursor-pointer max-w-28"
               >
                 {LANG_CODES.map((code) => (
                   <option key={code} value={code}>
@@ -78,7 +75,7 @@ export function AltNavbar() {
             <img
               src="/logo-en-cartelera-alt.png"
               alt="Event venues: En cartelera - Espacios"
-              className="h-9 w-auto"
+              className="h-11 w-auto"
             />
           </Link>
           <div className="flex items-center gap-2">
@@ -86,7 +83,7 @@ export function AltNavbar() {
               aria-label={t('alt.nav.languageSelectAria')}
               value={LANG_CODES.includes(i18nInstance.language as (typeof LANG_CODES)[number]) ? i18nInstance.language : 'en'}
               onChange={(e) => changeLanguage(e.target.value)}
-              className="bg-transparent text-xs text-navy font-medium focus:outline-none cursor-pointer max-w-[5.5rem]"
+              className="bg-transparent text-xs text-navy font-medium focus:outline-none cursor-pointer max-w-22"
             >
               {LANG_CODES.map((code) => (
                 <option key={code} value={code}>

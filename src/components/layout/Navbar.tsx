@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-white/95 backdrop-blur-md rounded-full px-6 py-3 shadow-gold border border-gold/20">
+      <div className="bg-white/95 backdrop-blur-md rounded-full px-6 py-4 shadow-gold border border-gold/20">
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           {/* Logo */}
@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
             <img
               src="/logo-en-cartelera.png"
               alt="Summer rentals: En cartelera - Escapadas"
-              className="h-10 w-auto"
+              className="h-14 w-auto"
             />
           </Link>
 
@@ -80,7 +80,7 @@ const Navbar: React.FC = () => {
             <img
               src="/logo-en-cartelera.png"
               alt="Summer rentals: En cartelera - Escapadas"
-              className="h-9 w-auto"
+              className="h-11 w-auto"
             />
           </Link>
 
