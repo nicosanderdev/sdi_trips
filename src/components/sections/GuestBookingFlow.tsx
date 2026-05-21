@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import BookingDatePicker from './BookingDatePicker';
 import { useTranslation } from 'react-i18next';
-import { Button, Modal } from '../ui';
+import i18n from '../../i18n/config';
+import { Button, Modal, SixDigitCodeInput } from '../ui';
+import { isValidTOTPSecret } from '../../core/services/mfaService';
 import type { Property } from '../../types';
 import { validateBookingSelection } from '../../services/availabilityService';
 import {
@@ -12,14 +14,23 @@ import {
   sendGuestOtp,
   verifyGuestOtp
 } from '../../services/bookingService';
+import {
+  buildInternationalPhone,
+  isValidLocalPhone,
+  SUPPORTED_PHONE_COUNTRIES,
+  type PhoneCountryCode,
+} from '../../utils/phoneCountries';
 
 type BookingStep = 'dates' | 'guest' | 'otp' | 'confirming' | 'done';
 type BookingMode = 'singleNight' | 'multipleDays';
+type BookingFlowVariant = 'rental' | 'event';
 
 interface GuestBookingFlowProps {
   property: Property;
   /** Base path for the post-booking manage link (query `token` is appended). Default: `/reservation-lookup`. */
   reservationManagePath?: string;
+  /** `event` enables alt-site copy and phone prefix UI. Default: `rental`. */
+  variant?: BookingFlowVariant;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,8 +39,22 @@ const PHONE_PATTERN = /^\+[1-9]\d{7,14}$/;
 const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   property,
   reservationManagePath = '/reservation-lookup',
+  variant = 'rental',
 }) => {
   const { t } = useTranslation();
+  const isEvent = variant === 'event';
+
+  const bookingT = useCallback(
+    (key: string) => {
+      const altKey = `alt.bookingFlow.${key}`;
+      if (isEvent && i18n.exists(altKey)) {
+        return t(altKey);
+      }
+      return t(`propertyDetail.bookingFlow.${key}`);
+    },
+    [isEvent, t],
+  );
+
   const [step, setStep] = useState<BookingStep>('dates');
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
@@ -45,11 +70,20 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountryCode>('UY');
+  const [phoneLocal, setPhoneLocal] = useState('');
   const [documentId, setDocumentId] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [reservationCode, setReservationCode] = useState<string | null>(null);
   const [manageUrl, setManageUrl] = useState<string | null>(null);
   const [flowError, setFlowError] = useState<string | null>(null);
+
+  const fullPhone = useMemo(() => {
+    if (isEvent) {
+      return buildInternationalPhone(phoneCountry, phoneLocal);
+    }
+    return phone.trim();
+  }, [isEvent, phone, phoneCountry, phoneLocal]);
 
   const canValidate = Boolean(checkIn && checkOut);
 
@@ -66,7 +100,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       setValidationLoading(true);
       const result = await validateBookingSelection(property.id, checkIn, checkOut, 1);
       if (!cancelled) {
-        setValidationError(result.isValid ? null : (result.errors[0] ?? t('propertyDetail.bookingFlow.errors.invalidDateSelection')));
+        setValidationError(result.isValid ? null : (result.errors[0] ?? bookingT('errors.invalidDateSelection')));
       }
       setValidationLoading(false);
     }, 350);
@@ -75,7 +109,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [canValidate, checkIn, checkOut, property.id, t]);
+  }, [canValidate, checkIn, checkOut, property.id, bookingT]);
 
   useEffect(() => {
     if (!holdExpiresAt) {
@@ -86,7 +120,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       const remaining = Math.max(0, Math.floor((new Date(holdExpiresAt).getTime() - Date.now()) / 1000));
       setCountdown(remaining);
       if (remaining === 0 && step !== 'done') {
-        setFlowError(t('propertyDetail.bookingFlow.errors.holdExpired'));
+        setFlowError(bookingT('errors.holdExpired'));
         setStep('dates');
       }
     };
@@ -97,7 +131,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       window.clearTimeout(kickoff);
       window.clearInterval(interval);
     };
-  }, [holdExpiresAt, step, t]);
+  }, [holdExpiresAt, step, bookingT]);
 
   const countdownLabel = useMemo(() => {
     const minutes = Math.floor(countdown / 60);
@@ -107,10 +141,15 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
   const isGuestFormValid = useMemo(() => {
     if (!fullName.trim()) return false;
-    if (!PHONE_PATTERN.test(phone.trim())) return false;
+    if (isEvent) {
+      if (!isValidLocalPhone(phoneLocal)) return false;
+      if (!PHONE_PATTERN.test(fullPhone)) return false;
+    } else if (!PHONE_PATTERN.test(fullPhone)) {
+      return false;
+    }
     if (email.trim() && !EMAIL_PATTERN.test(email.trim())) return false;
     return true;
-  }, [fullName, phone, email]);
+  }, [fullName, fullPhone, phoneLocal, email, isEvent]);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
@@ -141,7 +180,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setActionLoading(false);
 
     if (!response.success || !response.hold) {
-      setFlowError(response.error ?? t('propertyDetail.bookingFlow.errors.unableToCreateHold'));
+      setFlowError(response.error ?? bookingT('errors.unableToCreateHold'));
       return;
     }
 
@@ -154,12 +193,18 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     if (!holdId) return;
     setActionLoading(true);
     setFlowError(null);
-    const result = await sendGuestOtp(holdId, phone.trim());
+    const result = await sendGuestOtp(holdId, fullPhone);
     setActionLoading(false);
     if (!result.success) {
-      setFlowError(result.error ?? t('propertyDetail.bookingFlow.errors.couldNotSendOtp'));
+      setFlowError(
+        result.error
+          ?? (isEvent
+            ? bookingT('errors.couldNotSendConfirmationCode')
+            : bookingT('errors.couldNotSendOtp')),
+      );
       return;
     }
+    setOtpCode('');
     setStep('otp');
   };
 
@@ -167,17 +212,22 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     if (!holdId) return;
     setActionLoading(true);
     setFlowError(null);
-    const verifyResult = await verifyGuestOtp(holdId, phone.trim(), otpCode.trim());
+    const verifyResult = await verifyGuestOtp(holdId, fullPhone, otpCode.trim());
     if (!verifyResult.success) {
       setActionLoading(false);
-      setFlowError(verifyResult.error ?? t('propertyDetail.bookingFlow.errors.invalidOtp'));
+      setFlowError(
+        verifyResult.error
+          ?? (isEvent
+            ? bookingT('errors.invalidConfirmationCode')
+            : bookingT('errors.invalidOtp')),
+      );
       return;
     }
 
     const reconfirmResult = await reconfirmHold(holdId);
     if (!reconfirmResult.success) {
       setActionLoading(false);
-      setFlowError(reconfirmResult.error ?? t('propertyDetail.bookingFlow.errors.holdNoLongerValid'));
+      setFlowError(reconfirmResult.error ?? bookingT('errors.holdNoLongerValid'));
       setStep('dates');
       return;
     }
@@ -188,7 +238,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       profile: {
         fullName: fullName.trim(),
         email: email.trim() || undefined,
-        phone: phone.trim(),
+        phone: fullPhone,
         documentId: documentId.trim() || undefined,
         estimatedGuests: estimatedGuests.trim() ? Number(estimatedGuests) : undefined,
         totalPrice,
@@ -197,7 +247,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setActionLoading(false);
 
     if (!confirmResult.success) {
-      setFlowError(confirmResult.error ?? t('propertyDetail.bookingFlow.errors.couldNotConfirmReservation'));
+      setFlowError(confirmResult.error ?? bookingT('errors.couldNotConfirmReservation'));
       setStep('guest');
       return;
     }
@@ -210,10 +260,24 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setStep('done');
   };
 
+  const continueButtonLabel = isEvent
+    ? bookingT('actions.continue')
+    : bookingT('actions.continueAsGuest');
+
+  const sendCodeLabel = isEvent
+    ? bookingT('actions.sendConfirmationCode')
+    : bookingT('actions.sendOtpCode');
+
+  const codePlaceholder = isEvent
+    ? bookingT('form.enterConfirmationCode')
+    : bookingT('form.enterOtp');
+
+  const phonePlaceholder = bookingT('form.phone');
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-navy">{t('propertyDetail.bookingFlow.bookingModeLabel')}</label>
+        <label className="block text-sm font-medium text-navy">{bookingT('bookingModeLabel')}</label>
         <select
           value={bookingMode}
           onChange={(e) => {
@@ -225,11 +289,11 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           }}
           className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
         >
-          <option value="singleNight">{t('propertyDetail.bookingFlow.bookingModes.singleNight')}</option>
-          <option value="multipleDays">{t('propertyDetail.bookingFlow.bookingModes.multipleDays')}</option>
+          <option value="singleNight">{bookingT('bookingModes.singleNight')}</option>
+          <option value="multipleDays">{bookingT('bookingModes.multipleDays')}</option>
         </select>
         {bookingMode === 'singleNight' && (
-          <p className="text-xs text-charcoal/80">{t('propertyDetail.bookingFlow.singleNightHint')}</p>
+          <p className="text-xs text-charcoal/80">{bookingT('singleNightHint')}</p>
         )}
       </div>
 
@@ -248,11 +312,11 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
       {holdExpiresAt && step !== 'done' && (
         <p className="text-xs text-charcoal">
-          {t('propertyDetail.bookingFlow.holdActiveFor')}{' '}
+          {bookingT('holdActiveFor')}{' '}
           <span className="font-semibold">{countdownLabel}</span>
         </p>
       )}
-      {validationLoading && <p className="text-xs text-charcoal">{t('propertyDetail.bookingFlow.checkingAvailability')}</p>}
+      {validationLoading && <p className="text-xs text-charcoal">{bookingT('checkingAvailability')}</p>}
       {validationError && <p className="text-xs text-red-600">{validationError}</p>}
       {flowError && <p className="text-xs text-red-600">{flowError}</p>}
 
@@ -265,8 +329,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           onClick={handleCreateHold}
         >
           {actionLoading
-            ? t('propertyDetail.bookingFlow.actions.creatingHold')
-            : t('propertyDetail.bookingFlow.actions.continueAsGuest')}
+            ? bookingT('actions.creatingHold')
+            : continueButtonLabel}
         </Button>
       )}
 
@@ -274,10 +338,11 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         isOpen={step === 'guest' || step === 'otp' || step === 'confirming'}
         onClose={() => {
           if (!actionLoading) {
+            setOtpCode('');
             setStep('dates');
           }
         }}
-        title={t('propertyDetail.bookingFlow.modal.title')}
+        title={bookingT('modal.title')}
         size="md"
       >
         {step === 'guest' && (
@@ -286,28 +351,53 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder={t('propertyDetail.bookingFlow.form.fullName')}
+              placeholder={bookingT('form.fullName')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('propertyDetail.bookingFlow.form.emailOptional')}
+              placeholder={bookingT('form.emailOptional')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder={t('propertyDetail.bookingFlow.form.phone')}
-              className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
-            />
+            {isEvent ? (
+              <div className="flex gap-2">
+                <select
+                  value={phoneCountry}
+                  onChange={(e) => setPhoneCountry(e.target.value as PhoneCountryCode)}
+                  className="w-28 shrink-0 rounded-2xl border border-warm-gray bg-white px-2 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+                  aria-label={phonePlaceholder}
+                >
+                  {SUPPORTED_PHONE_COUNTRIES.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.flag} {country.dialCode}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  value={phoneLocal}
+                  onChange={(e) => setPhoneLocal(e.target.value.replace(/\D/g, ''))}
+                  placeholder={phonePlaceholder}
+                  className="min-w-0 flex-1 rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+                />
+              </div>
+            ) : (
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder={phonePlaceholder}
+                className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+              />
+            )}
             <input
               type="text"
               value={documentId}
               onChange={(e) => setDocumentId(e.target.value)}
-              placeholder={t('propertyDetail.bookingFlow.form.documentIdOptional')}
+              placeholder={bookingT('form.documentIdOptional')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
             <input
@@ -316,7 +406,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               max={property.maxGuests || 2000}
               value={estimatedGuests}
               onChange={(e) => setEstimatedGuests(e.target.value)}
-              placeholder={t('propertyDetail.bookingFlow.form.estimatedGuests')}
+              placeholder={bookingT('form.estimatedGuests')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
             <Button
@@ -327,20 +417,20 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               onClick={handleSendOtp}
             >
               {actionLoading
-                ? t('propertyDetail.bookingFlow.actions.sendingCode')
-                : t('propertyDetail.bookingFlow.actions.sendOtpCode')}
+                ? bookingT('actions.sendingCode')
+                : sendCodeLabel}
             </Button>
           </div>
         )}
 
         {step === 'otp' && (
           <div className="space-y-3">
-            <input
-              type="text"
+            <SixDigitCodeInput
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value)}
-              placeholder={t('propertyDetail.bookingFlow.form.enterOtp')}
-              className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+              onChange={setOtpCode}
+              disabled={actionLoading}
+              ariaLabel={codePlaceholder}
+              autoFocus
             />
             <div className="grid grid-cols-2 gap-2">
               <Button
@@ -349,40 +439,40 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
                 onClick={handleSendOtp}
                 disabled={actionLoading}
               >
-                {t('propertyDetail.bookingFlow.actions.resendCode')}
+                {bookingT('actions.resendCode')}
               </Button>
               <Button
                 variant="primary"
                 className="w-full bg-gold text-navy hover:bg-gold-dark"
                 onClick={handleVerifyOtp}
-                disabled={!otpCode.trim() || actionLoading}
+                disabled={!isValidTOTPSecret(otpCode) || actionLoading}
               >
                 {actionLoading
-                  ? t('propertyDetail.bookingFlow.actions.confirming')
-                  : t('propertyDetail.bookingFlow.actions.verifyAndConfirm')}
+                  ? bookingT('actions.confirming')
+                  : bookingT('actions.verifyAndConfirm')}
               </Button>
             </div>
           </div>
         )}
 
         {step === 'confirming' && (
-          <p className="text-sm text-charcoal">{t('propertyDetail.bookingFlow.confirmingMessage')}</p>
+          <p className="text-sm text-charcoal">{bookingT('confirmingMessage')}</p>
         )}
       </Modal>
 
       {step === 'done' && (
         <div className="rounded-2xl border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-          <p className="font-semibold">{t('propertyDetail.bookingFlow.done.reservationConfirmed')}</p>
+          <p className="font-semibold">{bookingT('done.reservationConfirmed')}</p>
           {reservationCode && (
             <p>
-              {t('propertyDetail.bookingFlow.done.codeLabel')}: {reservationCode}
+              {bookingT('done.codeLabel')}: {reservationCode}
             </p>
           )}
           {manageUrl && (
             <p>
-              {t('propertyDetail.bookingFlow.done.manageLinkLabel')}{' '}
+              {bookingT('done.manageLinkLabel')}{' '}
               <Link to={manageUrl.replace(window.location.origin, '')} className="underline">
-                {t('propertyDetail.bookingFlow.done.openReservationManager')}
+                {bookingT('done.openReservationManager')}
               </Link>
             </p>
           )}
@@ -393,4 +483,3 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 };
 
 export default GuestBookingFlow;
-

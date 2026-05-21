@@ -1,6 +1,6 @@
 {
   "layout": {
-    "documentTitle": "Event venues: En cartelera - Espacios"
+    "documentTitle": "En cartelera - Espacios"
   },
   "brand": {
     "venue": "En cartelera - ",
@@ -282,6 +282,20 @@
     "statusCancelled": "Cancelada",
     "ctaQuestion": "Outra data ou espaço?",
     "ctaBrowse": "Explorar espaços"
+  },
+  "bookingFlow": {
+    "actions": {
+      "continue": "Continuar",
+      "sendConfirmationCode": "Enviar código de confirmação"
+    },
+    "form": {
+      "phone": "Número de telefone",
+      "enterConfirmationCode": "Digite o código de confirmação"
+    },
+    "errors": {
+      "couldNotSendConfirmationCode": "Não foi possível enviar o código de confirmação.",
+      "invalidConfirmationCode": "Código de confirmação inválido."
+    }
   },
   "notFound": {
     "code": "404",
