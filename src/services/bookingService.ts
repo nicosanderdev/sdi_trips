@@ -74,6 +74,33 @@ export interface ReservationLookupData {
   guestPhone?: string | null;
   canCancel: boolean;
   isExpired: boolean;
+  /** When true, guest review form is hidden. Populated by get_reservation_by_code when available. */
+  isDeleted?: boolean;
+  /** When true, guest review form is hidden. Populated by get_reservation_by_code when available. */
+  hasExistingReview?: boolean;
+  /** Server-computed eligibility for guest review form. Populated by get_reservation_by_code when available. */
+  canSubmitGuestReview?: boolean;
+}
+
+export function mapReservationFromLookupPayload(raw: Record<string, unknown>): ReservationLookupData {
+  return {
+    bookingId: String(raw.bookingId ?? ''),
+    reservationCode: String(raw.reservationCode ?? ''),
+    propertyId: String(raw.propertyId ?? ''),
+    propertyTitle: String(raw.propertyTitle ?? ''),
+    checkIn: String(raw.checkIn ?? ''),
+    checkOut: String(raw.checkOut ?? ''),
+    status: String(raw.status ?? ''),
+    guestName: (raw.guestName as string | null | undefined) ?? null,
+    guestEmail: (raw.guestEmail as string | null | undefined) ?? null,
+    guestPhone: (raw.guestPhone as string | null | undefined) ?? null,
+    canCancel: Boolean(raw.canCancel),
+    isExpired: Boolean(raw.isExpired),
+    isDeleted: raw.isDeleted === true,
+    hasExistingReview: raw.hasExistingReview === true,
+    canSubmitGuestReview:
+      raw.canSubmitGuestReview === true ? true : raw.canSubmitGuestReview === false ? false : undefined,
+  };
 }
 
 export interface ReservationLookupResponse {
@@ -380,7 +407,9 @@ export async function getReservationByCode(reservationCode: string): Promise<Res
 
     return {
       success: true,
-      reservation: payload.reservation as ReservationLookupData,
+      reservation: mapReservationFromLookupPayload(
+        payload.reservation as Record<string, unknown>,
+      ),
     };
   } catch (serviceError) {
     console.error('Failed to get reservation by code:', serviceError);

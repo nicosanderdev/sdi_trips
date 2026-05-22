@@ -1,5 +1,5 @@
 import { supabase } from '../api/supabaseClient';
-import { getUserBookings } from './bookingService';
+import { getUserBookings, normalizeReservationCode } from '../../services/bookingService';
 import { REVIEW_WINDOW_DAYS } from '../../constants/reviews';
 import type { Booking, PropertyReviewItem, PropertyReviewsResult } from '../models';
 
@@ -71,6 +71,60 @@ export async function getReviewEligibilityForProperty(
   return { canReview: false, reason: 'reviews.noBookingForProperty' };
 }
 
+export interface CreateGuestReviewParams {
+  reservationCode: string;
+  guestEmail: string;
+  guestName: string;
+  rating: number;
+  comment: string;
+}
+
+const GUEST_REVIEW_RPC_ERROR_MESSAGES: Record<string, string> = {
+  'Invalid reservation code format': 'reservationLookup.review.errors.invalidCode',
+  'Reservation not found': 'reservationLookup.review.errors.notFound',
+  'Booking not eligible for review': 'reservationLookup.review.errors.notEligible',
+  'Checkout has not passed': 'reservationLookup.review.errors.checkoutNotPassed',
+  'Guest email does not match': 'reservationLookup.review.errors.emailMismatch',
+  'Review already exists': 'reservationLookup.review.errors.alreadyExists',
+  'Rating must be between 1 and 5': 'reservationLookup.review.errors.ratingInvalid',
+  'Guest name is required': 'reservationLookup.review.errors.nameRequired',
+  'Comment is required': 'reservationLookup.review.errors.commentRequired',
+};
+
+/**
+ * Submit a guest review via reservation code (no auth). Backend validates eligibility.
+ * @returns Created review Id
+ * @throws Error with i18n key under reservationLookup.review.errors.* or raw message
+ */
+export async function createGuestReviewByReservationCode(
+  params: CreateGuestReviewParams,
+): Promise<string> {
+  const code =
+    normalizeReservationCode(params.reservationCode) ?? params.reservationCode.trim().toUpperCase();
+
+  const { data, error } = await supabase.rpc('create_guest_review_by_reservation_code', {
+    p_reservation_code: code,
+    p_guest_email: params.guestEmail.trim(),
+    p_guest_name: params.guestName.trim(),
+    p_rating: params.rating,
+    p_comment: params.comment.trim(),
+  });
+
+  if (error) {
+    const key = GUEST_REVIEW_RPC_ERROR_MESSAGES[error.message || ''];
+    throw new Error(key || 'reservationLookup.review.errors.submitFailed');
+  }
+
+  const payload = data as Record<string, unknown> | null;
+  if (payload?.success === true && payload.reviewId != null) {
+    return String(payload.reviewId);
+  }
+
+  const errMsg = (payload?.error as string | undefined) ?? '';
+  const key = GUEST_REVIEW_RPC_ERROR_MESSAGES[errMsg];
+  throw new Error(key || errMsg || 'reservationLookup.review.errors.submitFailed');
+}
+
 const RPC_ERROR_MESSAGES: Record<string, string> = {
   Unauthorized: 'reviews.errors.unauthorized',
   'Booking not found': 'reviews.errors.bookingNotFound',
@@ -126,6 +180,7 @@ export async function getReviewsByPropertyId(
       Rating,
       Comment,
       CreatedAt,
+      GuestName,
       Members!UserId (
         FirstName,
         LastName,
@@ -146,21 +201,24 @@ export async function getReviewsByPropertyId(
     Rating: number;
     Comment: string | null;
     CreatedAt: string;
+    GuestName?: string | null;
     Members?: { FirstName: string | null; LastName: string | null; AvatarUrl: string | null } | null;
   }>;
 
   const reviews: PropertyReviewItem[] = rows.map((row) => {
     const member = row.Members;
-    const reviewerName =
+    const memberName =
       member && (member.FirstName || member.LastName)
         ? [member.FirstName, member.LastName].filter(Boolean).join(' ').trim()
-        : undefined;
+        : '';
+    const guestName = row.GuestName?.trim() ?? '';
+    const reviewerName = memberName || guestName || undefined;
     return {
       id: row.Id,
       rating: row.Rating,
       comment: row.Comment,
       createdAt: row.CreatedAt,
-      reviewerName: reviewerName || undefined,
+      reviewerName,
       reviewerAvatar: member?.AvatarUrl ?? undefined,
     };
   });

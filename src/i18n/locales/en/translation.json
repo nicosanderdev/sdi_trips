@@ -610,6 +610,12 @@
       "cancelled": "Cancelled",
       "completed": "Completed"
     },
+    "confirmCancel": {
+      "title": "Cancel this reservation?",
+      "message": "Cancellation may affect your refund depending on the property's policy. This action cannot be undone.",
+      "dismiss": "No, go back",
+      "confirm": "Yes, cancel reservation"
+    },
     "messages": {
       "cancelSuccess": "Reservation cancelled successfully."
     },
@@ -619,6 +625,35 @@
       "expired": "This reservation has expired and can no longer be managed here.",
       "couldNotFindCode": "Could not find this reservation code.",
       "cancelFailed": "Could not cancel reservation."
+    },
+    "review": {
+      "promptTitle": "How was your stay?",
+      "promptBody": "Your feedback helps other guests and the host. Share a quick review about your experience.",
+      "emailLabel": "Email",
+      "nameLabel": "Your name",
+      "namePlaceholder": "Name as shown on the booking",
+      "ratingLabel": "Rating",
+      "commentLabel": "Your review",
+      "commentPlaceholder": "Tell us about your stay…",
+      "submit": "Submit review",
+      "submitting": "Submitting…",
+      "successMessage": "Thank you! Your review has been recorded.",
+      "ratingRequired": "Please select a rating from 1 to 5 stars.",
+      "nameRequired": "Please enter your name.",
+      "commentRequired": "Please write a few words about your stay.",
+      "emailMissing": "We don't have an email on file for this booking, so a review can't be submitted here.",
+      "errors": {
+        "invalidCode": "Invalid reservation code format.",
+        "notFound": "Reservation not found.",
+        "notEligible": "This booking is not eligible for a review.",
+        "checkoutNotPassed": "Reviews are available after your checkout date.",
+        "emailMismatch": "The email does not match the one on this booking.",
+        "alreadyExists": "You have already submitted a review for this stay.",
+        "ratingInvalid": "Please choose a rating between 1 and 5.",
+        "nameRequired": "Please enter your name.",
+        "commentRequired": "Please write a few words about your stay.",
+        "submitFailed": "Something went wrong. Please try again."
+      }
     }
   },
   "booking": {

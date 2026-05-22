@@ -560,6 +560,12 @@
       "cancelled": "Cancelada",
       "completed": "Finalizada"
     },
+    "confirmCancel": {
+      "title": "Cancelar esta reserva?",
+      "message": "O cancelamento pode afetar seu reembolso conforme a política da propriedade. Esta ação não pode ser desfeita.",
+      "dismiss": "Não, voltar",
+      "confirm": "Sim, cancelar reserva"
+    },
     "messages": {
       "cancelSuccess": "Reserva cancelada com sucesso."
     },
@@ -569,6 +575,35 @@
       "expired": "Esta reserva expirou e não pode mais ser gerenciada aqui.",
       "couldNotFindCode": "Não foi possível encontrar este código de reserva.",
       "cancelFailed": "Não foi possível cancelar a reserva."
+    },
+    "review": {
+      "promptTitle": "Como foi a sua estadia?",
+      "promptBody": "O seu feedback ajuda outros hóspedes e o anfitrião. Partilhe uma avaliação breve sobre a experiência.",
+      "emailLabel": "E-mail",
+      "nameLabel": "O seu nome",
+      "namePlaceholder": "Nome como consta na reserva",
+      "ratingLabel": "Classificação",
+      "commentLabel": "A sua avaliação",
+      "commentPlaceholder": "Conte-nos sobre a estadia…",
+      "submit": "Enviar avaliação",
+      "submitting": "A enviar…",
+      "successMessage": "Obrigado! A sua avaliação foi registada.",
+      "ratingRequired": "Selecione uma classificação de 1 a 5 estrelas.",
+      "nameRequired": "Introduza o seu nome.",
+      "commentRequired": "Escreva algumas palavras sobre a estadia.",
+      "emailMissing": "Não temos e-mail registado para esta reserva; não é possível enviar uma avaliação aqui.",
+      "errors": {
+        "invalidCode": "Formato de código de reserva inválido.",
+        "notFound": "Reserva não encontrada.",
+        "notEligible": "Esta reserva não é elegível para uma avaliação.",
+        "checkoutNotPassed": "As avaliações ficam disponíveis após a data de check-out.",
+        "emailMismatch": "O e-mail não corresponde ao desta reserva.",
+        "alreadyExists": "Já enviou uma avaliação para esta estadia.",
+        "ratingInvalid": "Selecione uma classificação entre 1 e 5.",
+        "nameRequired": "Introduza o seu nome.",
+        "commentRequired": "Escreva algumas palavras sobre a estadia.",
+        "submitFailed": "Algo correu mal. Tente novamente."
+      }
     }
   },
   "booking": {
