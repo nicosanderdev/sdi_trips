@@ -2,30 +2,41 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Star } from 'lucide-react';
 import { Button, Card, Input, Textarea } from '../ui';
+import { getGuestSiteListingType } from '../../core/config/guestSiteListingType';
+import type { GuestExistingReview } from '../../types/guestReviewContract';
 import type { ReservationLookupData } from '../../services/bookingService';
-import { createGuestReviewByReservationCode } from '../../services/reviewService';
+import {
+  createGuestReviewByReservationCode,
+  updateGuestReviewByReservationCode,
+} from '../../services/reviewService';
 
 export interface GuestReservationReviewFormProps {
   reservation: ReservationLookupData;
+  mode: 'create' | 'edit';
+  existingReview?: GuestExistingReview;
   cardVariant?: 'default' | 'elevated' | 'glass' | 'surface';
+  onReviewSaved?: (review: GuestExistingReview) => void;
 }
 
 const GuestReservationReviewForm: React.FC<GuestReservationReviewFormProps> = ({
   reservation,
+  mode,
+  existingReview,
   cardVariant = 'default',
+  onReviewSaved,
 }) => {
   const { t } = useTranslation();
   const guestEmail = reservation.guestEmail?.trim() ?? '';
-  const [guestName, setGuestName] = useState(reservation.guestName?.trim() ?? '');
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(existingReview?.rating ?? 0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState(existingReview?.comment ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const displayRating = hoverRating || rating;
   const emailMissing = !guestEmail;
+  const isEdit = mode === 'edit';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,10 +44,6 @@ const GuestReservationReviewForm: React.FC<GuestReservationReviewFormProps> = ({
 
     if (emailMissing) {
       setError(t('reservationLookup.review.emailMissing'));
-      return;
-    }
-    if (!guestName.trim()) {
-      setError(t('reservationLookup.review.nameRequired'));
       return;
     }
     if (rating < 1 || rating > 5) {
@@ -50,13 +57,24 @@ const GuestReservationReviewForm: React.FC<GuestReservationReviewFormProps> = ({
 
     setSubmitting(true);
     try {
-      await createGuestReviewByReservationCode({
+      const params = {
         reservationCode: reservation.reservationCode,
         guestEmail,
-        guestName: guestName.trim(),
         rating,
         comment: comment.trim(),
-      });
+        listingType: reservation.listingType ?? getGuestSiteListingType(),
+      };
+
+      const reviewId = isEdit
+        ? await updateGuestReviewByReservationCode(params)
+        : await createGuestReviewByReservationCode(params);
+
+      const saved: GuestExistingReview = {
+        reviewId: reviewId || existingReview?.reviewId || '',
+        rating,
+        comment: comment.trim(),
+      };
+      onReviewSaved?.(saved);
       setSubmitted(true);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -70,7 +88,9 @@ const GuestReservationReviewForm: React.FC<GuestReservationReviewFormProps> = ({
     return (
       <Card variant={cardVariant} className="w-full max-w-2xl p-8">
         <p className="text-green-700 text-center font-medium" role="status">
-          {t('reservationLookup.review.successMessage')}
+          {isEdit
+            ? t('reservationLookup.review.updateSuccessMessage')
+            : t('reservationLookup.review.successMessage')}
         </p>
       </Card>
     );
@@ -79,8 +99,16 @@ const GuestReservationReviewForm: React.FC<GuestReservationReviewFormProps> = ({
   return (
     <Card variant={cardVariant} className="w-full max-w-2xl p-8 space-y-4">
       <div className="space-y-1 text-center sm:text-left">
-        <h3 className="text-xl font-semibold text-navy">{t('reservationLookup.review.promptTitle')}</h3>
-        <p className="text-sm text-charcoal">{t('reservationLookup.review.promptBody')}</p>
+        <h3 className="text-xl font-semibold text-navy">
+          {isEdit
+            ? t('reservationLookup.review.editTitle')
+            : t('reservationLookup.review.promptTitle')}
+        </h3>
+        <p className="text-sm text-charcoal">
+          {isEdit
+            ? t('reservationLookup.review.editPromptBody')
+            : t('reservationLookup.review.promptBody')}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,15 +123,6 @@ const GuestReservationReviewForm: React.FC<GuestReservationReviewFormProps> = ({
         {emailMissing && (
           <p className="text-sm text-amber-800">{t('reservationLookup.review.emailMissing')}</p>
         )}
-
-        <Input
-          label={t('reservationLookup.review.nameLabel')}
-          placeholder={t('reservationLookup.review.namePlaceholder')}
-          value={guestName}
-          onChange={setGuestName}
-          required
-          disabled={submitting}
-        />
 
         <div>
           <label className="block text-sm font-medium text-charcoal mb-2">
@@ -149,7 +168,11 @@ const GuestReservationReviewForm: React.FC<GuestReservationReviewFormProps> = ({
 
         <div className="flex justify-center sm:justify-end pt-2">
           <Button type="submit" variant="primary" disabled={submitting || emailMissing}>
-            {submitting ? t('reservationLookup.review.submitting') : t('reservationLookup.review.submit')}
+            {submitting
+              ? t('reservationLookup.review.submitting')
+              : isEdit
+                ? t('reservationLookup.review.saveChanges')
+                : t('reservationLookup.review.submit')}
           </Button>
         </div>
       </form>

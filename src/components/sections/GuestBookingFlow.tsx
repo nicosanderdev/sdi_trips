@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/config';
 import { Button, Modal, SixDigitCodeInput } from '../ui';
 import { isValidTOTPSecret } from '../../core/services/mfaService';
-import type { Property } from '../../types';
+import { getGuestSiteListingType, isGuestSiteListingType } from '../../core/config/guestSiteListingType';
+import type { GuestSiteListingType, Property } from '../../types';
 import { validateBookingSelection } from '../../services/availabilityService';
 import {
   confirmGuestBooking,
@@ -35,6 +36,14 @@ interface GuestBookingFlowProps {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^\+[1-9]\d{7,14}$/;
+
+function resolveHoldListingType(property: Property): GuestSiteListingType {
+  const fromProperty = property.listingType;
+  if (fromProperty && isGuestSiteListingType(fromProperty)) {
+    return fromProperty;
+  }
+  return getGuestSiteListingType();
+}
 
 const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   property,
@@ -67,7 +76,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [countdown, setCountdown] = useState<number>(0);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [phoneCountry, setPhoneCountry] = useState<PhoneCountryCode>('UY');
@@ -140,16 +150,16 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   }, [countdown]);
 
   const isGuestFormValid = useMemo(() => {
-    if (!fullName.trim()) return false;
+    if (!firstName.trim() || !lastName.trim()) return false;
+    if (!email.trim() || !EMAIL_PATTERN.test(email.trim())) return false;
     if (isEvent) {
       if (!isValidLocalPhone(phoneLocal)) return false;
       if (!PHONE_PATTERN.test(fullPhone)) return false;
     } else if (!PHONE_PATTERN.test(fullPhone)) {
       return false;
     }
-    if (email.trim() && !EMAIL_PATTERN.test(email.trim())) return false;
     return true;
-  }, [fullName, fullPhone, phoneLocal, email, isEvent]);
+  }, [firstName, lastName, fullPhone, phoneLocal, email, isEvent]);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
@@ -176,6 +186,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       guests: 1,
       estimatedGuests: estimatedGuests.trim() ? Number(estimatedGuests) : undefined,
       idempotencyKey: `${property.id}-${checkIn.toISOString()}-${checkOut.toISOString()}-${bookingMode}`,
+      listingType: resolveHoldListingType(property),
     });
     setActionLoading(false);
 
@@ -236,8 +247,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     const confirmResult = await confirmGuestBooking({
       holdId,
       profile: {
-        fullName: fullName.trim(),
-        email: email.trim() || undefined,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
         phone: fullPhone,
         documentId: documentId.trim() || undefined,
         estimatedGuests: estimatedGuests.trim() ? Number(estimatedGuests) : undefined,
@@ -247,7 +259,12 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setActionLoading(false);
 
     if (!confirmResult.success) {
-      setFlowError(confirmResult.error ?? bookingT('errors.couldNotConfirmReservation'));
+      const errKey = confirmResult.error;
+      const errMessage =
+        errKey?.startsWith('propertyDetail.')
+          ? t(errKey)
+          : (errKey ?? bookingT('errors.couldNotConfirmReservation'));
+      setFlowError(errMessage);
       setStep('guest');
       return;
     }
@@ -349,16 +366,24 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           <div className="space-y-3">
             <input
               type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder={bookingT('form.fullName')}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder={bookingT('form.firstName')}
+              className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+            />
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder={bookingT('form.lastName')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={bookingT('form.emailOptional')}
+              placeholder={bookingT('form.email')}
+              required
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
             {isEvent ? (

@@ -1,5 +1,7 @@
+import { getGuestSiteListingType } from '../config/guestSiteListingType';
 import { supabase } from '../api/supabaseClient';
 import { getUserBookings, normalizeReservationCode } from '../../services/bookingService';
+import type { GuestSiteListingType } from '../../types/guestReviewContract';
 import { REVIEW_WINDOW_DAYS } from '../../constants/reviews';
 import type { Booking, PropertyReviewItem, PropertyReviewsResult } from '../models';
 
@@ -74,9 +76,9 @@ export async function getReviewEligibilityForProperty(
 export interface CreateGuestReviewParams {
   reservationCode: string;
   guestEmail: string;
-  guestName: string;
   rating: number;
   comment: string;
+  listingType?: GuestSiteListingType;
 }
 
 const GUEST_REVIEW_RPC_ERROR_MESSAGES: Record<string, string> = {
@@ -86,10 +88,31 @@ const GUEST_REVIEW_RPC_ERROR_MESSAGES: Record<string, string> = {
   'Checkout has not passed': 'reservationLookup.review.errors.checkoutNotPassed',
   'Guest email does not match': 'reservationLookup.review.errors.emailMismatch',
   'Review already exists': 'reservationLookup.review.errors.alreadyExists',
+  'Review window expired': 'reservationLookup.review.errors.codeExpired',
+  'Review not found': 'reservationLookup.review.errors.notFound',
   'Rating must be between 1 and 5': 'reservationLookup.review.errors.ratingInvalid',
-  'Guest name is required': 'reservationLookup.review.errors.nameRequired',
   'Comment is required': 'reservationLookup.review.errors.commentRequired',
+  'Invalid listing type': 'reservationLookup.review.errors.invalidListingType',
 };
+
+function parseGuestReviewRpcResult(
+  data: unknown,
+  error: { message?: string } | null,
+): string {
+  if (error) {
+    const key = GUEST_REVIEW_RPC_ERROR_MESSAGES[error.message || ''];
+    throw new Error(key || 'reservationLookup.review.errors.submitFailed');
+  }
+
+  const payload = data as Record<string, unknown> | null;
+  if (payload?.success === true && payload.reviewId != null) {
+    return String(payload.reviewId);
+  }
+
+  const errMsg = (payload?.error as string | undefined) ?? '';
+  const key = GUEST_REVIEW_RPC_ERROR_MESSAGES[errMsg];
+  throw new Error(key || errMsg || 'reservationLookup.review.errors.submitFailed');
+}
 
 /**
  * Submit a guest review via reservation code (no auth). Backend validates eligibility.
@@ -105,24 +128,33 @@ export async function createGuestReviewByReservationCode(
   const { data, error } = await supabase.rpc('create_guest_review_by_reservation_code', {
     p_reservation_code: code,
     p_guest_email: params.guestEmail.trim(),
-    p_guest_name: params.guestName.trim(),
     p_rating: params.rating,
     p_comment: params.comment.trim(),
+    p_listing_type: params.listingType ?? getGuestSiteListingType(),
   });
 
-  if (error) {
-    const key = GUEST_REVIEW_RPC_ERROR_MESSAGES[error.message || ''];
-    throw new Error(key || 'reservationLookup.review.errors.submitFailed');
-  }
+  return parseGuestReviewRpcResult(data, error);
+}
 
-  const payload = data as Record<string, unknown> | null;
-  if (payload?.success === true && payload.reviewId != null) {
-    return String(payload.reviewId);
-  }
+/**
+ * Update a guest review via reservation code (no auth). Backend validates eligibility.
+ * @returns Updated review Id
+ */
+export async function updateGuestReviewByReservationCode(
+  params: CreateGuestReviewParams,
+): Promise<string> {
+  const code =
+    normalizeReservationCode(params.reservationCode) ?? params.reservationCode.trim().toUpperCase();
 
-  const errMsg = (payload?.error as string | undefined) ?? '';
-  const key = GUEST_REVIEW_RPC_ERROR_MESSAGES[errMsg];
-  throw new Error(key || errMsg || 'reservationLookup.review.errors.submitFailed');
+  const { data, error } = await supabase.rpc('update_guest_review_by_reservation_code', {
+    p_reservation_code: code,
+    p_guest_email: params.guestEmail.trim(),
+    p_rating: params.rating,
+    p_comment: params.comment.trim(),
+    p_listing_type: params.listingType ?? getGuestSiteListingType(),
+  });
+
+  return parseGuestReviewRpcResult(data, error);
 }
 
 const RPC_ERROR_MESSAGES: Record<string, string> = {
@@ -166,29 +198,24 @@ export async function createReview(
   return data as string;
 }
 
+function formatPersonName(firstName: string | null | undefined, lastName: string | null | undefined): string {
+  return [firstName, lastName].filter(Boolean).join(' ').trim();
+}
+
 /**
  * Fetch reviews for a property (newest first) with average rating and count.
+ * Reviewer names resolve via polymorphic Reviews.GuestId (Members or Guests).
  */
 export async function getReviewsByPropertyId(
-  estatePropertyId: string
+  estatePropertyId: string,
+  listingType?: GuestSiteListingType,
 ): Promise<PropertyReviewsResult> {
+  const siteListingType = listingType ?? getGuestSiteListingType();
   const { data, error } = await supabase
     .from('Reviews')
-    .select(
-      `
-      Id,
-      Rating,
-      Comment,
-      CreatedAt,
-      GuestName,
-      Members!UserId (
-        FirstName,
-        LastName,
-        AvatarUrl
-      )
-    `
-    )
+    .select('Id, Rating, Comment, CreatedAt, GuestId')
     .eq('EstatePropertyId', estatePropertyId)
+    .eq('ListingType', siteListingType)
     .order('CreatedAt', { ascending: false });
 
   if (error) {
@@ -196,30 +223,79 @@ export async function getReviewsByPropertyId(
     return { reviews: [], averageRating: 0, totalCount: 0 };
   }
 
-  const rows = (data ?? []) as unknown as Array<{
+  const rows = (data ?? []) as Array<{
     Id: string;
     Rating: number;
     Comment: string | null;
     CreatedAt: string;
-    GuestName?: string | null;
-    Members?: { FirstName: string | null; LastName: string | null; AvatarUrl: string | null } | null;
+    GuestId: string | null;
   }>;
 
+  const guestIds = [...new Set(rows.map((r) => r.GuestId).filter((id): id is string => Boolean(id)))];
+
+  const memberById = new Map<
+    string,
+    { FirstName: string | null; LastName: string | null; AvatarUrl: string | null }
+  >();
+  const guestById = new Map<string, { FirstName: string | null; LastName: string | null }>();
+
+  if (guestIds.length > 0) {
+    const [membersResult, guestsResult] = await Promise.all([
+      supabase
+        .from('Members')
+        .select('Id, FirstName, LastName, AvatarUrl')
+        .in('Id', guestIds),
+      supabase.from('Guests').select('Id, FirstName, LastName').in('Id', guestIds),
+    ]);
+
+    if (membersResult.error) {
+      console.error('Error fetching member reviewers:', membersResult.error);
+    } else {
+      for (const m of membersResult.data ?? []) {
+        memberById.set(m.Id, {
+          FirstName: m.FirstName,
+          LastName: m.LastName,
+          AvatarUrl: m.AvatarUrl,
+        });
+      }
+    }
+
+    if (guestsResult.error) {
+      console.error('Error fetching guest reviewers:', guestsResult.error);
+    } else {
+      for (const g of guestsResult.data ?? []) {
+        guestById.set(g.Id, { FirstName: g.FirstName, LastName: g.LastName });
+      }
+    }
+  }
+
   const reviews: PropertyReviewItem[] = rows.map((row) => {
-    const member = row.Members;
-    const memberName =
-      member && (member.FirstName || member.LastName)
-        ? [member.FirstName, member.LastName].filter(Boolean).join(' ').trim()
-        : '';
-    const guestName = row.GuestName?.trim() ?? '';
-    const reviewerName = memberName || guestName || undefined;
+    const guestId = row.GuestId;
+    let reviewerName: string | undefined;
+    let reviewerAvatar: string | undefined;
+
+    if (guestId) {
+      const member = memberById.get(guestId);
+      if (member) {
+        const name = formatPersonName(member.FirstName, member.LastName);
+        reviewerName = name || undefined;
+        reviewerAvatar = member.AvatarUrl ?? undefined;
+      } else {
+        const guest = guestById.get(guestId);
+        if (guest) {
+          const name = formatPersonName(guest.FirstName, guest.LastName);
+          reviewerName = name || undefined;
+        }
+      }
+    }
+
     return {
       id: row.Id,
       rating: row.Rating,
       comment: row.Comment,
       createdAt: row.CreatedAt,
       reviewerName,
-      reviewerAvatar: member?.AvatarUrl ?? undefined,
+      reviewerAvatar,
     };
   });
 
@@ -257,15 +333,18 @@ export async function getExistingReviewForBooking(bookingId: string): Promise<bo
  * This is intentionally read-only and does not modify any database structures.
  */
 export async function getRatingsForProperties(
-  propertyIds: string[]
+  propertyIds: string[],
+  listingType?: GuestSiteListingType,
 ): Promise<Record<string, { averageRating: number; reviewCount: number }>> {
   if (!propertyIds || propertyIds.length === 0) {
     return {};
   }
 
+  const siteListingType = listingType ?? getGuestSiteListingType();
   const { data, error } = await supabase
     .from('Reviews')
     .select('EstatePropertyId, Rating')
+    .eq('ListingType', siteListingType)
     .in('EstatePropertyId', propertyIds);
 
   if (error) {

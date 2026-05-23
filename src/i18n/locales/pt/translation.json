@@ -249,7 +249,7 @@
       }
     },
     "testimonials": {
-      "title": "Comentários de Hóspedes",
+      "title": "Avaliações de hóspedes",
       "subtitle": "Experiências reais de pessoas como você",
       "items": {
         "1": {
@@ -432,8 +432,9 @@
         "title": "Conclua sua reserva"
       },
       "form": {
-        "fullName": "Nome completo",
-        "emailOptional": "E-mail (opcional)",
+        "firstName": "Nome",
+        "lastName": "Sobrenome",
+        "email": "E-mail",
         "phone": "Telefone (+598...)",
         "documentIdOptional": "Documento de identidade (opcional)",
         "estimatedGuests": "Número estimado de convidados (opcional)",
@@ -461,7 +462,8 @@
         "couldNotSendOtp": "Não foi possível enviar o código OTP.",
         "invalidOtp": "Código OTP inválido.",
         "holdNoLongerValid": "Sua reserva temporária não é mais válida.",
-        "couldNotConfirmReservation": "Não foi possível confirmar a reserva."
+        "couldNotConfirmReservation": "Não foi possível confirmar a reserva.",
+        "guestFieldsRequired": "Nome, sobrenome, e-mail e telefone são obrigatórios."
       }
     },
     "host": {
@@ -588,6 +590,14 @@
       "submit": "Enviar avaliação",
       "submitting": "A enviar…",
       "successMessage": "Obrigado! A sua avaliação foi registada.",
+      "updateSuccessMessage": "A sua avaliação foi atualizada.",
+      "windowOpens": "Pode deixar uma avaliação a partir da data de check-out ({{checkOut}}). O prazo encerra em {{windowEnd}} (48 horas após o fim da estadia).",
+      "windowOpen": "O prazo para deixar ou editar a avaliação está aberto até {{windowEnd}}.",
+      "codeExpired": "O prazo para deixar ou editar a avaliação expirou.",
+      "editTitle": "Editar a sua avaliação",
+      "editPromptBody": "Pode atualizar a classificação e os comentários enquanto o prazo estiver aberto.",
+      "saveChanges": "Guardar alterações",
+      "yourReview": "A sua avaliação",
       "ratingRequired": "Selecione uma classificação de 1 a 5 estrelas.",
       "nameRequired": "Introduza o seu nome.",
       "commentRequired": "Escreva algumas palavras sobre a estadia.",
@@ -602,6 +612,8 @@
         "ratingInvalid": "Selecione uma classificação entre 1 e 5.",
         "nameRequired": "Introduza o seu nome.",
         "commentRequired": "Escreva algumas palavras sobre a estadia.",
+        "invalidListingType": "Esta reserva não está disponível neste site.",
+        "codeExpired": "O prazo para deixar ou editar a avaliação expirou.",
         "submitFailed": "Algo correu mal. Tente novamente."
       }
     }
@@ -753,7 +765,7 @@
     "leaveReviewFor": "Deixar uma avaliação de {{title}}",
     "rating": "Avaliação",
     "stars": "estrelas",
-    "comment": "Comentário",
+    "comment": "Avaliação",
     "commentPlaceholder": "Conte sua experiência (opcional)",
     "anonymous": "Hóspede",
     "addReview": "Deixar avaliação",

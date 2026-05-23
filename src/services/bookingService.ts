@@ -1,9 +1,12 @@
+import { getGuestSiteListingType } from '../core/config/guestSiteListingType';
 import { supabase } from '../lib/supabase';
 import type {
   Booking,
   BookingHold,
   GuestBookingConfirmation,
   GuestBookingProfile,
+  GuestExistingReview,
+  GuestSiteListingType,
   ManageBookingView,
   Property,
   User
@@ -47,6 +50,8 @@ export interface CreateBookingHoldParams {
   estimatedGuests?: number;
   ipHash?: string;
   idempotencyKey?: string;
+  /** Site listing type; defaults to current deployment (main/alt). */
+  listingType?: GuestSiteListingType;
 }
 
 export interface BookingHoldResponse {
@@ -72,14 +77,33 @@ export interface ReservationLookupData {
   guestName?: string | null;
   guestEmail?: string | null;
   guestPhone?: string | null;
+  /** Bookings.GuestId — Guests.Id or Members.Id; null for legacy bookings. */
+  guestId?: string | null;
+  listingType?: GuestSiteListingType;
   canCancel: boolean;
   isExpired: boolean;
   /** When true, guest review form is hidden. Populated by get_reservation_by_code when available. */
   isDeleted?: boolean;
-  /** When true, guest review form is hidden. Populated by get_reservation_by_code when available. */
+  /** When true, guest has already submitted a review. Populated by get_reservation_by_code when available. */
   hasExistingReview?: boolean;
+  existingGuestReview?: GuestExistingReview | null;
   /** Server-computed eligibility for guest review form. Populated by get_reservation_by_code when available. */
   canSubmitGuestReview?: boolean;
+  canEditGuestReview?: boolean;
+  guestReviewWindowEnd?: string;
+}
+
+function mapExistingGuestReview(raw: unknown): GuestExistingReview | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  const reviewId = String(r.reviewId ?? r.review_id ?? '');
+  if (!reviewId) return null;
+  return {
+    reviewId,
+    rating: Number(r.rating ?? 0),
+    comment: String(r.comment ?? ''),
+    updatedAt: r.updatedAt != null ? String(r.updatedAt) : r.updated_at != null ? String(r.updated_at) : undefined,
+  };
 }
 
 export function mapReservationFromLookupPayload(raw: Record<string, unknown>): ReservationLookupData {
@@ -94,12 +118,23 @@ export function mapReservationFromLookupPayload(raw: Record<string, unknown>): R
     guestName: (raw.guestName as string | null | undefined) ?? null,
     guestEmail: (raw.guestEmail as string | null | undefined) ?? null,
     guestPhone: (raw.guestPhone as string | null | undefined) ?? null,
+    guestId: (raw.guestId as string | null | undefined) ?? null,
+    listingType: (raw.listingType as GuestSiteListingType | undefined) ?? undefined,
     canCancel: Boolean(raw.canCancel),
     isExpired: Boolean(raw.isExpired),
     isDeleted: raw.isDeleted === true,
     hasExistingReview: raw.hasExistingReview === true,
+    existingGuestReview: mapExistingGuestReview(raw.existingGuestReview),
     canSubmitGuestReview:
       raw.canSubmitGuestReview === true ? true : raw.canSubmitGuestReview === false ? false : undefined,
+    canEditGuestReview:
+      raw.canEditGuestReview === true ? true : raw.canEditGuestReview === false ? false : undefined,
+    guestReviewWindowEnd:
+      raw.guestReviewWindowEnd != null
+        ? String(raw.guestReviewWindowEnd)
+        : raw.guest_review_window_end != null
+          ? String(raw.guest_review_window_end)
+          : undefined,
   };
 }
 
@@ -190,6 +225,7 @@ export async function cancelBooking(params: CancelBookingParams): Promise<Cancel
 
 export async function createBookingHold(params: CreateBookingHoldParams): Promise<BookingHoldResponse> {
   try {
+    const listingType = params.listingType ?? getGuestSiteListingType();
     const { data, error } = await supabase.rpc('create_booking_hold', {
       p_property_id: params.propertyId,
       p_check_in: params.checkIn.toISOString().split('T')[0],
@@ -199,6 +235,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
       p_estimated_guests: params.estimatedGuests ?? null,
       p_ip_hash: params.ipHash ?? null,
       p_idempotency_key: params.idempotencyKey ?? null,
+      p_listing_type: listingType,
     });
 
     if (error) {
@@ -307,14 +344,26 @@ export async function reconfirmHold(holdId: string): Promise<BookingHoldResponse
   }
 }
 
+const CONFIRM_GUEST_PAYLOAD_ERROR =
+  'Guest first name, last name, email, and phone are required';
+
+function mapConfirmGuestBookingError(message: string | undefined): string {
+  if (message === CONFIRM_GUEST_PAYLOAD_ERROR) {
+    return 'propertyDetail.bookingFlow.errors.guestFieldsRequired';
+  }
+  return message ?? 'Could not confirm booking.';
+}
+
 export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Promise<GuestBookingConfirmation> {
   try {
+    const { firstName, lastName, email, phone } = params.profile;
     const { data, error } = await supabase.rpc('confirm_booking_from_hold', {
       p_hold_id: params.holdId,
       p_guest_payload: {
-        fullName: params.profile.fullName,
-        email: params.profile.email ?? null,
-        phone: params.profile.phone,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
         documentId: params.profile.documentId ?? null,
         estimatedGuests: params.profile.estimatedGuests ?? null,
         totalPrice: params.profile.totalPrice ?? null,
@@ -327,14 +376,24 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
 
     const payload = data as Record<string, unknown> | null;
     if (!payload?.success) {
-      return { success: false, error: (payload?.error as string | undefined) ?? 'Could not confirm booking.' };
+      const rawError = payload?.error as string | undefined;
+      return { success: false, error: mapConfirmGuestBookingError(rawError) };
     }
+
+    const guestId =
+      (payload.guestId as string | undefined) ??
+      (payload.guest_id as string | undefined);
+    const listingTypeRaw =
+      (payload.listingType as string | undefined) ??
+      (payload.listing_type as string | undefined);
 
     return {
       success: true,
       bookingId: payload.booking_id as string | undefined,
       reservationCode: payload.reservation_code as string | undefined,
       manageToken: payload.manage_token as string | undefined,
+      guestId,
+      listingType: listingTypeRaw as GuestSiteListingType | undefined,
     };
   } catch (error) {
     console.error('Failed to confirm guest booking:', error);
@@ -382,7 +441,10 @@ export async function cancelBookingByManageToken(token: string, reason?: string)
   }
 }
 
-export async function getReservationByCode(reservationCode: string): Promise<ReservationLookupResponse> {
+export async function getReservationByCode(
+  reservationCode: string,
+  listingType?: GuestSiteListingType,
+): Promise<ReservationLookupResponse> {
   const normalizedCode = normalizeReservationCode(reservationCode);
   if (!normalizedCode) {
     return { success: false, error: 'Invalid reservation code format.' };
@@ -391,6 +453,7 @@ export async function getReservationByCode(reservationCode: string): Promise<Res
   try {
     const { data, error } = await supabase.rpc('get_reservation_by_code', {
       reservation_code: normalizedCode,
+      p_listing_type: listingType ?? getGuestSiteListingType(),
     });
 
     if (error) {

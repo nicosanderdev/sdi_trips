@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
+import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
 import PropertySection from '../../components/sections/PropertySection';
 import {
   MapPin,
@@ -297,6 +298,8 @@ export default function AltVenueDetail() {
               </Card>
             </div>
           </div>
+
+          <PropertyReviewsSection propertyId={venue.id} propertyTitle={venue.name} />
         </section>
       </div>
     </div>

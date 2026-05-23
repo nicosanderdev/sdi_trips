@@ -482,8 +482,9 @@
         "title": "Complete your reservation"
       },
       "form": {
-        "fullName": "Full name",
-        "emailOptional": "Email (optional)",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "email": "Email",
         "phone": "Phone (+598...)",
         "documentIdOptional": "Document ID (optional)",
         "estimatedGuests": "Estimated number of guests (optional)",
@@ -511,7 +512,8 @@
         "couldNotSendOtp": "Could not send OTP code.",
         "invalidOtp": "Invalid OTP code.",
         "holdNoLongerValid": "Your hold is no longer valid.",
-        "couldNotConfirmReservation": "Could not confirm reservation."
+        "couldNotConfirmReservation": "Could not confirm reservation.",
+        "guestFieldsRequired": "First name, last name, email, and phone are required."
       }
     },
     "host": {
@@ -638,6 +640,14 @@
       "submit": "Submit review",
       "submitting": "Submitting…",
       "successMessage": "Thank you! Your review has been recorded.",
+      "updateSuccessMessage": "Your review has been updated.",
+      "windowOpens": "You can leave a review starting on your checkout date ({{checkOut}}). The review period closes on {{windowEnd}} (48 hours after the end of your stay).",
+      "windowOpen": "The review period is open. You can submit or edit your review until {{windowEnd}}.",
+      "codeExpired": "The review period for this reservation has ended.",
+      "editTitle": "Edit your review",
+      "editPromptBody": "You can update your rating and comments while the review period is open.",
+      "saveChanges": "Save changes",
+      "yourReview": "Your review",
       "ratingRequired": "Please select a rating from 1 to 5 stars.",
       "nameRequired": "Please enter your name.",
       "commentRequired": "Please write a few words about your stay.",
@@ -652,6 +662,8 @@
         "ratingInvalid": "Please choose a rating between 1 and 5.",
         "nameRequired": "Please enter your name.",
         "commentRequired": "Please write a few words about your stay.",
+        "invalidListingType": "This reservation is not available on this site.",
+        "codeExpired": "The review period for this reservation has ended.",
         "submitFailed": "Something went wrong. Please try again."
       }
     }

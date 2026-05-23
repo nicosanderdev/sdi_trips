@@ -249,7 +249,7 @@
       }
     },
     "testimonials": {
-      "title": "Comentarios de huéspedes",
+      "title": "Reseñas de huéspedes",
       "subtitle": "Experiencias reales de personas como vos",
       "items": {
         "1": {
@@ -427,8 +427,8 @@
       }
     },
     "reviews": {
-      "heading": "Comentarios",
-      "noReviews": "Aún no hay comentarios",
+      "heading": "Reseñas",
+      "noReviews": "Aún no hay reseñas",
       "ratingCount": "{{rating}} · {{count}} reseñas",
       "reviewsCount": "({{count}} reseñas)"
     },
@@ -455,8 +455,9 @@
         "title": "Completa tu reserva"
       },
       "form": {
-        "fullName": "Nombre completo",
-        "emailOptional": "Correo electrónico (opcional)",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo electrónico",
         "phone": "Teléfono (+598...)",
         "documentIdOptional": "Documento de identidad (opcional)",
         "estimatedGuests": "Cantidad estimada de invitados (opcional)",
@@ -484,7 +485,8 @@
         "couldNotSendOtp": "No se pudo enviar el código OTP.",
         "invalidOtp": "Código OTP inválido.",
         "holdNoLongerValid": "Tu reserva temporal ya no es válida.",
-        "couldNotConfirmReservation": "No se pudo confirmar la reserva."
+        "couldNotConfirmReservation": "No se pudo confirmar la reserva.",
+        "guestFieldsRequired": "Nombre, apellido, correo y teléfono son obligatorios."
       }
     },
     "host": {
@@ -511,7 +513,7 @@
       "amenities": "Qué ofrece este lugar",
       "location": "Ubicación",
       "host": "Anfitrión",
-      "reviews": "Comentarios",
+      "reviews": "Reseñas",
       "questions": "Preguntas y Respuestas",
       "similarProperties": "Propiedades similares"
     },
@@ -611,6 +613,14 @@
       "submit": "Enviar reseña",
       "submitting": "Enviando…",
       "successMessage": "¡Gracias! Tu reseña ha sido registrada.",
+      "updateSuccessMessage": "Tu reseña ha sido actualizada.",
+      "windowOpens": "Podés dejar una reseña desde el último día de tu estadía ({{checkOut}}). El plazo cierra el {{windowEnd}} (48 horas después del fin de la estadía).",
+      "windowOpen": "El plazo para dejar o editar tu reseña está abierto hasta el {{windowEnd}}.",
+      "codeExpired": "El plazo para dejar o editar tu reseña ha vencido.",
+      "editTitle": "Editar tu reseña",
+      "editPromptBody": "Podés actualizar tu calificación y comentarios mientras el plazo esté abierto.",
+      "saveChanges": "Guardar cambios",
+      "yourReview": "Tu reseña",
       "ratingRequired": "Seleccioná una calificación de 1 a 5 estrellas.",
       "nameRequired": "Ingresá tu nombre.",
       "commentRequired": "Escribí unas palabras sobre tu estadía.",
@@ -625,6 +635,8 @@
         "ratingInvalid": "Elegí una calificación entre 1 y 5.",
         "nameRequired": "Ingresá tu nombre.",
         "commentRequired": "Escribí unas palabras sobre tu estadía.",
+        "invalidListingType": "Esta reserva no está disponible en este sitio.",
+        "codeExpired": "El plazo para dejar o editar tu reseña ha vencido.",
         "submitFailed": "Algo salió mal. Inténtalo de nuevo."
       }
     }
@@ -776,7 +788,7 @@
     "leaveReviewFor": "Dejar una reseña de {{title}}",
     "rating": "Calificación",
     "stars": "estrellas",
-    "comment": "Comentario",
+    "comment": "Reseña",
     "commentPlaceholder": "Comparte tu experiencia (opcional)",
     "anonymous": "Huésped",
     "addReview": "Dejar reseña",
@@ -904,7 +916,7 @@
         "description": "Verifica las fechas, número de huéspedes y cualquier solicitud especial antes de finalizar."
       },
       "leaveReviews": {
-        "title": "Deja Comentarios",
+        "title": "Dejar reseñas",
         "description": "Comparte tu experiencia después de tu estadía para ayudar a otros viajeros a tomar decisiones informadas."
       }
     }

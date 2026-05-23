@@ -3,18 +3,15 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
-import { Button, Card, LeaveReviewModal } from '../../components/ui';
+import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
+import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
 import PropertySection from '../../components/sections/PropertySection';
 import { getPropertyById } from '../../services/propertyService';
 import { getUtmSourceAndMedium, trackEvent } from '../../lib/analytics';
 import { logPropertyVisit } from '../../services/propertyVisitService';
-import { getMemberProfile } from '../../services/memberService';
-import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
-import { getReviewsByPropertyId, getReviewEligibilityForProperty } from '../../services/reviewService';
-import type { PropertyReviewsResult } from '../../types';
 import type { Property } from '../../types';
 import {
     MapPin,
@@ -50,17 +47,7 @@ const PropertyDetail: React.FC = () => {
     const [galleryOpacity, setGalleryOpacity] = useState(1);
     const [lightboxOpacity, setLightboxOpacity] = useState(1);
     const [showBookingCalendar, setShowBookingCalendar] = useState(false);
-    const [reviewsResult, setReviewsResult] = useState<PropertyReviewsResult | null>(null);
-    const [reviewEligibility, setReviewEligibility] = useState<{
-        canReview: boolean;
-        booking?: { id: string };
-        reason?: string;
-    } | null>(null);
-    const [reviewEligibilityLoading, setReviewEligibilityLoading] = useState(false);
-    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-
     const { t } = useTranslation();
-    const { user } = useAuth();
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
     // Fetch property data
@@ -102,52 +89,6 @@ const PropertyDetail: React.FC = () => {
         });
         logPropertyVisit(property.id, source ?? 'unknown');
     }, [property?.id, id, property?.ownerId, property?.listingType]);
-
-    // Fetch reviews for this property
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadReviews = async () => {
-            if (!id) return;
-            try {
-                const result = await getReviewsByPropertyId(id);
-                if (isMounted) setReviewsResult(result);
-            } catch (err) {
-                console.error('Error loading reviews:', err);
-                if (isMounted) setReviewsResult({ reviews: [], averageRating: 0, totalCount: 0 });
-            }
-        };
-
-        loadReviews();
-        return () => { isMounted = false; };
-    }, [id]);
-
-    // Review eligibility for logged-in user (can they leave a review for this property?)
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadReviewEligibility = async () => {
-            if (!user || !id || !property?.id) {
-                if (isMounted) setReviewEligibility(null);
-                return;
-            }
-            try {
-                if (isMounted) setReviewEligibilityLoading(true);
-                const member = await getMemberProfile(user.id);
-                if (!member?.id || !isMounted) return;
-                const result = await getReviewEligibilityForProperty(id, member.id);
-                if (isMounted) setReviewEligibility(result);
-            } catch (err) {
-                console.error('Error loading review eligibility:', err);
-                if (isMounted) setReviewEligibility(null);
-            } finally {
-                if (isMounted) setReviewEligibilityLoading(false);
-            }
-        };
-
-        loadReviewEligibility();
-        return () => { isMounted = false; };
-    }, [user, id, property?.id]);
 
     // Initialize map
     useEffect(() => {
@@ -608,76 +549,15 @@ const PropertyDetail: React.FC = () => {
                         </div>
                     </section>
 
-                    {/* Reviews Section (includes reviews, house layout, outdoor, map, all photos) */}
+                    {/* Reviews, house layout, outdoor, map, all photos */}
                     <section className="space-y-8">
-                        <div className="flex items-center justify-between mr-4">
-                            <h2 className="text-2xl font-semibold text-navy">
-                                {t('propertyDetail.reviews.heading')}
-                            </h2>
-                            <div className="flex items-center gap-2">
-                                <Star className="h-5 w-5 fill-gold text-gold" />
-                                <span className="text-lg font-semibold text-navy">
-                                    {reviewsResult != null
-                                        ? reviewsResult.averageRating > 0
-                                            ? reviewsResult.averageRating.toFixed(1)
-                                            : '—'
-                                        : (property.rating != null ? property.rating.toFixed(1) : '—')}
-                                </span>
-                                <span className="text-charcoal">
-                                    {t('propertyDetail.reviews.reviewsCount', { count: reviewsResult?.totalCount ?? property.reviewCount ?? 0 })}
-                                </span>
-                            </div>
-                        </div>
-                        {/* Add review: show button if eligible, or message if not, or login prompt */}
-                        {!user ? (
-                            <p className="text-charcoal text-sm">{t('reviews.loginToReview')}</p>
-                        ) : reviewEligibilityLoading ? null : reviewEligibility?.canReview && reviewEligibility.booking ? (
-                            <div className="mb-4">
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    onClick={() => setIsReviewModalOpen(true)}
-                                >
-                                    {t('reviews.addReview')}
-                                </Button>
-                            </div>
-                        ) : reviewEligibility?.reason ? (
-                            <p className="text-charcoal text-sm mb-4">
-                                {reviewEligibility.reason.startsWith('reviews.') ? t(reviewEligibility.reason) : reviewEligibility.reason}
-                            </p>
-                        ) : null}
-                        {reviewsResult && reviewsResult.reviews.length > 0 ? (
-                            <div className="space-y-4">
-                                {reviewsResult.reviews.map((review) => (
-                                    <div
-                                        key={review.id}
-                                        className="rounded-2xl border border-warm-gray bg-white/80 p-4 space-y-2"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-warm-gray-light flex items-center justify-center text-navy font-semibold">
-                                                    {(review.reviewerName || '?').charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-navy">{review.reviewerName || t('reviews.anonymous')}</p>
-                                                    <p className="text-xs text-charcoal/80">
-                                                        {new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <Star className="h-4 w-4 fill-gold text-gold" />
-                                                <span className="text-sm font-medium text-navy">{review.rating.toFixed(1)}</span>
-                                            </div>
-                                        </div>
-                                        {review.comment ? (
-                                            <p className="text-sm text-charcoal leading-relaxed">{review.comment}</p>
-                                        ) : null}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-charcoal text-sm">{t('propertyDetail.reviews.noReviews')}</p>
+                        {id && (
+                            <PropertyReviewsSection
+                                propertyId={id}
+                                propertyTitle={property.title}
+                                fallbackRating={property.rating}
+                                fallbackReviewCount={property.reviewCount}
+                            />
                         )}
 
                         {orderedSections.map((section) => (
@@ -810,17 +690,6 @@ const PropertyDetail: React.FC = () => {
                 </div>
             )}
 
-            <LeaveReviewModal
-                isOpen={isReviewModalOpen}
-                onClose={() => setIsReviewModalOpen(false)}
-                onSuccess={() => {
-                    setIsReviewModalOpen(false);
-                    setReviewEligibility((prev) => (prev?.canReview ? { canReview: false, reason: 'reviews.errors.reviewAlreadyExists' } : prev));
-                    getReviewsByPropertyId(id!).then(setReviewsResult);
-                }}
-                bookingId={reviewEligibility?.booking?.id ?? ''}
-                propertyTitle={property?.title}
-            />
         </Layout>
     );
 };
