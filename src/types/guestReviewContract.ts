@@ -14,6 +14,12 @@ export interface GuestExistingReview {
   updatedAt?: string;
 }
 
+export interface GuestReservationHostContact {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}
+
 export interface GuestReservationLookupReservation {
   bookingId: string;
   guestId: string | null;
@@ -35,6 +41,10 @@ export interface GuestReservationLookupReservation {
   canSubmitGuestReview: boolean;
   canEditGuestReview?: boolean;
   guestReviewWindowEnd?: string;
+  hostName?: string | null;
+  hostEmail?: string | null;
+  hostPhone?: string | null;
+  hostContact?: GuestReservationHostContact | null;
 }
 
 export interface GetReservationByCodeResponse {

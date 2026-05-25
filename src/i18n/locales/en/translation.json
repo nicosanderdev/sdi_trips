@@ -605,6 +605,13 @@
       "guestsCount": "{{count}} guests",
       "notAvailable": "Not available"
     },
+    "hostContact": {
+      "heading": "Host contact",
+      "nameLabel": "Name:",
+      "emailLabel": "Email:",
+      "phoneLabel": "Phone:",
+      "notAvailable": "Not available"
+    },
     "manageToken": {
       "loading": "Loading reservation…",
       "missingToken": "This manage link is missing a token. Check the full URL from your confirmation email.",

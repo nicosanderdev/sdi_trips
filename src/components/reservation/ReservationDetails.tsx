@@ -10,6 +10,7 @@ import { getGuestReviewLookupState } from '../../core/services/guestReviewEligib
 import { getGuestReviewWindow } from '../../core/services/guestReviewWindow';
 import GuestReservationReviewForm from './GuestReservationReviewForm';
 import GuestReviewReadOnlyCard from './GuestReviewReadOnlyCard';
+import HostContactSection from './HostContactSection';
 
 const defaultPropertyPath = (propertyId: string) => `/property/${propertyId}`;
 
@@ -168,6 +169,11 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
         </p>
         <p><span className="font-semibold">{t('reservationLookup.details.statusLabel')}</span> {statusLabel}</p>
         <p><span className="font-semibold">{t('reservationLookup.details.guestLabel')}</span> {guestInfo || t('reservationLookup.details.notAvailable')}</p>
+
+        <HostContactSection
+          status={localReservation.status}
+          hostContact={localReservation.hostContact}
+        />
 
         <div className="pt-2 flex flex-wrap justify-center gap-3">
           <Link to={propertyPath(localReservation.propertyId)}>

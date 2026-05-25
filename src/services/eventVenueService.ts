@@ -135,6 +135,17 @@ function inferEventTags(eventTypes: string[]): VenueEventTag[] {
   return tags.length ? tags : ['party'];
 }
 
+/** Public venue listings must never expose owner email/phone. */
+function mapPublicVenueHost(ownerId: string | null | undefined): Property['host'] {
+  return {
+    id: ownerId ?? '',
+    name: 'Venue coordinator',
+    email: '',
+    verified: false,
+    phone: undefined,
+  };
+}
+
 function mapRow(row: EventVenueRpcRow): EventVenue {
   const location = [row.Neighborhood, row.City, row.State].filter(Boolean).join(', ') || 'Location not specified';
   const maxGuests = row.MaxGuests ?? row.ListingCapacity ?? row.Capacity ?? 0;
@@ -159,12 +170,7 @@ function mapRow(row: EventVenueRpcRow): EventVenue {
     amenities,
     rating: 0,
     reviewCount: 0,
-    host: {
-      id: row.OwnerId ?? '',
-      name: 'Venue coordinator',
-      email: '',
-      verified: false,
-    },
+    host: mapPublicVenueHost(row.OwnerId),
     available: row.IsActive && row.IsPropertyVisible && !row.BlockedForBooking,
     coordinates: {
       lat: Number(row.LocationLatitude),

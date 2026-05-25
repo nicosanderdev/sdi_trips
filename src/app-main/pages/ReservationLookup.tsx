@@ -5,6 +5,7 @@ import { Layout } from '../../components/layout';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 import ReservationLookupForm from '../../components/reservation/ReservationLookupForm';
 import ReservationDetails from '../../components/reservation/ReservationDetails';
+import ReservationManageDetails from '../../components/reservation/ReservationManageDetails';
 import { Button, Card } from '../../components/ui';
 import type { ManageBookingView } from '../../types';
 import {
@@ -248,52 +249,13 @@ const ReservationLookup: React.FC = () => {
           )}
 
           {view.mode === 'manage' && (
-            <Card className="w-full max-w-2xl p-8 space-y-4">
-              <h2 className="text-2xl font-semibold text-navy">{t('reservationLookup.details.title')}</h2>
-              <p>
-                <span className="font-semibold">{t('reservationLookup.details.codeLabel')}</span>{' '}
-                {view.booking.reservationCode}
-              </p>
-              <p>
-                <span className="font-semibold">{t('reservationLookup.details.propertyLabel')}</span>{' '}
-                {view.booking.propertyTitle}
-              </p>
-              <p>
-                <span className="font-semibold">{t('reservationLookup.details.datesLabel')}</span>{' '}
-                {t('reservationLookup.details.datesValue', {
-                  checkIn: view.booking.checkIn,
-                  checkOut: view.booking.checkOut,
-                })}
-              </p>
-              <p>
-                <span className="font-semibold">{t('reservationLookup.details.statusLabel')}</span> {manageStatusLabel}
-              </p>
-              <p>
-                <span className="font-semibold">{t('reservationLookup.details.guestsLabel')}</span>{' '}
-                {t('reservationLookup.details.guestsCount', { count: view.booking.guests })}
-              </p>
-              <div className="pt-2 flex flex-wrap gap-3">
-                {view.booking.canCancel && (
-                  <Button
-                    variant="primary"
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                    disabled={loadingCancel}
-                    onClick={handleCancelManage}
-                  >
-                    {loadingCancel ? t('reservationLookup.actions.cancelling') : t('reservationLookup.actions.cancelReservation')}
-                  </Button>
-                )}
-              </div>
-              {cancelMessage && (
-                <p
-                  className={
-                    cancelMessage.toLowerCase().includes('success') ? 'text-green-700 text-sm' : 'text-red-700 text-sm'
-                  }
-                >
-                  {cancelMessage}
-                </p>
-              )}
-            </Card>
+            <ReservationManageDetails
+              booking={view.booking}
+              statusLabel={manageStatusLabel}
+              cancelMessage={cancelMessage}
+              isCancelling={loadingCancel}
+              onCancel={handleCancelManage}
+            />
           )}
 
           <ReservationLookupForm

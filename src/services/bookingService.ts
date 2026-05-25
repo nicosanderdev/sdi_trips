@@ -8,6 +8,7 @@ import type {
   GuestBookingProfile,
   GuestExistingReview,
   GuestSiteListingType,
+  HostContactInfo,
   ManageBookingView,
   Property,
   User,
@@ -78,6 +79,7 @@ export interface ReservationLookupData {
   checkIn: string;
   checkOut: string;
   status: string;
+  hostContact?: HostContactInfo | null;
   guestName?: string | null;
   guestEmail?: string | null;
   guestPhone?: string | null;
@@ -95,6 +97,38 @@ export interface ReservationLookupData {
   canSubmitGuestReview?: boolean;
   canEditGuestReview?: boolean;
   guestReviewWindowEnd?: string;
+}
+
+export function mapHostContactFromPayload(raw: Record<string, unknown>): HostContactInfo | null {
+  const nested = raw.hostContact ?? raw.host_contact;
+  if (nested && typeof nested === 'object') {
+    const obj = nested as Record<string, unknown>;
+    const name = (obj.name as string | null | undefined) ?? null;
+    const email = (obj.email as string | null | undefined) ?? null;
+    const phone = (obj.phone as string | null | undefined) ?? null;
+    if (!name?.trim() && !email?.trim() && !phone?.trim()) return null;
+    return { name: name?.trim() || null, email: email?.trim() || null, phone: phone?.trim() || null };
+  }
+
+  const name =
+    (raw.hostName as string | null | undefined) ??
+    (raw.host_name as string | null | undefined) ??
+    null;
+  const email =
+    (raw.hostEmail as string | null | undefined) ??
+    (raw.host_email as string | null | undefined) ??
+    null;
+  const phone =
+    (raw.hostPhone as string | null | undefined) ??
+    (raw.host_phone as string | null | undefined) ??
+    null;
+
+  if (!name?.trim() && !email?.trim() && !phone?.trim()) return null;
+  return {
+    name: name?.trim() || null,
+    email: email?.trim() || null,
+    phone: phone?.trim() || null,
+  };
 }
 
 function mapExistingGuestReview(raw: unknown): GuestExistingReview | null {
@@ -139,6 +173,7 @@ export function mapReservationFromLookupPayload(raw: Record<string, unknown>): R
         : raw.guest_review_window_end != null
           ? String(raw.guest_review_window_end)
           : undefined,
+    hostContact: mapHostContactFromPayload(raw),
   };
 }
 
@@ -453,7 +488,12 @@ export async function getBookingByManageToken(token: string): Promise<{ success:
       return { success: false, error: (payload?.error as string | undefined) ?? 'Invalid or expired token.' };
     }
 
-    return { success: true, booking: payload.booking as ManageBookingView };
+    const bookingRaw = payload.booking as Record<string, unknown>;
+    const booking: ManageBookingView = {
+      ...(bookingRaw as unknown as ManageBookingView),
+      hostContact: mapHostContactFromPayload(bookingRaw),
+    };
+    return { success: true, booking };
   } catch (error) {
     console.error('Failed to get booking by token:', error);
     return { success: false, error: 'Failed to load reservation.' };

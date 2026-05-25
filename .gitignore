@@ -34,3 +34,4 @@ supabase/functions/send-booking-confirmation/index.ts
 supabase/
 
 migrations/
+docs/backend-handoff-host-contact-for-guests.md

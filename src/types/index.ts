@@ -62,6 +62,13 @@ export interface Guest {
   LastModified: string;
 }
 
+/** Host/owner direct contact — only for confirmed guest bookings (lookup / notifications). */
+export interface HostContactInfo {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}
+
 export interface ManageBookingView {
   bookingId: string;
   reservationCode: string;
@@ -71,4 +78,5 @@ export interface ManageBookingView {
   guests: number;
   status: string;
   canCancel: boolean;
+  hostContact?: HostContactInfo | null;
 }

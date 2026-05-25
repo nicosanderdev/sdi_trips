@@ -126,6 +126,18 @@ function mapPropertySections(rawSections: RpcPropertySectionRow[] | null | undef
     .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 }
 
+/** Public listings must never expose owner email/phone. */
+function mapPublicHostProfile(ownerId: string | null | undefined): Property['host'] {
+  return {
+    id: ownerId || '',
+    name: 'Host',
+    email: '',
+    avatar: undefined,
+    phone: undefined,
+    verified: false,
+  };
+}
+
 /**
  * Transform SummerRent RPC row to frontend Property type
  */
@@ -161,14 +173,7 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     amenities,
     rating: 0,
     reviewCount: 0,
-    host: {
-      id: row.OwnerId || '',
-      name: 'Host',
-      email: '',
-      avatar: undefined,
-      phone: undefined,
-      verified: false,
-    },
+    host: mapPublicHostProfile(row.OwnerId),
     available: row.IsActive && row.IsPropertyVisible && !row.BlockedForBooking,
     coordinates: {
       lat: Number(row.LocationLatitude),

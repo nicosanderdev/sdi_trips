@@ -555,6 +555,13 @@
       "guestsCount": "{{count}} convidados",
       "notAvailable": "Não disponível"
     },
+    "hostContact": {
+      "heading": "Contacto do anfitrião",
+      "nameLabel": "Nome:",
+      "emailLabel": "E-mail:",
+      "phoneLabel": "Telefone:",
+      "notAvailable": "Não disponível"
+    },
     "manageToken": {
       "loading": "A carregar a reserva…",
       "missingToken": "Falta o token neste link de gestão. Verifique o URL completo no e-mail de confirmação.",
