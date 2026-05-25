@@ -500,10 +500,13 @@
         "verifyAndConfirm": "Verify and confirm"
       },
       "done": {
+        "modalTitle": "Reservation confirmed",
         "reservationConfirmed": "Reservation confirmed.",
-        "codeLabel": "Code",
-        "manageLinkLabel": "Manage link:",
-        "openReservationManager": "open reservation manager"
+        "body": "Your reservation is confirmed. Save your code to look up or manage your booking later.",
+        "codeLabel": "Your reservation code",
+        "lookupHint": "Use the button below to open your reservation, or paste this code on the reservation lookup page.",
+        "goToReservationLookup": "View my reservation",
+        "close": "Close"
       },
       "errors": {
         "invalidDateSelection": "Invalid date selection.",
@@ -513,7 +516,8 @@
         "invalidOtp": "Invalid OTP code.",
         "holdNoLongerValid": "Your hold is no longer valid.",
         "couldNotConfirmReservation": "Could not confirm reservation.",
-        "guestFieldsRequired": "First name, last name, email, and phone are required."
+        "guestFieldsRequired": "First name, last name, email, and phone are required.",
+        "guestBookingOverlap": "You already have a reservation for these dates."
       }
     },
     "host": {

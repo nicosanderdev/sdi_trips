@@ -284,6 +284,14 @@
     "ctaBrowse": "Browse venues"
   },
   "bookingFlow": {
+    "done": {
+      "modalTitle": "Booking confirmed",
+      "body": "Your booking is confirmed. Save your code to look up or manage your booking later.",
+      "codeLabel": "Your booking code",
+      "lookupHint": "Use the button below to open your booking, or paste this code on the reservation lookup page.",
+      "goToReservationLookup": "View my booking",
+      "close": "Close"
+    },
     "actions": {
       "continue": "Continue",
       "sendConfirmationCode": "Send confirmation code"

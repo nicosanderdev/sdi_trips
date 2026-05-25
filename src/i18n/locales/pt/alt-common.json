@@ -284,6 +284,14 @@
     "ctaBrowse": "Explorar espaços"
   },
   "bookingFlow": {
+    "done": {
+      "modalTitle": "Reserva confirmada",
+      "body": "Sua reserva está confirmada. Guarde seu código para consultar ou gerenciar sua reserva depois.",
+      "codeLabel": "Seu código de reserva",
+      "lookupHint": "Use o botão abaixo para abrir sua reserva, ou cole este código na página de consulta de reservas.",
+      "goToReservationLookup": "Ver minha reserva",
+      "close": "Fechar"
+    },
     "actions": {
       "continue": "Continuar",
       "sendConfirmationCode": "Enviar código de confirmação"

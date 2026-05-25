@@ -473,10 +473,13 @@
         "verifyAndConfirm": "Verificar y confirmar"
       },
       "done": {
+        "modalTitle": "Reserva confirmada",
         "reservationConfirmed": "Reserva confirmada.",
-        "codeLabel": "Código",
-        "manageLinkLabel": "Enlace de gestión:",
-        "openReservationManager": "abrir gestor de reservas"
+        "body": "Tu reserva está confirmada. Guarda tu código para consultar o gestionar tu reserva más adelante.",
+        "codeLabel": "Tu código de reserva",
+        "lookupHint": "Usa el botón de abajo para abrir tu reserva, o pega este código en la página de consulta de reservas.",
+        "goToReservationLookup": "Ver mi reserva",
+        "close": "Cerrar"
       },
       "errors": {
         "invalidDateSelection": "Selección de fechas inválida.",
@@ -486,7 +489,8 @@
         "invalidOtp": "Código OTP inválido.",
         "holdNoLongerValid": "Tu reserva temporal ya no es válida.",
         "couldNotConfirmReservation": "No se pudo confirmar la reserva.",
-        "guestFieldsRequired": "Nombre, apellido, correo y teléfono son obligatorios."
+        "guestFieldsRequired": "Nombre, apellido, correo y teléfono son obligatorios.",
+        "guestBookingOverlap": "Ya tenés una reserva para estas fechas."
       }
     },
     "host": {

@@ -13,8 +13,10 @@ import {
   createBookingHold,
   reconfirmHold,
   sendGuestOtp,
-  verifyGuestOtp
+  validateGuestBookingOverlap,
+  verifyGuestOtp,
 } from '../../services/bookingService';
+import { isGuestBookingOverlapError } from '../../types/guestReviewContract';
 import {
   buildInternationalPhone,
   isValidLocalPhone,
@@ -28,7 +30,7 @@ type BookingFlowVariant = 'rental' | 'event';
 
 interface GuestBookingFlowProps {
   property: Property;
-  /** Base path for the post-booking manage link (query `token` is appended). Default: `/reservation-lookup`. */
+  /** Base path for the post-booking lookup page (`?code=` appended when available). Default: `/reservation-lookup`. */
   reservationManagePath?: string;
   /** `event` enables alt-site copy and phone prefix UI. Default: `rental`. */
   variant?: BookingFlowVariant;
@@ -85,8 +87,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [documentId, setDocumentId] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [reservationCode, setReservationCode] = useState<string | null>(null);
-  const [manageUrl, setManageUrl] = useState<string | null>(null);
   const [flowError, setFlowError] = useState<string | null>(null);
+  const [overlapError, setOverlapError] = useState<string | null>(null);
+  const [overlapChecking, setOverlapChecking] = useState(false);
 
   const fullPhone = useMemo(() => {
     if (isEvent) {
@@ -120,6 +123,48 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       window.clearTimeout(timer);
     };
   }, [canValidate, checkIn, checkOut, property.id, bookingT]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const trimmedEmail = email.trim();
+    if (step !== 'guest' || !checkIn || !checkOut || !EMAIL_PATTERN.test(trimmedEmail)) {
+      const resetTimer = window.setTimeout(() => {
+        setOverlapError(null);
+        setOverlapChecking(false);
+      }, 0);
+      return () => window.clearTimeout(resetTimer);
+    }
+
+    const timer = window.setTimeout(async () => {
+      setOverlapChecking(true);
+      const result = await validateGuestBookingOverlap({
+        email: trimmedEmail,
+        checkIn,
+        checkOut,
+      });
+      if (!cancelled) {
+        if (
+          !result.success ||
+          result.hasOverlap ||
+          isGuestBookingOverlapError(result.error_code)
+        ) {
+          setOverlapError(
+            isGuestBookingOverlapError(result.error_code) || result.hasOverlap
+              ? bookingT('errors.guestBookingOverlap')
+              : (result.error ?? bookingT('errors.couldNotConfirmReservation')),
+          );
+        } else {
+          setOverlapError(null);
+        }
+        setOverlapChecking(false);
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [step, email, checkIn, checkOut, bookingT]);
 
   useEffect(() => {
     if (!holdExpiresAt) {
@@ -197,11 +242,12 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
     setHoldId(response.hold.id);
     setHoldExpiresAt(response.hold.expiresAt);
+    setOverlapError(null);
     setStep('guest');
   };
 
   const handleSendOtp = async () => {
-    if (!holdId) return;
+    if (!holdId || overlapError || overlapChecking) return;
     setActionLoading(true);
     setFlowError(null);
     const result = await sendGuestOtp(holdId, fullPhone);
@@ -259,22 +305,52 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setActionLoading(false);
 
     if (!confirmResult.success) {
-      const errKey = confirmResult.error;
-      const errMessage =
-        errKey?.startsWith('propertyDetail.')
-          ? t(errKey)
-          : (errKey ?? bookingT('errors.couldNotConfirmReservation'));
-      setFlowError(errMessage);
+      if (isGuestBookingOverlapError(confirmResult.errorCode)) {
+        setOverlapError(bookingT('errors.guestBookingOverlap'));
+        setFlowError(null);
+      } else {
+        const errKey = confirmResult.error;
+        const errMessage =
+          errKey?.startsWith('propertyDetail.')
+            ? t(errKey)
+            : (errKey ?? bookingT('errors.couldNotConfirmReservation'));
+        setFlowError(errMessage);
+        setOverlapError(null);
+      }
       setStep('guest');
       return;
     }
 
-    const token = confirmResult.manageToken;
-    const appUrl = window.location.origin;
     setReservationCode(confirmResult.reservationCode ?? null);
-    const path = reservationManagePath.startsWith('/') ? reservationManagePath : `/${reservationManagePath}`;
-    setManageUrl(token ? `${appUrl}${path}?token=${encodeURIComponent(token)}` : null);
     setStep('done');
+  };
+
+  const lookupBasePath = reservationManagePath.startsWith('/')
+    ? reservationManagePath
+    : `/${reservationManagePath}`;
+
+  const lookupHref = useMemo(() => {
+    if (!reservationCode) return lookupBasePath;
+    return `${lookupBasePath}?code=${encodeURIComponent(reservationCode)}`;
+  }, [lookupBasePath, reservationCode]);
+
+  const handleCloseSuccess = () => {
+    setStep('dates');
+    setReservationCode(null);
+    setHoldId(null);
+    setHoldExpiresAt(null);
+    setCheckIn(null);
+    setCheckOut(null);
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+    setPhone('');
+    setPhoneLocal('');
+    setDocumentId('');
+    setEstimatedGuests('');
+    setOtpCode('');
+    setFlowError(null);
+    setOverlapError(null);
   };
 
   const continueButtonLabel = isEvent
@@ -356,6 +432,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         onClose={() => {
           if (!actionLoading) {
             setOtpCode('');
+            setOverlapError(null);
             setStep('dates');
           }
         }}
@@ -434,11 +511,15 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               placeholder={bookingT('form.estimatedGuests')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
+            {overlapChecking && (
+              <p className="text-xs text-charcoal">{bookingT('checkingAvailability')}</p>
+            )}
+            {overlapError && <p className="text-xs text-red-600">{overlapError}</p>}
             <Button
               variant="primary"
               size="lg"
               className="w-full bg-gold text-navy hover:bg-gold-dark"
-              disabled={!isGuestFormValid || actionLoading}
+              disabled={!isGuestFormValid || actionLoading || !!overlapError || overlapChecking}
               onClick={handleSendOtp}
             >
               {actionLoading
@@ -450,6 +531,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
         {step === 'otp' && (
           <div className="space-y-3">
+            {overlapError && <p className="text-xs text-red-600">{overlapError}</p>}
             <SixDigitCodeInput
               value={otpCode}
               onChange={setOtpCode}
@@ -485,24 +567,44 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         )}
       </Modal>
 
-      {step === 'done' && (
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-          <p className="font-semibold">{bookingT('done.reservationConfirmed')}</p>
+      <Modal
+        isOpen={step === 'done'}
+        onClose={handleCloseSuccess}
+        title={bookingT('done.modalTitle')}
+        size="lg"
+      >
+        <div className="space-y-5 text-center">
+          <p className="text-sm text-charcoal">{bookingT('done.body')}</p>
           {reservationCode && (
-            <p>
-              {bookingT('done.codeLabel')}: {reservationCode}
-            </p>
+            <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-5">
+              <p className="text-sm font-medium text-green-900">{bookingT('done.codeLabel')}</p>
+              <p className="mt-2 font-mono text-2xl font-bold tracking-wide text-green-900">
+                {reservationCode}
+              </p>
+            </div>
           )}
-          {manageUrl && (
-            <p>
-              {bookingT('done.manageLinkLabel')}{' '}
-              <Link to={manageUrl.replace(window.location.origin, '')} className="underline">
-                {bookingT('done.openReservationManager')}
-              </Link>
-            </p>
-          )}
+          <p className="text-sm text-charcoal">{bookingT('done.lookupHint')}</p>
+          <div className="flex flex-col gap-2">
+            <Link to={lookupHref} className="block w-full" onClick={handleCloseSuccess}>
+              <Button
+                variant="primary"
+                size="lg"
+                className="w-full bg-gold text-navy hover:bg-gold-dark"
+              >
+                {bookingT('done.goToReservationLookup')}
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full rounded-2xl"
+              onClick={handleCloseSuccess}
+            >
+              {bookingT('done.close')}
+            </Button>
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

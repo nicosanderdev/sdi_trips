@@ -1,6 +1,6 @@
 export * from '../core/models';
 export * from './guestReviewContract';
-import type { GuestSiteListingType } from './guestReviewContract';
+import type { GuestBookingErrorCode, GuestSiteListingType } from './guestReviewContract';
 
 export interface BookingSelectionValidation {
   isValid: boolean;
@@ -47,6 +47,7 @@ export interface GuestBookingConfirmation {
   manageUrl?: string;
   guestId?: string;
   listingType?: GuestSiteListingType;
+  errorCode?: GuestBookingErrorCode;
   error?: string;
 }
 

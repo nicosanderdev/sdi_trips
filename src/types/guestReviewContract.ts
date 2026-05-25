@@ -49,3 +49,35 @@ export interface CreateGuestReviewResponse {
   listingType?: GuestSiteListingType;
   error?: string;
 }
+
+export type GuestBookingErrorCode = 'GUEST_BOOKING_OVERLAP';
+
+export interface ValidateGuestBookingOverlapParams {
+  email: string;
+  checkIn: Date;
+  checkOut: Date;
+}
+
+export interface ValidateGuestBookingOverlapResponse {
+  success: boolean;
+  hasOverlap?: boolean;
+  error_code?: GuestBookingErrorCode;
+  error?: string;
+}
+
+export interface ConfirmBookingFromHoldResponse {
+  success: boolean;
+  error_code?: GuestBookingErrorCode;
+  error?: string;
+  booking_id?: string;
+  reservation_code?: string;
+  manage_token?: string;
+  guest_id?: string;
+  listing_type?: GuestSiteListingType;
+}
+
+export function isGuestBookingOverlapError(
+  code: string | undefined | null,
+): code is GuestBookingErrorCode {
+  return code === 'GUEST_BOOKING_OVERLAP';
+}

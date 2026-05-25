@@ -3,14 +3,18 @@ import { supabase } from '../lib/supabase';
 import type {
   Booking,
   BookingHold,
+  ConfirmBookingFromHoldResponse,
   GuestBookingConfirmation,
   GuestBookingProfile,
   GuestExistingReview,
   GuestSiteListingType,
   ManageBookingView,
   Property,
-  User
+  User,
+  ValidateGuestBookingOverlapParams,
+  ValidateGuestBookingOverlapResponse,
 } from '../types';
+import { isGuestBookingOverlapError } from '../types/guestReviewContract';
 import { getPropertyById } from './propertyService';
 
 export interface CreateBookingParams {
@@ -347,11 +351,35 @@ export async function reconfirmHold(holdId: string): Promise<BookingHoldResponse
 const CONFIRM_GUEST_PAYLOAD_ERROR =
   'Guest first name, last name, email, and phone are required';
 
+const GUEST_BOOKING_OVERLAP_I18N_KEY = 'propertyDetail.bookingFlow.errors.guestBookingOverlap';
+
 function mapConfirmGuestBookingError(message: string | undefined): string {
   if (message === CONFIRM_GUEST_PAYLOAD_ERROR) {
     return 'propertyDetail.bookingFlow.errors.guestFieldsRequired';
   }
   return message ?? 'Could not confirm booking.';
+}
+
+export async function validateGuestBookingOverlap(
+  params: ValidateGuestBookingOverlapParams,
+): Promise<ValidateGuestBookingOverlapResponse> {
+  try {
+    const { data, error } = await supabase.rpc('validate_guest_booking_overlap', {
+      p_email: params.email.trim(),
+      p_check_in: params.checkIn.toISOString().split('T')[0],
+      p_check_out: params.checkOut.toISOString().split('T')[0],
+    });
+
+    if (error) {
+      console.error('Error validating guest booking overlap:', error);
+      return { success: false, error: 'Failed to validate dates.' };
+    }
+
+    return data as ValidateGuestBookingOverlapResponse;
+  } catch (error) {
+    console.error('Failed to validate guest booking overlap:', error);
+    return { success: false, error: 'Failed to validate dates.' };
+  }
 }
 
 export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Promise<GuestBookingConfirmation> {
@@ -374,26 +402,38 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
       return { success: false, error: 'Failed to confirm booking.' };
     }
 
-    const payload = data as Record<string, unknown> | null;
+    const payload = data as ConfirmBookingFromHoldResponse | null;
     if (!payload?.success) {
-      const rawError = payload?.error as string | undefined;
-      return { success: false, error: mapConfirmGuestBookingError(rawError) };
+      const rawPayload = payload as (ConfirmBookingFromHoldResponse & { errorCode?: string }) | null;
+      const errorCode = rawPayload?.error_code ?? rawPayload?.errorCode;
+      if (isGuestBookingOverlapError(errorCode)) {
+        return {
+          success: false,
+          errorCode,
+          error: GUEST_BOOKING_OVERLAP_I18N_KEY,
+        };
+      }
+      return { success: false, error: mapConfirmGuestBookingError(payload?.error) };
     }
 
+    const raw = payload as ConfirmBookingFromHoldResponse & Record<string, unknown>;
     const guestId =
-      (payload.guestId as string | undefined) ??
-      (payload.guest_id as string | undefined);
+      (raw.guest_id as string | undefined) ?? (raw.guestId as string | undefined);
     const listingTypeRaw =
-      (payload.listingType as string | undefined) ??
-      (payload.listing_type as string | undefined);
+      (raw.listing_type as GuestSiteListingType | undefined) ??
+      (raw.listingType as GuestSiteListingType | undefined);
 
     return {
       success: true,
-      bookingId: payload.booking_id as string | undefined,
-      reservationCode: payload.reservation_code as string | undefined,
-      manageToken: payload.manage_token as string | undefined,
+      bookingId:
+        (raw.booking_id as string | undefined) ?? (raw.bookingId as string | undefined),
+      reservationCode:
+        (raw.reservation_code as string | undefined) ??
+        (raw.reservationCode as string | undefined),
+      manageToken:
+        (raw.manage_token as string | undefined) ?? (raw.manageToken as string | undefined),
       guestId,
-      listingType: listingTypeRaw as GuestSiteListingType | undefined,
+      listingType: listingTypeRaw,
     };
   } catch (error) {
     console.error('Failed to confirm guest booking:', error);
