@@ -1,6 +1,6 @@
 {
   "layout": {
-    "documentTitle": "Event venues: En cartelera - Espacios"
+    "documentTitle": "En cartelera - Espacios"
   },
   "brand": {
     "venue": "En cartelera - ",
@@ -261,7 +261,16 @@
   "reservations": {
     "titleBefore": "Your ",
     "titleHighlight": "reservations",
-    "subtitle": "Demo view of holds and bookings. Status chips help you scan what is upcoming, completed, or cancelled.",
+    "subtitle": "Look up a reservation with your code, or open the link from your confirmation email. View details and cancel when your booking allows it.",
+    "lookupHeading": "Find a reservation",
+    "lookupHint": "Enter the reservation code from your confirmation (format RSV-XXXXXX), or use the manage link you received by email.",
+    "loadingFromLink": "Loading reservation from your link…",
+    "browseVenues": "Browse venues",
+    "guestsNotShown": "Not shown for code lookup",
+    "errors": {
+      "missingToken": "This manage link is missing a token. Check the full URL from your confirmation email.",
+      "invalidOrExpiredToken": "Invalid or expired management link."
+    },
     "colVenue": "Venue",
     "colDate": "Date",
     "colGuests": "Guests",
@@ -273,6 +282,28 @@
     "statusCancelled": "Cancelled",
     "ctaQuestion": "Need another date or venue?",
     "ctaBrowse": "Browse venues"
+  },
+  "bookingFlow": {
+    "done": {
+      "modalTitle": "Booking confirmed",
+      "body": "Your booking is confirmed. Save your code to look up or manage your booking later.",
+      "codeLabel": "Your booking code",
+      "lookupHint": "Use the button below to open your booking, or paste this code on the reservation lookup page.",
+      "goToReservationLookup": "View my booking",
+      "close": "Close"
+    },
+    "actions": {
+      "continue": "Continue",
+      "sendConfirmationCode": "Send confirmation code"
+    },
+    "form": {
+      "phone": "Phone number",
+      "enterConfirmationCode": "Enter confirmation code"
+    },
+    "errors": {
+      "couldNotSendConfirmationCode": "Could not send confirmation code.",
+      "invalidConfirmationCode": "Invalid confirmation code."
+    }
   },
   "notFound": {
     "code": "404",

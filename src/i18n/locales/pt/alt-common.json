@@ -1,6 +1,6 @@
 {
   "layout": {
-    "documentTitle": "Event venues: En cartelera - Espacios"
+    "documentTitle": "En cartelera - Espacios"
   },
   "brand": {
     "venue": "En cartelera - ",
@@ -261,7 +261,16 @@
   "reservations": {
     "titleBefore": "Suas ",
     "titleHighlight": "reservas",
-    "subtitle": "Visão demo de reservas e cortesias. Os status ajudam a ver o que está por vir, concluído ou cancelado.",
+    "subtitle": "Consulte uma reserva com o seu código ou abra o link do e-mail de confirmação. Veja detalhes e cancele quando a reserva permitir.",
+    "lookupHeading": "Encontrar uma reserva",
+    "lookupHint": "Introduza o código da confirmação (formato RSV-XXXXXX) ou use o link de gestão recebido por e-mail.",
+    "loadingFromLink": "A carregar a reserva a partir do seu link…",
+    "browseVenues": "Explorar espaços",
+    "guestsNotShown": "Não mostrado na pesquisa por código",
+    "errors": {
+      "missingToken": "Falta o token neste link de gestão. Verifique o URL completo no e-mail de confirmação.",
+      "invalidOrExpiredToken": "Link de gestão inválido ou expirado."
+    },
     "colVenue": "Espaço",
     "colDate": "Data",
     "colGuests": "Convidados",
@@ -273,6 +282,28 @@
     "statusCancelled": "Cancelada",
     "ctaQuestion": "Outra data ou espaço?",
     "ctaBrowse": "Explorar espaços"
+  },
+  "bookingFlow": {
+    "done": {
+      "modalTitle": "Reserva confirmada",
+      "body": "Sua reserva está confirmada. Guarde seu código para consultar ou gerenciar sua reserva depois.",
+      "codeLabel": "Seu código de reserva",
+      "lookupHint": "Use o botão abaixo para abrir sua reserva, ou cole este código na página de consulta de reservas.",
+      "goToReservationLookup": "Ver minha reserva",
+      "close": "Fechar"
+    },
+    "actions": {
+      "continue": "Continuar",
+      "sendConfirmationCode": "Enviar código de confirmação"
+    },
+    "form": {
+      "phone": "Número de telefone",
+      "enterConfirmationCode": "Digite o código de confirmação"
+    },
+    "errors": {
+      "couldNotSendConfirmationCode": "Não foi possível enviar o código de confirmação.",
+      "invalidConfirmationCode": "Código de confirmação inválido."
+    }
   },
   "notFound": {
     "code": "404",

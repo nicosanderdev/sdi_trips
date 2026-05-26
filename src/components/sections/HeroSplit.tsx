@@ -1,20 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui';
 import type { Property } from '../../types';
 import { getTopRatedPropertiesForHero } from '../../services/propertyService';
-import uyCitiesData from '../../data/uy-cities.json';
-
-interface UyCity {
-  name: string;
-  lat: string;
-  long: string;
-  zoom: string;
-}
-
-const uyCities: UyCity[] = uyCitiesData as UyCity[];
-const HERO_CITY_OPTIONS_CAP = 40;
 
 const mockReviews = [
   {
@@ -72,15 +61,6 @@ type HeroSlide = {
 const HeroSplit: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
-  const heroCityOptions = useMemo(
-    () =>
-      [...uyCities]
-        .map((city) => city.name)
-        .sort((a, b) => a.localeCompare(b, 'es'))
-        .slice(0, HERO_CITY_OPTIONS_CAP),
-    []
-  );
 
   const [heroProperties, setHeroProperties] = useState<Property[]>([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
@@ -176,34 +156,39 @@ const HeroSplit: React.FC = () => {
               event.preventDefault();
               const form = event.currentTarget;
               const fd = new FormData(form);
-              const locationText = String(fd.get('location') ?? '').trim();
-              const city = String(fd.get('city') ?? '').trim();
-              // Prefer free-text location; otherwise use the city picked from the Uruguay list.
-              const q = locationText || city;
-              navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search');
+              const checkIn = String(fd.get('checkIn') ?? '').trim();
+              const params = new URLSearchParams({
+                q: 'Rivera, Uruguay',
+              });
+              if (checkIn) {
+                params.set('checkIn', checkIn);
+              }
+              navigate(`/search?${params.toString()}`);
             }}
           >
-            <input
-              className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-              type="text"
-              name="location"
-              autoComplete="off"
-              placeholder={t('landing.hero.search.locationPlaceholder')}
-              aria-label={t('landing.hero.search.locationAria')}
-            />
-            <select
-              className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-              name="city"
-              aria-label={t('landing.hero.search.cityAria')}
-              defaultValue=""
-            >
-              <option value="">{t('landing.hero.search.cityPlaceholder')}</option>
-              {heroCityOptions.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
+            <label htmlFor="hero-search-date" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+              {t('landing.hero.search.dateLabel')}
+              <input
+                id="hero-search-date"
+                className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                type="date"
+                name="checkIn"
+                aria-label={t('landing.hero.search.dateAria')}
+              />
+            </label>
+            <label htmlFor="hero-search-city" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+              {t('landing.hero.search.locationLabel')}
+              <select
+                id="hero-search-city"
+                className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                name="city"
+                aria-label={t('landing.hero.search.cityAria')}
+                defaultValue="Rivera, Uruguay"
+                disabled
+              >
+                <option value="Rivera, Uruguay">Rivera, Uruguay</option>
+              </select>
+            </label>
             <button
               className="inline-flex items-center justify-center rounded-full border-2 border-gold bg-gold text-navy font-semibold px-6 py-3 transition-all hover:scale-[1.04] hover:bg-navy hover:text-gold"
               type="submit"
@@ -236,7 +221,6 @@ const HeroSplit: React.FC = () => {
                   {t('landing.hero.cta.manage')}
                 </Button>
               </Link>
-              <p className="m-0 text-sm text-white/80">{t('landing.hero.links.reservationPrompt')}</p>
             </div>
           </div>
 
@@ -245,9 +229,6 @@ const HeroSplit: React.FC = () => {
               {t('landing.hero.links.security')}
             </Link>
           ) : null}
-          <Link to="/reservation-lookup" className="block mt-3 text-white/80 hover:text-white text-sm">
-            {t('landing.hero.links.reservationLookup')}
-          </Link>
         </div>
 
         <div className="relative min-h-[430px] rounded-3xl overflow-hidden border border-gold/30 shadow-2xl bg-white/10 backdrop-blur-sm">

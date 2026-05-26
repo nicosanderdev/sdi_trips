@@ -136,15 +136,17 @@
   "landing": {
     "hero": {
       "title": "Una forma confiable de alquilar casas",
-      "description": "Elegí la propiedad, coordiná el horario y hablá directo con el dueño. Sin vueltas.",
+      "description": "Elegí la propiedad, coordiná el horario y hablá directo con el dueño.",
       "valueProposition": "",
       "subtitle": "Alquilá con tranquilidad. Publicá con confianza.",
       "support": "Reserva rápida. Sin vueltas. Con seguridad.",
       "search": {
         "locationPlaceholder": "Ubicación",
         "locationAria": "Ubicación o zona",
+        "locationLabel": "Ubicación",
         "datePlaceholder": "Fechas (check-in - check-out)",
         "dateAria": "Rango de fechas",
+        "dateLabel": "Fecha de viaje",
         "cityPlaceholder": "Ubicación",
         "cityAria": "Ciudad o localidad (Uruguay)",
         "submit": "Buscar"
@@ -247,7 +249,7 @@
       }
     },
     "testimonials": {
-      "title": "Comentarios de huéspedes",
+      "title": "Reseñas de huéspedes",
       "subtitle": "Experiencias reales de personas como vos",
       "items": {
         "1": {
@@ -425,8 +427,8 @@
       }
     },
     "reviews": {
-      "heading": "Comentarios",
-      "noReviews": "Aún no hay comentarios",
+      "heading": "Reseñas",
+      "noReviews": "Aún no hay reseñas",
       "ratingCount": "{{rating}} · {{count}} reseñas",
       "reviewsCount": "({{count}} reseñas)"
     },
@@ -453,8 +455,9 @@
         "title": "Completa tu reserva"
       },
       "form": {
-        "fullName": "Nombre completo",
-        "emailOptional": "Correo electrónico (opcional)",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo electrónico",
         "phone": "Teléfono (+598...)",
         "documentIdOptional": "Documento de identidad (opcional)",
         "estimatedGuests": "Cantidad estimada de invitados (opcional)",
@@ -470,10 +473,13 @@
         "verifyAndConfirm": "Verificar y confirmar"
       },
       "done": {
+        "modalTitle": "Reserva confirmada",
         "reservationConfirmed": "Reserva confirmada.",
-        "codeLabel": "Código",
-        "manageLinkLabel": "Enlace de gestión:",
-        "openReservationManager": "abrir gestor de reservas"
+        "body": "Tu reserva está confirmada. Guarda tu código para consultar o gestionar tu reserva más adelante.",
+        "codeLabel": "Tu código de reserva",
+        "lookupHint": "Usa el botón de abajo para abrir tu reserva, o pega este código en la página de consulta de reservas.",
+        "goToReservationLookup": "Ver mi reserva",
+        "close": "Cerrar"
       },
       "errors": {
         "invalidDateSelection": "Selección de fechas inválida.",
@@ -482,7 +488,9 @@
         "couldNotSendOtp": "No se pudo enviar el código OTP.",
         "invalidOtp": "Código OTP inválido.",
         "holdNoLongerValid": "Tu reserva temporal ya no es válida.",
-        "couldNotConfirmReservation": "No se pudo confirmar la reserva."
+        "couldNotConfirmReservation": "No se pudo confirmar la reserva.",
+        "guestFieldsRequired": "Nombre, apellido, correo y teléfono son obligatorios.",
+        "guestBookingOverlap": "Ya tenés una reserva para estas fechas."
       }
     },
     "host": {
@@ -509,7 +517,7 @@
       "amenities": "Qué ofrece este lugar",
       "location": "Ubicación",
       "host": "Anfitrión",
-      "reviews": "Comentarios",
+      "reviews": "Reseñas",
       "questions": "Preguntas y Respuestas",
       "similarProperties": "Propiedades similares"
     },
@@ -566,13 +574,33 @@
       "datesValue": "{{checkIn}} a {{checkOut}}",
       "statusLabel": "Estado:",
       "guestLabel": "Huésped:",
+      "guestsLabel": "Invitados:",
+      "guestsCount": "{{count}} invitados",
       "notAvailable": "No disponible"
+    },
+    "hostContact": {
+      "heading": "Contacto del anfitrión",
+      "nameLabel": "Nombre:",
+      "emailLabel": "Correo:",
+      "phoneLabel": "Teléfono:",
+      "notAvailable": "No disponible"
+    },
+    "manageToken": {
+      "loading": "Cargando reserva…",
+      "missingToken": "Falta el token en este enlace de gestión. Revisá la URL completa del correo de confirmación.",
+      "invalidOrExpired": "Enlace de gestión no válido o caducado."
     },
     "status": {
       "confirmed": "Confirmada",
       "pending_confirmation": "Pendiente de confirmación",
       "cancelled": "Cancelada",
       "completed": "Finalizada"
+    },
+    "confirmCancel": {
+      "title": "¿Cancelar esta reserva?",
+      "message": "La cancelación puede afectar tu reembolso según la política de la propiedad. Esta acción no se puede deshacer.",
+      "dismiss": "No, volver",
+      "confirm": "Sí, cancelar reserva"
     },
     "messages": {
       "cancelSuccess": "Reserva cancelada correctamente."
@@ -583,6 +611,45 @@
       "expired": "Esta reserva ha vencido y ya no se puede gestionar aquí.",
       "couldNotFindCode": "No se pudo encontrar este código de reserva.",
       "cancelFailed": "No se pudo cancelar la reserva."
+    },
+    "review": {
+      "promptTitle": "¿Cómo fue tu estadía?",
+      "promptBody": "Tu opinión ayuda a otros huéspedes y al anfitrión. Compartí una reseña breve sobre tu experiencia.",
+      "emailLabel": "Correo electrónico",
+      "nameLabel": "Tu nombre",
+      "namePlaceholder": "Nombre como figura en la reserva",
+      "ratingLabel": "Calificación",
+      "commentLabel": "Tu reseña",
+      "commentPlaceholder": "Contanos sobre tu estadía…",
+      "submit": "Enviar reseña",
+      "submitting": "Enviando…",
+      "successMessage": "¡Gracias! Tu reseña ha sido registrada.",
+      "updateSuccessMessage": "Tu reseña ha sido actualizada.",
+      "windowOpens": "Podés dejar una reseña desde el último día de tu estadía ({{checkOut}}). El plazo cierra el {{windowEnd}} (48 horas después del fin de la estadía).",
+      "windowOpen": "El plazo para dejar o editar tu reseña está abierto hasta el {{windowEnd}}.",
+      "codeExpired": "El plazo para dejar o editar tu reseña ha vencido.",
+      "editTitle": "Editar tu reseña",
+      "editPromptBody": "Podés actualizar tu calificación y comentarios mientras el plazo esté abierto.",
+      "saveChanges": "Guardar cambios",
+      "yourReview": "Tu reseña",
+      "ratingRequired": "Seleccioná una calificación de 1 a 5 estrellas.",
+      "nameRequired": "Ingresá tu nombre.",
+      "commentRequired": "Escribí unas palabras sobre tu estadía.",
+      "emailMissing": "No tenemos un correo registrado para esta reserva; no se puede enviar una reseña aquí.",
+      "errors": {
+        "invalidCode": "Formato de código de reserva no válido.",
+        "notFound": "Reserva no encontrada.",
+        "notEligible": "Esta reserva no es elegible para una reseña.",
+        "checkoutNotPassed": "Las reseñas están disponibles después de la fecha de salida.",
+        "emailMismatch": "El correo no coincide con el de esta reserva.",
+        "alreadyExists": "Ya enviaste una reseña para esta estadía.",
+        "ratingInvalid": "Elegí una calificación entre 1 y 5.",
+        "nameRequired": "Ingresá tu nombre.",
+        "commentRequired": "Escribí unas palabras sobre tu estadía.",
+        "invalidListingType": "Esta reserva no está disponible en este sitio.",
+        "codeExpired": "El plazo para dejar o editar tu reseña ha vencido.",
+        "submitFailed": "Algo salió mal. Inténtalo de nuevo."
+      }
     }
   },
   "booking": {
@@ -732,7 +799,7 @@
     "leaveReviewFor": "Dejar una reseña de {{title}}",
     "rating": "Calificación",
     "stars": "estrellas",
-    "comment": "Comentario",
+    "comment": "Reseña",
     "commentPlaceholder": "Comparte tu experiencia (opcional)",
     "anonymous": "Huésped",
     "addReview": "Dejar reseña",
@@ -860,7 +927,7 @@
         "description": "Verifica las fechas, número de huéspedes y cualquier solicitud especial antes de finalizar."
       },
       "leaveReviews": {
-        "title": "Deja Comentarios",
+        "title": "Dejar reseñas",
         "description": "Comparte tu experiencia después de tu estadía para ayudar a otros viajeros a tomar decisiones informadas."
       }
     }

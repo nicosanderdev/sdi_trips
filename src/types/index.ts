@@ -1,4 +1,6 @@
 export * from '../core/models';
+export * from './guestReviewContract';
+import type { GuestBookingErrorCode, GuestSiteListingType } from './guestReviewContract';
 
 export interface BookingSelectionValidation {
   isValid: boolean;
@@ -29,8 +31,9 @@ export interface BookingHold {
 }
 
 export interface GuestBookingProfile {
-  fullName: string;
-  email?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   phone: string;
   documentId?: string;
   estimatedGuests?: number;
@@ -42,7 +45,28 @@ export interface GuestBookingConfirmation {
   reservationCode?: string;
   manageToken?: string;
   manageUrl?: string;
+  guestId?: string;
+  listingType?: GuestSiteListingType;
+  errorCode?: GuestBookingErrorCode;
   error?: string;
+}
+
+/** Row shape for public.Guests (PascalCase DB columns). */
+export interface Guest {
+  Id: string;
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  PhoneNumber: string;
+  Created: string;
+  LastModified: string;
+}
+
+/** Host/owner direct contact — only for confirmed guest bookings (lookup / notifications). */
+export interface HostContactInfo {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export interface ManageBookingView {
@@ -54,4 +78,5 @@ export interface ManageBookingView {
   guests: number;
   status: string;
   canCancel: boolean;
+  hostContact?: HostContactInfo | null;
 }

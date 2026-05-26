@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
+import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
+import PropertySection from '../../components/sections/PropertySection';
 import {
   MapPin,
   Users,
@@ -76,6 +78,9 @@ export default function AltVenueDetail() {
   }
 
   const suffix = t('alt.venueDetail.pricingHintSuffix');
+  const orderedSections = (venue.sections ?? [])
+    .slice()
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
   const attributeBlocks = [
     {
       title: t('alt.venueDetail.capacityLayoutTitle'),
@@ -172,6 +177,14 @@ export default function AltVenueDetail() {
               <h1 className="text-4xl font-thin leading-tight text-navy">{venue.name}</h1>
               <p className="max-w-3xl text-lg text-charcoal">{venue.subtitle}</p>
               <p className="text-charcoal/90 leading-relaxed">{venue.description}</p>
+
+              {orderedSections.length > 0 ? (
+                <div className="space-y-4 pt-2">
+                  {orderedSections.map((section) => (
+                    <PropertySection key={section.id} section={section} />
+                  ))}
+                </div>
+              ) : null}
 
               <div className="flex flex-wrap gap-6 text-sm text-charcoal">
                 <div className="flex items-center gap-2">
@@ -275,12 +288,18 @@ export default function AltVenueDetail() {
 
                 {showBookingFlow && (
                   <div className="pt-4 border-t border-warm-gray space-y-4">
-                    <GuestBookingFlow property={venue} />
+                    <GuestBookingFlow
+                      property={venue}
+                      variant="event"
+                      reservationManagePath="/reservation-lookup"
+                    />
                   </div>
                 )}
               </Card>
             </div>
           </div>
+
+          <PropertyReviewsSection propertyId={venue.id} propertyTitle={venue.name} />
         </section>
       </div>
     </div>

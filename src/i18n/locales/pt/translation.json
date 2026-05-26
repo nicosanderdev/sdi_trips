@@ -136,15 +136,17 @@
   "landing": {
     "hero": {
       "title": "Uma forma confiável de alugar casas",
-      "description": "Escolha a propriedade, combine o horário e fale direto com o proprietário. Sem rodeios.",
+      "description": "Escolha a propriedade, combine o horário e fale direto com o proprietário.",
       "valueProposition": "",
       "subtitle": "Alugue com tranquilidade. Publique com confiança.",
       "support": "Reserva rapida. Sem complicacao. Com seguranca.",
       "search": {
         "locationPlaceholder": "Localização",
         "locationAria": "Localização ou região",
+        "locationLabel": "Localização",
         "datePlaceholder": "Datas (check-in - check-out)",
         "dateAria": "Intervalo de datas",
+        "dateLabel": "Data da viagem",
         "cityPlaceholder": "Localização",
         "cityAria": "Cidade ou localidade (Uruguai)",
         "submit": "Buscar"
@@ -247,7 +249,7 @@
       }
     },
     "testimonials": {
-      "title": "Comentários de Hóspedes",
+      "title": "Avaliações de hóspedes",
       "subtitle": "Experiências reais de pessoas como você",
       "items": {
         "1": {
@@ -430,8 +432,9 @@
         "title": "Conclua sua reserva"
       },
       "form": {
-        "fullName": "Nome completo",
-        "emailOptional": "E-mail (opcional)",
+        "firstName": "Nome",
+        "lastName": "Sobrenome",
+        "email": "E-mail",
         "phone": "Telefone (+598...)",
         "documentIdOptional": "Documento de identidade (opcional)",
         "estimatedGuests": "Número estimado de convidados (opcional)",
@@ -447,10 +450,13 @@
         "verifyAndConfirm": "Verificar e confirmar"
       },
       "done": {
+        "modalTitle": "Reserva confirmada",
         "reservationConfirmed": "Reserva confirmada.",
-        "codeLabel": "Código",
-        "manageLinkLabel": "Link de gestão:",
-        "openReservationManager": "abrir gestor de reservas"
+        "body": "Sua reserva está confirmada. Guarde seu código para consultar ou gerenciar sua reserva depois.",
+        "codeLabel": "Seu código de reserva",
+        "lookupHint": "Use o botão abaixo para abrir sua reserva, ou cole este código na página de consulta de reservas.",
+        "goToReservationLookup": "Ver minha reserva",
+        "close": "Fechar"
       },
       "errors": {
         "invalidDateSelection": "Seleção de datas inválida.",
@@ -459,7 +465,9 @@
         "couldNotSendOtp": "Não foi possível enviar o código OTP.",
         "invalidOtp": "Código OTP inválido.",
         "holdNoLongerValid": "Sua reserva temporária não é mais válida.",
-        "couldNotConfirmReservation": "Não foi possível confirmar a reserva."
+        "couldNotConfirmReservation": "Não foi possível confirmar a reserva.",
+        "guestFieldsRequired": "Nome, sobrenome, e-mail e telefone são obrigatórios.",
+        "guestBookingOverlap": "Você já tem uma reserva para estas datas."
       }
     },
     "host": {
@@ -543,13 +551,33 @@
       "datesValue": "{{checkIn}} a {{checkOut}}",
       "statusLabel": "Status:",
       "guestLabel": "Hóspede:",
+      "guestsLabel": "Convidados:",
+      "guestsCount": "{{count}} convidados",
       "notAvailable": "Não disponível"
+    },
+    "hostContact": {
+      "heading": "Contacto do anfitrião",
+      "nameLabel": "Nome:",
+      "emailLabel": "E-mail:",
+      "phoneLabel": "Telefone:",
+      "notAvailable": "Não disponível"
+    },
+    "manageToken": {
+      "loading": "A carregar a reserva…",
+      "missingToken": "Falta o token neste link de gestão. Verifique o URL completo no e-mail de confirmação.",
+      "invalidOrExpired": "Link de gestão inválido ou expirado."
     },
     "status": {
       "confirmed": "Confirmada",
       "pending_confirmation": "Pendente de confirmação",
       "cancelled": "Cancelada",
       "completed": "Finalizada"
+    },
+    "confirmCancel": {
+      "title": "Cancelar esta reserva?",
+      "message": "O cancelamento pode afetar seu reembolso conforme a política da propriedade. Esta ação não pode ser desfeita.",
+      "dismiss": "Não, voltar",
+      "confirm": "Sim, cancelar reserva"
     },
     "messages": {
       "cancelSuccess": "Reserva cancelada com sucesso."
@@ -560,6 +588,45 @@
       "expired": "Esta reserva expirou e não pode mais ser gerenciada aqui.",
       "couldNotFindCode": "Não foi possível encontrar este código de reserva.",
       "cancelFailed": "Não foi possível cancelar a reserva."
+    },
+    "review": {
+      "promptTitle": "Como foi a sua estadia?",
+      "promptBody": "O seu feedback ajuda outros hóspedes e o anfitrião. Partilhe uma avaliação breve sobre a experiência.",
+      "emailLabel": "E-mail",
+      "nameLabel": "O seu nome",
+      "namePlaceholder": "Nome como consta na reserva",
+      "ratingLabel": "Classificação",
+      "commentLabel": "A sua avaliação",
+      "commentPlaceholder": "Conte-nos sobre a estadia…",
+      "submit": "Enviar avaliação",
+      "submitting": "A enviar…",
+      "successMessage": "Obrigado! A sua avaliação foi registada.",
+      "updateSuccessMessage": "A sua avaliação foi atualizada.",
+      "windowOpens": "Pode deixar uma avaliação a partir da data de check-out ({{checkOut}}). O prazo encerra em {{windowEnd}} (48 horas após o fim da estadia).",
+      "windowOpen": "O prazo para deixar ou editar a avaliação está aberto até {{windowEnd}}.",
+      "codeExpired": "O prazo para deixar ou editar a avaliação expirou.",
+      "editTitle": "Editar a sua avaliação",
+      "editPromptBody": "Pode atualizar a classificação e os comentários enquanto o prazo estiver aberto.",
+      "saveChanges": "Guardar alterações",
+      "yourReview": "A sua avaliação",
+      "ratingRequired": "Selecione uma classificação de 1 a 5 estrelas.",
+      "nameRequired": "Introduza o seu nome.",
+      "commentRequired": "Escreva algumas palavras sobre a estadia.",
+      "emailMissing": "Não temos e-mail registado para esta reserva; não é possível enviar uma avaliação aqui.",
+      "errors": {
+        "invalidCode": "Formato de código de reserva inválido.",
+        "notFound": "Reserva não encontrada.",
+        "notEligible": "Esta reserva não é elegível para uma avaliação.",
+        "checkoutNotPassed": "As avaliações ficam disponíveis após a data de check-out.",
+        "emailMismatch": "O e-mail não corresponde ao desta reserva.",
+        "alreadyExists": "Já enviou uma avaliação para esta estadia.",
+        "ratingInvalid": "Selecione uma classificação entre 1 e 5.",
+        "nameRequired": "Introduza o seu nome.",
+        "commentRequired": "Escreva algumas palavras sobre a estadia.",
+        "invalidListingType": "Esta reserva não está disponível neste site.",
+        "codeExpired": "O prazo para deixar ou editar a avaliação expirou.",
+        "submitFailed": "Algo correu mal. Tente novamente."
+      }
     }
   },
   "booking": {
@@ -709,7 +776,7 @@
     "leaveReviewFor": "Deixar uma avaliação de {{title}}",
     "rating": "Avaliação",
     "stars": "estrelas",
-    "comment": "Comentário",
+    "comment": "Avaliação",
     "commentPlaceholder": "Conte sua experiência (opcional)",
     "anonymous": "Hóspede",
     "addReview": "Deixar avaliação",

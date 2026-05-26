@@ -548,6 +548,114 @@ export interface Database {
           LastModifiedBy?: string | null;
         };
       };
+      PropertyImages: {
+        Row: {
+          Id: string;
+          Url: string;
+          AltText: string | null;
+          IsMain: boolean;
+          EstatePropertyId: string;
+          IsDeleted: boolean;
+          Created: string;
+          CreatedBy: string | null;
+          LastModified: string;
+          LastModifiedBy: string | null;
+          Metadata: Record<string, unknown> | null;
+          DisplayOrder: number;
+        };
+        Insert: {
+          Id?: string;
+          Url: string;
+          AltText?: string | null;
+          IsMain: boolean;
+          EstatePropertyId: string;
+          IsDeleted?: boolean;
+          Created?: string;
+          CreatedBy?: string | null;
+          LastModified?: string;
+          LastModifiedBy?: string | null;
+          Metadata?: Record<string, unknown> | null;
+          DisplayOrder?: number;
+        };
+        Update: {
+          Id?: string;
+          Url?: string;
+          AltText?: string | null;
+          IsMain?: boolean;
+          EstatePropertyId?: string;
+          IsDeleted?: boolean;
+          Created?: string;
+          CreatedBy?: string | null;
+          LastModified?: string;
+          LastModifiedBy?: string | null;
+          Metadata?: Record<string, unknown> | null;
+          DisplayOrder?: number;
+        };
+      };
+      PropertyDetailsSection: {
+        Row: {
+          Id: string;
+          PropertyId: string;
+          Name: string;
+          Description: string | null;
+          LayoutType: 'split' | 'carousel' | 'stacked';
+          LayoutConfig: Record<string, unknown> | null;
+          DisplayOrder: number;
+          IsDeleted: boolean;
+          CreatedAt: string;
+          UpdatedAt: string;
+        };
+        Insert: {
+          Id?: string;
+          PropertyId: string;
+          Name: string;
+          Description?: string | null;
+          LayoutType?: 'split' | 'carousel' | 'stacked';
+          LayoutConfig?: Record<string, unknown> | null;
+          DisplayOrder?: number;
+          IsDeleted?: boolean;
+          CreatedAt?: string;
+          UpdatedAt?: string;
+        };
+        Update: {
+          Id?: string;
+          PropertyId?: string;
+          Name?: string;
+          Description?: string | null;
+          LayoutType?: 'split' | 'carousel' | 'stacked';
+          LayoutConfig?: Record<string, unknown> | null;
+          DisplayOrder?: number;
+          IsDeleted?: boolean;
+          CreatedAt?: string;
+          UpdatedAt?: string;
+        };
+      };
+      PropertySectionImages: {
+        Row: {
+          Id: string;
+          SectionId: string;
+          PropertyImageId: string;
+          DisplayOrder: number;
+          CreatedAt: string;
+          UpdatedAt: string;
+        };
+        Insert: {
+          Id?: string;
+          SectionId: string;
+          PropertyImageId: string;
+          DisplayOrder?: number;
+          CreatedAt?: string;
+          UpdatedAt?: string;
+        };
+        Update: {
+          Id?: string;
+          SectionId?: string;
+          PropertyImageId?: string;
+          DisplayOrder?: number;
+          CreatedAt?: string;
+          UpdatedAt?: string;
+        };
+      };
     };
   };
 }

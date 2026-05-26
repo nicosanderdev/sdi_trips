@@ -17,7 +17,7 @@ export interface ButtonProps extends BaseComponentProps {
 
 // Card component props
 export interface CardProps extends BaseComponentProps {
-  variant?: 'default' | 'elevated' | 'glass';
+  variant?: 'default' | 'elevated' | 'glass' | 'surface';
   padding?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
@@ -56,6 +56,34 @@ export interface BadgeProps extends BaseComponentProps {
 export interface OutlineNumberProps extends BaseComponentProps {
   number: string | number;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+}
+
+export type SectionLayoutType = 'split' | 'carousel' | 'stacked';
+export type CarouselDescriptionPosition = 'top' | 'right' | 'bottom';
+export type StackedContentOrder = 'text-first' | 'images-first';
+
+export interface PropertySectionImage {
+  id: string;
+  imageId?: string;
+  url: string;
+  title?: string | null;
+  metadata?: Record<string, unknown> | null;
+  displayOrder?: number;
+}
+
+export interface PropertySectionLayoutConfig {
+  descriptionPosition?: CarouselDescriptionPosition;
+  contentOrder?: StackedContentOrder;
+}
+
+export interface PropertyContentSection {
+  id: string;
+  name: string;
+  description?: string | null;
+  layoutType?: SectionLayoutType;
+  displayOrder?: number;
+  layoutConfig?: PropertySectionLayoutConfig | null;
+  images: PropertySectionImage[];
 }
 
 // Property types
@@ -105,6 +133,7 @@ export interface Property {
   homeLayout?: string;
   outdoorDetails?: string;
   neighborhoodDetails?: string;
+  sections?: PropertyContentSection[];
 }
 
 export interface User {

@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
               <img
                 src="/logo-en-cartelera.png"
                 alt="Summer rentals: En cartelera - Escapadas"
-                className="h-12 w-auto"
+                className="h-16 w-auto"
               />
             </Link>
             <p className="text-warm-gray-light mb-6 max-w-md">{t('footer.brandDescription')}</p>

@@ -136,15 +136,17 @@
   "landing": {
     "hero": {
       "title": "A reliable way to rent homes",
-      "description": "Choose the property, coordinate the time, and talk directly with the owner. No runaround.",
+      "description": "Choose the property, coordinate the time, and talk directly with the owner.",
       "valueProposition": "",
       "subtitle": "Rent with peace of mind. Publish with confidence.",
       "support": "Quick booking. No hassle. Secure.",
       "search": {
         "locationPlaceholder": "Location",
         "locationAria": "Location or area",
+        "locationLabel": "Location",
         "datePlaceholder": "Dates (check-in - check-out)",
         "dateAria": "Date range",
+        "dateLabel": "Travel date",
         "cityPlaceholder": "Location",
         "cityAria": "City or locality (Uruguay)",
         "submit": "Search"
@@ -480,8 +482,9 @@
         "title": "Complete your reservation"
       },
       "form": {
-        "fullName": "Full name",
-        "emailOptional": "Email (optional)",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "email": "Email",
         "phone": "Phone (+598...)",
         "documentIdOptional": "Document ID (optional)",
         "estimatedGuests": "Estimated number of guests (optional)",
@@ -497,10 +500,13 @@
         "verifyAndConfirm": "Verify and confirm"
       },
       "done": {
+        "modalTitle": "Reservation confirmed",
         "reservationConfirmed": "Reservation confirmed.",
-        "codeLabel": "Code",
-        "manageLinkLabel": "Manage link:",
-        "openReservationManager": "open reservation manager"
+        "body": "Your reservation is confirmed. Save your code to look up or manage your booking later.",
+        "codeLabel": "Your reservation code",
+        "lookupHint": "Use the button below to open your reservation, or paste this code on the reservation lookup page.",
+        "goToReservationLookup": "View my reservation",
+        "close": "Close"
       },
       "errors": {
         "invalidDateSelection": "Invalid date selection.",
@@ -509,7 +515,9 @@
         "couldNotSendOtp": "Could not send OTP code.",
         "invalidOtp": "Invalid OTP code.",
         "holdNoLongerValid": "Your hold is no longer valid.",
-        "couldNotConfirmReservation": "Could not confirm reservation."
+        "couldNotConfirmReservation": "Could not confirm reservation.",
+        "guestFieldsRequired": "First name, last name, email, and phone are required.",
+        "guestBookingOverlap": "You already have a reservation for these dates."
       }
     },
     "host": {
@@ -593,13 +601,33 @@
       "datesValue": "{{checkIn}} to {{checkOut}}",
       "statusLabel": "Status:",
       "guestLabel": "Guest:",
+      "guestsLabel": "Guests:",
+      "guestsCount": "{{count}} guests",
       "notAvailable": "Not available"
+    },
+    "hostContact": {
+      "heading": "Host contact",
+      "nameLabel": "Name:",
+      "emailLabel": "Email:",
+      "phoneLabel": "Phone:",
+      "notAvailable": "Not available"
+    },
+    "manageToken": {
+      "loading": "Loading reservation…",
+      "missingToken": "This manage link is missing a token. Check the full URL from your confirmation email.",
+      "invalidOrExpired": "Invalid or expired management link."
     },
     "status": {
       "confirmed": "Confirmed",
       "pending_confirmation": "Pending confirmation",
       "cancelled": "Cancelled",
       "completed": "Completed"
+    },
+    "confirmCancel": {
+      "title": "Cancel this reservation?",
+      "message": "Cancellation may affect your refund depending on the property's policy. This action cannot be undone.",
+      "dismiss": "No, go back",
+      "confirm": "Yes, cancel reservation"
     },
     "messages": {
       "cancelSuccess": "Reservation cancelled successfully."
@@ -610,6 +638,45 @@
       "expired": "This reservation has expired and can no longer be managed here.",
       "couldNotFindCode": "Could not find this reservation code.",
       "cancelFailed": "Could not cancel reservation."
+    },
+    "review": {
+      "promptTitle": "How was your stay?",
+      "promptBody": "Your feedback helps other guests and the host. Share a quick review about your experience.",
+      "emailLabel": "Email",
+      "nameLabel": "Your name",
+      "namePlaceholder": "Name as shown on the booking",
+      "ratingLabel": "Rating",
+      "commentLabel": "Your review",
+      "commentPlaceholder": "Tell us about your stay…",
+      "submit": "Submit review",
+      "submitting": "Submitting…",
+      "successMessage": "Thank you! Your review has been recorded.",
+      "updateSuccessMessage": "Your review has been updated.",
+      "windowOpens": "You can leave a review starting on your checkout date ({{checkOut}}). The review period closes on {{windowEnd}} (48 hours after the end of your stay).",
+      "windowOpen": "The review period is open. You can submit or edit your review until {{windowEnd}}.",
+      "codeExpired": "The review period for this reservation has ended.",
+      "editTitle": "Edit your review",
+      "editPromptBody": "You can update your rating and comments while the review period is open.",
+      "saveChanges": "Save changes",
+      "yourReview": "Your review",
+      "ratingRequired": "Please select a rating from 1 to 5 stars.",
+      "nameRequired": "Please enter your name.",
+      "commentRequired": "Please write a few words about your stay.",
+      "emailMissing": "We don't have an email on file for this booking, so a review can't be submitted here.",
+      "errors": {
+        "invalidCode": "Invalid reservation code format.",
+        "notFound": "Reservation not found.",
+        "notEligible": "This booking is not eligible for a review.",
+        "checkoutNotPassed": "Reviews are available after your checkout date.",
+        "emailMismatch": "The email does not match the one on this booking.",
+        "alreadyExists": "You have already submitted a review for this stay.",
+        "ratingInvalid": "Please choose a rating between 1 and 5.",
+        "nameRequired": "Please enter your name.",
+        "commentRequired": "Please write a few words about your stay.",
+        "invalidListingType": "This reservation is not available on this site.",
+        "codeExpired": "The review period for this reservation has ended.",
+        "submitFailed": "Something went wrong. Please try again."
+      }
     }
   },
   "booking": {

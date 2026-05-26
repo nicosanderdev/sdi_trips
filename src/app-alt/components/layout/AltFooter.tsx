@@ -34,7 +34,7 @@ export function AltFooter() {
               <img
                 src="/logo-en-cartelera-alt.png"
                 alt="En cartelera - Eventos"
-                className="h-12 w-auto"
+                className="h-16 w-auto"
               />
             </Link>
             <p className="text-warm-gray-light mb-6 max-w-md">{t('alt.footer.tagline')}</p>

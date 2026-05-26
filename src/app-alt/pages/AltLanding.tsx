@@ -189,7 +189,7 @@ export default function AltLanding() {
                   {t('alt.landing.hero.exploreCta')}
                 </Button>
               </Link>
-              <Link to="/reservations">
+              <Link to="/reservation-lookup">
                 <Button
                   variant="outline"
                   size="lg"

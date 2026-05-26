@@ -129,4 +129,24 @@ export interface RpcSummerRentPropertyRow {
   BufferDays: SummerRentExtension['BufferDays'];
 
   AmenityNames: string[] | null;
+  SectionData?: RpcPropertySectionRow[] | null;
+}
+
+export interface RpcPropertySectionImageRow {
+  Id: string;
+  PropertyImageId: string | null;
+  R2Url: string;
+  Title: string | null;
+  Metadata: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+}
+
+export interface RpcPropertySectionRow {
+  Id: string;
+  Name: string;
+  Description: string | null;
+  LayoutType: 'split' | 'carousel' | 'stacked' | null;
+  LayoutConfig: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+  Images: RpcPropertySectionImageRow[] | null;
 }
