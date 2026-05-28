@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../../components/ui';
@@ -14,7 +14,13 @@ import {
   Sparkles,
   MessageCircle,
 } from 'lucide-react';
+import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
+import {
+  buildVenuePriceHint,
+  formatPriceAmount,
+  getPriceLabelKey,
+} from '../../services/pricing';
 
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +32,59 @@ export default function AltVenueDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [galleryOpacity, setGalleryOpacity] = useState(1);
   const [showBookingFlow, setShowBookingFlow] = useState(false);
+
+  const placeholderVenue = useMemo<EventVenue>(
+    () =>
+      ({
+        id: '',
+        name: '',
+        title: '',
+        location: '',
+        price: 0,
+        currency: 'USD',
+        images: [],
+        bedrooms: 0,
+        bathrooms: 0,
+        maxGuests: 0,
+        description: '',
+        amenities: [],
+        rating: 0,
+        reviewCount: 0,
+        host: { id: '', name: '', email: '', verified: false },
+        available: false,
+        coordinates: { lat: 0, lng: 0 },
+        capacity: 0,
+        priceFrom: 0,
+        priceHint: '',
+        eventTypeTags: [],
+        eventTypes: [],
+        layoutNotes: '',
+        policies: [],
+        hasCatering: false,
+        hasSoundSystem: false,
+      }) as EventVenue,
+    [],
+  );
+
+  const { breakdown: exploreBreakdown, loading: explorePriceLoading } = useDisplayPrice({
+    property: venue ?? placeholderVenue,
+    siteListingType: 'EventVenue',
+    enabled: Boolean(venue),
+  });
+
+  const explorePriceHint = useMemo(() => {
+    if (!venue || !exploreBreakdown) return venue?.priceHint ?? '';
+    const amount =
+      exploreBreakdown.displayLabel === 'total_stay'
+        ? exploreBreakdown.total
+        : exploreBreakdown.nightlyAverage;
+    return buildVenuePriceHint(
+      amount,
+      getPriceLabelKey(exploreBreakdown.displayLabel),
+      venue.currency,
+      t,
+    );
+  }, [venue, exploreBreakdown, t]);
 
   useEffect(() => {
     const load = async () => {
@@ -94,7 +153,10 @@ export default function AltVenueDetail() {
     },
     {
       title: t('alt.venueDetail.pricingHintTitle'),
-      description: t('alt.venueDetail.pricingHintDesc', { priceHint: venue.priceHint, suffix }),
+      description: t('alt.venueDetail.pricingHintDesc', {
+        priceHint: explorePriceHint || venue.priceHint,
+        suffix,
+      }),
       icon: <Sparkles className="h-6 w-6 text-gold" />,
     },
   ];
@@ -279,7 +341,21 @@ export default function AltVenueDetail() {
               <Card className="space-y-4 rounded-4xl border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(43,43,43,0.35)]">
                 <div className="space-y-1 text-center">
                   <p className="text-xs uppercase tracking-[0.35em] text-charcoal/70">{t('alt.venueDetail.startingFrom')}</p>
-                  <div className="text-2xl font-semibold text-navy">{venue.priceHint}</div>
+                  <div className="text-2xl font-semibold text-navy">
+                    {explorePriceLoading
+                      ? '…'
+                      : exploreBreakdown
+                        ? formatPriceAmount(
+                            exploreBreakdown.displayLabel === 'total_stay'
+                              ? exploreBreakdown.total
+                              : exploreBreakdown.nightlyAverage,
+                            venue.currency,
+                          )
+                        : venue.priceHint}
+                  </div>
+                  {exploreBreakdown && !explorePriceLoading && (
+                    <p className="text-xs text-charcoal">{t(getPriceLabelKey(exploreBreakdown.displayLabel))}</p>
+                  )}
                   <p className="text-sm text-charcoal">{t('alt.venueDetail.taxesNote')}</p>
                 </div>
                 <Button variant="primary" size="lg" className="w-full" type="button" onClick={() => setShowBookingFlow((s) => !s)}>

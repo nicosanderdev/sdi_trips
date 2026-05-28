@@ -477,6 +477,12 @@
       "singleNightHint": "Select one day. Check-out is automatically the next day.",
       "holdActiveFor": "Hold active for:",
       "checkingAvailability": "Checking rules and availability...",
+      "calculatingPrice": "Calculating price...",
+      "priceSummary": {
+        "nights": "{{count}} nights",
+        "avgPerNight": "{{amount}} avg per night",
+        "longStayApplied": "Long-stay discount applied"
+      },
       "confirmingMessage": "Confirming your reservation...",
       "modal": {
         "title": "Complete your reservation"
@@ -517,7 +523,9 @@
         "holdNoLongerValid": "Your hold is no longer valid.",
         "couldNotConfirmReservation": "Could not confirm reservation.",
         "guestFieldsRequired": "First name, last name, email, and phone are required.",
-        "guestBookingOverlap": "You already have a reservation for these dates."
+        "guestBookingOverlap": "You already have a reservation for these dates.",
+        "priceQuoteMismatch": "The price was updated. Please review and try again.",
+        "priceQuoteMismatchWithTotal": "The price changed. Updated total: {{total}}. Please try again."
       }
     },
     "host": {
@@ -549,6 +557,8 @@
       "similarProperties": "Similar properties"
     },
     "pricing": {
+      "loading": "Loading price...",
+      "fromHint": "Select dates for an exact total",
       "perNight": "per night",
       "total": "Total",
       "guests": "Guests",
@@ -1175,6 +1185,11 @@
       "viewDetails": "View Details",
       "perNight": "/night"
     }
+  },
+  "pricing": {
+    "from": "From",
+    "perNight": "per night",
+    "totalStay": "total stay"
   },
   "propertyCard": {
     "perNight": "/night",

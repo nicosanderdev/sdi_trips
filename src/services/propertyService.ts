@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { RpcPropertySectionRow, RpcSummerRentPropertyRow } from '../models/summerRentProperty';
 import type { Property } from '../types';
+import { mapRpcPricingFields } from './pricing/listingPricing';
 import { getRatingsForProperties } from './reviewService';
 
 export interface PropertyFilters {
@@ -79,12 +80,20 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     (row.Bedrooms != null ? row.Bedrooms * 2 : 0);
 
   const amenities = row.AmenityNames ?? [];
+  const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
 
   return {
     id: row.EstatePropertyId,
     title: row.Title ?? 'Untitled property',
     location: location || 'Location not specified',
-    price: row.RentPrice || row.SalePrice || 0,
+    price: pricing.basePrice,
+    listingId: pricing.listingId ?? row.ListingId,
+    basePrice: pricing.basePrice,
+    minPrice: pricing.minPrice,
+    maxPrice: pricing.maxPrice,
+    longStayDiscountEnabled: pricing.longStayDiscountEnabled,
+    longStayMinDays: pricing.longStayMinDays,
+    longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: getCurrencyCode(row.Currency),
     images: [], // TODO: Implement image fetching
     bedrooms: row.Bedrooms,

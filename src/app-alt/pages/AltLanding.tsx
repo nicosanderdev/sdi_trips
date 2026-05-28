@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui';
 import { Heart, Briefcase, PartyPopper } from 'lucide-react';
 import { listLocalizedVenues } from '../data/venueLocale';
+import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { getFeaturedEventVenues, type EventVenue } from '../../services/eventVenueService';
+import { buildVenuePriceHint } from '../../services/pricing';
 
 const HERO_IMAGES = ['/alt-carousel-1.jpg', '/alt-carousel-2.jpg', '/alt-carousel-3.jpg'] as const;
 
@@ -40,6 +42,7 @@ export default function AltLanding() {
   const { t } = useTranslation();
   const [slideIndex, setSlideIndex] = useState(0);
   const [fade, setFade] = useState(false);
+  const [popularVenuesRaw, setPopularVenuesRaw] = useState<EventVenue[]>([]);
   const [popularVenues, setPopularVenues] = useState<LandingVenueCard[]>([]);
   const [loadingPopularVenues, setLoadingPopularVenues] = useState(true);
   const [popularVenuesFetchFailed, setPopularVenuesFetchFailed] = useState(false);
@@ -90,10 +93,11 @@ export default function AltLanding() {
       try {
         const featuredVenues = await getFeaturedEventVenues(6);
         if (!isMounted) return;
-        setPopularVenues(featuredVenues.map(mapFeaturedVenueToCard));
+        setPopularVenuesRaw(featuredVenues);
       } catch (error) {
         console.error('Failed to load featured event venues for alt landing:', error);
         if (!isMounted) return;
+        setPopularVenuesRaw([]);
         setPopularVenues([]);
         setPopularVenuesFetchFailed(true);
       } finally {
@@ -109,6 +113,28 @@ export default function AltLanding() {
       isMounted = false;
     };
   }, []);
+
+  const { priceByPropertyId } = useSearchPricing(popularVenuesRaw);
+
+  useEffect(() => {
+    if (!popularVenuesRaw.length) return;
+    setPopularVenues(
+      popularVenuesRaw.map((venue) => {
+        const priced = priceByPropertyId.get(venue.id);
+        const card = mapFeaturedVenueToCard(venue);
+        if (!priced) return card;
+        return {
+          ...card,
+          priceHint: buildVenuePriceHint(
+            priced.amount,
+            priced.labelKey,
+            venue.currency,
+            t,
+          ),
+        };
+      }),
+    );
+  }, [popularVenuesRaw, priceByPropertyId, t]);
 
   const heroImage = HERO_IMAGES[slideIndex];
   const heroQuote = t(`alt.landing.hero.slides.${slideIndex}.quote`);

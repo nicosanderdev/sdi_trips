@@ -60,7 +60,7 @@ export interface CreateGuestReviewResponse {
   error?: string;
 }
 
-export type GuestBookingErrorCode = 'GUEST_BOOKING_OVERLAP';
+export type GuestBookingErrorCode = 'GUEST_BOOKING_OVERLAP' | 'PRICE_QUOTE_MISMATCH';
 
 export interface ValidateGuestBookingOverlapParams {
   email: string;
@@ -88,6 +88,12 @@ export interface ConfirmBookingFromHoldResponse {
 
 export function isGuestBookingOverlapError(
   code: string | undefined | null,
-): code is GuestBookingErrorCode {
+): code is 'GUEST_BOOKING_OVERLAP' {
   return code === 'GUEST_BOOKING_OVERLAP';
+}
+
+export function isPriceQuoteMismatchError(
+  code: string | undefined | null,
+): code is 'PRICE_QUOTE_MISMATCH' {
+  return code === 'PRICE_QUOTE_MISMATCH';
 }

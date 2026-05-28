@@ -95,6 +95,15 @@ export interface Property {
   location: string;
   price: number;
   currency: string;
+  /** Featured listing id for dynamic pricing RPCs */
+  listingId?: string;
+  /** Base nightly rate (dynamic pricing); falls back to price */
+  basePrice?: number;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  longStayDiscountEnabled?: boolean;
+  longStayMinDays?: number | null;
+  longStayDiscountPercentage?: number | null;
   images: string[] | never[];
   bedrooms: number;
   bathrooms: number;

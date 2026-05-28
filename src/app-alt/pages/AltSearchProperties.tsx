@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Users, SlidersHorizontal } from 'lucide-react';
+import { useSearchPricing } from '../../hooks/useSearchPricing';
 import {
   searchEventVenues,
   type EventVenue,
   type VenueEventTag,
 } from '../../services/eventVenueService';
+import { buildVenuePriceHint } from '../../services/pricing';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 
 type CapacityTier = '' | 'small' | 'medium' | 'large';
@@ -68,6 +70,8 @@ export default function AltSearchProperties() {
       return true;
     });
   }, [allVenues, eventType, capacityFilter, priceTier]);
+
+  const { priceByPropertyId } = useSearchPricing(filtered);
 
   return (
     <>
@@ -194,7 +198,20 @@ export default function AltSearchProperties() {
                     <Users className="h-4 w-4 text-gold" />
                     <span>{t('alt.search.guestsUpTo', { count: venue.capacity })}</span>
                   </div>
-                  <p className="text-sm font-semibold text-venue-accent m-0">{venue.priceHint}</p>
+                  <p className="text-sm font-semibold text-venue-accent m-0">
+                    {(() => {
+                      const priced = priceByPropertyId.get(venue.id);
+                      if (priced) {
+                        return buildVenuePriceHint(
+                          priced.amount,
+                          priced.labelKey,
+                          venue.currency,
+                          t,
+                        );
+                      }
+                      return venue.priceHint;
+                    })()}
+                  </p>
                   <Link
                     to={`/venue/${venue.id}`}
                     className="inline-flex text-sm font-medium text-navy underline underline-offset-4 hover:text-gold"
