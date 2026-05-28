@@ -16,7 +16,12 @@ import {
   validateGuestBookingOverlap,
   verifyGuestOtp,
 } from '../../services/bookingService';
-import { isGuestBookingOverlapError } from '../../types/guestReviewContract';
+import { useDisplayPrice } from '../../hooks/useDisplayPrice';
+import {
+  formatPriceAmount,
+  getPriceLabelKey,
+} from '../../services/pricing/formatPrice';
+import { isGuestBookingOverlapError, isPriceQuoteMismatchError } from '../../types/guestReviewContract';
 import {
   buildInternationalPhone,
   isValidLocalPhone,
@@ -211,7 +216,22 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     return Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
   }, [checkIn, checkOut]);
 
-  const totalPrice = nights * (property.price || 0);
+  const { breakdown, loading: priceLoading, error: priceError } = useDisplayPrice({
+    property,
+    checkIn,
+    checkOut,
+    siteListingType: resolveHoldListingType(property),
+  });
+
+  const totalPrice =
+    breakdown?.total ?? nights * (property.basePrice ?? property.price ?? 0);
+
+  const priceSummaryLabel = breakdown
+    ? t(getPriceLabelKey(breakdown.displayLabel))
+    : null;
+  const formattedTotal = breakdown
+    ? formatPriceAmount(breakdown.total, property.currency)
+    : null;
 
   const addDays = (date: Date, days: number): Date => {
     const next = new Date(date);
@@ -232,11 +252,23 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       estimatedGuests: estimatedGuests.trim() ? Number(estimatedGuests) : undefined,
       idempotencyKey: `${property.id}-${checkIn.toISOString()}-${checkOut.toISOString()}-${bookingMode}`,
       listingType: resolveHoldListingType(property),
+      clientTotal: totalPrice,
     });
     setActionLoading(false);
 
     if (!response.success || !response.hold) {
-      setFlowError(response.error ?? bookingT('errors.unableToCreateHold'));
+      if (isPriceQuoteMismatchError(response.errorCode)) {
+        const serverTotal = response.validation?.pricing?.total_price;
+        setFlowError(
+          serverTotal != null
+            ? t('propertyDetail.bookingFlow.errors.priceQuoteMismatchWithTotal', {
+                total: formatPriceAmount(serverTotal, property.currency),
+              })
+            : bookingT('errors.priceQuoteMismatch'),
+        );
+      } else {
+        setFlowError(response.error ?? bookingT('errors.unableToCreateHold'));
+      }
       return;
     }
 
@@ -410,6 +442,31 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         </p>
       )}
       {validationLoading && <p className="text-xs text-charcoal">{bookingT('checkingAvailability')}</p>}
+      {priceLoading && checkIn && checkOut && (
+        <p className="text-xs text-charcoal">{bookingT('calculatingPrice')}</p>
+      )}
+      {priceError && <p className="text-xs text-red-600">{priceError}</p>}
+      {breakdown && checkIn && checkOut && !priceLoading && (
+        <div className="rounded-2xl border border-warm-gray bg-white/80 px-4 py-3 text-sm text-charcoal space-y-1">
+          <p className="font-medium text-navy">
+            {priceSummaryLabel}: {formattedTotal}
+          </p>
+          {nights > 1 && (
+            <p className="text-xs">
+              {t('propertyDetail.bookingFlow.priceSummary.nights', { count: nights })}
+              {' · '}
+              {t('propertyDetail.bookingFlow.priceSummary.avgPerNight', {
+                amount: formatPriceAmount(breakdown.nightlyAverage, property.currency),
+              })}
+            </p>
+          )}
+          {breakdown.stayFactor < 1 && (
+            <p className="text-xs text-green-700">
+              {bookingT('priceSummary.longStayApplied')}
+            </p>
+          )}
+        </div>
+      )}
       {validationError && <p className="text-xs text-red-600">{validationError}</p>}
       {flowError && <p className="text-xs text-red-600">{flowError}</p>}
 
@@ -418,7 +475,14 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           variant="primary"
           size="lg"
           className="w-full bg-gold text-navy hover:bg-gold-dark"
-          disabled={!checkIn || !checkOut || !!validationError || actionLoading}
+          disabled={
+            !checkIn ||
+            !checkOut ||
+            !!validationError ||
+            actionLoading ||
+            priceLoading ||
+            !breakdown
+          }
           onClick={handleCreateHold}
         >
           {actionLoading

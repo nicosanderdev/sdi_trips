@@ -2,6 +2,9 @@
   "layout": {
     "documentTitle": "En cartelera - Espacios"
   },
+  "pricing": {
+    "perEvent": "per event"
+  },
   "brand": {
     "venue": "En cartelera - ",
     "space": "Espacios",

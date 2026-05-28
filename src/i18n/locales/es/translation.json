@@ -450,6 +450,12 @@
       "singleNightHint": "Selecciona un solo día. El check-out será automáticamente al día siguiente.",
       "holdActiveFor": "Reserva temporal activa por:",
       "checkingAvailability": "Validando reglas y disponibilidad...",
+      "calculatingPrice": "Calculando precio...",
+      "priceSummary": {
+        "nights": "{{count}} noches",
+        "avgPerNight": "{{amount}} promedio por noche",
+        "longStayApplied": "Descuento por estadía larga aplicado"
+      },
       "confirmingMessage": "Confirmando tu reserva...",
       "modal": {
         "title": "Completa tu reserva"
@@ -490,7 +496,9 @@
         "holdNoLongerValid": "Tu reserva temporal ya no es válida.",
         "couldNotConfirmReservation": "No se pudo confirmar la reserva.",
         "guestFieldsRequired": "Nombre, apellido, correo y teléfono son obligatorios.",
-        "guestBookingOverlap": "Ya tenés una reserva para estas fechas."
+        "guestBookingOverlap": "Ya tenés una reserva para estas fechas.",
+        "priceQuoteMismatch": "El precio se actualizó. Revisá e intentá de nuevo.",
+        "priceQuoteMismatchWithTotal": "El precio cambió. Total actualizado: {{total}}. Intentá de nuevo."
       }
     },
     "host": {
@@ -522,6 +530,8 @@
       "similarProperties": "Propiedades similares"
     },
     "pricing": {
+      "loading": "Cargando precio...",
+      "fromHint": "Seleccioná fechas para el total exacto",
       "perNight": "por noche",
       "total": "Total",
       "guests": "Huéspedes",
@@ -1148,6 +1158,11 @@
       "viewDetails": "Ver Detalles",
       "perNight": "/noche"
     }
+  },
+  "pricing": {
+    "from": "Desde",
+    "perNight": "por noche",
+    "totalStay": "total estadía"
   },
   "propertyCard": {
     "perNight": "/noche",

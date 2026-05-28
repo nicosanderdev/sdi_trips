@@ -111,6 +111,12 @@ export interface RpcSummerRentPropertyRow {
   Currency: Listing['Currency'];
   SalePrice: Listing['SalePrice'];
   RentPrice: Listing['RentPrice'];
+  BasePrice?: number | null;
+  MinPrice?: number | null;
+  MaxPrice?: number | null;
+  LongStayDiscountEnabled?: boolean | null;
+  LongStayMinDays?: number | null;
+  LongStayDiscountPercentage?: number | null;
   HasCommonExpenses: Listing['HasCommonExpenses'];
   CommonExpensesValue: Listing['CommonExpensesValue'];
   IsElectricityIncluded: Listing['IsElectricityIncluded'];

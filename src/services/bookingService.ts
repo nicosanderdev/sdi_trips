@@ -57,13 +57,25 @@ export interface CreateBookingHoldParams {
   idempotencyKey?: string;
   /** Site listing type; defaults to current deployment (main/alt). */
   listingType?: GuestSiteListingType;
+  /** Client-computed total for dynamic pricing tamper check */
+  clientTotal?: number;
+}
+
+export interface BookingHoldPricingValidation {
+  nightly_price?: number;
+  nights?: number;
+  total_price?: number;
 }
 
 export interface BookingHoldResponse {
   success: boolean;
   hold?: BookingHold;
-  validation?: Record<string, unknown>;
+  validation?: {
+    pricing?: BookingHoldPricingValidation;
+    [key: string]: unknown;
+  };
   error?: string;
+  errorCode?: string;
 }
 
 export interface OtpResponse {
@@ -275,6 +287,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
       p_ip_hash: params.ipHash ?? null,
       p_idempotency_key: params.idempotencyKey ?? null,
       p_listing_type: listingType,
+      p_client_total: params.clientTotal ?? null,
     });
 
     if (error) {
@@ -284,10 +297,12 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
 
     const payload = data as Record<string, unknown> | null;
     if (!payload?.success) {
+      const errorCode = payload?.error_code as string | undefined;
       return {
         success: false,
         error: (payload?.error as string | undefined) ?? 'Unable to hold selected dates',
-        validation: (payload?.validation as Record<string, unknown> | undefined),
+        errorCode,
+        validation: payload?.validation as BookingHoldResponse['validation'],
       };
     }
 
@@ -304,7 +319,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
     return {
       success: true,
       hold: mapHoldRow(holdRow),
-      validation: (payload?.validation as Record<string, unknown> | undefined),
+      validation: payload?.validation as BookingHoldResponse['validation'],
     };
   } catch (error) {
     console.error('Unexpected error creating booking hold:', error);

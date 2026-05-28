@@ -1,5 +1,6 @@
 import type { Property } from '../types';
 import { supabase } from '../lib/supabase';
+import { mapRpcPricingFields } from './pricing/listingPricing';
 
 export type VenueEventTag = 'wedding' | 'corporate' | 'party' | 'workshop';
 
@@ -29,6 +30,7 @@ export interface EventVenueFilters {
 
 interface EventVenueRpcRow {
   EstatePropertyId: string;
+  ListingId?: string;
   OwnerId: string | null;
   Neighborhood: string | null;
   City: string | null;
@@ -45,6 +47,12 @@ interface EventVenueRpcRow {
   Currency: number;
   RentPrice: number | null;
   SalePrice: number | null;
+  BasePrice?: number | null;
+  MinPrice?: number | null;
+  MaxPrice?: number | null;
+  LongStayDiscountEnabled?: boolean | null;
+  LongStayMinDays?: number | null;
+  LongStayDiscountPercentage?: number | null;
   IsActive: boolean;
   IsPropertyVisible: boolean;
   BlockedForBooking: boolean;
@@ -151,7 +159,8 @@ function mapRow(row: EventVenueRpcRow): EventVenue {
   const maxGuests = row.MaxGuests ?? row.ListingCapacity ?? row.Capacity ?? 0;
   const amenities = row.AmenityNames ?? [];
   const eventTypes = inferEventTypes(row.AllowedEventsDescription);
-  const price = row.RentPrice ?? row.SalePrice ?? 0;
+  const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
+  const price = pricing.basePrice;
   const venueName = row.Title ?? 'Untitled venue';
 
   return {
@@ -161,6 +170,13 @@ function mapRow(row: EventVenueRpcRow): EventVenue {
     subtitle: row.AllowedEventsDescription ?? 'Event-ready venue for curated experiences.',
     location,
     price,
+    listingId: pricing.listingId ?? row.ListingId,
+    basePrice: pricing.basePrice,
+    minPrice: pricing.minPrice,
+    maxPrice: pricing.maxPrice,
+    longStayDiscountEnabled: pricing.longStayDiscountEnabled,
+    longStayMinDays: pricing.longStayMinDays,
+    longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: row.Currency === 1 ? 'UYU' : 'USD',
     images: FALLBACK_IMAGES,
     bedrooms: row.Bedrooms ?? 0,

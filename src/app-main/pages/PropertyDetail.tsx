@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
@@ -13,6 +13,11 @@ import { logPropertyVisit } from '../../services/propertyVisitService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import type { Property } from '../../types';
+import { useDisplayPrice } from '../../hooks/useDisplayPrice';
+import {
+  formatPriceAmount,
+  getPriceLabelKey,
+} from '../../services/pricing/formatPrice';
 import {
     MapPin,
     Users,
@@ -49,6 +54,46 @@ const PropertyDetail: React.FC = () => {
     const [showBookingCalendar, setShowBookingCalendar] = useState(false);
     const { t } = useTranslation();
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+
+    const placeholderProperty = useMemo<Property>(
+        () => ({
+            id: '',
+            title: '',
+            location: '',
+            price: 0,
+            basePrice: 0,
+            currency: 'USD',
+            images: [],
+            bedrooms: 0,
+            bathrooms: 0,
+            maxGuests: 0,
+            description: '',
+            amenities: [],
+            rating: 0,
+            reviewCount: 0,
+            host: { id: '', name: '', email: '', verified: false },
+            available: false,
+            coordinates: { lat: 0, lng: 0 },
+        }),
+        [],
+    );
+
+    const { breakdown: exploreBreakdown, loading: explorePriceLoading } = useDisplayPrice({
+        property: property ?? placeholderProperty,
+        enabled: Boolean(property),
+    });
+
+    const sidebarPriceAmount = exploreBreakdown
+        ? exploreBreakdown.displayLabel === 'total_stay'
+            ? exploreBreakdown.total
+            : exploreBreakdown.nightlyAverage
+        : property?.price ?? 0;
+    const sidebarPriceLabelKey = exploreBreakdown
+        ? getPriceLabelKey(exploreBreakdown.displayLabel)
+        : 'pricing.perNight';
+    const sidebarFormattedPrice = property
+        ? formatPriceAmount(sidebarPriceAmount, property.currency)
+        : '';
 
     // Fetch property data
     useEffect(() => {
@@ -515,12 +560,18 @@ const PropertyDetail: React.FC = () => {
                                 <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(10,26,47,0.5)]">
                                     <div className="space-y-2 text-center">
                                         <p className="text-xs uppercase tracking-[0.4em] text-charcoal/70">
-                                            {t('propertyDetail.cta.pricePerNight', {
-                                                price: `$${property.price}`
-                                            })}
+                                            {explorePriceLoading
+                                                ? t('propertyDetail.pricing.loading')
+                                                : t(sidebarPriceLabelKey)}
                                         </p>
-                                        <div className="text-3xl font-semibold text-navy">${property.price}</div>
-                                        <p className="text-sm text-charcoal">{t('propertyDetail.pricing.perNight')}</p>
+                                        <div className="text-3xl font-semibold text-navy">
+                                            {explorePriceLoading ? '…' : sidebarFormattedPrice}
+                                        </div>
+                                        <p className="text-sm text-charcoal">
+                                            {exploreBreakdown?.displayLabel === 'from'
+                                                ? t('propertyDetail.pricing.fromHint')
+                                                : t('propertyDetail.pricing.perNight')}
+                                        </p>
                                     </div>
                                     <Button
                                         variant="primary"

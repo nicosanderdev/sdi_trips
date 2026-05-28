@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
 import { Button, Input, RangeSlider, Card } from '../../components/ui';
 import PropertyCard from '../../components/sections/PropertyCard';
+import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { getFavoriteProperties, searchProperties } from '../../services/propertyService';
 import type { Property } from '../../types';
 import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
@@ -184,6 +185,23 @@ const Search: React.FC = () => {
     setSearchQuery(trimmed);
     setDebouncedSearchQuery(trimmed);
   }, [searchParams]);
+
+  useLayoutEffect(() => {
+    const checkInParam = searchParams.get('checkIn');
+    const checkOutParam = searchParams.get('checkOut');
+    if (!checkInParam && !checkOutParam) return;
+    setFilters((prev) => ({
+      ...prev,
+      checkIn: checkInParam ? new Date(checkInParam) : prev.checkIn,
+      checkOut: checkOutParam ? new Date(checkOutParam) : prev.checkOut,
+    }));
+  }, [searchParams]);
+
+  const { priceByPropertyId } = useSearchPricing(
+    properties,
+    filters.checkIn,
+    filters.checkOut,
+  );
 
   // Debounce search query
   useEffect(() => {
@@ -448,6 +466,8 @@ const Search: React.FC = () => {
       if (selectedProperty?.id === property.id) {
         return;
       }
+      const priced = priceByPropertyId.get(property.id);
+      const markerPrice = priced?.amount ?? property.price;
       const offsetCoordinates = getOffsetCoordinates(property);
       const markerElement = document.createElement('div');
       markerElement.className = `w-10 h-10 rounded-full shadow-lg cursor-pointer transition-all ${
@@ -457,7 +477,7 @@ const Search: React.FC = () => {
       }`;
       markerElement.innerHTML = `
         <div class="w-full h-full rounded-full flex items-center justify-center">
-          <span class="text-xs font-bold text-white">$${property.price}</span>
+          <span class="text-xs font-bold text-white">$${markerPrice}</span>
         </div>
       `;
 
@@ -473,6 +493,8 @@ const Search: React.FC = () => {
     });
 
     if (selectedProperty) {
+      const selectedPriced = priceByPropertyId.get(selectedProperty.id);
+      const popupPrice = selectedPriced?.amount ?? selectedProperty.price;
       const selectedOffsetCoordinates = getOffsetCoordinates(selectedProperty);
       const popup = new mapboxgl.Popup({
         closeOnClick: false,
@@ -486,7 +508,7 @@ const Search: React.FC = () => {
             <h3 class="font-semibold text-navy text-sm leading-5 max-h-10 overflow-hidden wrap-break-word">${selectedProperty.title}</h3>
             <p class="text-xs text-charcoal truncate">${selectedProperty.location}</p>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-gold">$${selectedProperty.price}${t('search.map.perNight')}</span>
+              <span class="font-bold text-gold">$${popupPrice}${t('search.map.perNight')}</span>
               <div class="flex items-center space-x-1">
                 <span class="text-xs text-charcoal">★ ${selectedProperty.rating}</span>
               </div>
@@ -502,7 +524,7 @@ const Search: React.FC = () => {
 
       popupsRef.current.push(popup);
     }
-  }, [visibleProperties, hoveredProperty, selectedProperty, t, getOffsetCoordinates]);
+  }, [visibleProperties, hoveredProperty, selectedProperty, t, getOffsetCoordinates, priceByPropertyId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -831,6 +853,8 @@ const Search: React.FC = () => {
                     >
                       <PropertyCard
                         property={property}
+                        displayAmount={priceByPropertyId.get(property.id)?.amount}
+                        displayLabelKey={priceByPropertyId.get(property.id)?.labelKey}
                         onToggleWishlist={handleToggleWishlist}
                         isInWishlist={wishlistIds.includes(property.id)}
                         showWishlist={!!user}
