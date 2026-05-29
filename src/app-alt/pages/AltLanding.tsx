@@ -52,9 +52,12 @@ export default function AltLanding() {
 
   const searchHref = useMemo(() => {
     const params = new URLSearchParams();
-    if (eventDate) params.set('date', eventDate);
+    if (eventDate) {
+      params.set('from', eventDate);
+      params.set('to', eventDate);
+    }
     const guests = parseInt(guestCount, 10);
-    if (Number.isFinite(guests) && guests >= 1) params.set('guests', String(guests));
+    if (Number.isFinite(guests) && guests >= 1) params.set('capacityMin', String(guests));
     const q = params.toString();
     return q ? `/search?${q}` : '/search';
   }, [eventDate, guestCount]);
