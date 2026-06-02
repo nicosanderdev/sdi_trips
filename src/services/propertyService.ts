@@ -65,7 +65,7 @@ function mapPublicHostProfile(ownerId: string | null | undefined): Property['hos
 /**
  * Transform SummerRent RPC row to frontend Property type
  */
-function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
+export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
   const location = [
     row.Neighborhood,
     row.City,

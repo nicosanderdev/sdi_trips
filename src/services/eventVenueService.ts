@@ -154,7 +154,7 @@ function mapPublicVenueHost(ownerId: string | null | undefined): Property['host'
   };
 }
 
-function mapRow(row: EventVenueRpcRow): EventVenue {
+export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
   const location = [row.Neighborhood, row.City, row.State].filter(Boolean).join(', ') || 'Location not specified';
   const maxGuests = row.MaxGuests ?? row.ListingCapacity ?? row.Capacity ?? 0;
   const amenities = row.AmenityNames ?? [];
@@ -230,7 +230,7 @@ export async function searchEventVenues(
     throw error;
   }
 
-  let venues = ((data ?? []) as EventVenueRpcRow[]).map(mapRow);
+  let venues = ((data ?? []) as EventVenueRpcRow[]).map(mapEventVenueFromRpc);
   if (filters.eventType) {
     venues = venues.filter((venue) => venue.eventTypeTags.includes(filters.eventType as VenueEventTag));
   }
@@ -259,5 +259,5 @@ export async function getEventVenueById(id: string): Promise<EventVenue | null> 
   }
 
   const row = ((data ?? []) as EventVenueRpcRow[])[0];
-  return row ? mapRow(row) : null;
+  return row ? mapEventVenueFromRpc(row) : null;
 }

@@ -6,7 +6,9 @@ import { Layout } from '../../components/layout';
 import { Button, Input, RangeSlider, Card } from '../../components/ui';
 import PropertyCard from '../../components/sections/PropertyCard';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
-import { getFavoriteProperties, searchProperties } from '../../services/propertyService';
+import { usePortalPropertySearch } from '../../hooks/usePortalPropertySearch';
+import { getFavoriteProperties } from '../../services/propertyService';
+import { toIsoDate } from '../../services/pricing/listingPricing';
 import type { Property } from '../../types';
 import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
 import uyCitiesData from '../../data/uy-cities.json';
@@ -61,13 +63,14 @@ const Search: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
-  const [properties, setProperties] = useState<Property[]>([]);
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [memberId, setMemberId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mapBounds, setMapBounds] = useState<mapboxgl.LngLatBounds | null>(null);
+  const [debouncedMapBounds, setDebouncedMapBounds] = useState<mapboxgl.LngLatBounds | null>(null);
+  const [mapCenter, setMapCenter] = useState({ lat: -30.901139, lng: -55.543487 });
   const [mapViewport, setMapViewport] = useState({
     latitude: -30.901139,
     longitude: -55.543487,
@@ -211,42 +214,61 @@ const Search: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [searchQuery]);
 
+  // Debounce map bounds for portal search refetch
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedMapBounds(mapBounds);
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [mapBounds]);
+
   function findExactCityMatch(query: string): UyCity | undefined {
     const q = query.trim().toLowerCase();
     return uyCities.find((c) => c.name.toLowerCase() === q);
   }
 
-  // Fetch properties based on current non-location filters
-  const fetchProperties = useCallback(
-    async () => {
-      try {
-        const trimmedLocation = debouncedSearchQuery.trim();
-        const shouldApplyPriceRange =
-          filters.priceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
-          filters.priceRange[1] !== DEFAULT_PRICE_RANGE[1];
-        const searchFilters = {
-          priceRange: shouldApplyPriceRange ? filters.priceRange : undefined,
-          bedrooms: filters.bedrooms > 0 ? filters.bedrooms : undefined,
-          guests: filters.guests > 0 ? filters.guests : undefined,
-          amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
-          minRating: filters.minRating > 0 ? filters.minRating : undefined,
-          location: trimmedLocation.length > 0 ? trimmedLocation : undefined,
-        };
+  const portalRpcFilters = useMemo(() => {
+    const trimmedLocation = debouncedSearchQuery.trim();
+    const exactCity = findExactCityMatch(trimmedLocation);
+    const shouldApplyPriceRange =
+      filters.priceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
+      filters.priceRange[1] !== DEFAULT_PRICE_RANGE[1];
 
-        const result = await searchProperties(searchFilters, 1, 50);
-        setProperties(result.properties);
-      } catch (err) {
-        console.error('Error fetching properties:', err);
-        setProperties([]);
-      }
-    },
-    [filters, debouncedSearchQuery]
+    return {
+      swLat: debouncedMapBounds?.getSouth(),
+      neLat: debouncedMapBounds?.getNorth(),
+      swLng: debouncedMapBounds?.getWest(),
+      neLng: debouncedMapBounds?.getEast(),
+      city: exactCity?.name,
+      searchText: exactCity ? undefined : trimmedLocation || undefined,
+      minPrice: shouldApplyPriceRange ? filters.priceRange[0] : undefined,
+      maxPrice: shouldApplyPriceRange ? filters.priceRange[1] : undefined,
+      bedroomsMin: filters.bedrooms > 0 ? filters.bedrooms : undefined,
+      capacityMin: filters.guests > 0 ? filters.guests : undefined,
+      checkIn: filters.checkIn ? toIsoDate(filters.checkIn) : undefined,
+      checkOut: filters.checkOut ? toIsoDate(filters.checkOut) : undefined,
+      centerLat: mapCenter.lat,
+      centerLng: mapCenter.lng,
+    };
+  }, [debouncedSearchQuery, debouncedMapBounds, filters, mapCenter.lat, mapCenter.lng]);
+
+  const portalPostFilters = useMemo(
+    () => ({
+      amenityNames: filters.amenities.length > 0 ? filters.amenities : undefined,
+      minRating: filters.minRating > 0 ? filters.minRating : undefined,
+    }),
+    [filters.amenities, filters.minRating],
   );
 
-  // Fetch properties when debounced location or filters change
-  useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+  const {
+    properties,
+    loading: searchLoading,
+    error: searchError,
+  } = usePortalPropertySearch({
+    rpcFilters: portalRpcFilters,
+    postFilters: portalPostFilters,
+    hydrateLimit: 50,
+  });
 
   // Keep map in sync with current results so markers/list are visible.
   useEffect(() => {
@@ -390,20 +412,6 @@ const Search: React.FC = () => {
     }
   };
 
-  const visibleProperties = useMemo(() => {
-    if (!mapBounds) return properties;
-
-    return properties.filter((property) => {
-      const { lng, lat } = property.coordinates;
-      return (
-        lng >= mapBounds.getWest() &&
-        lng <= mapBounds.getEast() &&
-        lat >= mapBounds.getSouth() &&
-        lat <= mapBounds.getNorth()
-      );
-    });
-  }, [properties, mapBounds]);
-
   const focusOnProperty = useCallback(
     (property: Property) => {
       setSelectedProperty(property);
@@ -435,11 +443,16 @@ const Search: React.FC = () => {
     mapRef.current = map;
 
     map.on('load', () => {
-      setMapBounds(map.getBounds());
+      const bounds = map.getBounds();
+      setMapBounds(bounds);
+      const center = map.getCenter();
+      setMapCenter({ lat: center.lat, lng: center.lng });
     });
 
     map.on('moveend', () => {
       setMapBounds(map.getBounds());
+      const center = map.getCenter();
+      setMapCenter({ lat: center.lat, lng: center.lng });
     });
 
     return () => {
@@ -462,7 +475,7 @@ const Search: React.FC = () => {
     markersRef.current = [];
     popupsRef.current = [];
 
-    visibleProperties.forEach((property) => {
+    properties.forEach((property) => {
       if (selectedProperty?.id === property.id) {
         return;
       }
@@ -524,7 +537,7 @@ const Search: React.FC = () => {
 
       popupsRef.current.push(popup);
     }
-  }, [visibleProperties, hoveredProperty, selectedProperty, t, getOffsetCoordinates, priceByPropertyId]);
+  }, [properties, hoveredProperty, selectedProperty, t, getOffsetCoordinates, priceByPropertyId, focusOnProperty]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -608,13 +621,13 @@ const Search: React.FC = () => {
   // Delay visible properties list rendering slightly for smoother UX
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setDelayedVisibleProperties(visibleProperties);
+      setDelayedVisibleProperties(properties);
     }, 500);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [visibleProperties]);
+  }, [properties]);
 
   const handleToggleWishlist = async (propertyId: string) => {
     if (!user) return;
@@ -864,7 +877,13 @@ const Search: React.FC = () => {
                   );
                 })}
 
-                {delayedVisibleProperties.length === 0 && (
+                {searchLoading && (
+                  <p className="text-center py-8 text-charcoal">{t('search.results.loading', { defaultValue: 'Loading properties…' })}</p>
+                )}
+                {searchError && !searchLoading && (
+                  <p className="text-center py-8 text-red-600">{searchError}</p>
+                )}
+                {!searchLoading && !searchError && delayedVisibleProperties.length === 0 && (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🏠</div>
                     <h3 className="text-xl font-semibold text-navy mb-2">{t('search.results.empty.title')}</h3>
