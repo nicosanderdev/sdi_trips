@@ -132,8 +132,16 @@
     "pricingHintTitle": "Pricing hint",
     "pricingHintDesc": "{{priceHint}}. {{suffix}}",
     "pricingHintSuffix": "Final quotes depend on date, staffing, and add-ons.",
+    "someFeatures": "Some highlights",
     "amenities": "Amenities",
+    "venueRules": "Policies & venue rules",
     "policies": "Policies & logistics",
+    "trustFooter": {
+      "heading": "How we verify venues",
+      "description": "Every venue on our platform is reviewed by our local team before listing. We visit in person, confirm the space, and ensure listing accuracy.",
+      "learnMore": "Read our full trust & quality standards",
+      "support": "Questions about this venue? Contact our support team"
+    },
     "prevImage": "Previous image",
     "nextImage": "Next image",
     "coordinatorTeam": "Venue team",

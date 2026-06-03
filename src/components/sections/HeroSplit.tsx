@@ -1,9 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Search as SearchIcon } from 'lucide-react';
 import { Button } from '../ui';
 import type { Property } from '../../types';
 import { getTopRatedPropertiesForHero } from '../../services/propertyService';
+import uyCitiesData from '../../data/uy-cities.json';
+
+const UY_CITIES_MAX_SUGGESTIONS = 10;
+
+interface UyCity {
+  name: string;
+  lat: string;
+  long: string;
+  zoom: string;
+}
+
+const uyCities: UyCity[] = uyCitiesData as UyCity[];
 
 const mockReviews = [
   {
@@ -61,10 +74,13 @@ type HeroSlide = {
 const HeroSplit: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const [heroProperties, setHeroProperties] = useState<Property[]>([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
+  const [locationQuery, setLocationQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -126,6 +142,29 @@ const HeroSplit: React.FC = () => {
 
   const currentReview = heroSlides[currentReviewIndex] ?? heroSlides[0];
 
+  const filteredCities = useMemo(() => {
+    const q = locationQuery.trim().toLowerCase();
+    const pool = q
+      ? uyCities.filter((c) => c.name.toLowerCase().includes(q))
+      : uyCities.filter((c) => c.zoom === '9');
+    return pool.slice(0, UY_CITIES_MAX_SUGGESTIONS);
+  }, [locationQuery]);
+
+  const handleSelectCity = useCallback((city: UyCity) => {
+    setLocationQuery(city.name);
+    setShowSuggestions(false);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <section className="relative min-h-screen overflow-hidden bg-navy isolate">
       <div
@@ -151,43 +190,88 @@ const HeroSplit: React.FC = () => {
           <p className="mt-3 text-white/85 text-base font-medium">{t('landing.hero.support')}</p>
 
           <form
-            className="mt-5 grid grid-cols-1 md:grid-cols-[1.2fr_0.9fr_auto] gap-2 w-full max-w-[720px] p-3 rounded-2xl border border-gold/40 bg-white/95 backdrop-blur-sm"
+            className="mt-5 grid grid-cols-1 md:grid-cols-[1fr_1fr_0.9fr_auto] gap-2 w-full max-w-[900px] p-3 rounded-2xl border border-gold/40 bg-white/95 backdrop-blur-sm"
             onSubmit={(event) => {
               event.preventDefault();
               const form = event.currentTarget;
               const fd = new FormData(form);
               const checkIn = String(fd.get('checkIn') ?? '').trim();
-              const params = new URLSearchParams({
-                q: 'Rivera, Uruguay',
-              });
+              const checkOut = String(fd.get('checkOut') ?? '').trim();
+              const params = new URLSearchParams();
+              const trimmedLocation = locationQuery.trim();
+              if (trimmedLocation) {
+                params.set('q', trimmedLocation);
+              }
+              if (checkIn && checkOut && checkOut <= checkIn) {
+                return;
+              }
               if (checkIn) {
                 params.set('checkIn', checkIn);
               }
-              navigate(`/search?${params.toString()}`);
+              if (checkOut) {
+                params.set('checkOut', checkOut);
+              }
+              const query = params.toString();
+              navigate(query ? `/search?${query}` : '/search');
             }}
           >
-            <label htmlFor="hero-search-date" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-              {t('landing.hero.search.dateLabel')}
+            <label htmlFor="hero-search-check-in" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+              {t('landing.hero.search.checkInLabel')}
               <input
-                id="hero-search-date"
+                id="hero-search-check-in"
                 className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
                 type="date"
                 name="checkIn"
-                aria-label={t('landing.hero.search.dateAria')}
+                aria-label={t('landing.hero.search.checkInAria')}
+              />
+            </label>
+            <label htmlFor="hero-search-check-out" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+              {t('landing.hero.search.checkOutLabel')}
+              <input
+                id="hero-search-check-out"
+                className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                type="date"
+                name="checkOut"
+                aria-label={t('landing.hero.search.checkOutAria')}
               />
             </label>
             <label htmlFor="hero-search-city" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
               {t('landing.hero.search.locationLabel')}
-              <select
-                id="hero-search-city"
-                className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                name="city"
-                aria-label={t('landing.hero.search.cityAria')}
-                defaultValue="Rivera, Uruguay"
-                disabled
-              >
-                <option value="Rivera, Uruguay">Rivera, Uruguay</option>
-              </select>
+              <div ref={searchContainerRef} className="relative">
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy/40 pointer-events-none" />
+                <input
+                  id="hero-search-city"
+                  className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm pl-9 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                  name="city"
+                  type="text"
+                  value={locationQuery}
+                  onChange={(e) => setLocationQuery(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  placeholder={t('landing.hero.search.locationPlaceholder')}
+                  aria-label={t('landing.hero.search.cityAria')}
+                  autoComplete="off"
+                />
+                {showSuggestions && filteredCities.length > 0 && (
+                  <ul
+                    className="absolute z-50 left-0 right-0 mt-1 bg-white border border-navy/15 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                    role="listbox"
+                  >
+                    {filteredCities.map((city) => (
+                      <li
+                        key={city.name}
+                        role="option"
+                        className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-gray-100 border-b border-gray-100 last:border-0"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSelectCity(city);
+                        }}
+                      >
+                        {city.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </label>
             <button
               className="inline-flex items-center justify-center rounded-full border-2 border-gold bg-gold text-navy font-semibold px-6 py-3 transition-all hover:scale-[1.04] hover:bg-navy hover:text-gold"

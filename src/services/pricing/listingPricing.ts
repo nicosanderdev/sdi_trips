@@ -23,6 +23,32 @@ export function toIsoDate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
+/** Parse YYYY-MM-DD (or ISO date prefix) as local calendar date. */
+export function parseIsoDateLocal(value: string): Date | null {
+  const datePart = value.trim().slice(0, 10);
+  const [y, m, d] = datePart.split('-').map(Number);
+  if (!y || !m || !d) {
+    const fallback = new Date(value);
+    if (Number.isNaN(fallback.getTime())) return null;
+    fallback.setHours(0, 0, 0, 0);
+    return fallback;
+  }
+  return new Date(y, m - 1, d, 0, 0, 0, 0);
+}
+
+export function buildPropertyDetailPath(
+  propertyId: string,
+  dates?: { checkIn?: Date | null; checkOut?: Date | null },
+): string {
+  const base = `/property/${propertyId}`;
+  if (!dates?.checkIn || !dates?.checkOut) return base;
+  const params = new URLSearchParams({
+    checkIn: toIsoDate(dates.checkIn),
+    checkOut: toIsoDate(dates.checkOut),
+  });
+  return `${base}?${params.toString()}`;
+}
+
 export function buildSearchContext(
   siteListingType: GuestSiteListingType,
   checkIn?: Date | null,

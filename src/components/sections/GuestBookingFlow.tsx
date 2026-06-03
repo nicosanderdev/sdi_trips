@@ -39,6 +39,10 @@ interface GuestBookingFlowProps {
   reservationManagePath?: string;
   /** `event` enables alt-site copy and phone prefix UI. Default: `rental`. */
   variant?: BookingFlowVariant;
+  /** Pre-selected check-in date (e.g. from search URL). */
+  initialCheckIn?: Date | null;
+  /** Pre-selected check-out date (e.g. from search URL). */
+  initialCheckOut?: Date | null;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,6 +60,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   property,
   reservationManagePath = '/reservation-lookup',
   variant = 'rental',
+  initialCheckIn = null,
+  initialCheckOut = null,
 }) => {
   const { t } = useTranslation();
   const isEvent = variant === 'event';
@@ -72,9 +78,11 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   );
 
   const [step, setStep] = useState<BookingStep>('dates');
-  const [checkIn, setCheckIn] = useState<Date | null>(null);
-  const [checkOut, setCheckOut] = useState<Date | null>(null);
-  const [bookingMode, setBookingMode] = useState<BookingMode>('singleNight');
+  const [checkIn, setCheckIn] = useState<Date | null>(initialCheckIn);
+  const [checkOut, setCheckOut] = useState<Date | null>(initialCheckOut);
+  const [bookingMode, setBookingMode] = useState<BookingMode>(() =>
+    variant === 'event' ? 'singleNight' : 'multipleDays',
+  );
   const [estimatedGuests, setEstimatedGuests] = useState<string>('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [validationLoading, setValidationLoading] = useState(false);
@@ -401,26 +409,28 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-navy">{bookingT('bookingModeLabel')}</label>
-        <select
-          value={bookingMode}
-          onChange={(e) => {
-            const nextMode = e.target.value as BookingMode;
-            setBookingMode(nextMode);
-            setCheckIn(null);
-            setCheckOut(null);
-            setValidationError(null);
-          }}
-          className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
-        >
-          <option value="singleNight">{bookingT('bookingModes.singleNight')}</option>
-          <option value="multipleDays">{bookingT('bookingModes.multipleDays')}</option>
-        </select>
-        {bookingMode === 'singleNight' && (
-          <p className="text-xs text-charcoal/80">{bookingT('singleNightHint')}</p>
-        )}
-      </div>
+      {isEvent && (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-navy">{bookingT('bookingModeLabel')}</label>
+          <select
+            value={bookingMode}
+            onChange={(e) => {
+              const nextMode = e.target.value as BookingMode;
+              setBookingMode(nextMode);
+              setCheckIn(null);
+              setCheckOut(null);
+              setValidationError(null);
+            }}
+            className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+          >
+            <option value="singleNight">{bookingT('bookingModes.singleNight')}</option>
+            <option value="multipleDays">{bookingT('bookingModes.multipleDays')}</option>
+          </select>
+          {bookingMode === 'singleNight' && (
+            <p className="text-xs text-charcoal/80">{bookingT('singleNightHint')}</p>
+          )}
+        </div>
+      )}
 
       <BookingDatePicker
         propertyId={property.id}

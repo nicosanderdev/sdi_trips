@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
@@ -18,6 +18,7 @@ import {
   formatPriceAmount,
   getPriceLabelKey,
 } from '../../services/pricing/formatPrice';
+import { parseIsoDateLocal } from '../../services/pricing/listingPricing';
 import {
     MapPin,
     Users,
@@ -42,6 +43,19 @@ const fallbackGalleryImages = [
 
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
+
+    const dateSearchContext = useMemo(() => {
+        const checkInParam = searchParams.get('checkIn');
+        const checkOutParam = searchParams.get('checkOut');
+        if (!checkInParam || !checkOutParam) return null;
+        const checkIn = parseIsoDateLocal(checkInParam);
+        const checkOut = parseIsoDateLocal(checkOutParam);
+        if (!checkIn || !checkOut || checkOut <= checkIn) return null;
+        return { checkIn, checkOut };
+    }, [searchParams]);
+
+    const hasDateSearchContext = dateSearchContext !== null;
 
     const [property, setProperty] = useState<Property | null>(null);
     const [loading, setLoading] = useState(true);
@@ -80,8 +94,12 @@ const PropertyDetail: React.FC = () => {
 
     const { breakdown: exploreBreakdown, loading: explorePriceLoading } = useDisplayPrice({
         property: property ?? placeholderProperty,
+        checkIn: dateSearchContext?.checkIn,
+        checkOut: dateSearchContext?.checkOut,
         enabled: Boolean(property),
     });
+
+    const showCalendar = hasDateSearchContext || showBookingCalendar;
 
     const sidebarPriceAmount = exploreBreakdown
         ? exploreBreakdown.displayLabel === 'total_stay'
@@ -221,15 +239,12 @@ const PropertyDetail: React.FC = () => {
 
     // Prepare data (heroImages and heroImageCount now computed above before early returns)
     const heroImageIndex = heroImageCount ? currentImageIndex % heroImageCount : 0;
-    const heroSubtitle =
-        property?.subtitle ||
-        property?.description?.split('. ')[0] ||
-        t('propertyDetail.propertyIdentity.defaultSubtitle');
     const hostName = property.host?.name?.trim() || t('propertyDetail.host.defaultName');
     const hostFirstName = hostName.split(' ')[0];
     const hostSinceYear = property.host?.sinceYear || '2019';
     const hostBio = property.host?.bio || t('propertyDetail.host.bioDefault');
-    const hostResponseHours = property.host?.responseTimeHours || 2;
+    const descriptionBody =
+        property.description?.trim() || t('propertyDetail.description.fallback');
     const outdoorDescription =
         property.outdoorDescription ||
         property.outdoorHighlights ||
@@ -429,9 +444,11 @@ const PropertyDetail: React.FC = () => {
                                 ))}
                             </div>
                         )}
+                    </section>
 
-                        {/* Property Identity & Trust Signals */}
-                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+                    {/* Title, features, host sidebar */}
+                    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+                        <div className="space-y-8">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2 text-sm text-charcoal/80">
                                     <MapPin className="h-4 w-4 text-gold" />
@@ -440,7 +457,15 @@ const PropertyDetail: React.FC = () => {
                                     <span>{t('propertyDetail.trustSignals.localResident')}</span>
                                 </div>
                                 <h1 className="text-4xl font-thin leading-tight text-navy">{property.title}</h1>
-                                <p className="max-w-3xl text-lg text-charcoal">{heroSubtitle}</p>
+                                <p className="max-w-3xl text-lg leading-relaxed text-charcoal whitespace-pre-line">
+                                    {descriptionBody}
+                                </p>
+                            </div>
+
+                            <section className="space-y-4">
+                                <h2 className="text-2xl font-semibold text-navy">
+                                    {t('propertyDetail.someFeatures.heading')}
+                                </h2>
                                 <div className="flex flex-wrap gap-6 text-sm text-charcoal">
                                     <div className="flex items-center gap-2">
                                         <Users className="h-5 w-5 text-gold" />
@@ -474,44 +499,47 @@ const PropertyDetail: React.FC = () => {
                                     </span>
                                     <span>({property.reviewCount ?? 0})</span>
                                 </div>
+                            </section>
 
-                                {/* Attributes Section */}
-                                <section className="space-y-4">
-                                    <h2 className="text-2xl font-semibold text-navy">
-                                        {t('propertyDetail.attributes.heading')}
-                                    </h2>
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        {[...structureAttributes, ...infrastructureAttributes].map((item) => (
-                                            <div
-                                                key={item.title}
-                                                className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4"
-                                            >
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warm-gray-light">
-                                                    {item.icon}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-charcoal">{item.title}</p>
-                                                    <p className="text-sm text-charcoal/80">{item.description}</p>
-                                                </div>
+                            <section className="space-y-4">
+                                <h2 className="text-2xl font-semibold text-navy">
+                                    {t('propertyDetail.attributes.heading')}
+                                </h2>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    {[...structureAttributes, ...infrastructureAttributes].map((item) => (
+                                        <div
+                                            key={item.title}
+                                            className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4"
+                                        >
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warm-gray-light">
+                                                {item.icon}
                                             </div>
-                                        ))}
-                                    </div>
-                                    <div className="space-y-3">
-                                        <h3 className="text-lg font-semibold text-navy">{t('propertyDetail.amenities.heading')}</h3>
-                                        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                                            {amenityList.map((amenity: string) => (
-                                                <div
-                                                    key={amenity}
-                                                    className="flex items-center gap-2 rounded-2xl border border-warm-gray bg-white/80 px-3 py-2 text-sm text-charcoal"
-                                                >
-                                                    <CheckCircle className="h-4 w-4 text-gold flex-shrink-0" />
-                                                    <span>{amenity}</span>
-                                                </div>
-                                            ))}
+                                            <div>
+                                                <p className="text-sm font-semibold text-charcoal">{item.title}</p>
+                                                <p className="text-sm text-charcoal/80">{item.description}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </section>
-                            </div>
+                                    ))}
+                                </div>
+                            </section>
+
+                            <section className="space-y-3">
+                                <h2 className="text-2xl font-semibold text-navy">
+                                    {t('propertyDetail.amenities.heading')}
+                                </h2>
+                                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                                    {amenityList.map((amenity: string) => (
+                                        <div
+                                            key={amenity}
+                                            className="flex items-center gap-2 rounded-2xl border border-warm-gray bg-white/80 px-3 py-2 text-sm text-charcoal"
+                                        >
+                                            <CheckCircle className="h-4 w-4 text-gold flex-shrink-0" />
+                                            <span>{amenity}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        </div>
                             {/* Sidebar - CTA & Host */}
                             <div className="space-y-4">
                                 <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white/80 p-6 shadow-[0_20px_40px_-20px_rgba(10,26,47,0.5)]">
@@ -542,20 +570,7 @@ const PropertyDetail: React.FC = () => {
                                             </div>
                                         ))}
                                     </div>
-                                    <p className="text-sm text-charcoal">
-                                        {t('propertyDetail.trustSignals.verificationDescription')}
-                                    </p>
-                                    <Link
-                                        to="/trust"
-                                        className="text-sm font-medium text-navy hover:text-gold transition-colors"
-                                    >
-                                        {t('propertyDetail.trustSignals.learnMore')}
-                                    </Link>
                                     <p className="text-sm leading-relaxed text-charcoal pt-2 border-t border-warm-gray">{hostBio}</p>
-                                    <p className="text-xs text-charcoal">{t('propertyDetail.host.responseTime', { hours: hostResponseHours })}</p>
-                                    <Button variant="outline" className="w-full rounded-2xl">
-                                        {t('propertyDetail.cta.sendMessage', { name: hostFirstName })}
-                                    </Button>
                                 </Card>
                                 <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(10,26,47,0.5)]">
                                     <div className="space-y-2 text-center">
@@ -573,17 +588,23 @@ const PropertyDetail: React.FC = () => {
                                                 : t('propertyDetail.pricing.perNight')}
                                         </p>
                                     </div>
-                                    <Button
-                                        variant="primary"
-                                        size="lg"
-                                        className="w-full bg-gold text-navy hover:bg-gold-dark"
-                                        onClick={() => setShowBookingCalendar((prev) => !prev)}
-                                    >
-                                        {t('propertyDetail.cta.checkAvailability')}
-                                    </Button>
-                                    {showBookingCalendar && (
-                                        <div className="relative pt-4 border-t border-warm-gray">
-                                            <GuestBookingFlow property={property} />
+                                    {!hasDateSearchContext && (
+                                        <Button
+                                            variant="primary"
+                                            size="lg"
+                                            className="w-full bg-gold text-navy hover:bg-gold-dark"
+                                            onClick={() => setShowBookingCalendar((prev) => !prev)}
+                                        >
+                                            {t('propertyDetail.cta.checkAvailability')}
+                                        </Button>
+                                    )}
+                                    {showCalendar && (
+                                        <div className={`relative ${hasDateSearchContext ? 'pt-2' : 'pt-4 border-t border-warm-gray'}`}>
+                                            <GuestBookingFlow
+                                                property={property}
+                                                initialCheckIn={dateSearchContext?.checkIn}
+                                                initialCheckOut={dateSearchContext?.checkOut}
+                                            />
                                         </div>
                                     )}
                                     <p className="text-xs text-charcoal">{t('propertyDetail.cta.confirmWithHost', { name: hostFirstName })}</p>
@@ -597,24 +618,9 @@ const PropertyDetail: React.FC = () => {
                                     </Link>
                                 </Card>
                             </div>
-                        </div>
-                    </section>
+                    </div>
 
-                    {/* Reviews, house layout, outdoor, map, all photos */}
                     <section className="space-y-8">
-                        {id && (
-                            <PropertyReviewsSection
-                                propertyId={id}
-                                propertyTitle={property.title}
-                                fallbackRating={property.rating}
-                                fallbackReviewCount={property.reviewCount}
-                            />
-                        )}
-
-                        {orderedSections.map((section) => (
-                            <PropertySection key={section.id} section={section} />
-                        ))}
-
                         {/* Neighborhood & map */}
                         <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
                             <div className="flex items-center gap-2 text-xl font-semibold text-navy">
@@ -663,9 +669,22 @@ const PropertyDetail: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+
+                        {orderedSections.length > 0 &&
+                            orderedSections.map((section) => (
+                                <PropertySection key={section.id} section={section} />
+                            ))}
+
+                        {id && (
+                            <PropertyReviewsSection
+                                propertyId={id}
+                                propertyTitle={property.title}
+                                fallbackRating={property.rating}
+                                fallbackReviewCount={property.reviewCount}
+                            />
+                        )}
                     </section>
 
-                    {/* Policies - full width */}
                     <section className="mt-10 space-y-4">
                         <h2 className="text-2xl font-semibold text-navy">{t('propertyDetail.policies.heading')}</h2>
                         <div className="grid gap-4 md:grid-cols-2">

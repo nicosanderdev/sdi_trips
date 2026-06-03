@@ -132,8 +132,16 @@
     "pricingHintTitle": "Precio orientativo",
     "pricingHintDesc": "{{priceHint}}. {{suffix}}",
     "pricingHintSuffix": "Las cotizaciones finales dependen de la fecha, personal y extras.",
+    "someFeatures": "Algunas características",
     "amenities": "Servicios y comodidades",
+    "venueRules": "Políticas y reglas del local",
     "policies": "Políticas y logística",
+    "trustFooter": {
+      "heading": "Cómo verificamos los locales",
+      "description": "Cada espacio en nuestra plataforma es revisado por nuestro equipo local antes de publicarse. Visitamos en persona, confirmamos el lugar y garantizamos precisión en el listado.",
+      "learnMore": "Lee nuestros estándares de confianza y calidad",
+      "support": "¿Preguntas sobre este espacio? Contacta a nuestro equipo de soporte"
+    },
     "prevImage": "Imagen anterior",
     "nextImage": "Imagen siguiente",
     "coordinatorTeam": "Equipo del espacio",

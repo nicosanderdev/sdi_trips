@@ -146,7 +146,10 @@
         "locationLabel": "Ubicación",
         "datePlaceholder": "Fechas (check-in - check-out)",
         "dateAria": "Rango de fechas",
-        "dateLabel": "Fecha de viaje",
+        "checkInLabel": "Entrada",
+        "checkInAria": "Fecha de entrada",
+        "checkOutLabel": "Salida",
+        "checkOutAria": "Fecha de salida",
         "cityPlaceholder": "Ubicación",
         "cityAria": "Ciudad o localidad (Uruguay)",
         "submit": "Buscar"
@@ -500,6 +503,9 @@
         "priceQuoteMismatch": "El precio se actualizó. Revisá e intentá de nuevo.",
         "priceQuoteMismatchWithTotal": "El precio cambió. Total actualizado: {{total}}. Intentá de nuevo."
       }
+    },
+    "someFeatures": {
+      "heading": "Algunas características"
     },
     "host": {
       "heading": "Conoce a tu anfitrión",
