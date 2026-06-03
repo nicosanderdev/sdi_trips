@@ -6,7 +6,9 @@ import { Layout } from '../../components/layout';
 import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
 import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
-import PropertySection from '../../components/sections/PropertySection';
+import PropertyContentSections from '../../components/sections/PropertyContentSections';
+import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
+import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import { getPropertyById } from '../../services/propertyService';
 import { getUtmSourceAndMedium, trackEvent } from '../../lib/analytics';
 import { logPropertyVisit } from '../../services/propertyVisitService';
@@ -24,11 +26,8 @@ import {
     Users,
     Bed,
     Bath,
-    Star,
     ChevronLeft,
     ChevronRight,
-    Wifi,
-    Shield,
     MessageCircle,
     X,
     CheckCircle
@@ -66,7 +65,7 @@ const PropertyDetail: React.FC = () => {
     const [galleryOpacity, setGalleryOpacity] = useState(1);
     const [lightboxOpacity, setLightboxOpacity] = useState(1);
     const [showBookingCalendar, setShowBookingCalendar] = useState(false);
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
     const placeholderProperty = useMemo<Property>(
@@ -245,99 +244,9 @@ const PropertyDetail: React.FC = () => {
     const hostBio = property.host?.bio || t('propertyDetail.host.bioDefault');
     const descriptionBody =
         property.description?.trim() || t('propertyDetail.description.fallback');
-    const outdoorDescription =
-        property.outdoorDescription ||
-        property.outdoorHighlights ||
-        t('propertyDetail.attributes.outdoor.descriptionDefault');
     const neighborhoodCopy =
         property.neighborhoodDetails || t('propertyDetail.detailSections.neighborhood.default');
-    const orderedSections = (property.sections ?? [])
-        .slice()
-        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-
-    // Grouped attributes (structure, infrastructure, amenities/location)
-    const structureAttributes = [
-        {
-            title: t('propertyDetail.attributes.sleeping.title'),
-            description: t('propertyDetail.attributes.sleeping.description', {
-                bedrooms: property.bedrooms || 0
-            }),
-            icon: <Bed className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.bathrooms.title'),
-            description: t('propertyDetail.attributes.bathrooms.description', {
-                count: property.bathrooms || 0
-            }),
-            icon: <Bath className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.comfort.title'),
-            description: t('propertyDetail.attributes.comfort.description'),
-            icon: <Users className="h-6 w-6 text-gold" />
-        }
-    ];
-
-    const infrastructureAttributes = [
-        {
-            title: t('propertyDetail.attributes.kitchen.title'),
-            description: t('propertyDetail.attributes.kitchen.description'),
-            icon: <Shield className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.wifi.title'),
-            description: t('propertyDetail.attributes.wifi.description'),
-            icon: <Wifi className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.outdoor.title'),
-            description: outdoorDescription,
-            icon: <CheckCircle className="h-6 w-6 text-gold" />
-        }
-    ];
-
     const secondaryGalleryImages = heroImages.slice(0, 6);
-    const amenityList = property.amenities?.length ? property.amenities : [t('propertyDetail.amenities.empty')];
-
-    const policyBlocks = [
-        {
-            title: t('propertyDetail.policies.checkIn.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.checkIn.times', { time: '3 PM' })}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.checkIn.flexible')}</p>
-                </>
-            )
-        },
-        {
-            title: t('propertyDetail.policies.cancellation.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.cancellation.free', { days: 7 })}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.cancellation.refund')}</p>
-                </>
-            )
-        },
-        {
-            title: t('propertyDetail.policies.houseRules.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.houseRules.quiet')}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.houseRules.smoking')}</p>
-                </>
-            )
-        },
-        {
-            title: t('propertyDetail.policies.children.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.children.childrenWelcome')}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.children.petsPolicy')}</p>
-                </>
-            )
-        }
-    ];
-
 
     const handleImageClick = (index: number) => {
         setLightboxIndex(index);
@@ -492,53 +401,15 @@ const PropertyDetail: React.FC = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 text-sm text-charcoal">
-                                    <Star className="h-4 w-4 fill-gold text-gold" />
-                                    <span className="font-semibold text-navy">
-                                        {property.rating?.toFixed(1) ?? '—'}
-                                    </span>
-                                    <span>({property.reviewCount ?? 0})</span>
-                                </div>
                             </section>
 
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-semibold text-navy">
-                                    {t('propertyDetail.attributes.heading')}
-                                </h2>
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    {[...structureAttributes, ...infrastructureAttributes].map((item) => (
-                                        <div
-                                            key={item.title}
-                                            className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4"
-                                        >
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warm-gray-light">
-                                                {item.icon}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-charcoal">{item.title}</p>
-                                                <p className="text-sm text-charcoal/80">{item.description}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-
-                            <section className="space-y-3">
-                                <h2 className="text-2xl font-semibold text-navy">
-                                    {t('propertyDetail.amenities.heading')}
-                                </h2>
-                                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                                    {amenityList.map((amenity: string) => (
-                                        <div
-                                            key={amenity}
-                                            className="flex items-center gap-2 rounded-2xl border border-warm-gray bg-white/80 px-3 py-2 text-sm text-charcoal"
-                                        >
-                                            <CheckCircle className="h-4 w-4 text-gold flex-shrink-0" />
-                                            <span>{amenity}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
+                            <PropertyAmenitySections
+                                publicAmenities={property.publicAmenities}
+                                fallbackNames={property.amenities}
+                                locale={i18n.language}
+                                describedHeading={t('propertyDetail.attributes.heading')}
+                                nameOnlyHeading={t('propertyDetail.amenities.heading')}
+                            />
                         </div>
                             {/* Sidebar - CTA & Host */}
                             <div className="space-y-4">
@@ -621,6 +492,12 @@ const PropertyDetail: React.FC = () => {
                     </div>
 
                     <section className="space-y-8">
+                        <PropertyContentSections
+                            publicContentSections={property.publicContentSections}
+                            legacySections={property.sections}
+                            locale={i18n.language}
+                        />
+
                         {/* Neighborhood & map */}
                         <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
                             <div className="flex items-center gap-2 text-xl font-semibold text-navy">
@@ -647,16 +524,9 @@ const PropertyDetail: React.FC = () => {
 
                         {/* All photos */}
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-xl font-semibold text-navy">
-                                    {t('propertyDetail.secondaryGallery.heading')}
-                                </h3>
-                                {secondaryGalleryImages.length > 1 && (
-                                    <span className="text-sm text-charcoal/70">
-                                        {t('propertyDetail.heroGallery.viewAllPhotos')}
-                                    </span>
-                                )}
-                            </div>
+                            <h3 className="text-xl font-semibold text-navy">
+                                {t('propertyDetail.secondaryGallery.heading')}
+                            </h3>
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 {secondaryGalleryImages.map((image: string, index: number) => (
                                     <button
@@ -670,11 +540,6 @@ const PropertyDetail: React.FC = () => {
                             </div>
                         </div>
 
-                        {orderedSections.length > 0 &&
-                            orderedSections.map((section) => (
-                                <PropertySection key={section.id} section={section} />
-                            ))}
-
                         {id && (
                             <PropertyReviewsSection
                                 propertyId={id}
@@ -685,20 +550,11 @@ const PropertyDetail: React.FC = () => {
                         )}
                     </section>
 
-                    <section className="mt-10 space-y-4">
-                        <h2 className="text-2xl font-semibold text-navy">{t('propertyDetail.policies.heading')}</h2>
-                        <div className="grid gap-4 md:grid-cols-2">
-                            {policyBlocks.map((policy) => (
-                                <div
-                                    key={policy.title}
-                                    className="space-y-2 rounded-2xl border border-warm-gray bg-white/90 p-4 text-sm text-charcoal"
-                                >
-                                    <h3 className="text-base font-semibold text-navy">{policy.title}</h3>
-                                    <div className="space-y-1">{policy.body}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                    <PropertyPolicySections
+                        publicPolicies={property.publicPolicies}
+                        heading={t('propertyDetail.policies.heading')}
+                        locale={i18n.language}
+                    />
                 </div>
 
                 {/* Trust Footer */}

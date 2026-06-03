@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
 import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
-import PropertySection from '../../components/sections/PropertySection';
+import PropertyContentSections from '../../components/sections/PropertyContentSections';
+import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
+import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import {
   MapPin,
   Users,
@@ -15,15 +17,11 @@ import {
 } from 'lucide-react';
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
-import {
-  buildVenuePriceHint,
-  formatPriceAmount,
-  getPriceLabelKey,
-} from '../../services/pricing';
+import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
 
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [venue, setVenue] = useState<EventVenue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +56,6 @@ export default function AltVenueDetail() {
         eventTypeTags: [],
         eventTypes: [],
         layoutNotes: '',
-        policies: [],
         hasCatering: false,
         hasSoundSystem: false,
       }) as EventVenue,
@@ -70,20 +67,6 @@ export default function AltVenueDetail() {
     siteListingType: 'EventVenue',
     enabled: Boolean(venue),
   });
-
-  const explorePriceHint = useMemo(() => {
-    if (!venue || !exploreBreakdown) return venue?.priceHint ?? '';
-    const amount =
-      exploreBreakdown.displayLabel === 'total_stay'
-        ? exploreBreakdown.total
-        : exploreBreakdown.nightlyAverage;
-    return buildVenuePriceHint(
-      amount,
-      getPriceLabelKey(exploreBreakdown.displayLabel),
-      venue.currency,
-      t,
-    );
-  }, [venue, exploreBreakdown, t]);
 
   useEffect(() => {
     const load = async () => {
@@ -134,31 +117,6 @@ export default function AltVenueDetail() {
       </div>
     );
   }
-
-  const suffix = t('alt.venueDetail.pricingHintSuffix');
-  const orderedSections = (venue.sections ?? [])
-    .slice()
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-  const attributeBlocks = [
-    {
-      title: t('alt.venueDetail.capacityLayoutTitle'),
-      description: t('alt.venueDetail.capacityLayoutDesc', { capacity: venue.capacity, layoutNotes: venue.layoutNotes }),
-      icon: <Users className="h-6 w-6 text-gold" />,
-    },
-    {
-      title: t('alt.venueDetail.eventTypesTitle'),
-      description: venue.eventTypes.join(' · '),
-      icon: <Sparkles className="h-6 w-6 text-gold" />,
-    },
-    {
-      title: t('alt.venueDetail.pricingHintTitle'),
-      description: t('alt.venueDetail.pricingHintDesc', {
-        priceHint: explorePriceHint || venue.priceHint,
-        suffix,
-      }),
-      icon: <Sparkles className="h-6 w-6 text-gold" />,
-    },
-  ];
 
   return (
     <div className="bg-warm-gray min-h-screen pb-16">
@@ -256,38 +214,13 @@ export default function AltVenueDetail() {
               </div>
             </section>
 
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.whyWorks')}</h2>
-              <div className="grid gap-4 md:grid-cols-2">
-                {attributeBlocks.map((item) => (
-                  <div
-                    key={item.title}
-                    className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4 shadow-sm"
-                  >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warm-gray-light">{item.icon}</div>
-                    <div>
-                      <p className="text-sm font-semibold text-charcoal">{item.title}</p>
-                      <p className="text-sm text-charcoal/80">{item.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="space-y-3">
-              <h2 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.amenities')}</h2>
-              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                {venue.amenities.map((a) => (
-                  <div
-                    key={a}
-                    className="flex items-center gap-2 rounded-2xl border border-warm-gray bg-white/80 px-3 py-2 text-sm text-charcoal"
-                  >
-                    <CheckCircle className="h-4 w-4 text-gold shrink-0" />
-                    <span>{a}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
+            <PropertyAmenitySections
+              publicAmenities={venue.publicAmenities}
+              fallbackNames={venue.amenities}
+              locale={i18n.language}
+              describedHeading={t('alt.venueDetail.whyWorks')}
+              nameOnlyHeading={t('alt.venueDetail.amenities')}
+            />
           </div>
 
           <div className="space-y-4">
@@ -354,27 +287,21 @@ export default function AltVenueDetail() {
         </div>
 
         <section className="space-y-8">
-          {orderedSections.length > 0 &&
-            orderedSections.map((section) => (
-              <PropertySection key={section.id} section={section} />
-            ))}
+          <PropertyContentSections
+            publicContentSections={venue.publicContentSections}
+            legacySections={venue.sections}
+            locale={i18n.language}
+          />
 
           <PropertyReviewsSection propertyId={venue.id} propertyTitle={venue.name} />
         </section>
 
-        {venue.policies.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.venueRules')}</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {venue.policies.map((p) => (
-                <div key={p.title} className="rounded-2xl border border-navy/10 bg-white p-4">
-                  <p className="text-sm font-semibold text-navy">{p.title}</p>
-                  <p className="text-sm text-charcoal/85 mt-2 m-0">{p.body}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <PropertyPolicySections
+          publicPolicies={venue.publicPolicies}
+          heading={t('alt.venueDetail.venueRules')}
+          locale={i18n.language}
+          className="mt-0"
+        />
       </div>
 
       <section className="bg-white pb-16">

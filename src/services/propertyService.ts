@@ -1,5 +1,8 @@
 import { supabase } from '../lib/supabase';
-import type { RpcPropertySectionRow, RpcSummerRentPropertyRow } from '../models/summerRentProperty';
+import type { RpcSummerRentPropertyRow } from '../models/summerRentProperty';
+import { parseAmenities } from '../models/properties/publicAmenity';
+import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
+import { parsePolicies } from '../models/properties/propertyPolicies';
 import type { Property } from '../types';
 import { mapRpcPricingFields } from './pricing/listingPricing';
 import { getRatingsForProperties } from './reviewService';
@@ -16,38 +19,6 @@ export interface PropertyFilters {
 export interface PropertySearchResult {
   properties: Property[];
   totalCount: number;
-}
-
-function isValidLayoutType(value: string | null | undefined): value is 'split' | 'carousel' | 'stacked' {
-  return value === 'split' || value === 'carousel' || value === 'stacked';
-}
-
-function mapPropertySections(rawSections: RpcPropertySectionRow[] | null | undefined): Property['sections'] {
-  if (!rawSections?.length) {
-    return [];
-  }
-
-  return rawSections
-    .map((section) => ({
-      id: section.Id,
-      name: section.Name,
-      description: section.Description,
-      layoutType: isValidLayoutType(section.LayoutType) ? section.LayoutType : 'split',
-      layoutConfig: section.LayoutConfig ?? undefined,
-      displayOrder: section.DisplayOrder ?? undefined,
-      images: (section.Images ?? [])
-        .slice()
-        .sort((a, b) => (a.DisplayOrder ?? 0) - (b.DisplayOrder ?? 0))
-        .map((image) => ({
-          id: image.Id,
-          imageId: image.PropertyImageId ?? undefined,
-          url: image.R2Url,
-          title: image.Title,
-          metadata: image.Metadata,
-          displayOrder: image.DisplayOrder ?? undefined,
-        })),
-    }))
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 }
 
 /** Public listings must never expose owner email/phone (even if RPC adds OwnerEmail/OwnerPhone later). */
@@ -80,6 +51,12 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
     (row.Bedrooms != null ? row.Bedrooms * 2 : 0);
 
   const amenities = row.AmenityNames ?? [];
+  const publicAmenities = parseAmenities(row.Amenities);
+  const publicPolicies = parsePolicies(row.Policies);
+  const publicContentSections = resolvePublicContentSectionsFromRow(
+    row.ContentSections,
+    row.SectionData,
+  );
   const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
 
   return {
@@ -101,6 +78,9 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
     maxGuests,
     description: row.ListingDescription || '',
     amenities,
+    publicAmenities: publicAmenities.length ? publicAmenities : undefined,
+    publicPolicies: publicPolicies.length ? publicPolicies : undefined,
+    publicContentSections: publicContentSections.length ? publicContentSections : undefined,
     rating: 0,
     reviewCount: 0,
     host: mapPublicHostProfile(row.OwnerId),
@@ -115,7 +95,6 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
     bufferDays: row.BufferDays ?? undefined,
     ownerId: row.OwnerId ?? undefined,
     listingType: 'SummerRent',
-    sections: mapPropertySections(row.SectionData),
   };
 }
 
