@@ -48,9 +48,16 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 # Mapbox (Optional - for interactive maps)
 VITE_MAPBOX_TOKEN=your_mapbox_token
 
+# Legacy file paths (Optional - only when DB stores relative image URLs)
+VITE_API_BASE_FILES_URL=https://your-api-files-base-url
+
 # Email Feature Flag (Optional - default: false in dev)
 VITE_SEND_EMAILS_ENABLED=false
 ```
+
+**Property images:** The portal reads full image URLs from the database (Cloudflare R2 in production, Supabase Storage when developing against local Supabase). The portal does **not** upload listing images and does **not** need `VITE_STORAGE_BACKEND` — that setting applies to the host dashboard at upload time.
+
+If you add a Content-Security-Policy at deploy time, allow these image origins in `img-src`: `*.r2.dev` (or your R2 custom domain), `http://127.0.0.1:54321`, `http://localhost:54321`, and `VITE_API_BASE_FILES_URL` when used for legacy paths.
 
 ### 3. Supabase Edge Functions Setup
 

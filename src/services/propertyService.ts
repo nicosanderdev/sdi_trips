@@ -5,6 +5,7 @@ import { resolvePublicContentSectionsFromRow } from '../models/properties/proper
 import { parsePolicies } from '../models/properties/propertyPolicies';
 import type { Property } from '../types';
 import { mapRpcPricingFields } from './pricing/listingPricing';
+import { enrichPropertiesWithImages } from './propertyImageService';
 import { getRatingsForProperties } from './reviewService';
 
 export interface PropertyFilters {
@@ -72,7 +73,7 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
     longStayMinDays: pricing.longStayMinDays,
     longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: getCurrencyCode(row.Currency),
-    images: [], // TODO: Implement image fetching
+    images: [],
     bedrooms: row.Bedrooms,
     bathrooms: row.Bathrooms,
     maxGuests,
@@ -130,7 +131,7 @@ export async function getFeaturedProperties(
   }
 
   const rows = (data ?? []).slice(0, limit);
-  return rows.map(transformSummerRentProperty);
+  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
 }
 
 /**
@@ -155,7 +156,7 @@ export async function getProperties(limit?: number): Promise<Property[]> {
   }
 
   const rows = limit ? (data ?? []).slice(0, limit) : data ?? [];
-  return rows.map(transformSummerRentProperty);
+  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
 }
 
 /**
@@ -229,7 +230,7 @@ export async function getTopRatedPropertiesForHero(
     return 0;
   });
 
-  return enriched.slice(0, limit);
+  return enrichPropertiesWithImages(enriched.slice(0, limit));
 }
 
 /**
@@ -252,7 +253,8 @@ export async function getPropertyById(id: string): Promise<Property | null> {
     return null;
   }
 
-  return transformSummerRentProperty(row);
+  const [property] = await enrichPropertiesWithImages([transformSummerRentProperty(row)]);
+  return property;
 }
 
 /**
@@ -316,7 +318,7 @@ export async function searchProperties(
   const paged = properties.slice(offset, offset + limit);
 
   return {
-    properties: paged,
+    properties: await enrichPropertiesWithImages(paged),
     totalCount,
   };
 }
@@ -373,5 +375,5 @@ export async function getFavoriteProperties(
     }
   }
 
-  return favorites;
+  return enrichPropertiesWithImages(favorites);
 }

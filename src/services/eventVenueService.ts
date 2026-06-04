@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { parseAmenities } from '../models/properties/publicAmenity';
 import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
 import { parsePolicies } from '../models/properties/propertyPolicies';
+import { enrichPropertiesWithImages } from './propertyImageService';
 import { mapRpcPricingFields } from './pricing/listingPricing';
 
 export type VenueEventTag = 'wedding' | 'corporate' | 'party' | 'workshop';
@@ -69,12 +70,6 @@ interface EventVenueRpcRow {
   ContentSections?: unknown;
   SectionData?: RpcPropertySectionRow[] | null;
 }
-
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1519167758481-83f29da3a0a6?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80',
-];
 
 interface RpcPropertySectionImageRow {
   Id: string;
@@ -157,7 +152,7 @@ export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
     longStayMinDays: pricing.longStayMinDays,
     longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: row.Currency === 1 ? 'UYU' : 'USD',
-    images: FALLBACK_IMAGES,
+    images: [],
     bedrooms: row.Bedrooms ?? 0,
     bathrooms: row.Bathrooms ?? 0,
     maxGuests,
@@ -214,8 +209,9 @@ export async function searchEventVenues(
 
   const totalCount = venues.length;
   const offset = (page - 1) * limit;
+  const paged = venues.slice(offset, offset + limit);
   return {
-    venues: venues.slice(offset, offset + limit),
+    venues: await enrichPropertiesWithImages(paged),
     totalCount,
   };
 }
@@ -236,5 +232,7 @@ export async function getEventVenueById(id: string): Promise<EventVenue | null> 
   }
 
   const row = ((data ?? []) as EventVenueRpcRow[])[0];
-  return row ? mapEventVenueFromRpc(row) : null;
+  if (!row) return null;
+  const [venue] = await enrichPropertiesWithImages([mapEventVenueFromRpc(row)]);
+  return venue;
 }

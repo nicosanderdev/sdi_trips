@@ -5,6 +5,7 @@ import type {
   SectionLayoutType,
 } from '../../types';
 import { pickLocalizedText, type LocalizedLanguage } from './localizedText';
+import { resolveAssetUrl } from '../../utils/resolveAssetUrl';
 
 export interface PublicContentSectionImage {
   propertyImageId?: string;
@@ -113,7 +114,7 @@ function parseSectionImages(raw: unknown): PublicContentSectionImage[] {
     .filter((item): item is Record<string, unknown> => item != null && typeof item === 'object')
     .map((img, index) => ({
       propertyImageId: (img.propertyImageId ?? img.PropertyImageId) as string | undefined,
-      url: String(img.url ?? img.R2Url ?? ''),
+      url: resolveAssetUrl(String(img.url ?? img.R2Url ?? '')),
       altText: (img.altText ?? img.AltText ?? img.Title ?? img.title) as string | undefined,
       displayOrder: (img.displayOrder ?? img.DisplayOrder ?? index) as number,
     }))
@@ -143,7 +144,7 @@ function mapImagesToDisplay(images: PublicContentSectionImage[] | undefined): Pr
   return images.map((img, index) => ({
     id: img.propertyImageId ?? `section-img-${index}`,
     imageId: img.propertyImageId,
-    url: img.url,
+    url: resolveAssetUrl(img.url),
     title: img.altText ?? null,
     displayOrder: img.displayOrder,
   }));
@@ -177,7 +178,7 @@ export function legacySectionDataToPublic(
     displayOrder: section.DisplayOrder ?? undefined,
     images: (section.Images ?? []).map((image) => ({
       propertyImageId: image.PropertyImageId ?? image.Id,
-      url: image.R2Url,
+      url: resolveAssetUrl(image.R2Url),
       altText: image.Title ?? undefined,
       displayOrder: image.DisplayOrder ?? undefined,
     })),
