@@ -24,31 +24,23 @@
   "landing": {
     "hero": {
       "title": "Encontre o espaço que seus convidados vão lembrar",
-      "subtitle": "Consulte disponibilidade real, escolha a data e coordene direto com o local. Sem intermediários. Sem demoras.",
-      "searchDateLabel": "Data do evento",
-      "searchDateAria": "Data do evento",
-      "searchGuestsLabel": "Número de pessoas",
-      "searchGuestsPlaceholder": "Ex.: 120",
-      "searchGuestsAria": "Número de pessoas",
+      "subtitle": "Consulte disponibilidade real por intervalo de datas e localização, e coordene direto com o local. Sem intermediários. Sem demoras.",
+      "searchDateFromLabel": "Data mais cedo",
+      "searchDateFromAria": "Data mais cedo do evento",
+      "searchDateToLabel": "Data mais tarde",
+      "searchDateToAria": "Data mais tarde do evento",
+      "searchLocationLabel": "Localização",
+      "searchLocationPlaceholder": "Cidade ou bairro",
+      "searchLocationAria": "Localização",
       "searchCta": "Buscar",
       "badgeCurated": "Espaços verificados",
       "badgeCapacity": "Capacidade e layout",
       "badgeHoldDemo": "Demo de reserva de data",
       "exploreCta": "Explorar locais",
       "talkCta": "Ver reserva",
-      "storiesHeading": "Histórias de produtores e anfitriões",
-      "storyDotAria": "Mostrar história {{n}}",
-      "slides": {
-        "0": {
-          "quote": "Nosso casamento foi tranquilo: a equipe fez a virada da cerimônia para a festa em menos de uma hora."
-        },
-        "1": {
-          "quote": "Fizemos um lançamento para 150 convidados. Som, montagem e segurança impecáveis desde o primeiro dia."
-        },
-        "2": {
-          "quote": "As fotos do salão no pôr do sol ficaram incríveis. Os convidados ainda falam da pista de dança."
-        }
-      }
+      "storiesHeading": "Inspiração para a sua próxima festa",
+      "storiesDescription": "Descubra salões, jardins e espaços preparados para aniversários, casamentos, eventos corporativos e muito mais.",
+      "storyDotAria": "Mostrar imagem {{n}}"
     },
     "occasions": {
       "eyebrow": "Toda ocasião",
@@ -163,23 +155,22 @@
   "contact": {
     "heroTitleBefore": "Vamos planejar ",
     "heroTitleHighlight": "algo memorável",
-    "heroSub": "Conte seu evento. Este formulário é só interface—nada é enviado ao servidor nesta demo.",
+    "heroSub": "Conte seu evento. Estamos aqui para ajudar.",
     "whyHeading": "Por que falar conosco",
     "reasonPlanningTitle": "Produção de eventos",
     "reasonPlanningDesc": "Dúvidas sobre capacidade, montagem ou cronograma para casamentos ou programas corporativos.",
-    "reasonVenueTitle": "Parcerias com espaços",
-    "reasonVenueDesc": "Publique um novo espaço ou atualize imagens e valores indicativos no catálogo.",
-    "reasonSponsorTitle": "Patrocínios",
-    "reasonSponsorDesc": "Colabore em guias de cidade, portas abertas ou eventos do setor.",
+    "reasonPublishSpaceTitle": "Publicar seu espaço",
+    "reasonPublishSpaceDesc": "Adicione seu espaço ao nosso catálogo e comece a receber consultas de clientes em potencial.",
+    "reasonGeneralInquiriesTitle": "Consultas gerais",
+    "reasonGeneralInquiriesDesc": "Se você tiver dúvidas sobre reservas, funcionamento do site ou informações dos espaços, estamos aqui para ajudar.",
     "directLineHeading": "Contato direto",
-    "directLineBody": "hello@venuespace.example · Em geral respondemos em um dia útil.",
+    "directLineBody": "admin@encartelera.uy",
     "successTitle": "Obrigado pela mensagem",
-    "successBody": "Em produção isso iria para sua caixa de entrada. Aqui é apenas demo estática.",
+    "successBody": "Obrigado por entrar em contato. Responderemos em breve.",
     "messagePlaceholder": "Data do evento, número de convidados, estilo do espaço…",
-    "submitDemo": "Enviar mensagem (demo)",
-    "listVenueHeading": "Liste seu espaço",
-    "listVenueSub": "Entre em coleções curadas para produtores que buscam por capacidade, estética e bairro.",
-    "partnerDemo": "Consulta de parceiro (demo)"
+    "searchCtaHeading": "Ainda procura um espaço?",
+    "searchCtaSub": "Explore espaços por localização, capacidade e datas.",
+    "searchCtaButton": "Explorar espaços"
   },
   "terms": {
     "heroTitleBefore": "Termos e ",

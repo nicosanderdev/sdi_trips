@@ -20,12 +20,6 @@ const Footer: React.FC = () => {
       { label: 'Terms of Service', path: '/terms' },
       { label: 'Privacy Policy', path: '/privacy' },
     ],
-    destinations: [
-      { label: 'Beach Houses', path: '/search?type=beach' },
-      { label: 'Mountain Cabins', path: '/search?type=mountain' },
-      { label: 'City Apartments', path: '/search?type=city' },
-      { label: 'Country Homes', path: '/search?type=country' },
-    ],
   };
 
   const socialLinks = [
@@ -85,22 +79,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Destinations Links */}
-          <div>
-            <h3 className="font-semibold text-gold mb-4">Destinations</h3>
-            <ul className="space-y-2">
-              {footerLinks.destinations.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className="text-warm-gray-light hover:text-gold transition-colors text-sm"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div />
         </div>
 
         {/* Bottom Section */}

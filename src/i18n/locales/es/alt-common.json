@@ -24,31 +24,23 @@
   "landing": {
     "hero": {
       "title": "Encuentra el espacio que tus invitados recordarán",
-      "subtitle": "Consultá disponibilidad real, elegí fecha y coordiná directo con el local. Sin intermediarios. Sin demoras.",
-      "searchDateLabel": "Fecha del evento",
-      "searchDateAria": "Fecha del evento",
-      "searchGuestsLabel": "Número de personas",
-      "searchGuestsPlaceholder": "Ej. 120",
-      "searchGuestsAria": "Número de personas",
+      "subtitle": "Consultá disponibilidad real por rango de fechas y ubicación, y coordiná directo con el local. Sin intermediarios. Sin demoras.",
+      "searchDateFromLabel": "Fecha más temprana",
+      "searchDateFromAria": "Fecha más temprana del evento",
+      "searchDateToLabel": "Fecha más tardía",
+      "searchDateToAria": "Fecha más tardía del evento",
+      "searchLocationLabel": "Ubicación",
+      "searchLocationPlaceholder": "Ciudad o barrio",
+      "searchLocationAria": "Ubicación",
       "searchCta": "Buscar",
       "badgeCurated": "Espacios verificados",
       "badgeCapacity": "Capacidad y distribución",
       "badgeHoldDemo": "Demo de reserva de fecha",
       "exploreCta": "Explorar locales",
       "talkCta": "Ver reserva",
-      "storiesHeading": "Historias de planificadores y anfitriones",
-      "storyDotAria": "Mostrar historia {{n}}",
-      "slides": {
-        "0": {
-          "quote": "Nuestra boda fue fluida: el equipo pasó de la ceremonia al cóctel y la fiesta en menos de una hora."
-        },
-        "1": {
-          "quote": "Organizamos un lanzamiento de producto para 150 personas. Sonido, montaje y seguridad perfectos desde el primer día."
-        },
-        "2": {
-          "quote": "Las fotos del salón al atardecer fueron increíbles. Los invitados aún hablan de la pista de baile."
-        }
-      }
+      "storiesHeading": "Inspiración para tu próxima fiesta",
+      "storiesDescription": "Descubrí salones, jardines y espacios preparados para cumpleaños, bodas, eventos corporativos y mucho más.",
+      "storyDotAria": "Mostrar imagen {{n}}"
     },
     "occasions": {
       "eyebrow": "Cada ocasión",
@@ -163,23 +155,22 @@
   "contact": {
     "heroTitleBefore": "Organicemos ",
     "heroTitleHighlight": "algo memorable",
-    "heroSub": "Cuéntanos tu evento. Este formulario es solo interfaz: en esta demo no se envía nada al servidor.",
+    "heroSub": "Cuéntanos tu evento. Estamos para ayudarte.",
     "whyHeading": "Por qué escribirnos",
     "reasonPlanningTitle": "Planificación de eventos",
     "reasonPlanningDesc": "Consultas sobre capacidad, montaje o cronograma para bodas o programas corporativos.",
-    "reasonVenueTitle": "Alianzas con espacios",
-    "reasonVenueDesc": "Publica un nuevo espacio o actualiza imágenes y precios orientativos en nuestro catálogo.",
-    "reasonSponsorTitle": "Patrocinios",
-    "reasonSponsorDesc": "Colabora en guías de ciudad, jornadas de puertas abiertas o eventos del sector.",
+    "reasonPublishSpaceTitle": "Publicar tu espacio",
+    "reasonPublishSpaceDesc": "Sumá tu espacio a nuestro catálogo y empezá a recibir consultas de potenciales clientes.",
+    "reasonGeneralInquiriesTitle": "Consultas generales",
+    "reasonGeneralInquiriesDesc": "Si tenés dudas sobre reservas, funcionamiento del sitio o información de los espacios, estamos para ayudarte.",
     "directLineHeading": "Contacto directo",
-    "directLineBody": "hello@venuespace.example · Suelen responder en un día hábil.",
+    "directLineBody": "admin@encartelera.uy",
     "successTitle": "Gracias por tu mensaje",
-    "successBody": "En producción iría a tu bandeja. Aquí es solo una demo estática.",
+    "successBody": "Gracias por contactarnos. Te responderemos pronto.",
     "messagePlaceholder": "Fecha del evento, número de invitados, estilo del espacio…",
-    "submitDemo": "Enviar mensaje (demo)",
-    "listVenueHeading": "Publica tu espacio",
-    "listVenueSub": "Únete a colecciones curadas para planificadores que buscan por capacidad, estética y barrio.",
-    "partnerDemo": "Consulta de socio (demo)"
+    "searchCtaHeading": "¿Seguís buscando espacio?",
+    "searchCtaSub": "Explorá espacios por ubicación, capacidad y fechas.",
+    "searchCtaButton": "Explorar espacios"
   },
   "terms": {
     "heroTitleBefore": "Términos y ",
