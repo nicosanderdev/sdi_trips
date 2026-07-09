@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Input, Textarea } from '../../components/ui';
-import { Mail, MessageSquare, Building2, Handshake } from 'lucide-react';
+import { Mail, MessageSquare, Building2, HelpCircle } from 'lucide-react';
 import { sendContactMessage } from '../../services/contactService';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 
@@ -14,8 +15,8 @@ export default function AltContact() {
 
   const reasons = [
     { icon: MessageSquare, titleKey: 'alt.contact.reasonPlanningTitle', descKey: 'alt.contact.reasonPlanningDesc' },
-    { icon: Building2, titleKey: 'alt.contact.reasonVenueTitle', descKey: 'alt.contact.reasonVenueDesc' },
-    { icon: Handshake, titleKey: 'alt.contact.reasonSponsorTitle', descKey: 'alt.contact.reasonSponsorDesc' },
+    { icon: Building2, titleKey: 'alt.contact.reasonPublishSpaceTitle', descKey: 'alt.contact.reasonPublishSpaceDesc' },
+    { icon: HelpCircle, titleKey: 'alt.contact.reasonGeneralInquiriesTitle', descKey: 'alt.contact.reasonGeneralInquiriesDesc' },
   ] as const;
 
   return (
@@ -125,7 +126,7 @@ export default function AltContact() {
                     </div>
                   ) : null}
                   <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? t('contact.form.sending') : t('alt.contact.submitDemo')}
+                    {isSubmitting ? t('contact.form.sending') : t('contact.form.submit')}
                   </Button>
                 </form>
               )}
@@ -136,11 +137,13 @@ export default function AltContact() {
 
       <section className="py-20 bg-navy text-white">
         <div className="max-w-4xl mx-auto px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-thin mb-6">{t('alt.contact.listVenueHeading')}</h2>
-          <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">{t('alt.contact.listVenueSub')}</p>
-          <span className="inline-flex items-center justify-center px-8 py-4 bg-gold text-navy font-semibold rounded-full">
-            {t('alt.contact.partnerDemo')}
-          </span>
+          <h2 className="text-4xl md:text-5xl font-thin mb-6">{t('alt.contact.searchCtaHeading')}</h2>
+          <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">{t('alt.contact.searchCtaSub')}</p>
+          <Link to="/search">
+            <Button variant="primary" size="lg">
+              {t('alt.contact.searchCtaButton')}
+            </Button>
+          </Link>
         </div>
       </section>
     </>

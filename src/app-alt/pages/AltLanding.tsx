@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui';
-import { Heart, Briefcase, PartyPopper } from 'lucide-react';
+import { Heart, Briefcase, PartyPopper, Search as SearchIcon } from 'lucide-react';
 import { listLocalizedVenues } from '../data/venueLocale';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { getFeaturedEventVenues, type EventVenue } from '../../services/eventVenueService';
 import { buildVenuePriceHint } from '../../services/pricing';
+import { getUyCities, type UyCity } from '../../data/uyCityUtils';
+
+const UY_CITIES_MAX_SUGGESTIONS = 10;
+const uyCities = getUyCities();
 
 const HERO_IMAGES = ['/alt-carousel-1.jpg', '/alt-carousel-2.jpg', '/alt-carousel-3.jpg'] as const;
 
@@ -40,27 +44,42 @@ function mapFeaturedVenueToCard(venue: EventVenue): LandingVenueCard {
 
 export default function AltLanding() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const [slideIndex, setSlideIndex] = useState(0);
   const [fade, setFade] = useState(false);
   const [popularVenuesRaw, setPopularVenuesRaw] = useState<EventVenue[]>([]);
   const [popularVenues, setPopularVenues] = useState<LandingVenueCard[]>([]);
   const [loadingPopularVenues, setLoadingPopularVenues] = useState(true);
   const [popularVenuesFetchFailed, setPopularVenuesFetchFailed] = useState(false);
-  const [eventDate, setEventDate] = useState('');
-  const [guestCount, setGuestCount] = useState('');
+  const [eventDateFrom, setEventDateFrom] = useState('');
+  const [eventDateTo, setEventDateTo] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const fallbackPopularVenues = listLocalizedVenues(t).slice(0, 6);
 
-  const searchHref = useMemo(() => {
-    const params = new URLSearchParams();
-    if (eventDate) {
-      params.set('from', eventDate);
-      params.set('to', eventDate);
-    }
-    const guests = parseInt(guestCount, 10);
-    if (Number.isFinite(guests) && guests >= 1) params.set('capacityMin', String(guests));
-    const q = params.toString();
-    return q ? `/search?${q}` : '/search';
-  }, [eventDate, guestCount]);
+  const filteredCities = useMemo(() => {
+    const q = locationQuery.trim().toLowerCase();
+    const pool = q
+      ? uyCities.filter((c) => c.name.toLowerCase().includes(q))
+      : uyCities.filter((c) => c.zoom === '9');
+    return pool.slice(0, UY_CITIES_MAX_SUGGESTIONS);
+  }, [locationQuery]);
+
+  const handleSelectCity = useCallback((city: UyCity) => {
+    setLocationQuery(city.name);
+    setShowSuggestions(false);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const featureCards = [
     { icon: Heart, titleKey: 'alt.landing.features.weddings.title', descKey: 'alt.landing.features.weddings.description' },
@@ -140,7 +159,6 @@ export default function AltLanding() {
   }, [popularVenuesRaw, priceByPropertyId, t]);
 
   const heroImage = HERO_IMAGES[slideIndex];
-  const heroQuote = t(`alt.landing.hero.slides.${slideIndex}.quote`);
   const popularCards = popularVenuesFetchFailed ? fallbackPopularVenues : popularVenues;
 
   return (
@@ -163,42 +181,101 @@ export default function AltLanding() {
             </h1>
             <p className="mt-4 text-white/95 text-[clamp(1rem,1.8vw,1.25rem)] max-w-[36ch]">{t('alt.landing.hero.subtitle')}</p>
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto] gap-3 items-end w-full max-w-[640px] p-3 rounded-2xl border border-gold/35 bg-white/95 backdrop-blur-sm">
-              <label htmlFor="hero-search-date" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-                {t('alt.landing.hero.searchDateLabel')}
+            <form
+              className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_1fr_0.9fr_auto] gap-3 items-end w-full max-w-[900px] p-3 rounded-2xl border border-gold/35 bg-white/95 backdrop-blur-sm"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (eventDateFrom && eventDateTo && eventDateTo < eventDateFrom) {
+                  return;
+                }
+                const params = new URLSearchParams();
+                const trimmedLocation = locationQuery.trim();
+                if (trimmedLocation) {
+                  params.set('location', trimmedLocation);
+                }
+                if (eventDateFrom) {
+                  params.set('from', eventDateFrom);
+                }
+                if (eventDateTo) {
+                  params.set('to', eventDateTo);
+                }
+                const query = params.toString();
+                navigate(query ? `/search?${query}` : '/search');
+              }}
+            >
+              <label htmlFor="hero-search-date-from" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+                {t('alt.landing.hero.searchDateFromLabel')}
                 <input
-                  id="hero-search-date"
+                  id="hero-search-date-from"
                   className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
                   type="date"
-                  name="date"
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  aria-label={t('alt.landing.hero.searchDateAria')}
+                  name="from"
+                  value={eventDateFrom}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setEventDateFrom(next);
+                    if (!eventDateTo || next > eventDateTo) {
+                      setEventDateTo(next);
+                    }
+                  }}
+                  aria-label={t('alt.landing.hero.searchDateFromAria')}
                 />
               </label>
-              <label htmlFor="hero-search-guests" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-                {t('alt.landing.hero.searchGuestsLabel')}
+              <label htmlFor="hero-search-date-to" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+                {t('alt.landing.hero.searchDateToLabel')}
                 <input
-                  id="hero-search-guests"
+                  id="hero-search-date-to"
                   className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                  type="number"
-                  name="guests"
-                  min={1}
-                  max={5000}
-                  step={1}
-                  inputMode="numeric"
-                  placeholder={t('alt.landing.hero.searchGuestsPlaceholder')}
-                  value={guestCount}
-                  onChange={(e) => setGuestCount(e.target.value)}
-                  aria-label={t('alt.landing.hero.searchGuestsAria')}
+                  type="date"
+                  name="to"
+                  value={eventDateTo}
+                  min={eventDateFrom || undefined}
+                  onChange={(e) => setEventDateTo(e.target.value)}
+                  aria-label={t('alt.landing.hero.searchDateToAria')}
                 />
               </label>
-              <Link to={searchHref} className="w-full sm:col-span-2 lg:col-span-1 lg:justify-self-end">
-                <Button type="button" variant="primary" size="md" className="w-full lg:w-auto justify-center">
-                  {t('alt.landing.hero.searchCta')}
-                </Button>
-              </Link>
-            </div>
+              <label htmlFor="hero-search-location" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+                {t('alt.landing.hero.searchLocationLabel')}
+                <div ref={searchContainerRef} className="relative">
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy/40 pointer-events-none" />
+                  <input
+                    id="hero-search-location"
+                    className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm pl-9 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                    name="location"
+                    type="text"
+                    value={locationQuery}
+                    onChange={(e) => setLocationQuery(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                    placeholder={t('alt.landing.hero.searchLocationPlaceholder')}
+                    aria-label={t('alt.landing.hero.searchLocationAria')}
+                    autoComplete="off"
+                  />
+                  {showSuggestions && filteredCities.length > 0 && (
+                    <ul
+                      className="absolute z-50 left-0 right-0 mt-1 bg-white border border-navy/15 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                      role="listbox"
+                    >
+                      {filteredCities.map((city) => (
+                        <li
+                          key={city.name}
+                          role="option"
+                          className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-gray-100 border-b border-gray-100 last:border-0"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSelectCity(city);
+                          }}
+                        >
+                          {city.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </label>
+              <Button type="submit" variant="primary" size="md" className="w-full md:w-auto justify-center">
+                {t('alt.landing.hero.searchCta')}
+              </Button>
+            </form>
 
             <div className="mt-4 flex flex-wrap gap-4">
               <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
@@ -237,7 +314,7 @@ export default function AltLanding() {
             >
               <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/20" />
               <h3 className="relative z-10 m-0 text-lg font-bold text-white">{t('alt.landing.hero.storiesHeading')}</h3>
-              <p className="relative z-10 mt-2 text-white/90 text-sm leading-relaxed">{heroQuote}</p>
+              <p className="relative z-10 mt-2 text-white/90 text-sm leading-relaxed">{t('alt.landing.hero.storiesDescription')}</p>
             </div>
             <div className="absolute left-1/2 bottom-4 -translate-x-1/2 z-20 flex gap-2">
               {HERO_IMAGES.map((_, index) => (

@@ -24,31 +24,23 @@
   "landing": {
     "hero": {
       "title": "Find the venue your guests will remember",
-      "subtitle": "Check real availability, pick a date, and coordinate directly with the venue. No middlemen. No delays.",
-      "searchDateLabel": "Event date",
-      "searchDateAria": "Event date",
-      "searchGuestsLabel": "Number of guests",
-      "searchGuestsPlaceholder": "e.g. 120",
-      "searchGuestsAria": "Number of guests",
+      "subtitle": "Check real availability by date range and location, then coordinate directly with the venue. No middlemen. No delays.",
+      "searchDateFromLabel": "Earliest date",
+      "searchDateFromAria": "Earliest event date",
+      "searchDateToLabel": "Latest date",
+      "searchDateToAria": "Latest event date",
+      "searchLocationLabel": "Location",
+      "searchLocationPlaceholder": "City or neighborhood",
+      "searchLocationAria": "Location",
       "searchCta": "Search",
       "badgeCurated": "Verified spaces",
       "badgeCapacity": "Capacity & layout notes",
       "badgeHoldDemo": "Date hold demo",
       "exploreCta": "Explore local venues",
       "talkCta": "View reservation",
-      "storiesHeading": "Planner & host stories",
-      "storyDotAria": "Show story {{n}}",
-      "slides": {
-        "0": {
-          "quote": "Our wedding felt effortless—the team handled the flip from ceremony to reception in under an hour."
-        },
-        "1": {
-          "quote": "We hosted a product launch for 150 guests. AV, load-in, and security were dialed in from day one."
-        },
-        "2": {
-          "quote": "The ballroom photos at golden hour were unreal. Guests are still talking about the dance floor."
-        }
-      }
+      "storiesHeading": "Inspiration for your next celebration",
+      "storiesDescription": "Discover ballrooms, gardens, and venues ready for birthdays, weddings, corporate events, and much more.",
+      "storyDotAria": "Show image {{n}}"
     },
     "occasions": {
       "eyebrow": "Every occasion",
@@ -132,8 +124,16 @@
     "pricingHintTitle": "Pricing hint",
     "pricingHintDesc": "{{priceHint}}. {{suffix}}",
     "pricingHintSuffix": "Final quotes depend on date, staffing, and add-ons.",
+    "someFeatures": "Some highlights",
     "amenities": "Amenities",
+    "venueRules": "Policies & venue rules",
     "policies": "Policies & logistics",
+    "trustFooter": {
+      "heading": "How we verify venues",
+      "description": "Every venue on our platform is reviewed by our local team before listing. We visit in person, confirm the space, and ensure listing accuracy.",
+      "learnMore": "Read our full trust & quality standards",
+      "support": "Questions about this venue? Contact our support team"
+    },
     "prevImage": "Previous image",
     "nextImage": "Next image",
     "coordinatorTeam": "Venue team",
@@ -155,23 +155,22 @@
   "contact": {
     "heroTitleBefore": "Let's plan ",
     "heroTitleHighlight": "something memorable",
-    "heroSub": "Tell us about your event. This form is UI-only—nothing is sent to a server in this demo.",
+    "heroSub": "Have a question? We'd love to hear from you.",
     "whyHeading": "Why reach out",
     "reasonPlanningTitle": "Event planning",
     "reasonPlanningDesc": "Ask about capacity, load-in, or timeline for your wedding or corporate program.",
-    "reasonVenueTitle": "Venue partnerships",
-    "reasonVenueDesc": "List a new space or update imagery and pricing hints for our catalog.",
-    "reasonSponsorTitle": "Sponsorships",
-    "reasonSponsorDesc": "Collaborate on city guides, open houses, or industry events.",
+    "reasonPublishSpaceTitle": "List your space",
+    "reasonPublishSpaceDesc": "Add your space to our catalog and start receiving inquiries from potential clients.",
+    "reasonGeneralInquiriesTitle": "General inquiries",
+    "reasonGeneralInquiriesDesc": "If you have questions about bookings, how the site works, or venue information, we're here to help.",
     "directLineHeading": "Direct line",
-    "directLineBody": "hello@venuespace.example · We typically reply within one business day.",
+    "directLineBody": "admin@encartelera.uy",
     "successTitle": "Thanks for your note",
-    "successBody": "In a live app, we would route this to your inbox. Here, it's a static demo only.",
+    "successBody": "Thank you for contacting us. We'll get back to you soon.",
     "messagePlaceholder": "Event date, guest count, venue style…",
-    "submitDemo": "Send message (demo)",
-    "listVenueHeading": "List your venue",
-    "listVenueSub": "Join curated collections for planners searching by capacity, aesthetic, and neighborhood.",
-    "partnerDemo": "Partner inquiry (demo)"
+    "searchCtaHeading": "Still looking for a venue?",
+    "searchCtaSub": "Browse venues by location, capacity, and availability.",
+    "searchCtaButton": "Browse venues"
   },
   "terms": {
     "heroTitleBefore": "Terms & ",

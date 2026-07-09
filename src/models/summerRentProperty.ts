@@ -135,6 +135,9 @@ export interface RpcSummerRentPropertyRow {
   BufferDays: SummerRentExtension['BufferDays'];
 
   AmenityNames: string[] | null;
+  Amenities?: unknown;
+  Policies?: unknown;
+  ContentSections?: unknown;
   SectionData?: RpcPropertySectionRow[] | null;
 }
 

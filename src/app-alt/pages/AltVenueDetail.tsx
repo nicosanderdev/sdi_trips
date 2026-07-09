@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
 import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
-import PropertySection from '../../components/sections/PropertySection';
+import PropertyContentSections from '../../components/sections/PropertyContentSections';
+import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
+import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import {
   MapPin,
   Users,
@@ -12,19 +14,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  MessageCircle,
 } from 'lucide-react';
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
-import {
-  buildVenuePriceHint,
-  formatPriceAmount,
-  getPriceLabelKey,
-} from '../../services/pricing';
+import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
 
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [venue, setVenue] = useState<EventVenue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +56,6 @@ export default function AltVenueDetail() {
         eventTypeTags: [],
         eventTypes: [],
         layoutNotes: '',
-        policies: [],
         hasCatering: false,
         hasSoundSystem: false,
       }) as EventVenue,
@@ -71,20 +67,6 @@ export default function AltVenueDetail() {
     siteListingType: 'EventVenue',
     enabled: Boolean(venue),
   });
-
-  const explorePriceHint = useMemo(() => {
-    if (!venue || !exploreBreakdown) return venue?.priceHint ?? '';
-    const amount =
-      exploreBreakdown.displayLabel === 'total_stay'
-        ? exploreBreakdown.total
-        : exploreBreakdown.nightlyAverage;
-    return buildVenuePriceHint(
-      amount,
-      getPriceLabelKey(exploreBreakdown.displayLabel),
-      venue.currency,
-      t,
-    );
-  }, [venue, exploreBreakdown, t]);
 
   useEffect(() => {
     const load = async () => {
@@ -136,31 +118,6 @@ export default function AltVenueDetail() {
     );
   }
 
-  const suffix = t('alt.venueDetail.pricingHintSuffix');
-  const orderedSections = (venue.sections ?? [])
-    .slice()
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-  const attributeBlocks = [
-    {
-      title: t('alt.venueDetail.capacityLayoutTitle'),
-      description: t('alt.venueDetail.capacityLayoutDesc', { capacity: venue.capacity, layoutNotes: venue.layoutNotes }),
-      icon: <Users className="h-6 w-6 text-gold" />,
-    },
-    {
-      title: t('alt.venueDetail.eventTypesTitle'),
-      description: venue.eventTypes.join(' · '),
-      icon: <Sparkles className="h-6 w-6 text-gold" />,
-    },
-    {
-      title: t('alt.venueDetail.pricingHintTitle'),
-      description: t('alt.venueDetail.pricingHintDesc', {
-        priceHint: explorePriceHint || venue.priceHint,
-        suffix,
-      }),
-      icon: <Sparkles className="h-6 w-6 text-gold" />,
-    },
-  ];
-
   return (
     <div className="bg-warm-gray min-h-screen pb-16">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
@@ -176,7 +133,7 @@ export default function AltVenueDetail() {
         </div>
 
         <section className="space-y-6">
-          <div className="relative rounded-4xl overflow-hidden bg-white shadow-[0_25px_60px_-25px_rgba(43,43,43,0.35)] aspect-4/3">
+          <div className="relative rounded-[2rem] overflow-hidden bg-white shadow-[0_25px_60px_-25px_rgba(43,43,43,0.35)] aspect-[4/3]">
             <img
               key={displayImageIndex}
               src={heroImages[displayImageIndex]}
@@ -227,8 +184,10 @@ export default function AltVenueDetail() {
               ))}
             </div>
           )}
+        </section>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-8">
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-sm text-charcoal/80">
                 <MapPin className="h-4 w-4 text-gold" />
@@ -238,16 +197,11 @@ export default function AltVenueDetail() {
               </div>
               <h1 className="text-4xl font-thin leading-tight text-navy">{venue.name}</h1>
               <p className="max-w-3xl text-lg text-charcoal">{venue.subtitle}</p>
-              <p className="text-charcoal/90 leading-relaxed">{venue.description}</p>
+              <p className="text-charcoal/90 leading-relaxed whitespace-pre-line">{venue.description}</p>
+            </div>
 
-              {orderedSections.length > 0 ? (
-                <div className="space-y-4 pt-2">
-                  {orderedSections.map((section) => (
-                    <PropertySection key={section.id} section={section} />
-                  ))}
-                </div>
-              ) : null}
-
+            <section className="space-y-4">
+              <h2 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.someFeatures')}</h2>
               <div className="flex flex-wrap gap-6 text-sm text-charcoal">
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-gold" />
@@ -258,126 +212,113 @@ export default function AltVenueDetail() {
                   <span>{t('alt.venueDetail.eventCategoriesCount', { count: venue.eventTypes.length })}</span>
                 </div>
               </div>
+            </section>
 
-              <section className="space-y-4 pt-4">
-                <h2 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.whyWorks')}</h2>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {attributeBlocks.map((item) => (
-                    <div
-                      key={item.title}
-                      className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4 shadow-sm"
-                    >
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warm-gray-light">{item.icon}</div>
-                      <div>
-                        <p className="text-sm font-semibold text-charcoal">{item.title}</p>
-                        <p className="text-sm text-charcoal/80">{item.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-navy">{t('alt.venueDetail.amenities')}</h3>
-                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                    {venue.amenities.map((a) => (
-                      <div
-                        key={a}
-                        className="flex items-center gap-2 rounded-2xl border border-warm-gray bg-white/80 px-3 py-2 text-sm text-charcoal"
-                      >
-                        <CheckCircle className="h-4 w-4 text-gold shrink-0" />
-                        <span>{a}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-navy">{t('alt.venueDetail.policies')}</h3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {venue.policies.map((p) => (
-                      <div key={p.title} className="rounded-2xl border border-navy/10 bg-white p-4">
-                        <p className="text-sm font-semibold text-navy">{p.title}</p>
-                        <p className="text-sm text-charcoal/85 mt-2 m-0">{p.body}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            <div className="space-y-4">
-              <Card className="space-y-4 rounded-4xl border border-warm-gray bg-white/80 p-6 shadow-[0_20px_40px_-20px_rgba(43,43,43,0.35)]">
-                <div className="flex items-center gap-4">
-                  <img
-                    src="https://ui-avatars.com/api/?name=Venue+Coordinator&background=F3E9DD&color=2B2B2B"
-                    alt=""
-                    className="h-16 w-16 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-charcoal/70">{t('alt.venueDetail.coordinatorTeam')}</p>
-                    <h3 className="text-xl font-semibold text-navy">{t('alt.venueDetail.coordinatorNames')}</h3>
-                    <p className="text-sm text-charcoal">{t('alt.venueDetail.coordinatorRole')}</p>
-                  </div>
-                </div>
-                <div className="space-y-2 text-sm text-charcoal">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-gold" />
-                    <span>{t('alt.venueDetail.coordinatorBullet1')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-gold" />
-                    <span>{t('alt.venueDetail.coordinatorBullet2')}</span>
-                  </div>
-                </div>
-                <Link
-                  to="/contact"
-                  className="flex items-center justify-center gap-2 rounded-full border border-warm-gray px-4 py-2 text-sm font-medium text-navy hover:border-gold transition-colors"
-                >
-                  <MessageCircle className="h-4 w-4 text-venue-accent" />
-                  {t('alt.venueDetail.messageVenue')}
-                </Link>
-              </Card>
-
-              <Card className="space-y-4 rounded-4xl border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(43,43,43,0.35)]">
-                <div className="space-y-1 text-center">
-                  <p className="text-xs uppercase tracking-[0.35em] text-charcoal/70">{t('alt.venueDetail.startingFrom')}</p>
-                  <div className="text-2xl font-semibold text-navy">
-                    {explorePriceLoading
-                      ? '…'
-                      : exploreBreakdown
-                        ? formatPriceAmount(
-                            exploreBreakdown.displayLabel === 'total_stay'
-                              ? exploreBreakdown.total
-                              : exploreBreakdown.nightlyAverage,
-                            venue.currency,
-                          )
-                        : venue.priceHint}
-                  </div>
-                  {exploreBreakdown && !explorePriceLoading && (
-                    <p className="text-xs text-charcoal">{t(getPriceLabelKey(exploreBreakdown.displayLabel))}</p>
-                  )}
-                  <p className="text-sm text-charcoal">{t('alt.venueDetail.taxesNote')}</p>
-                </div>
-                <Button variant="primary" size="lg" className="w-full" type="button" onClick={() => setShowBookingFlow((s) => !s)}>
-                  {t('alt.venueDetail.checkAvailability')}
-                </Button>
-
-                {showBookingFlow && (
-                  <div className="pt-4 border-t border-warm-gray space-y-4">
-                    <GuestBookingFlow
-                      property={venue}
-                      variant="event"
-                      reservationManagePath="/reservation-lookup"
-                    />
-                  </div>
-                )}
-              </Card>
-            </div>
+            <PropertyAmenitySections
+              publicAmenities={venue.publicAmenities}
+              fallbackNames={venue.amenities}
+              locale={i18n.language}
+              describedHeading={t('alt.venueDetail.whyWorks')}
+              nameOnlyHeading={t('alt.venueDetail.amenities')}
+            />
           </div>
+
+          <div className="space-y-4">
+            <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white/80 p-6 shadow-[0_20px_40px_-20px_rgba(43,43,43,0.35)]">
+              <div className="flex items-center gap-4">
+                <img
+                  src="https://ui-avatars.com/api/?name=Venue+Coordinator&background=F3E9DD&color=2B2B2B"
+                  alt=""
+                  className="h-16 w-16 rounded-full object-cover"
+                />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-charcoal/70">{t('alt.venueDetail.coordinatorTeam')}</p>
+                  <h3 className="text-xl font-semibold text-navy">{t('alt.venueDetail.coordinatorNames')}</h3>
+                  <p className="text-sm text-charcoal">{t('alt.venueDetail.coordinatorRole')}</p>
+                </div>
+              </div>
+              <div className="space-y-2 text-sm text-charcoal">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-gold" />
+                  <span>{t('alt.venueDetail.coordinatorBullet1')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-gold" />
+                  <span>{t('alt.venueDetail.coordinatorBullet2')}</span>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(43,43,43,0.35)]">
+              <div className="space-y-1 text-center">
+                <p className="text-xs uppercase tracking-[0.35em] text-charcoal/70">{t('alt.venueDetail.startingFrom')}</p>
+                <div className="text-2xl font-semibold text-navy">
+                  {explorePriceLoading
+                    ? '…'
+                    : exploreBreakdown
+                      ? formatPriceAmount(
+                          exploreBreakdown.displayLabel === 'total_stay'
+                            ? exploreBreakdown.total
+                            : exploreBreakdown.nightlyAverage,
+                          venue.currency,
+                        )
+                      : venue.priceHint}
+                </div>
+                {exploreBreakdown && !explorePriceLoading && (
+                  <p className="text-xs text-charcoal">{t(getPriceLabelKey(exploreBreakdown.displayLabel))}</p>
+                )}
+                <p className="text-sm text-charcoal">{t('alt.venueDetail.taxesNote')}</p>
+              </div>
+              <Button variant="primary" size="lg" className="w-full" type="button" onClick={() => setShowBookingFlow((s) => !s)}>
+                {t('alt.venueDetail.checkAvailability')}
+              </Button>
+
+              {showBookingFlow && (
+                <div className="pt-4 border-t border-warm-gray space-y-4">
+                  <GuestBookingFlow
+                    property={venue}
+                    variant="event"
+                    reservationManagePath="/reservation-lookup"
+                  />
+                </div>
+              )}
+            </Card>
+          </div>
+        </div>
+
+        <section className="space-y-8">
+          <PropertyContentSections
+            publicContentSections={venue.publicContentSections}
+            legacySections={venue.sections}
+            locale={i18n.language}
+          />
 
           <PropertyReviewsSection propertyId={venue.id} propertyTitle={venue.name} />
         </section>
+
+        <PropertyPolicySections
+          publicPolicies={venue.publicPolicies}
+          heading={t('alt.venueDetail.venueRules')}
+          locale={i18n.language}
+          className="mt-0"
+        />
       </div>
+
+      <section className="bg-white pb-16">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 rounded-[2rem] border border-warm-gray px-6 py-10 text-center">
+          <CheckCircle className="h-10 w-10 text-gold" />
+          <h3 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.trustFooter.heading')}</h3>
+          <p className="text-sm text-charcoal">{t('alt.venueDetail.trustFooter.description')}</p>
+          <div className="flex flex-col gap-2 text-sm text-charcoal/80 md:flex-row md:justify-center md:gap-6">
+            <Link to="/trust" className="font-medium text-navy hover:text-gold">
+              {t('alt.venueDetail.trustFooter.learnMore')}
+            </Link>
+            <Link to="/contact" className="font-medium text-navy hover:text-gold">
+              {t('alt.venueDetail.trustFooter.support')}
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

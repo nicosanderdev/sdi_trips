@@ -11,12 +11,6 @@ export function AltFooter() {
       { labelKey: 'alt.footer.termsLink' as const, path: '/terms-and-conditions' },
       { labelKey: 'common.contact' as const, path: '/contact' },
     ],
-    explore: [
-      { labelKey: 'alt.footer.browseVenues' as const, path: '/search' },
-      { labelKey: 'alt.footer.weddingVenues' as const, path: '/search' },
-      { labelKey: 'alt.footer.corporateEvents' as const, path: '/search' },
-      { labelKey: 'alt.footer.privateParties' as const, path: '/search' },
-    ],
   };
 
   const socialLinks = [
@@ -70,21 +64,7 @@ export function AltFooter() {
             </ul>
           </div>
 
-          <div>
-            <h3 className="font-semibold text-gold mb-4">{t('alt.footer.exploreHeading')}</h3>
-            <ul className="space-y-2">
-              {footerLinks.explore.map((link) => (
-                <li key={link.labelKey}>
-                  <Link
-                    to={link.path}
-                    className="text-warm-gray-light hover:text-gold transition-colors text-sm"
-                  >
-                    {t(link.labelKey)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div />
         </div>
 
         <div className="border-t border-white/15 pt-8">

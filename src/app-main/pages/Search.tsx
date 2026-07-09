@@ -8,10 +8,15 @@ import PropertyCard from '../../components/sections/PropertyCard';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { usePortalPropertySearch } from '../../hooks/usePortalPropertySearch';
 import { getFavoriteProperties } from '../../services/propertyService';
-import { toIsoDate } from '../../services/pricing/listingPricing';
+import { buildPropertyDetailPath, parseIsoDateLocal, toIsoDate } from '../../services/pricing/listingPricing';
 import type { Property } from '../../types';
 import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
-import uyCitiesData from '../../data/uy-cities.json';
+import {
+  findExactUyCityMatch,
+  getUyCities,
+  portalRpcCityFromUyLabel,
+  type UyCity,
+} from '../../data/uyCityUtils';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useAuth } from '../../hooks/useAuth';
 import { getMemberProfile } from '../../services/memberService';
@@ -27,14 +32,7 @@ const APPROX_ZONE_SOURCE_ID = 'selected-property-approx-zone-source';
 const APPROX_ZONE_FILL_LAYER_ID = 'selected-property-approx-zone-fill-layer';
 const APPROX_ZONE_STROKE_LAYER_ID = 'selected-property-approx-zone-stroke-layer';
 
-interface UyCity {
-  name: string;
-  lat: string;
-  long: string;
-  zoom: string;
-}
-
-const uyCities: UyCity[] = uyCitiesData as UyCity[];
+const uyCities = getUyCities();
 
 interface SearchFilters {
   priceRange: [number, number];
@@ -187,6 +185,14 @@ const Search: React.FC = () => {
     if (!trimmed) return;
     setSearchQuery(trimmed);
     setDebouncedSearchQuery(trimmed);
+
+    const exactMatch = findExactUyCityMatch(trimmed);
+    if (exactMatch) {
+      const lat = parseFloat(exactMatch.lat);
+      const lng = parseFloat(exactMatch.long);
+      const zoom = parseInt(exactMatch.zoom, 10);
+      setMapViewport({ latitude: lat, longitude: lng, zoom });
+    }
   }, [searchParams]);
 
   useLayoutEffect(() => {
@@ -195,16 +201,10 @@ const Search: React.FC = () => {
     if (!checkInParam && !checkOutParam) return;
     setFilters((prev) => ({
       ...prev,
-      checkIn: checkInParam ? new Date(checkInParam) : prev.checkIn,
-      checkOut: checkOutParam ? new Date(checkOutParam) : prev.checkOut,
+      checkIn: checkInParam ? parseIsoDateLocal(checkInParam) ?? prev.checkIn : prev.checkIn,
+      checkOut: checkOutParam ? parseIsoDateLocal(checkOutParam) ?? prev.checkOut : prev.checkOut,
     }));
   }, [searchParams]);
-
-  const { priceByPropertyId } = useSearchPricing(
-    properties,
-    filters.checkIn,
-    filters.checkOut,
-  );
 
   // Debounce search query
   useEffect(() => {
@@ -222,14 +222,9 @@ const Search: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [mapBounds]);
 
-  function findExactCityMatch(query: string): UyCity | undefined {
-    const q = query.trim().toLowerCase();
-    return uyCities.find((c) => c.name.toLowerCase() === q);
-  }
-
   const portalRpcFilters = useMemo(() => {
     const trimmedLocation = debouncedSearchQuery.trim();
-    const exactCity = findExactCityMatch(trimmedLocation);
+    const exactCity = findExactUyCityMatch(trimmedLocation);
     const shouldApplyPriceRange =
       filters.priceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
       filters.priceRange[1] !== DEFAULT_PRICE_RANGE[1];
@@ -239,7 +234,7 @@ const Search: React.FC = () => {
       neLat: debouncedMapBounds?.getNorth(),
       swLng: debouncedMapBounds?.getWest(),
       neLng: debouncedMapBounds?.getEast(),
-      city: exactCity?.name,
+      city: exactCity ? portalRpcCityFromUyLabel(exactCity.name) : undefined,
       searchText: exactCity ? undefined : trimmedLocation || undefined,
       minPrice: shouldApplyPriceRange ? filters.priceRange[0] : undefined,
       maxPrice: shouldApplyPriceRange ? filters.priceRange[1] : undefined,
@@ -270,31 +265,29 @@ const Search: React.FC = () => {
     hydrateLimit: 50,
   });
 
-  // Keep map in sync with current results so markers/list are visible.
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || properties.length === 0) return;
+  const { priceByPropertyId } = useSearchPricing(
+    properties as Property[],
+    filters.checkIn,
+    filters.checkOut,
+  );
 
-    const bounds = new mapboxgl.LngLatBounds();
-    properties.forEach((property) => {
-      const offsetCoordinates = getOffsetCoordinates(property);
-      bounds.extend([offsetCoordinates.lng, offsetCoordinates.lat]);
-    });
+  const propertyDetailPath = useCallback(
+    (propertyId: string) =>
+      buildPropertyDetailPath(propertyId, {
+        checkIn: filters.checkIn,
+        checkOut: filters.checkOut,
+      }),
+    [filters.checkIn, filters.checkOut],
+  );
 
-    if (bounds.isEmpty()) return;
-
-    map.fitBounds(bounds, {
-      padding: 80,
-      maxZoom: 13,
-      duration: 600,
-    });
-  }, [properties, getOffsetCoordinates]);
+  // Markers are placed in a separate effect; do not auto fitBounds on every
+  // search result — that triggers moveend → bounds filter change → refetch loop.
 
   // When debounced query is set and not from list, geocode and move map
   useEffect(() => {
     const q = debouncedSearchQuery.trim();
     if (!q || !mapboxToken) return;
-    const exactMatch = findExactCityMatch(q);
+    const exactMatch = findExactUyCityMatch(q);
     if (exactMatch) return; // use list coordinates only on explicit select; debounced flow doesn't set viewport for list matches
 
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${mapboxToken}&country=UY`;
@@ -526,7 +519,7 @@ const Search: React.FC = () => {
                 <span class="text-xs text-charcoal">★ ${selectedProperty.rating}</span>
               </div>
             </div>
-            <a href="/property/${selectedProperty.id}" class="block mt-1">
+            <a href="${propertyDetailPath(selectedProperty.id)}" class="block mt-1">
               <button class="w-full bg-gold text-navy px-3 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 active:bg-navy active:text-white cursor-pointer">
                 ${t('search.map.viewDetails')}
               </button>
@@ -537,7 +530,7 @@ const Search: React.FC = () => {
 
       popupsRef.current.push(popup);
     }
-  }, [properties, hoveredProperty, selectedProperty, t, getOffsetCoordinates, priceByPropertyId, focusOnProperty]);
+  }, [properties, hoveredProperty, selectedProperty, t, getOffsetCoordinates, priceByPropertyId, focusOnProperty, propertyDetailPath]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -872,6 +865,7 @@ const Search: React.FC = () => {
                         isInWishlist={wishlistIds.includes(property.id)}
                         showWishlist={!!user}
                         disableLink
+                        detailTo={propertyDetailPath(property.id)}
                       />
                     </div>
                   );

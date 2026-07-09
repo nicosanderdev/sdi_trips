@@ -7,28 +7,21 @@ import { usePortalPropertySearch } from '../../hooks/usePortalPropertySearch';
 import type { EventVenue } from '../../services/eventVenueService';
 import { buildVenuePriceHint } from '../../services/pricing';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
-import uyCitiesData from '../../data/uy-cities.json';
+import {
+  findExactUyCityMatch,
+  getUyCities,
+  portalRpcCityFromUyLabel,
+  type UyCity,
+} from '../../data/uyCityUtils';
 
 const UY_CITIES_MAX_SUGGESTIONS = 10;
 const DEBOUNCE_MS = 450;
 
-interface UyCity {
-  name: string;
-  lat: string;
-  long: string;
-  zoom: string;
-}
-
-const uyCities: UyCity[] = uyCitiesData as UyCity[];
+const uyCities = getUyCities();
 
 function parseOptionalInt(value: string): number | undefined {
   const n = parseInt(value, 10);
   return Number.isFinite(n) && n >= 1 ? n : undefined;
-}
-
-function findExactCityMatch(query: string): UyCity | undefined {
-  const q = query.trim().toLowerCase();
-  return uyCities.find((c) => c.name.toLowerCase() === q);
 }
 
 function applyCapacityMaxFilter(venues: EventVenue[], capacityMax?: number): EventVenue[] {
@@ -124,11 +117,11 @@ export default function AltSearchProperties() {
 
   const portalRpcFilters = useMemo(() => {
     const trimmedLocation = debouncedLocationQuery.trim();
-    const exactCity = findExactCityMatch(trimmedLocation);
+    const exactCity = findExactUyCityMatch(trimmedLocation);
     const hasDateRange = Boolean(availableFrom && availableTo);
 
     return {
-      city: exactCity?.name,
+      city: exactCity ? portalRpcCityFromUyLabel(exactCity.name) : undefined,
       searchText: exactCity ? undefined : trimmedLocation || undefined,
       capacityMin,
       checkIn: hasDateRange ? availableFrom : undefined,

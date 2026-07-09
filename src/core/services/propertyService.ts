@@ -1,6 +1,8 @@
 import { supabase } from '../api/supabaseClient';
 import type { Database } from '../../types/supabase';
 import type { Property } from '../models';
+import { parseAmenities } from '../../models/properties/publicAmenity';
+import { resolvePublicContentSectionsFromRow } from '../../models/properties/propertyContentSections';
 import { getRatingsForProperties } from './reviewService';
 
 type DbProperty = Database['public']['Tables']['EstateProperties']['Row'];
@@ -58,6 +60,8 @@ interface RpcSummerRentPropertyRow {
   LeadTimeDays: number | null;
   BufferDays: number | null;
   AmenityNames: string[] | null;
+  Amenities?: unknown;
+  ContentSections?: unknown;
   SectionData?: RpcPropertySectionRow[] | null;
 }
 
@@ -94,38 +98,6 @@ export interface PropertySearchResult {
   totalCount: number;
 }
 
-function isValidLayoutType(value: string | null | undefined): value is 'split' | 'carousel' | 'stacked' {
-  return value === 'split' || value === 'carousel' || value === 'stacked';
-}
-
-function mapPropertySections(rawSections: RpcPropertySectionRow[] | null | undefined): Property['sections'] {
-  if (!rawSections?.length) {
-    return [];
-  }
-
-  return rawSections
-    .map((section) => ({
-      id: section.Id,
-      name: section.Name,
-      description: section.Description,
-      layoutType: isValidLayoutType(section.LayoutType) ? section.LayoutType : 'split',
-      layoutConfig: section.LayoutConfig ?? undefined,
-      displayOrder: section.DisplayOrder ?? undefined,
-      images: (section.Images ?? [])
-        .slice()
-        .sort((a, b) => (a.DisplayOrder ?? 0) - (b.DisplayOrder ?? 0))
-        .map((image) => ({
-          id: image.Id,
-          imageId: image.PropertyImageId ?? undefined,
-          url: image.R2Url,
-          title: image.Title,
-          metadata: image.Metadata,
-          displayOrder: image.DisplayOrder ?? undefined,
-        })),
-    }))
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-}
-
 /** Public listings must never expose owner email/phone. */
 function mapPublicHostProfile(ownerId: string | null | undefined): Property['host'] {
   return {
@@ -158,6 +130,11 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     (row.Bedrooms != null ? row.Bedrooms * 2 : 0);
 
   const amenities = row.AmenityNames ?? [];
+  const publicAmenities = parseAmenities(row.Amenities);
+  const publicContentSections = resolvePublicContentSectionsFromRow(
+    row.ContentSections,
+    row.SectionData,
+  );
 
   return {
     id: row.EstatePropertyId,
@@ -171,6 +148,8 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     maxGuests,
     description: row.ListingDescription || '',
     amenities,
+    publicAmenities: publicAmenities.length ? publicAmenities : undefined,
+    publicContentSections: publicContentSections.length ? publicContentSections : undefined,
     rating: 0,
     reviewCount: 0,
     host: mapPublicHostProfile(row.OwnerId),
@@ -185,7 +164,6 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     bufferDays: row.BufferDays ?? undefined,
     ownerId: row.OwnerId ?? undefined,
     listingType: 'SummerRent',
-    sections: mapPropertySections(row.SectionData),
   };
 }
 

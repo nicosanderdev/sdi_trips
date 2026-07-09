@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react';
+import type { PublicAmenity } from '../../models/properties/publicAmenity';
+import type { PublicContentSection } from '../../models/properties/propertyContentSections';
+import type { PublicPropertyPolicy } from '../../models/properties/propertyPolicies';
 
 // Common UI component props
 export interface BaseComponentProps {
@@ -71,9 +74,12 @@ export interface PropertySectionImage {
   displayOrder?: number;
 }
 
+export type SectionDisplayVariant = 'default' | 'compact' | 'hero';
+
 export interface PropertySectionLayoutConfig {
   descriptionPosition?: CarouselDescriptionPosition;
   contentOrder?: StackedContentOrder;
+  displayVariant?: SectionDisplayVariant;
 }
 
 export interface PropertyContentSection {
@@ -110,6 +116,12 @@ export interface Property {
   maxGuests: number;
   description: string;
   amenities: string[];
+  /** Structured amenities from detail RPC (`Amenities` jsonb); list endpoints omit this. */
+  publicAmenities?: PublicAmenity[];
+  /** Estate policies from detail RPC (`Policies` jsonb); list endpoints omit this. */
+  publicPolicies?: PublicPropertyPolicy[];
+  /** Marketing content sections from detail RPC (`ContentSections` jsonb); list endpoints omit this. */
+  publicContentSections?: PublicContentSection[];
   rating: number;
   reviewCount: number;
   host: User;

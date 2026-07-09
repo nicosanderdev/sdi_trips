@@ -7,6 +7,8 @@ interface SectionImageGalleryProps {
   images: PropertySectionImage[];
   mode?: GalleryMode;
   className?: string;
+  mainImageClassName?: string;
+  gridImageClassName?: string;
 }
 
 function normalizeClassName(className?: string): string {
@@ -17,6 +19,8 @@ export default function SectionImageGallery({
   images,
   mode = 'grid',
   className,
+  mainImageClassName = 'h-72',
+  gridImageClassName = 'h-48',
 }: SectionImageGalleryProps) {
   const sortedImages = useMemo(
     () => [...images].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
@@ -38,7 +42,7 @@ export default function SectionImageGallery({
           <img
             src={currentImage.url}
             alt={currentImage.title ?? 'Section image'}
-            className="h-72 w-full object-cover"
+            className={`${mainImageClassName} w-full object-cover`}
           />
         </div>
         {sortedImages.length > 1 ? (
@@ -65,7 +69,11 @@ export default function SectionImageGallery({
     <div className={`grid gap-3 sm:grid-cols-2${normalizeClassName(className)}`}>
       {sortedImages.map((image) => (
         <div key={image.id} className="overflow-hidden rounded-2xl border border-warm-gray bg-white/80">
-          <img src={image.url} alt={image.title ?? 'Section image'} className="h-48 w-full object-cover" />
+          <img
+            src={image.url}
+            alt={image.title ?? 'Section image'}
+            className={`${gridImageClassName} w-full object-cover`}
+          />
         </div>
       ))}
     </div>
