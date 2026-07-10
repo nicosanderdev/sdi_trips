@@ -8,6 +8,8 @@ import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { getFeaturedEventVenues, type EventVenue } from '../../services/eventVenueService';
 import { buildVenuePriceHint } from '../../services/pricing';
 import { getUyCities, type UyCity } from '../../data/uyCityUtils';
+import HumanTouchSection from '../../components/sections/HumanTouchSection';
+import Testimonials from '../../components/sections/Testimonials';
 
 const UY_CITIES_MAX_SUGGESTIONS = 10;
 const uyCities = getUyCities();
@@ -331,7 +333,7 @@ export default function AltLanding() {
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-12">
             <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('alt.landing.occasions.eyebrow')}</p>
@@ -341,7 +343,7 @@ export default function AltLanding() {
             {featureCards.map(({ icon: Icon, titleKey, descKey }) => (
               <article
                 key={titleKey}
-                className="rounded-2xl border border-navy/10 bg-warm-gray p-6 hover:-translate-y-1 hover:shadow-lg transition-all"
+                className="rounded-3xl border border-navy/10 bg-warm-gray p-6 hover:-translate-y-1 hover:shadow-lg transition-all"
               >
                 <div className="w-12 h-12 rounded-full grid place-items-center bg-white text-venue-accent border border-navy/10">
                   <Icon className="h-6 w-6" />
@@ -354,7 +356,7 @@ export default function AltLanding() {
         </div>
       </section>
 
-      <section className="py-20 bg-warm-gray">
+      <section className="py-24 bg-warm-gray">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
             <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('alt.landing.popular.eyebrow')}</p>
@@ -375,7 +377,7 @@ export default function AltLanding() {
               popularCards.map((venue, index) => {
                 const image = venue.images[0] ?? HERO_IMAGES[0];
                 return (
-                  <article key={venue.id} className="relative min-h-[220px] border border-navy/15 rounded-2xl overflow-hidden bg-navy group">
+                  <article key={venue.id} className="relative min-h-[220px] border border-navy/15 rounded-3xl overflow-hidden bg-navy group">
                     <Link to={`/venue/${venue.id}`} className="absolute inset-0 z-10" aria-label={venue.name} />
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
@@ -419,14 +421,14 @@ export default function AltLanding() {
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section id="how-it-works" className="py-24 bg-white scroll-mt-28">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-navy">{t('alt.landing.howItWorks.heading')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {howSteps.map((step, i) => (
-              <article key={step.titleKey} className="rounded-2xl border border-navy/10 bg-warm-gray p-5">
+              <article key={step.titleKey} className="rounded-3xl border border-navy/10 bg-warm-gray p-5">
                 <div className="w-10 h-10 rounded-full grid place-items-center bg-white text-navy border border-navy/15 font-bold">
                   {i + 1}
                 </div>
@@ -438,7 +440,7 @@ export default function AltLanding() {
         </div>
       </section>
 
-      <section className="py-20 bg-navy text-white">
+      <section className="py-24 bg-navy text-white">
         <div className="max-w-4xl mx-auto px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-thin mb-8">
             {t('alt.landing.ctaBand.titleBefore')}
@@ -452,6 +454,9 @@ export default function AltLanding() {
           </Link>
         </div>
       </section>
+
+      <HumanTouchSection variant="alt" />
+      <Testimonials variant="alt" />
     </>
   );
 }

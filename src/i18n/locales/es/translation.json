@@ -3,8 +3,8 @@
     "home": "Inicio",
     "about": "Acerca de",
     "contact": "Contacto",
-    "search": "Buscar",
-    "login": "Iniciar sesión",
+    "search": "Exploremos",
+    "login": "Mi cuenta",
     "register": "Registrarse",
     "logout": "Cerrar sesión",
     "profile": "Perfil",
@@ -25,12 +25,16 @@
   },
   "nav": {
     "home": "Inicio",
-    "explore": "Explorar",
+    "explore": "Explorar casas",
+    "howItWorks": "Cómo funciona",
+    "aboutUs": "Sobre nosotros",
     "contact": "Contacto",
     "about": "Acerca",
     "terms": "Términos",
+    "tagline": "Casas de vacaciones en Rivera, sin complicaciones.",
+    "ctaFindStay": "Encontrá tu estadía",
     "searchPlaceholder": "Buscar destinos...",
-    "signIn": "Iniciar sesión",
+    "signIn": "Mi cuenta",
     "signUp": "Registrarse",
     "myTrips": "Mis viajes",
     "wishlist": "Lista de deseos",
@@ -41,7 +45,17 @@
     "logoutAlert": "Tu sesión se cerrará."
   },
   "footer": {
-    "brandDescription": "Propiedades disponibles en la zona, sin intermediarios. Entrá en contacto y conocé nuestros demás servicios.",
+    "brandDescription": "Ayudamos a la gente a encontrar lugares memorables donde quedarse en Rivera.",
+    "welcomeMessage": "Ya sea que estés planeando tu próxima escapada o compartiendo tu casa con huéspedes, nos alegra que estés acá.",
+    "madeWithCare": "Hecho con cariño en Uruguay.",
+    "exploreHeading": "Explorar",
+    "vacationHomes": "Casas de vacaciones",
+    "popularAreas": "Zonas populares",
+    "howItWorks": "Cómo funciona",
+    "supportHeading": "Soporte",
+    "legalHeading": "Legal",
+    "privacyPolicy": "Privacidad",
+    "termsOfService": "Términos",
     "allRightsReserved": "Todos los derechos reservados.",
     "contact": {
       "email": "admin@encartelera.uy",
@@ -135,11 +149,11 @@
   },
   "landing": {
     "hero": {
-      "title": "Una forma confiable de alquilar casas",
-      "description": "Elegí la propiedad, coordiná el horario y hablá directo con el dueño.",
+      "title": "Tu próxima escapada empieza acá.",
+      "description": "Explorá casas en Rivera, elegí tus fechas y coordiná directo con quienes las conocen de verdad.",
       "valueProposition": "",
       "subtitle": "Alquilá con tranquilidad. Publicá con confianza.",
-      "support": "Reserva rápida. Sin vueltas. Con seguridad.",
+      "support": "Casas reales. Anfitriones reales. Sin vueltas.",
       "search": {
         "locationPlaceholder": "Ubicación",
         "locationAria": "Ubicación o zona",
@@ -152,15 +166,15 @@
         "checkOutAria": "Fecha de salida",
         "cityPlaceholder": "Ubicación",
         "cityAria": "Ciudad o localidad (Uruguay)",
-        "submit": "Buscar"
+        "submit": "Exploremos"
       },
       "trust": {
-        "verified": "Propietarios verificados",
-        "payments": "Reservas directas y seguras",
-        "bookings": "Coordinación inmediata"
+        "verified": "Anfitriones que conocemos",
+        "payments": "Reservá directo, sin sorpresas",
+        "bookings": "Estamos acá si nos necesitás"
       },
       "cta": {
-        "search": "Ver propiedades disponibles",
+        "search": "Explorar casas",
         "login": "Ingresar",
         "manage": "Ver mi reserva"
       },
@@ -171,7 +185,7 @@
         "reservationPrompt": "¿Ya tienes una reserva?"
       },
       "story": {
-        "title": "Reservá en minutos",
+        "title": "Los recuerdos empiezan acá",
         "stepAria": "Paso {{step}}"
       },
       "stats": {
@@ -182,9 +196,9 @@
     },
     "featured": {
       "eyebrow": "Elegí tu estilo",
-      "title": "Propiedades destacadas",
-      "subtitle": "Casas seleccionadas, en las que podés confiar",
-      "viewAll": "Ver Todas las Propiedades",
+      "title": "Casas elegidas que nuestros huéspedes aman",
+      "subtitle": "Lugares para tomarse el tiempo.",
+      "viewAll": "Explorar casas",
       "popular": "Popular",
       "empty": "No hay propiedades destacadas disponibles por el momento.",
       "errors": {
@@ -192,52 +206,59 @@
       }
     },
     "platform": {
-      "title": "¿Por qué usar nuestra plataforma?",
+      "title": "Por qué nos eligen los huéspedes",
       "cards": {
         "1": {
-          "title": "Reserva rápida",
-          "description": "Reservá en pocos pasos sin complicaciones."
+          "title": "Reservá con confianza",
+          "description": "Unos pocos pasos claros y listo — sin adivinar, sin estrés."
         },
         "2": {
-          "title": "Seguridad garantizada",
-          "description": "Validación de identidad y reservas confiables."
+          "title": "Casas confiables y anfitriones verificados",
+          "description": "Nuestro equipo local revisa cada publicación para que sepas qué esperar."
         },
         "3": {
-          "title": "Opciones en Rivera",
-          "description": "Encontrá casas disponibles fácilmente."
+          "title": "Casas que se sienten como Rivera",
+          "description": "Barrios reales, carácter real — el tipo de lugar al que querés volver."
         },
         "4": {
-          "title": "Sin necesidad de cuenta",
-          "description": "Reservá sin registrarte."
+          "title": "Empezá a planear ya",
+          "description": "Explorá y reservá sin crear una cuenta primero."
         }
       }
     },
     "howItWorks": {
       "eyebrow": "Proceso simple",
       "title": "Cómo funciona",
-      "subtitle": "Reservar tu casa de vacaciones soñada es simple y seguro. Aquí te mostramos cómo comenzar.",
+      "subtitle": "Encontrar tu próxima estadía no debería sentirse como una tarea. Así lo hacemos simple.",
       "steps": {
         "1": {
-          "title": "Explorá propiedades",
+          "title": "Explorá casas",
           "subtitle": "",
-          "description": "Buscá por zona y encontrá opciones disponibles."
+          "description": "Navegá por zona y encontrá lugares que encajen con tu viaje."
         },
         "2": {
-          "title": "Elige un día",
+          "title": "Elegí tus fechas",
           "subtitle": "",
-          "description": "Consultá la agenda y seleccioná cuándo querés visitar."
+          "description": "Consultá disponibilidad y elegí cuándo querés llegar."
         },
         "3": {
-          "title": "Reservá tu visita",
+          "title": "Reservá tu estadía",
           "subtitle": "",
-          "description": "Llegá sabiendo qué esperar. Casas reales, acuerdos claros y la tranquilidad de alquilar en una plataforma local."
+          "description": "Detalles claros, publicaciones honestas y la tranquilidad de una plataforma local."
         },
         "4": {
-          "title": "Finaliza con el propietario",
+          "title": "Coordiná con tu anfitrión",
           "subtitle": "",
-          "description": "Recibí la confirmación y preparate para tu próxima estadía."
+          "description": "Recibí la confirmación y empezá a ilusionarte con tu escapada."
         }
       }
+    },
+    "humanTouch": {
+      "title": "Somos personas ayudando a personas.",
+      "paragraph1": "Creamos En cartelera porque encontrar una casa de vacaciones en Rivera no debería significar saltar entre docenas de sitios ni preguntarse con quién hablás en realidad.",
+      "paragraph2": "Ya sea que planees un fin de semana largo o abras tu casa a huéspedes, lo hicimos para los dos lados — viajeros que buscan algo real, y propietarios que quieren algo simple.",
+      "paragraph3": "Somos un equipo chico en Rivera. Cuando nos escribís, responde una persona. Así creemos que debería funcionar.",
+      "learnMore": "Conocé más"
     },
     "whyChooseUs": {
       "title": "Por qué elegirnos",
@@ -252,23 +273,23 @@
       }
     },
     "testimonials": {
-      "title": "Reseñas de huéspedes",
-      "subtitle": "Experiencias reales de personas como vos",
+      "title": "Lo que dicen los huéspedes",
+      "subtitle": "Historias cortas de quienes ya lo vivieron",
       "items": {
         "1": {
-          "text": "Todo fue tal como se mostraba en la publicación. Coordinamos fácil y la casa estaba impecable.",
+          "text": "Encontramos el lugar perfecto para Año Nuevo en menos de una hora.",
           "author": "María",
           "location": "Rivera"
         },
         "2": {
-          "text": "Se nota que es una plataforma local. Mucha más tranquilidad que otras opciones.",
+          "text": "Fue mucho más fácil que buscar en distintos sitios.",
           "author": "Andrés",
           "location": "Rivera"
         },
         "3": {
-          "text": "Publicar mi casa fue simple y sin vueltas. Todo claro desde el primer momento.",
+          "text": "El proceso de reserva fue simple de principio a fin.",
           "author": "Laura",
-          "location": "Propietaria"
+          "location": "Rivera"
         }
       }
     },
@@ -570,7 +591,7 @@
   "reservationLookup": {
     "actions": {
       "searchAnotherCode": "Buscar con otro código",
-      "search": "Buscar",
+      "search": "Busquemos",
       "searching": "Buscando...",
       "viewProperty": "Ver propiedad",
       "cancelReservation": "Cancelar reserva",
@@ -694,7 +715,7 @@
     "title": "Página No Encontrada",
     "description": "Lo sentimos, la página que buscas no existe o ha sido movida.",
     "backToHome": "Volver al Inicio",
-    "searchProperties": "Buscar Propiedades"
+    "searchProperties": "Explorar casas"
   },
   "profile": {
     "header": {
@@ -997,7 +1018,7 @@
     "lastUpdated": "Última actualización",
     "emptyTitle": "Tu Lista de Deseos Está Vacía",
     "emptyDescription": "Comienza a guardar propiedades en tu lista de deseos para hacer seguimiento de los lugares que te gustaría visitar.",
-    "exploreProperties": "Explorar Propiedades"
+    "exploreProperties": "Explorar casas"
   },
   "contact": {
     "title": {
@@ -1045,14 +1066,14 @@
     "hero": {
       "title": "Acerca de",
       "titleHighlight": "En cartelera - Escapadas",
-      "description": "Estamos en una misión para transformar cómo las personas experimentan las casas de vacaciones. Al seleccionar propiedades extraordinarias y brindar un servicio sin igual, creamos recuerdos que duran toda la vida."
+      "description": "Somos un equipo chico en Rivera que ayuda a viajeros a encontrar buenos lugares donde quedarse — y a propietarios a compartir su casa sin complicaciones."
     },
     "story": {
       "title": "Nuestra",
       "titleHighlight": "Historia",
-      "paragraph1": "En cartelera - Escapadas comenzó con una idea simple: los alquileres vacacionales deberían ser tan lujosos y memorables como los mejores hoteles, pero con el espacio y la privacidad de un hogar.",
-      "paragraph2": "Nuestra fundadora, Anna Svensson, experimentó esto de primera mano al buscar la casa de vacaciones perfecta para su familia. Frustrada por la falta de opciones de calidad y experiencias inconsistentes, decidió crear una plataforma que cambiaría la industria de alquileres vacacionales para siempre.",
-      "paragraph3": "Hoy, hemos seleccionado más de 800 propiedades excepcionales en más de 50 países, cada una inspeccionada y verificada personalmente para asegurar que cumplan con nuestros estándares inquebrantables de lujo, comodidad y autenticidad.",
+      "paragraph1": "En cartelera nació de una frustración simple: encontrar una casa de vacaciones en Rivera significaba recorrer plataformas grandes que se sentían impersonales, o buscar publicaciones dispersas sin saber con quién ibas a tratar.",
+      "paragraph2": "Queríamos algo distinto — un lugar donde pudieras ver casas reales, hablar con anfitriones reales y reservar sin vueltas. Así que lo construimos, acá en Rivera.",
+      "paragraph3": "Hoy trabajamos con propietarios y huéspedes locales todos los días. Visitamos propiedades, respondemos preguntas y mantenemos las cosas humanas. Ese es el punto.",
       "imageAlt": "Equipo de En cartelera - Escapadas"
     },
     "stats": {
@@ -1114,9 +1135,9 @@
   },
   "search": {
     "header": {
-      "titlePrefix": "Encuentra tu",
-      "titleHighlight": "Estancia Perfecta",
-      "subtitle": "Descubre propiedades increíbles alrededor del mundo"
+      "titlePrefix": "Descubrí",
+      "titleHighlight": "tu próxima estadía",
+      "subtitle": "Explorá casas de vacaciones en Rivera y alrededores — lugares reales, listos para recibirte."
     },
     "searchPlaceholder": "Buscar destinos...",
     "filters": {

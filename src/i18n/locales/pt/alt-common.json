@@ -14,7 +14,12 @@
     "mainNavAria": "Navegação principal",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
-    "languageSelectAria": "Idioma"
+    "languageSelectAria": "Idioma",
+    "tagline": "Espaços para eventos em Rivera, sem complicação.",
+    "exploreVenues": "Explorar espaços",
+    "howItWorks": "Como funciona",
+    "aboutUs": "Sobre nós",
+    "ctaFindVenue": "Encontre seu espaço"
   },
   "languages": {
     "en": "English",
@@ -23,8 +28,8 @@
   },
   "landing": {
     "hero": {
-      "title": "Encontre o espaço que seus convidados vão lembrar",
-      "subtitle": "Consulte disponibilidade real por intervalo de datas e localização, e coordene direto com o local. Sem intermediários. Sem demoras.",
+      "title": "Uma celebração da qual seus convidados vão falar",
+      "subtitle": "Explore espaços em Rivera, consulte disponibilidade real e coordene direto com quem os gerencia — sem intermediários, sem enrolação.",
       "searchDateFromLabel": "Data mais cedo",
       "searchDateFromAria": "Data mais cedo do evento",
       "searchDateToLabel": "Data mais tarde",
@@ -32,58 +37,86 @@
       "searchLocationLabel": "Localização",
       "searchLocationPlaceholder": "Cidade ou bairro",
       "searchLocationAria": "Localização",
-      "searchCta": "Buscar",
-      "badgeCurated": "Espaços verificados",
-      "badgeCapacity": "Capacidade e layout",
-      "badgeHoldDemo": "Demo de reserva de data",
-      "exploreCta": "Explorar locais",
+      "searchCta": "Vamos explorar",
+      "badgeCurated": "Espaços que conhecemos",
+      "badgeCapacity": "Capacidade e layout claros",
+      "badgeHoldDemo": "Reservas de data simples",
+      "exploreCta": "Explorar espaços",
       "talkCta": "Ver reserva",
-      "storiesHeading": "Inspiração para a sua próxima festa",
-      "storiesDescription": "Descubra salões, jardins e espaços preparados para aniversários, casamentos, eventos corporativos e muito mais.",
+      "storiesHeading": "Onde começam as boas memórias",
+      "storiesDescription": "Salões, jardins e espaços prontos para aniversários, casamentos, eventos corporativos e muito mais.",
       "storyDotAria": "Mostrar imagem {{n}}"
     },
     "occasions": {
       "eyebrow": "Toda ocasião",
-      "heading": "Espaços conforme o seu evento"
+      "heading": "Espaços que facilitam seu dia"
     },
     "features": {
       "weddings": {
         "title": "Casamentos",
-        "description": "Espaços para cerimônia e recepção com margem para tradições, cronograma e pista de dança."
+        "description": "Espaços para cerimônia e recepção com margem para suas tradições — para você focar nas pessoas, não na logística."
       },
       "corporate": {
         "title": "Corporativo",
-        "description": "Summits, offsites e jantares com clientes com assentos flexíveis e AV profissional."
+        "description": "Summits e jantares com clientes com assentos flexíveis — um ambiente profissional sem frieza corporativa."
       },
       "parties": {
         "title": "Festas",
-        "description": "Marcos, arrecadações e celebrações com capacidade e layout sob medida."
+        "description": "Marcos e celebrações com capacidade e layout que combinam com sua lista de convidados e seu estilo."
       }
     },
     "popular": {
       "eyebrow": "Em destaque",
-      "heading": "Espaços populares nesta temporada",
-      "sub": "Escolhidos por qualidade e disponibilidade.",
+      "heading": "Espaços que nossos hóspedes amam",
+      "sub": "Lugares que valem celebrar.",
       "popularBadge": "Popular",
       "guestsLine": "Até {{count}} convidados · {{priceHint}}",
-      "cta": "Encontre o espaço ideal"
+      "cta": "Explorar espaços"
     },
     "howItWorks": {
       "heading": "Como funciona",
       "step1Title": "Explore espaços",
-      "step1Desc": "Filtre por localização, capacidade e datas de disponibilidade.",
-      "step2Title": "Escolher data",
-      "step2Desc": "Consulte disponibilidade em tempo real",
-      "step3Title": "Reserve",
-      "step3Desc": "Complete as informações solicitadas e confirme seu evento",
+      "step1Desc": "Filtre por localização, capacidade e quando precisa do espaço.",
+      "step2Title": "Escolha uma data",
+      "step2Desc": "Consulte disponibilidade e escolha um dia que funcione para todos.",
+      "step3Title": "Reserve seu evento",
+      "step3Desc": "Alguns passos claros e pronto — sem adivinhação.",
       "step4Title": "Coordene direto",
-      "step4Desc": "Conecte-se ao local sem intermediários"
+      "step4Desc": "Fale com a equipe do espaço sem passar por um call center."
+    },
+    "humanTouch": {
+      "title": "Somos pessoas ajudando pessoas.",
+      "paragraph1": "Criamos o En cartelera Espacios porque encontrar um espaço para eventos em Rivera não deveria significar anúncios frios e ligações sem fim.",
+      "paragraph2": "Seja planejando um casamento ou abrindo seu espaço a eventos, fizemos isso para os dois lados — organizadores que querem algo real, e donos de espaços que querem algo simples.",
+      "paragraph3": "Somos uma equipe pequena em Rivera. Quando você entra em contato, uma pessoa responde. É assim que achamos que deveria funcionar.",
+      "learnMore": "Saiba mais"
+    },
+    "testimonials": {
+      "title": "O que os organizadores dizem",
+      "subtitle": "Histórias curtas de quem já passou por aqui",
+      "items": {
+        "1": {
+          "text": "Encontramos o espaço perfeito para nosso jantar de empresa em menos de uma hora.",
+          "author": "María",
+          "location": "Rivera"
+        },
+        "2": {
+          "text": "Foi muito mais fácil do que buscar em sites diferentes.",
+          "author": "Andrés",
+          "location": "Rivera"
+        },
+        "3": {
+          "text": "O processo de reserva foi simples do início ao fim.",
+          "author": "Laura",
+          "location": "Rivera"
+        }
+      }
     },
     "ctaBand": {
       "titleBefore": "Pronto para ",
-      "titleHighlight": "pré-selecionar",
+      "titleHighlight": "encontrar",
       "titleAfter": " seu espaço?",
-      "button": "Começar a explorar"
+      "button": "Explorar espaços"
     }
   },
   "search": {
@@ -243,12 +276,18 @@
     ]
   },
   "footer": {
-    "email": "hello@venuespace.example",
-    "phone": "+1 (555) 010-2030",
-    "address": "Austin, TX",
-    "tagline": "Encontre e reserve espaços excepcionais para casamentos, encontros corporativos e celebrações.",
+    "email": "admin@encartelera.uy",
+    "phone": "+598 99 205 886",
+    "address": "Rivera, Uruguay",
+    "tagline": "Ajudamos pessoas a encontrar espaços memoráveis para suas celebrações.",
+    "welcomeMessage": "Seja planejando seu próximo evento ou compartilhando seu espaço com convidados, ficamos felizes em ter você aqui.",
+    "madeWithCare": "Feito com carinho no Uruguai.",
     "companyHeading": "Empresa",
+    "supportHeading": "Suporte",
+    "legalHeading": "Legal",
+    "contactLink": "Contato",
     "termsLink": "Termos e condições",
+    "howItWorks": "Como funciona",
     "exploreHeading": "Explorar",
     "browseVenues": "Ver espaços",
     "weddingVenues": "Espaços para casamento",
@@ -258,6 +297,20 @@
     "facebook": "Facebook",
     "twitter": "Twitter",
     "instagram": "Instagram"
+  },
+  "about": {
+    "hero": {
+      "title": "Sobre",
+      "titleHighlight": "En cartelera - Espacios",
+      "description": "Somos uma equipe pequena em Rivera que ajuda pessoas a encontrar ótimos espaços para seus eventos — e donos de espaços a compartilhar os seus sem complicação."
+    },
+    "story": {
+      "title": "Nossa",
+      "titleHighlight": "História",
+      "paragraph1": "O En cartelera Espacios começou com uma frustração simples: encontrar um espaço para eventos em Rivera significava rolar por anúncios impessoais ou caçar opções espalhadas sem saber com quem você estaria lidando.",
+      "paragraph2": "Queríamos algo diferente — um lugar onde você pudesse ver espaços reais, falar com equipes reais e reservar sem enrolação. Então construímos, aqui em Rivera.",
+      "paragraph3": "Hoje trabalhamos com donos de espaços e organizadores locais todos os dias. Visitamos lugares, respondemos perguntas e mantemos as coisas humanas. Esse é o ponto."
+    }
   },
   "reservations": {
     "titleBefore": "Suas ",

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Shield, Heart, MapPin, Sparkles } from 'lucide-react';
 import { Layout } from '../../components/layout';
 import { Button } from '../../components/ui';
 import HeroSplit from '../../components/sections/HeroSplit';
+import HumanTouchSection from '../../components/sections/HumanTouchSection';
+import Testimonials from '../../components/sections/Testimonials';
 import { getFeaturedProperties, getFavoriteProperties } from '../../services/propertyService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
@@ -109,16 +112,19 @@ const Landing: React.FC = () => {
     }
   };
 
+  const platformIcons = [Shield, Heart, MapPin, Sparkles];
+
   return (
     <Layout>
       {/* Hero Section */}
       <HeroSplit />
 
       {/* Featured Properties Section */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
             <h2 className="m-0 text-3xl md:text-4xl font-bold text-navy">{t('landing.featured.title')}</h2>
+            <p className="mt-3 m-0 text-charcoal/80 text-lg max-w-xl mx-auto">{t('landing.featured.subtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
@@ -138,7 +144,7 @@ const Landing: React.FC = () => {
               featuredProperties.slice(0, 6).map((property, index) => {
                 const image = property.images?.[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80';
                 return (
-                  <article key={property.id} className="relative min-h-[220px] border border-navy/15 rounded-2xl overflow-hidden bg-navy group">
+                  <article key={property.id} className="relative min-h-[220px] border border-navy/15 rounded-3xl overflow-hidden bg-navy group">
                     <Link to={`/property/${property.id}`} className="absolute inset-0 z-10" aria-label={property.title} />
                     <div className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105" style={{ backgroundImage: `url("${image}")` }} />
                     <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/35" />
@@ -179,26 +185,29 @@ const Landing: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-navy">{t('landing.platform.title')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((card) => (
-              <article key={`platform-${card}`} className="rounded-2xl border border-navy/15 bg-warm-gray p-5 hover:-translate-y-1 hover:shadow-lg transition-all">
-                <div className="w-10 h-10 rounded-full grid place-items-center bg-white text-navy border border-navy/15 font-bold">
-                  {card}
+            {[1, 2, 3, 4].map((card) => {
+              const Icon = platformIcons[card - 1];
+              return (
+              <article key={`platform-${card}`} className="rounded-3xl border border-navy/15 bg-warm-gray p-5 hover:-translate-y-1 hover:shadow-lg transition-all">
+                <div className="w-10 h-10 rounded-full grid place-items-center bg-white text-navy border border-navy/15">
+                  <Icon className="h-5 w-5" aria-hidden />
                 </div>
                 <h3 className="mt-4 mb-2 text-lg font-semibold text-navy">{t(`landing.platform.cards.${card}.title`)}</h3>
                 <p className="m-0 text-sm text-charcoal/85">{t(`landing.platform.cards.${card}.description`)}</p>
               </article>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-warm-gray">
+      <section id="how-it-works" className="py-24 bg-warm-gray scroll-mt-28">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
             <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('landing.howItWorks.eyebrow')}</p>
@@ -211,7 +220,7 @@ const Landing: React.FC = () => {
               const subtitle = t(`landing.howItWorks.steps.${step}.subtitle`);
               const body = t(`landing.howItWorks.steps.${step}.description`);
               return (
-                <article key={`how-${step}`} className="rounded-2xl border border-navy/15 bg-white p-5">
+                <article key={`how-${step}`} className="rounded-3xl border border-navy/15 bg-white p-5">
                   <div className="w-10 h-10 rounded-full grid place-items-center bg-warm-gray text-navy border border-navy/15 font-bold">
                     {step}
                   </div>
@@ -226,6 +235,9 @@ const Landing: React.FC = () => {
           </div>
         </div>
       </section>
+
+      <HumanTouchSection />
+      <Testimonials />
 
     </Layout>
   );

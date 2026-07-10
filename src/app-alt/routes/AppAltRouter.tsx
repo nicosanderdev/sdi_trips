@@ -11,6 +11,7 @@ import AltTermsAndConditions from '../pages/AltTermsAndConditions';
 import AltVenueDetail from '../pages/AltVenueDetail';
 import Register from '../../app-main/pages/Register';
 import ForgotPassword from '../../app-main/pages/ForgotPassword';
+import About from '../../app-main/pages/About';
 
 export function AppAltRouter() {
   return (
@@ -21,6 +22,7 @@ export function AppAltRouter() {
             <Route path="/" element={<AltLanding />} />
             <Route path="/search" element={<AltSearchProperties />} />
             <Route path="/contact" element={<AltContact />} />
+            <Route path="/about" element={<About variant="alt" />} />
             <Route path="/reservation-lookup" element={<AltReservationLookup />} />
             <Route path="/terms-and-conditions" element={<AltTermsAndConditions />} />
             <Route path="/venue/:id" element={<AltVenueDetail />} />

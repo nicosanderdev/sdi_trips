@@ -14,7 +14,12 @@
     "mainNavAria": "Main navigation",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "languageSelectAria": "Language"
+    "languageSelectAria": "Language",
+    "tagline": "Event spaces in Rivera, made simple.",
+    "exploreVenues": "Explore Venues",
+    "howItWorks": "How It Works",
+    "aboutUs": "About Us",
+    "ctaFindVenue": "Find Your Venue"
   },
   "languages": {
     "en": "English",
@@ -23,8 +28,8 @@
   },
   "landing": {
     "hero": {
-      "title": "Find the venue your guests will remember",
-      "subtitle": "Check real availability by date range and location, then coordinate directly with the venue. No middlemen. No delays.",
+      "title": "A celebration your guests will talk about",
+      "subtitle": "Browse venues in Rivera, check real availability, and coordinate directly with the people who run them — no middlemen, no runaround.",
       "searchDateFromLabel": "Earliest date",
       "searchDateFromAria": "Earliest event date",
       "searchDateToLabel": "Latest date",
@@ -32,58 +37,86 @@
       "searchLocationLabel": "Location",
       "searchLocationPlaceholder": "City or neighborhood",
       "searchLocationAria": "Location",
-      "searchCta": "Search",
-      "badgeCurated": "Verified spaces",
-      "badgeCapacity": "Capacity & layout notes",
-      "badgeHoldDemo": "Date hold demo",
-      "exploreCta": "Explore local venues",
+      "searchCta": "Let's Explore",
+      "badgeCurated": "Spaces we know personally",
+      "badgeCapacity": "Clear capacity & layout info",
+      "badgeHoldDemo": "Simple date holds",
+      "exploreCta": "Explore Venues",
       "talkCta": "View reservation",
-      "storiesHeading": "Inspiration for your next celebration",
-      "storiesDescription": "Discover ballrooms, gardens, and venues ready for birthdays, weddings, corporate events, and much more.",
+      "storiesHeading": "Where great memories begin",
+      "storiesDescription": "Ballrooms, gardens, and venues ready for birthdays, weddings, corporate events, and everything in between.",
       "storyDotAria": "Show image {{n}}"
     },
     "occasions": {
       "eyebrow": "Every occasion",
-      "heading": "Spaces for your event"
+      "heading": "Spaces that make your day easier"
     },
     "features": {
       "weddings": {
         "title": "Weddings",
-        "description": "Ceremony and reception spaces with room for your traditions, timeline, and dance floor."
+        "description": "Ceremony and reception spaces with room for your traditions — so you can focus on the people, not the logistics."
       },
       "corporate": {
         "title": "Corporate",
-        "description": "Summits, offsites, and client dinners with flexible seating and professional AV options."
+        "description": "Summits and client dinners with flexible seating — a professional setting without the corporate coldness."
       },
       "parties": {
         "title": "Parties",
-        "description": "Milestones, fundraisers, and celebrations with capacity and layout options to match."
+        "description": "Milestones and celebrations with the capacity and layout to match your guest list and your vibe."
       }
     },
     "popular": {
       "eyebrow": "Featured",
-      "heading": "Popular venues this season",
-      "sub": "Selected for quality and availability.",
+      "heading": "Venues our guests love",
+      "sub": "Places worth celebrating in.",
       "popularBadge": "Popular",
       "guestsLine": "Up to {{count}} guests · {{priceHint}}",
-      "cta": "Find your perfect venue"
+      "cta": "Explore Venues"
     },
     "howItWorks": {
       "heading": "How it works",
       "step1Title": "Browse venues",
-      "step1Desc": "Filter by location, capacity, and availability dates.",
+      "step1Desc": "Filter by location, capacity, and when you need the space.",
       "step2Title": "Choose a date",
-      "step2Desc": "Check availability in real time",
-      "step3Title": "Book",
-      "step3Desc": "Complete the requested information and confirm your event",
+      "step2Desc": "Check availability and pick a day that works for everyone.",
+      "step3Title": "Book your event",
+      "step3Desc": "A few clear steps and you're on your way — no guesswork.",
       "step4Title": "Coordinate directly",
-      "step4Desc": "Connect with the venue without middlemen"
+      "step4Desc": "Talk to the venue team without going through a call center."
+    },
+    "humanTouch": {
+      "title": "We're people helping people.",
+      "paragraph1": "We started En cartelera Espacios because finding a venue in Rivera shouldn't mean cold listings and endless phone tag.",
+      "paragraph2": "Whether you're planning a wedding or opening your space to events, we built this for both sides — organizers who want something real, and venue owners who want something simple.",
+      "paragraph3": "We're a small team in Rivera. When you reach out, a person answers. That's how we think it should work.",
+      "learnMore": "Learn More"
+    },
+    "testimonials": {
+      "title": "What organizers are saying",
+      "subtitle": "Short stories from people who've been there",
+      "items": {
+        "1": {
+          "text": "We found the perfect venue for our company dinner in less than an hour.",
+          "author": "María",
+          "location": "Rivera"
+        },
+        "2": {
+          "text": "It felt much easier than searching across different websites.",
+          "author": "Andrés",
+          "location": "Rivera"
+        },
+        "3": {
+          "text": "The booking process was simple from start to finish.",
+          "author": "Laura",
+          "location": "Rivera"
+        }
+      }
     },
     "ctaBand": {
       "titleBefore": "Ready to ",
-      "titleHighlight": "shortlist",
+      "titleHighlight": "find",
       "titleAfter": " your venue?",
-      "button": "Start browsing"
+      "button": "Explore Venues"
     }
   },
   "search": {
@@ -243,12 +276,18 @@
     ]
   },
   "footer": {
-    "email": "hello@venuespace.example",
-    "phone": "+1 (555) 010-2030",
-    "address": "Austin, TX",
-    "tagline": "Find and book exceptional event venues for weddings, corporate gatherings, and celebrations.",
+    "email": "admin@encartelera.uy",
+    "phone": "+598 99 205 886",
+    "address": "Rivera, Uruguay",
+    "tagline": "Helping people find memorable spaces for their celebrations.",
+    "welcomeMessage": "Whether you're planning your next event or sharing your space with guests, we're happy you're here.",
+    "madeWithCare": "Made with care in Uruguay.",
     "companyHeading": "Company",
+    "supportHeading": "Support",
+    "legalHeading": "Legal",
+    "contactLink": "Contact",
     "termsLink": "Terms & conditions",
+    "howItWorks": "How It Works",
     "exploreHeading": "Explore",
     "browseVenues": "Browse venues",
     "weddingVenues": "Wedding venues",
@@ -258,6 +297,20 @@
     "facebook": "Facebook",
     "twitter": "Twitter",
     "instagram": "Instagram"
+  },
+  "about": {
+    "hero": {
+      "title": "About",
+      "titleHighlight": "En cartelera - Espacios",
+      "description": "We're a small team in Rivera helping people find great spaces for their events — and helping venue owners share theirs without the hassle."
+    },
+    "story": {
+      "title": "Our",
+      "titleHighlight": "Story",
+      "paragraph1": "En cartelera Espacios started with a simple frustration: finding an event venue in Rivera meant scrolling through impersonal listings or hunting through scattered options with no way to know who you'd actually be dealing with.",
+      "paragraph2": "We wanted something different — a place where you could see real spaces, talk to real venue teams, and book without the runaround. So we built it, right here in Rivera.",
+      "paragraph3": "Today we work with local venue owners and event organizers every day. We visit spaces, answer questions, and keep things human. That's the whole point."
+    }
   },
   "reservations": {
     "titleBefore": "Your ",

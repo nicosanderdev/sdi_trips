@@ -3,8 +3,8 @@
     "home": "Home",
     "about": "About",
     "contact": "Contact",
-    "search": "Search",
-    "login": "Login",
+    "search": "Let's Explore",
+    "login": "My Account",
     "register": "Register",
     "logout": "Logout",
     "profile": "Profile",
@@ -25,12 +25,16 @@
   },
   "nav": {
     "home": "Home",
-    "explore": "Explore",
+    "explore": "Explore Homes",
+    "howItWorks": "How It Works",
+    "aboutUs": "About Us",
     "contact": "Contact",
     "about": "About",
     "terms": "Terms",
+    "tagline": "Vacation homes in Rivera, made simple.",
+    "ctaFindStay": "Find Your Stay",
     "searchPlaceholder": "Search destinations...",
-    "signIn": "Sign In",
+    "signIn": "My Account",
     "signUp": "Sign Up",
     "myTrips": "My Trips",
     "wishlist": "Wishlist",
@@ -41,7 +45,17 @@
     "logoutAlert": "Your session will be closed."
   },
   "footer": {
-    "brandDescription": "Properties available in your area, with no middlemen. Get in touch and learn about our other services.",
+    "brandDescription": "Helping people find memorable places to stay in Rivera.",
+    "welcomeMessage": "Whether you're planning your next getaway or sharing your home with guests, we're happy you're here.",
+    "madeWithCare": "Made with care in Uruguay.",
+    "exploreHeading": "Explore",
+    "vacationHomes": "Vacation Homes",
+    "popularAreas": "Popular Areas",
+    "howItWorks": "How It Works",
+    "supportHeading": "Support",
+    "legalHeading": "Legal",
+    "privacyPolicy": "Privacy",
+    "termsOfService": "Terms",
     "allRightsReserved": "All rights reserved.",
     "contact": {
       "email": "admin@encartelera.uy",
@@ -135,11 +149,11 @@
   },
   "landing": {
     "hero": {
-      "title": "A reliable way to rent homes",
-      "description": "Choose the property, coordinate the time, and talk directly with the owner.",
+      "title": "Your next getaway starts here.",
+      "description": "Browse homes in Rivera, pick your dates, and coordinate directly with the people who know them best.",
       "valueProposition": "",
       "subtitle": "Rent with peace of mind. Publish with confidence.",
-      "support": "Quick booking. No hassle. Secure.",
+      "support": "Real homes. Real hosts. No runaround.",
       "search": {
         "locationPlaceholder": "Location",
         "locationAria": "Location or area",
@@ -152,15 +166,15 @@
         "checkOutAria": "Check-out date",
         "cityPlaceholder": "Location",
         "cityAria": "City or locality (Uruguay)",
-        "submit": "Search"
+        "submit": "Let's Explore"
       },
       "trust": {
-        "verified": "Verified owners",
-        "payments": "Direct, secure bookings",
-        "bookings": "Immediate coordination"
+        "verified": "Hosts we know personally",
+        "payments": "Book directly, no surprises",
+        "bookings": "We're here if you need us"
       },
       "cta": {
-        "search": "View available properties",
+        "search": "Explore Homes",
         "publish": "Log in",
         "manage": "Manage my booking"
       },
@@ -171,7 +185,7 @@
         "reservationPrompt": "Already have a booking?"
       },
       "story": {
-        "title": "Book in minutes",
+        "title": "Memories start here",
         "stepAria": "Step {{step}}"
       },
       "stats": {
@@ -182,9 +196,9 @@
     },
     "featured": {
       "eyebrow": "Choose your style",
-      "title": "Featured Properties",
-      "subtitle": "Selected homes you can trust",
-      "viewAll": "View All Properties",
+      "title": "Handpicked homes our guests love",
+      "subtitle": "Places worth slowing down for.",
+      "viewAll": "Explore Homes",
       "popular": "Popular",
       "empty": "No featured properties available at the moment.",
       "errors": {
@@ -192,52 +206,59 @@
       }
     },
     "platform": {
-      "title": "Why use our platform?",
+      "title": "Why guests choose us",
       "cards": {
         "1": {
-          "title": "Fast booking",
-          "description": "Book in just a few simple steps."
+          "title": "Book with confidence",
+          "description": "A few clear steps and you're on your way — no guesswork, no stress."
         },
         "2": {
-          "title": "Guaranteed security",
-          "description": "Identity validation and reliable bookings."
+          "title": "Trusted homes and verified hosts",
+          "description": "Our local team checks every listing so you know what you're getting."
         },
         "3": {
-          "title": "Options in Rivera",
-          "description": "Find available homes quickly and easily."
+          "title": "Homes that feel like Rivera",
+          "description": "Real neighborhoods, real character — the kind of place you'll want to come back to."
         },
         "4": {
-          "title": "No account required",
-          "description": "Book without creating an account."
+          "title": "Start planning right away",
+          "description": "Browse and book without creating an account first."
         }
       }
     },
     "howItWorks": {
       "eyebrow": "Simple process",
       "title": "How It Works",
-      "subtitle": "Booking your dream holiday home is simple and secure. Here's how to get started.",
+      "subtitle": "Finding your next stay shouldn't feel like homework. Here's how we keep it simple.",
       "steps": {
         "1": {
-          "title": "Explore properties",
+          "title": "Explore homes",
           "subtitle": "",
-          "description": "Search by area and find available options."
+          "description": "Browse by area and find places that feel right for your trip."
         },
         "2": {
-          "title": "Pick a day",
+          "title": "Pick your dates",
           "subtitle": "",
-          "description": "Check the calendar and choose when you want to visit."
+          "description": "Check availability and choose when you'd like to arrive."
         },
         "3": {
-          "title": "Book your visit",
+          "title": "Book your stay",
           "subtitle": "",
-          "description": "Arrive knowing what to expect. Real homes, clear agreements, and the peace of mind of renting on a local platform."
+          "description": "Clear details, honest listings, and the peace of mind that comes from a local platform."
         },
         "4": {
-          "title": "Finalize with the owner",
+          "title": "Coordinate with your host",
           "subtitle": "",
-          "description": "Get your confirmation and get ready for your next stay."
+          "description": "Get your confirmation and start looking forward to your getaway."
         }
       }
+    },
+    "humanTouch": {
+      "title": "We're people helping people.",
+      "paragraph1": "We started En cartelera because finding a vacation home in Rivera shouldn't mean jumping between a dozen websites or wondering who you're really talking to.",
+      "paragraph2": "Whether you're planning a long weekend or opening your home to guests, we built this for both sides — travelers who want something real, and homeowners who want something simple.",
+      "paragraph3": "We're a small team in Rivera. When you reach out, a person answers. That's how we think it should work.",
+      "learnMore": "Learn More"
     },
     "whyChooseUs": {
       "title": "Why Choose Us",
@@ -252,23 +273,23 @@
       }
     },
     "testimonials": {
-      "title": "Guest Testimonials",
-      "subtitle": "Real experiences from people like you",
+      "title": "What guests are saying",
+      "subtitle": "Short stories from people who've been there",
       "items": {
         "1": {
-          "text": "Everything was exactly as shown in the listing. We coordinated easily and the house was impeccable.",
+          "text": "We found the perfect place for New Year's in less than an hour.",
           "author": "María",
           "location": "Rivera"
         },
         "2": {
-          "text": "You can tell it's a local platform. Much more peace of mind than other options.",
+          "text": "It felt much easier than searching across different websites.",
           "author": "Andrés",
           "location": "Rivera"
         },
         "3": {
-          "text": "Publishing my house was simple and straightforward. Everything clear from the first moment.",
+          "text": "The booking process was simple from start to finish.",
           "author": "Laura",
-          "location": "Property Owner"
+          "location": "Rivera"
         }
       }
     },
@@ -597,7 +618,7 @@
   "reservationLookup": {
     "actions": {
       "searchAnotherCode": "Search with another code",
-      "search": "Search",
+      "search": "Let's look it up",
       "searching": "Searching...",
       "viewProperty": "View Property",
       "cancelReservation": "Cancel Reservation",
@@ -721,7 +742,7 @@
     "title": "Page Not Found",
     "description": "Sorry, the page you're looking for doesn't exist or has been moved.",
     "backToHome": "Back to Home",
-    "searchProperties": "Search Properties"
+    "searchProperties": "Explore Homes"
   },
   "profile": {
     "header": {
@@ -1024,7 +1045,7 @@
     "lastUpdated": "Last updated",
     "emptyTitle": "Your Wishlist is Empty",
     "emptyDescription": "Start saving properties to your wishlist to keep track of places you'd like to visit.",
-    "exploreProperties": "Explore Properties"
+    "exploreProperties": "Explore Homes"
   },
   "contact": {
     "title": {
@@ -1072,14 +1093,14 @@
     "hero": {
       "title": "About",
       "titleHighlight": "En cartelera - Escapadas",
-      "description": "We're on a mission to transform how people experience vacation homes. By curating extraordinary properties and providing unparalleled service, we create memories that last a lifetime."
+      "description": "We're a small team in Rivera helping travelers find great places to stay — and helping homeowners share theirs without the hassle."
     },
     "story": {
       "title": "Our",
       "titleHighlight": "Story",
-      "paragraph1": "En cartelera - Escapadas began with a simple idea: vacation rentals should be as luxurious and memorable as the finest hotels, but with the space and privacy of a home.",
-      "paragraph2": "Our founder, Anna Svensson, experienced this firsthand when searching for the perfect holiday home for her family. Frustrated by the lack of quality options and inconsistent experiences, she decided to create a platform that would change the vacation rental industry forever.",
-      "paragraph3": "Today, we've curated over 800 exceptional properties across 50+ countries, each personally inspected and vetted to ensure they meet our uncompromising standards for luxury, comfort, and authenticity.",
+      "paragraph1": "En cartelera started with a simple frustration: finding a vacation home in Rivera meant scrolling through big platforms that felt impersonal, or hunting through scattered listings with no way to know who you'd actually be dealing with.",
+      "paragraph2": "We wanted something different — a place where you could see real homes, talk to real hosts, and book without the runaround. So we built it, right here in Rivera.",
+      "paragraph3": "Today we work with local homeowners and guests every day. We visit properties, answer questions, and keep things human. That's the whole point.",
       "imageAlt": "En cartelera - Escapadas team"
     },
     "stats": {
@@ -1141,9 +1162,9 @@
   },
   "search": {
     "header": {
-      "titlePrefix": "Find Your",
-      "titleHighlight": "Perfect Stay",
-      "subtitle": "Discover amazing properties around the world"
+      "titlePrefix": "Discover",
+      "titleHighlight": "your next stay",
+      "subtitle": "Browse vacation homes in Rivera and nearby — real places, ready to welcome you."
     },
     "searchPlaceholder": "Search destinations...",
     "filters": {
