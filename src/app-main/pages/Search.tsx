@@ -509,17 +509,28 @@ const Search: React.FC = () => {
       })
         .setLngLat([selectedOffsetCoordinates.lng, selectedOffsetCoordinates.lat])
         .setHTML(`
-          <div class="sdi-map-popup-card flex flex-col gap-2.5">
-            <img src="${selectedProperty.images[0]}" alt="${selectedProperty.title}" class="w-full h-20 object-cover rounded-xl" />
-            <h3 class="font-semibold text-navy text-sm leading-5 max-h-10 overflow-hidden wrap-break-word">${selectedProperty.title}</h3>
+          <div class="sdi-map-popup-card flex flex-col gap-2">
+            <h3 class="font-semibold text-navy text-sm leading-5 line-clamp-2 pr-6">${selectedProperty.title}</h3>
             <p class="text-xs text-charcoal truncate">${selectedProperty.location}</p>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-gold">$${popupPrice}${t('search.map.perNight')}</span>
-              <div class="flex items-center space-x-1">
-                <span class="text-xs text-charcoal">★ ${selectedProperty.rating}</span>
-              </div>
+            <div class="sdi-map-popup-meta flex items-center gap-3 text-xs text-charcoal">
+              <span class="inline-flex items-center gap-1" title="${t('propertyDetail.propertyIdentity.guests', { count: selectedProperty.maxGuests })}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                ${selectedProperty.maxGuests}
+              </span>
+              <span class="inline-flex items-center gap-1" title="${t('propertyDetail.propertyIdentity.bedrooms', { count: selectedProperty.bedrooms })}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+                ${selectedProperty.bedrooms}
+              </span>
+              <span class="inline-flex items-center gap-1" title="${t('propertyDetail.propertyIdentity.bathrooms', { count: selectedProperty.bathrooms })}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" x2="8" y1="5" y2="7"/><line x1="2" x2="22" y1="12" y2="12"/><line x1="7" x2="7" y1="19" y2="21"/><line x1="17" x2="17" y1="19" y2="21"/></svg>
+                ${selectedProperty.bathrooms}
+              </span>
             </div>
-            <a href="${propertyDetailPath(selectedProperty.id)}" class="block mt-1">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-bold text-gold text-xl leading-none">$${popupPrice}<span class="text-xs font-semibold text-charcoal ml-0.5">${t('search.map.perNight')}</span></span>
+              <span class="text-xs text-charcoal shrink-0">★ ${selectedProperty.rating}</span>
+            </div>
+            <a href="${propertyDetailPath(selectedProperty.id)}" class="block">
               <button class="w-full bg-gold text-navy px-3 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 active:bg-navy active:text-white cursor-pointer">
                 ${t('search.map.viewDetails')}
               </button>
