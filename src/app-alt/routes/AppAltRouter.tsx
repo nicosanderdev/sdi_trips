@@ -9,7 +9,6 @@ import AltReservationLookup from '../pages/AltReservationLookup';
 import AltSearchProperties from '../pages/AltSearchProperties';
 import AltTermsAndConditions from '../pages/AltTermsAndConditions';
 import AltVenueDetail from '../pages/AltVenueDetail';
-import Register from '../../app-main/pages/Register';
 import ForgotPassword from '../../app-main/pages/ForgotPassword';
 import About from '../../app-main/pages/About';
 
@@ -26,7 +25,6 @@ export function AppAltRouter() {
             <Route path="/reservation-lookup" element={<AltReservationLookup />} />
             <Route path="/terms-and-conditions" element={<AltTermsAndConditions />} />
             <Route path="/venue/:id" element={<AltVenueDetail />} />
-            <Route path="/register" element={<Register variant="alt" />} />
             <Route path="/forgot-password" element={<ForgotPassword variant="alt" />} />
             <Route path="*" element={<AltNotFound />} />
           </Route>

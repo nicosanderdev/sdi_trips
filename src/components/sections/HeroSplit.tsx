@@ -18,10 +18,18 @@ interface UyCity {
 
 const uyCities: UyCity[] = uyCitiesData as UyCity[];
 
+/** Stock Unsplash photos for the hero carousel (and fallbacks when property media is missing). */
+const STOCK_HERO_IMAGES = [
+  'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1600607687644-c7171b42498b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
+] as const;
+
 const mockReviews = [
   {
-    image:
-      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: STOCK_HERO_IMAGES[0],
     rating: 4.9,
     reviewCount: 2500,
     reviewText:
@@ -29,8 +37,7 @@ const mockReviews = [
     language: 'en',
   },
   {
-    image:
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: STOCK_HERO_IMAGES[1],
     rating: 4.8,
     reviewCount: 1800,
     reviewText:
@@ -38,8 +45,7 @@ const mockReviews = [
     language: 'es',
   },
   {
-    image:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: STOCK_HERO_IMAGES[2],
     rating: 5.0,
     reviewCount: 3200,
     reviewText:
@@ -47,8 +53,7 @@ const mockReviews = [
     language: 'pt',
   },
   {
-    image:
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: STOCK_HERO_IMAGES[3],
     rating: 4.7,
     reviewCount: 1950,
     reviewText:
@@ -56,8 +61,7 @@ const mockReviews = [
     language: 'fr',
   },
   {
-    image:
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: STOCK_HERO_IMAGES[4],
     rating: 4.6,
     reviewCount: 1420,
     reviewText:
@@ -104,11 +108,11 @@ const HeroSplit: React.FC = () => {
 
   const heroSlides: HeroSlide[] =
     heroProperties.length > 0
-      ? heroProperties.map((property) => {
+      ? heroProperties.map((property, index) => {
           const image =
             property.images && property.images.length > 0
               ? property.images[0]
-              : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+              : STOCK_HERO_IMAGES[index % STOCK_HERO_IMAGES.length];
 
           const maxLength = 140;
           const description = property.description || '';
@@ -316,7 +320,10 @@ const HeroSplit: React.FC = () => {
         </div>
 
         <div className="relative min-h-[430px] rounded-3xl overflow-hidden border border-gold/30 shadow-2xl bg-white/10 backdrop-blur-sm">
-          <div className={`absolute inset-0 p-8 flex flex-col justify-end bg-cover bg-center transition-all duration-500 ${isFading ? 'opacity-70 translate-x-2' : 'opacity-100 translate-x-0'}`}>
+          <div
+            className={`absolute inset-0 p-8 flex flex-col justify-end bg-cover bg-center transition-all duration-500 ${isFading ? 'opacity-70 translate-x-2' : 'opacity-100 translate-x-0'}`}
+            style={{ backgroundImage: `url("${currentReview.image}")` }}
+          >
             <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/15" />
             <h3 className="relative z-10 m-0 text-xl font-bold text-white">{t('landing.hero.story.title')}</h3>
             <p className="relative z-10 mt-2 text-white/90">{currentReview.reviewText}</p>
