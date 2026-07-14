@@ -1,11 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import { Card } from '../../components/ui';
 import { Award, Heart, Globe, Shield } from 'lucide-react';
 
-const About: React.FC = () => {
+type AboutVariant = 'main' | 'alt';
+
+type AboutProps = {
+  variant?: AboutVariant;
+};
+
+export function AboutContent({ variant = 'main' }: AboutProps) {
   const { t } = useTranslation();
+  const prefix = variant === 'alt' ? 'alt.about' : 'about';
 
   const teamMembers = [
     {
@@ -58,9 +66,10 @@ const About: React.FC = () => {
     { number: '4.9/5', label: t('about.stats.averageRating') },
   ];
 
+  const browseLabel = variant === 'alt' ? t('alt.landing.popular.cta') : t('about.cta.browseProperties');
+
   return (
-    <Layout>
-      {/* Hero Section */}
+    <>
       <section className="relative py-32 bg-gradient-to-br from-warm-gray-light to-white">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 right-20 w-96 h-96 bg-gold rounded-full blur-3xl"></div>
@@ -69,32 +78,27 @@ const About: React.FC = () => {
 
         <div className="relative max-w-4xl mx-auto px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-thin text-navy mb-6">
-            {t('about.hero.title')} <span className="font-bold text-gold">{t('about.hero.titleHighlight')}</span>
+            {t(`${prefix}.hero.title`)}{' '}
+            <span className="font-bold text-gold">{t(`${prefix}.hero.titleHighlight`)}</span>
           </h1>
           <p className="text-xl text-charcoal leading-relaxed max-w-3xl mx-auto">
-            {t('about.hero.description')}
+            {t(`${prefix}.hero.description`)}
           </p>
         </div>
       </section>
 
-      {/* Our Story Section */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl md:text-5xl font-thin text-navy mb-6">
-                {t('about.story.title')} <span className="font-bold text-gold">{t('about.story.titleHighlight')}</span>
+                {t(`${prefix}.story.title`)}{' '}
+                <span className="font-bold text-gold">{t(`${prefix}.story.titleHighlight`)}</span>
               </h2>
               <div className="space-y-6 text-charcoal leading-relaxed">
-                <p>
-                  {t('about.story.paragraph1')}
-                </p>
-                <p>
-                  {t('about.story.paragraph2')}
-                </p>
-                <p>
-                  {t('about.story.paragraph3')}
-                </p>
+                <p>{t(`${prefix}.story.paragraph1`)}</p>
+                <p>{t(`${prefix}.story.paragraph2`)}</p>
+                <p>{t(`${prefix}.story.paragraph3`)}</p>
               </div>
             </div>
 
@@ -109,120 +113,113 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-navy text-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-gold mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-lg text-warm-gray-light font-medium">
-                  {stat.label}
-                </div>
+      {variant === 'main' && (
+        <>
+          <section className="py-24 bg-navy text-white">
+            <div className="max-w-7xl mx-auto px-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-4xl md:text-5xl font-bold text-gold mb-2">{stat.number}</div>
+                    <div className="text-lg text-warm-gray-light font-medium">{stat.label}</div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
 
-      {/* Our Values Section */}
-      <section className="py-20 bg-warm-gray-light">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-              {t('about.values.title')} <span className="font-bold text-gold">{t('about.values.titleHighlight')}</span>
-            </h2>
-            <p className="text-xl text-charcoal max-w-2xl mx-auto">
-              {t('about.values.subtitle')}
-            </p>
-          </div>
+          <section className="py-24 bg-warm-gray-light">
+            <div className="max-w-7xl mx-auto px-8">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
+                  {t('about.values.title')}{' '}
+                  <span className="font-bold text-gold">{t('about.values.titleHighlight')}</span>
+                </h2>
+                <p className="text-xl text-charcoal max-w-2xl mx-auto">{t('about.values.subtitle')}</p>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {values.map((value, index) => (
-              <Card key={index} variant="default" className="p-8">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center flex-shrink-0">
-                    <value.icon className="h-6 w-6 text-navy" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-navy mb-3">
-                      {value.title}
-                    </h3>
-                    <p className="text-charcoal leading-relaxed">
-                      {value.description}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {values.map((value, index) => (
+                  <Card key={index} variant="default" className="p-8">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center flex-shrink-0">
+                        <value.icon className="h-6 w-6 text-navy" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-navy mb-3">{value.title}</h3>
+                        <p className="text-charcoal leading-relaxed">{value.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
 
-      {/* Team Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-              {t('about.team.title')} <span className="font-bold text-gold">{t('about.team.titleHighlight')}</span>
-            </h2>
-            <p className="text-xl text-charcoal max-w-2xl mx-auto">
-              {t('about.team.subtitle')}
-            </p>
-          </div>
+          <section className="py-24 bg-white">
+            <div className="max-w-7xl mx-auto px-8">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
+                  {t('about.team.title')}{' '}
+                  <span className="font-bold text-gold">{t('about.team.titleHighlight')}</span>
+                </h2>
+                <p className="text-xl text-charcoal max-w-2xl mx-auto">{t('about.team.subtitle')}</p>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {teamMembers.map((member, index) => (
-              <Card key={index} variant="elevated" className="text-center p-8">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-32 h-32 rounded-full mx-auto mb-6 object-cover shadow-lg"
-                />
-                <h3 className="text-xl font-semibold text-navy mb-2">
-                  {member.name}
-                </h3>
-                <p className="text-gold font-medium mb-4">
-                  {member.role}
-                </p>
-                <p className="text-charcoal leading-relaxed">
-                  {member.bio}
-                </p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {teamMembers.map((member, index) => (
+                  <Card key={index} variant="elevated" className="text-center p-8">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-32 h-32 rounded-full mx-auto mb-6 object-cover shadow-lg"
+                    />
+                    <h3 className="text-xl font-semibold text-navy mb-2">{member.name}</h3>
+                    <p className="text-gold font-medium mb-4">{member.role}</p>
+                    <p className="text-charcoal leading-relaxed">{member.bio}</p>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
-      {/* CTA Section */}
-      <section className="py-20 bg-navy text-white">
+      <section className="py-24 bg-navy text-white">
         <div className="max-w-4xl mx-auto px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-thin mb-6">
-            {t('about.cta.title')} <span className="font-bold text-gold">{t('about.cta.titleHighlight')}</span>
+            {t('about.cta.title')}{' '}
+            <span className="font-bold text-gold">{t('about.cta.titleHighlight')}</span>
           </h2>
-          <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">
-            {t('about.cta.description')}
-          </p>
+          <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">{t('about.cta.description')}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/register"
+            <Link
+              to="/search"
               className="inline-flex items-center justify-center px-8 py-4 bg-gold text-navy font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"
             >
-              {t('about.cta.getStarted')}
-            </a>
-            <a
-              href="/search"
+              {browseLabel}
+            </Link>
+            <Link
+              to="/contact"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"
             >
-              {t('about.cta.browseProperties')}
-            </a>
+              {t('nav.contact')}
+            </Link>
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
+}
+
+const About: React.FC<AboutProps> = ({ variant = 'main' }) => {
+  const content = <AboutContent variant={variant} />;
+
+  if (variant === 'alt') {
+    return content;
+  }
+
+  return <Layout>{content}</Layout>;
 };
 
 export default About;

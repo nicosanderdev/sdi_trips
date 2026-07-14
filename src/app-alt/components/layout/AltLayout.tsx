@@ -14,7 +14,7 @@ export function AltLayout() {
   return (
     <div className="alt-site min-h-screen bg-warm-gray">
       <AltNavbar />
-      <main className="pt-24">
+      <main className="pt-28 md:pt-32 lg:pt-36">
         <Outlet />
       </main>
       <AltFooter />

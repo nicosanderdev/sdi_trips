@@ -52,7 +52,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ variant = 'main' }) => 
       <div className="min-h-screen flex items-center justify-center py-12 px-8">
         <div className="max-w-md w-full">
           <Link
-            to="/login"
+            to="/"
             className="inline-flex items-center space-x-2 text-charcoal hover:text-navy transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -85,7 +85,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ variant = 'main' }) => 
 
               <div className="border-t border-gray-200 pt-4">
                 <Link
-                  to="/login"
+                  to="/"
                   className="inline-flex items-center justify-center w-full px-6 py-3 bg-navy text-white font-semibold rounded-full hover:bg-navy-dark transition-all duration-200"
                 >
                   {t('auth.forgotPasswordPage.backToSignIn')}
@@ -110,7 +110,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ variant = 'main' }) => 
     <div className="min-h-screen flex items-center justify-center py-12 px-8">
       <div className="max-w-md w-full">
         <Link
-          to="/login"
+          to="/"
           className="inline-flex items-center space-x-2 text-charcoal hover:text-navy transition-colors mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -151,7 +151,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ variant = 'main' }) => 
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-sm text-charcoal text-center">
               {t('auth.forgotPasswordPage.rememberPassword')}{' '}
-              <Link to="/login" className="text-gold hover:text-navy transition-colors font-medium">
+              <Link to="/" className="text-gold hover:text-navy transition-colors font-medium">
                 {t('auth.signInHere')}
               </Link>
             </p>
