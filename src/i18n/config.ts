@@ -46,16 +46,21 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'es', // Default to Spanish
+    // Do not set `lng` here — LanguageDetector + fallbackLng handle defaults.
+    // Site standard is Spanish when the user has not chosen a language.
+    fallbackLng: 'es',
     debug: false,
 
     interpolation: {
       escapeValue: false, // React already does escaping
     },
 
+    // Only honor an explicit user choice (language switcher). Do not
+    // override the Spanish default from the browser language.
+    // Key bumped so older auto-detected (browser) English values are not reused.
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      lookupLocalStorage: 'i18nextLng',
+      order: ['localStorage'],
+      lookupLocalStorage: 'i18nextLng_v2',
       caches: ['localStorage'],
     },
   });

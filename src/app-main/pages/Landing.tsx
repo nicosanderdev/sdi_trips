@@ -6,7 +6,8 @@ import { Layout } from '../../components/layout';
 import { Button } from '../../components/ui';
 import HeroSplit from '../../components/sections/HeroSplit';
 import HumanTouchSection from '../../components/sections/HumanTouchSection';
-import Testimonials from '../../components/sections/Testimonials';
+// Temporarily hidden on landing — re-enable when ready:
+// import Testimonials from '../../components/sections/Testimonials';
 import { getFeaturedProperties, getFavoriteProperties } from '../../services/propertyService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
@@ -237,7 +238,9 @@ const Landing: React.FC = () => {
       </section>
 
       <HumanTouchSection />
+      {/* Temporarily hidden — site reviews / testimonials
       <Testimonials />
+      */}
 
     </Layout>
   );

@@ -9,7 +9,8 @@ import { getFeaturedEventVenues, type EventVenue } from '../../services/eventVen
 import { buildVenuePriceHint } from '../../services/pricing';
 import { getUyCities, type UyCity } from '../../data/uyCityUtils';
 import HumanTouchSection from '../../components/sections/HumanTouchSection';
-import Testimonials from '../../components/sections/Testimonials';
+// Temporarily hidden on landing — re-enable when ready:
+// import Testimonials from '../../components/sections/Testimonials';
 
 const UY_CITIES_MAX_SUGGESTIONS = 10;
 const uyCities = getUyCities();
@@ -456,7 +457,9 @@ export default function AltLanding() {
       </section>
 
       <HumanTouchSection variant="alt" />
+      {/* Temporarily hidden — site reviews / testimonials
       <Testimonials variant="alt" />
+      */}
     </>
   );
 }

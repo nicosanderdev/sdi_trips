@@ -24,7 +24,6 @@ const STOCK_HERO_IMAGES = [
   'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
   'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
   'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1600607687644-c7171b42498b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80',
 ] as const;
 
 const mockReviews = [
@@ -61,7 +60,7 @@ const mockReviews = [
     language: 'fr',
   },
   {
-    image: STOCK_HERO_IMAGES[4],
+    image: STOCK_HERO_IMAGES[0],
     rating: 4.6,
     reviewCount: 1420,
     reviewText:
