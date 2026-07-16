@@ -530,13 +530,18 @@
         "verifyAndConfirm": "Verify and confirm"
       },
       "done": {
-        "modalTitle": "Reservation confirmed",
-        "reservationConfirmed": "Reservation confirmed.",
-        "body": "Your reservation is confirmed. Save your code to look up or manage your booking later.",
+        "modalTitle": "Request received",
+        "reservationConfirmed": "Request received.",
+        "body": "Your booking request was submitted and is pending host approval. You will receive an email when it is confirmed (or WhatsApp if you did not provide an email).",
         "codeLabel": "Your reservation code",
-        "lookupHint": "Use the button below to open your reservation, or paste this code on the reservation lookup page.",
+        "lookupHint": "Save this code to look up or manage your booking later. Use the button below to open your reservation.",
         "goToReservationLookup": "View my reservation",
         "close": "Close"
+      },
+      "otpHint": {
+        "whatsapp": "We sent a verification code via WhatsApp.",
+        "sms": "WhatsApp was unavailable, so we sent the code by SMS.",
+        "localMock": "Local dry-run: check the functions terminal for the code."
       },
       "errors": {
         "invalidDateSelection": "Invalid date selection.",

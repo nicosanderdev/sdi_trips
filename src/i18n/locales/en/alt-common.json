@@ -339,12 +339,17 @@
   },
   "bookingFlow": {
     "done": {
-      "modalTitle": "Booking confirmed",
-      "body": "Your booking is confirmed. Save your code to look up or manage your booking later.",
+      "modalTitle": "Request received",
+      "body": "Your booking request was submitted and is pending host approval. You will receive an email when it is confirmed (or WhatsApp if you did not provide an email).",
       "codeLabel": "Your booking code",
-      "lookupHint": "Use the button below to open your booking, or paste this code on the reservation lookup page.",
+      "lookupHint": "Save this code to look up or manage your booking later. Use the button below to open your booking.",
       "goToReservationLookup": "View my booking",
       "close": "Close"
+    },
+    "otpHint": {
+      "whatsapp": "We sent a verification code via WhatsApp.",
+      "sms": "WhatsApp was unavailable, so we sent the code by SMS.",
+      "localMock": "Local dry-run: check the functions terminal for the code."
     },
     "actions": {
       "continue": "Continue",

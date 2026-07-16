@@ -10,6 +10,9 @@ import type {
   GuestSiteListingType,
   HostContactInfo,
   ManageBookingView,
+  OtpChannel,
+  OtpSendResponse,
+  OtpVerifyResponse,
   Property,
   User,
   ValidateGuestBookingOverlapParams,
@@ -78,9 +81,15 @@ export interface BookingHoldResponse {
   errorCode?: string;
 }
 
-export interface OtpResponse {
-  success: boolean;
-  error?: string;
+/** @deprecated Prefer OtpSendResponse / OtpVerifyResponse from guestReviewContract. */
+export type OtpResponse = OtpSendResponse | OtpVerifyResponse;
+
+const OTP_CHANNELS: readonly OtpChannel[] = ['whatsapp', 'sms_fallback', 'local_mock'] as const;
+
+function parseOtpChannel(value: unknown): OtpChannel | undefined {
+  return typeof value === 'string' && (OTP_CHANNELS as readonly string[]).includes(value)
+    ? (value as OtpChannel)
+    : undefined;
 }
 
 export interface ReservationLookupData {
@@ -327,7 +336,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
   }
 }
 
-export async function sendGuestOtp(holdId: string, phone: string): Promise<OtpResponse> {
+export async function sendGuestOtp(holdId: string, phone: string): Promise<OtpSendResponse> {
   try {
     const { data, error } = await supabase.functions.invoke('booking-send-otp', {
       body: { holdId, phone },
@@ -338,14 +347,30 @@ export async function sendGuestOtp(holdId: string, phone: string): Promise<OtpRe
     }
 
     const payload = data as Record<string, unknown> | null;
-    return { success: Boolean(payload?.success), error: payload?.error as string | undefined };
+    const success = Boolean(payload?.success);
+    if (!success) {
+      return { success: false, error: payload?.error as string | undefined };
+    }
+
+    return {
+      success: true,
+      channel: parseOtpChannel(payload?.channel),
+      otpRequestId:
+        (payload?.otpRequestId as string | undefined) ??
+        (payload?.otp_request_id as string | undefined),
+      mode: typeof payload?.mode === 'string' ? payload.mode : undefined,
+    };
   } catch (error) {
     console.error('Failed to send OTP:', error);
     return { success: false, error: 'Failed to send OTP.' };
   }
 }
 
-export async function verifyGuestOtp(holdId: string, phone: string, code: string): Promise<OtpResponse> {
+export async function verifyGuestOtp(
+  holdId: string,
+  phone: string,
+  code: string,
+): Promise<OtpVerifyResponse> {
   try {
     const { data, error } = await supabase.functions.invoke('booking-verify-otp', {
       body: { holdId, phone, code },

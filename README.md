@@ -53,6 +53,13 @@ VITE_API_BASE_FILES_URL=https://your-api-files-base-url
 
 # Email Feature Flag (Optional - default: false in dev)
 VITE_SEND_EMAILS_ENABLED=false
+
+# Guest manage / lookup base URL (Optional — per main/alt deploy)
+# Defaults to same-origin /reservation-lookup when unset.
+# Main example: https://your-main-domain.com/reservation-lookup
+# Alt example:  https://your-alt-domain.com/reservation-lookup
+# Local: use .env.main.local / .env.alt.local with npm run dev:main / npm run dev:alt
+VITE_GUEST_BOOKING_MANAGE_BASE_URL=
 ```
 
 **Property images:** The portal reads full image URLs from the database (Cloudflare R2 in production, Supabase Storage when developing against local Supabase). The portal does **not** upload listing images and does **not** need `VITE_STORAGE_BACKEND` — that setting applies to the host dashboard at upload time.
@@ -61,14 +68,32 @@ If you add a Content-Security-Policy at deploy time, allow these image origins i
 
 ### 3. Supabase Edge Functions Setup
 
-For email notifications, set up the following secrets in your Supabase Dashboard:
+For email and guest booking messaging, set up the following secrets in your Supabase Dashboard:
 
 **Edge Functions → Secrets:**
 ```bash
 RESEND_API_KEY=re_xxxxx
 SEND_EMAILS_ENABLED=true
+
+# OTP WhatsApp (Meta Cloud API) — see tasks/whatsapp-api.md
+META_WHATSAPP_TOKEN=
+META_WHATSAPP_PHONE_NUMBER_ID=
+
+# SMS fallback when WhatsApp OTP fails (POST { phone, message })
+# Set per environment (local / staging / prod) once your SMS adapter URL is known.
+SMS_FALLBACK_WEBHOOK_URL=
+
+# Manage links in confirmation emails / WhatsApp (server-side; not the Vite var)
+# Typically the public guest site origin + /reservation-lookup for that environment.
+GUEST_BOOKING_MANAGE_BASE_URL=
+
+# Optional: force live WhatsApp/SMS OTP against local Supabase
+BOOKING_OTP_LIVE_ENABLED=false
 ```
 
+`SMS_FALLBACK_WEBHOOK_URL` and `GUEST_BOOKING_MANAGE_BASE_URL` are **server secrets** (not `VITE_*`). Values differ by local, staging, and production Supabase projects; fill them from your SMS adapter and public guest URLs when available.
+
+Guest OTP local testing notes live in `tasks/whatsapp-api.md` (gitignored task handoff).
 ### 4. Deploy Edge Functions
 
 ```bash
@@ -83,6 +108,9 @@ supabase link --project-ref your-project-ref
 
 # Deploy functions
 supabase functions deploy send-booking-confirmation
+# Guest OTP / lifecycle (when available in your functions tree):
+# supabase functions deploy booking-send-otp booking-verify-otp \
+#   booking-send-confirmation send-booking-cancellation
 ```
 
 ### 5. Run the Development Server

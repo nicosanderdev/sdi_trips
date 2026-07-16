@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/config';
 import { Button, Modal, SixDigitCodeInput } from '../ui';
 import { isValidTOTPSecret } from '../../core/services/mfaService';
+import { buildGuestManageUrl } from '../../core/config/guestBookingManageUrl';
 import { getGuestSiteListingType, isGuestSiteListingType } from '../../core/config/guestSiteListingType';
-import type { GuestSiteListingType, Property } from '../../types';
+import type { GuestSiteListingType, OtpChannel, Property } from '../../types';
 import { validateBookingSelection } from '../../services/availabilityService';
 import {
   confirmGuestBooking,
@@ -58,7 +59,6 @@ function resolveHoldListingType(property: Property): GuestSiteListingType {
 
 const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   property,
-  reservationManagePath = '/reservation-lookup',
   variant = 'rental',
   initialCheckIn = null,
   initialCheckOut = null,
@@ -99,7 +99,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [phoneLocal, setPhoneLocal] = useState('');
   const [documentId, setDocumentId] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  const [otpChannel, setOtpChannel] = useState<OtpChannel | null>(null);
   const [reservationCode, setReservationCode] = useState<string | null>(null);
+  const [confirmedListingType, setConfirmedListingType] = useState<GuestSiteListingType | null>(null);
   const [flowError, setFlowError] = useState<string | null>(null);
   const [overlapError, setOverlapError] = useState<string | null>(null);
   const [overlapChecking, setOverlapChecking] = useState(false);
@@ -301,6 +303,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       );
       return;
     }
+    setOtpChannel(result.channel ?? null);
     setOtpCode('');
     setStep('otp');
   };
@@ -362,21 +365,36 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     }
 
     setReservationCode(confirmResult.reservationCode ?? null);
+    setConfirmedListingType(
+      confirmResult.listingType && isGuestSiteListingType(confirmResult.listingType)
+        ? confirmResult.listingType
+        : resolveHoldListingType(property),
+    );
     setStep('done');
   };
 
-  const lookupBasePath = reservationManagePath.startsWith('/')
-    ? reservationManagePath
-    : `/${reservationManagePath}`;
-
   const lookupHref = useMemo(() => {
-    if (!reservationCode) return lookupBasePath;
-    return `${lookupBasePath}?code=${encodeURIComponent(reservationCode)}`;
-  }, [lookupBasePath, reservationCode]);
+    return buildGuestManageUrl({
+      code: reservationCode ?? undefined,
+      listingType: confirmedListingType ?? resolveHoldListingType(property),
+    });
+  }, [reservationCode, confirmedListingType, property]);
+
+  const lookupIsExternal = /^https?:\/\//i.test(lookupHref);
+
+  const otpChannelHint = useMemo(() => {
+    if (!otpChannel) return null;
+    if (otpChannel === 'whatsapp') return bookingT('otpHint.whatsapp');
+    if (otpChannel === 'sms_fallback') return bookingT('otpHint.sms');
+    if (otpChannel === 'local_mock') return bookingT('otpHint.localMock');
+    return null;
+  }, [otpChannel, bookingT]);
 
   const handleCloseSuccess = () => {
     setStep('dates');
     setReservationCode(null);
+    setConfirmedListingType(null);
+    setOtpChannel(null);
     setHoldId(null);
     setHoldExpiresAt(null);
     setCheckIn(null);
@@ -605,6 +623,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
         {step === 'otp' && (
           <div className="space-y-3">
+            {otpChannelHint && (
+              <p className="text-xs text-charcoal">{otpChannelHint}</p>
+            )}
             {overlapError && <p className="text-xs text-red-600">{overlapError}</p>}
             <SixDigitCodeInput
               value={otpCode}
@@ -659,15 +680,31 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           )}
           <p className="text-sm text-charcoal">{bookingT('done.lookupHint')}</p>
           <div className="flex flex-col gap-2">
-            <Link to={lookupHref} className="block w-full" onClick={handleCloseSuccess}>
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full bg-gold text-navy hover:bg-gold-dark"
+            {lookupIsExternal ? (
+              <a
+                href={lookupHref}
+                className="block w-full"
+                onClick={handleCloseSuccess}
               >
-                {bookingT('done.goToReservationLookup')}
-              </Button>
-            </Link>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full bg-gold text-navy hover:bg-gold-dark"
+                >
+                  {bookingT('done.goToReservationLookup')}
+                </Button>
+              </a>
+            ) : (
+              <Link to={lookupHref} className="block w-full" onClick={handleCloseSuccess}>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full bg-gold text-navy hover:bg-gold-dark"
+                >
+                  {bookingT('done.goToReservationLookup')}
+                </Button>
+              </Link>
+            )}
             <Button
               variant="outline"
               size="lg"

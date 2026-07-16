@@ -7,6 +7,7 @@ import ReservationLookupForm from '../../components/reservation/ReservationLooku
 import ReservationDetails from '../../components/reservation/ReservationDetails';
 import ReservationManageDetails from '../../components/reservation/ReservationManageDetails';
 import { Button, Card } from '../../components/ui';
+import { parseListingTypeParam } from '../../core/config/guestBookingManageUrl';
 import type { ManageBookingView } from '../../types';
 import {
   cancelBookingByManageToken,
@@ -34,6 +35,7 @@ const ReservationLookup: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCode = searchParams.get('code') ?? '';
+  const listingTypeFromUrl = parseListingTypeParam(searchParams.get('listingType'));
 
   const tokenFromUrl = searchParams.get('token');
   const hasTokenParam = searchParams.has('token');
@@ -100,7 +102,7 @@ const ReservationLookup: React.FC = () => {
 
     let cancelled = false;
     (async () => {
-      const result = await getReservationByCode(normalized);
+      const result = await getReservationByCode(normalized, listingTypeFromUrl);
       if (cancelled) return;
       if (result.success && result.reservation) {
         setCode(normalized);
@@ -109,6 +111,8 @@ const ReservationLookup: React.FC = () => {
           (prev) => {
             const next = new URLSearchParams(prev);
             next.set('code', normalized);
+            const lt = listingTypeFromUrl ?? result.reservation?.listingType;
+            if (lt) next.set('listingType', lt);
             return next;
           },
           { replace: true },
@@ -136,12 +140,14 @@ const ReservationLookup: React.FC = () => {
     setFormError(null);
     setCancelMessage(null);
 
-    const result = await getReservationByCode(normalizedCode);
+    const result = await getReservationByCode(normalizedCode, listingTypeFromUrl);
     setLoadingSearch(false);
 
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.set('code', normalizedCode);
+      const lt = listingTypeFromUrl ?? result.reservation?.listingType;
+      if (lt) next.set('listingType', lt);
       return next;
     });
 
@@ -201,6 +207,7 @@ const ReservationLookup: React.FC = () => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete('code');
+      next.delete('listingType');
       return next;
     });
     if (hasTokenParam && token) {

@@ -480,13 +480,18 @@
         "verifyAndConfirm": "Verificar e confirmar"
       },
       "done": {
-        "modalTitle": "Reserva confirmada",
-        "reservationConfirmed": "Reserva confirmada.",
-        "body": "Sua reserva está confirmada. Guarde seu código para consultar ou gerenciar sua reserva depois.",
+        "modalTitle": "Pedido recebido",
+        "reservationConfirmed": "Pedido recebido.",
+        "body": "Seu pedido de reserva foi enviado e está pendente de aprovação do anfitrião. Você receberá um e-mail quando for confirmado (ou WhatsApp se não informou um e-mail).",
         "codeLabel": "Seu código de reserva",
-        "lookupHint": "Use o botão abaixo para abrir sua reserva, ou cole este código na página de consulta de reservas.",
+        "lookupHint": "Guarde este código para consultar ou gerenciar sua reserva depois. Use o botão abaixo para abrir sua reserva.",
         "goToReservationLookup": "Ver minha reserva",
         "close": "Fechar"
+      },
+      "otpHint": {
+        "whatsapp": "Enviamos um código de verificação pelo WhatsApp.",
+        "sms": "O WhatsApp não estava disponível, então enviamos o código por SMS.",
+        "localMock": "Dry-run local: confira o código no terminal das functions."
       },
       "errors": {
         "invalidDateSelection": "Seleção de datas inválida.",

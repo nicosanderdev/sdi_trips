@@ -86,6 +86,23 @@ export interface ConfirmBookingFromHoldResponse {
   listing_type?: GuestSiteListingType;
 }
 
+/** Delivery channel returned by booking-send-otp on success. */
+export type OtpChannel = 'whatsapp' | 'sms_fallback' | 'local_mock';
+
+export interface OtpSendResponse {
+  success: boolean;
+  channel?: OtpChannel;
+  otpRequestId?: string;
+  /** Present only in local dry-run mode. */
+  mode?: string;
+  error?: string;
+}
+
+export interface OtpVerifyResponse {
+  success: boolean;
+  error?: string;
+}
+
 export function isGuestBookingOverlapError(
   code: string | undefined | null,
 ): code is 'GUEST_BOOKING_OVERLAP' {

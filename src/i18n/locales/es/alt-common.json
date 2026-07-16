@@ -339,12 +339,17 @@
   },
   "bookingFlow": {
     "done": {
-      "modalTitle": "Reserva confirmada",
-      "body": "Tu reserva está confirmada. Guarda tu código para consultar o gestionar tu reserva más adelante.",
+      "modalTitle": "Solicitud recibida",
+      "body": "Tu solicitud de reserva fue enviada y está pendiente de aprobación del anfitrión. Recibirás un correo cuando se confirme (o WhatsApp si no proporcionaste un correo).",
       "codeLabel": "Tu código de reserva",
-      "lookupHint": "Usa el botón de abajo para abrir tu reserva, o pega este código en la página de consulta de reservas.",
+      "lookupHint": "Guarda este código para consultar o gestionar tu reserva más adelante. Usa el botón de abajo para abrir tu reserva.",
       "goToReservationLookup": "Ver mi reserva",
       "close": "Cerrar"
+    },
+    "otpHint": {
+      "whatsapp": "Enviamos un código de verificación por WhatsApp.",
+      "sms": "WhatsApp no estuvo disponible, así que enviamos el código por SMS.",
+      "localMock": "Dry-run local: revisa el código en la terminal de functions."
     },
     "actions": {
       "continue": "Continuar",
