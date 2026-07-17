@@ -487,7 +487,7 @@
       "form": {
         "firstName": "Nombre",
         "lastName": "Apellido",
-        "email": "Correo electrónico",
+        "email": "Correo electrónico (opcional)",
         "phone": "Teléfono (+598...)",
         "documentIdOptional": "Documento de identidad (opcional)",
         "estimatedGuests": "Cantidad estimada de invitados (opcional)",
@@ -520,14 +520,16 @@
         "invalidDateSelection": "Selección de fechas inválida.",
         "holdExpired": "Tu reserva temporal expiró. Selecciona fechas nuevamente.",
         "unableToCreateHold": "No se pudo crear la reserva temporal.",
+        "holdCreatedButNotLoaded": "La reserva temporal se creó pero no se pudo cargar.",
         "couldNotSendOtp": "No se pudo enviar el código OTP.",
         "invalidOtp": "Código OTP inválido.",
         "holdNoLongerValid": "Tu reserva temporal ya no es válida.",
         "couldNotConfirmReservation": "No se pudo confirmar la reserva.",
-        "guestFieldsRequired": "Nombre, apellido, correo y teléfono son obligatorios.",
+        "guestFieldsRequired": "Nombre, apellido y teléfono son obligatorios.",
         "guestBookingOverlap": "Ya tenés una reserva para estas fechas.",
         "priceQuoteMismatch": "El precio se actualizó. Revisá e intentá de nuevo.",
-        "priceQuoteMismatchWithTotal": "El precio cambió. Total actualizado: {{total}}. Intentá de nuevo."
+        "priceQuoteMismatchWithTotal": "El precio cambió. Total actualizado: {{total}}. Intentá de nuevo.",
+        "failedToValidateDates": "No se pudieron validar las fechas."
       }
     },
     "someFeatures": {
@@ -634,6 +636,7 @@
     },
     "status": {
       "confirmed": "Confirmada",
+      "pending": "Pendiente de confirmación",
       "pending_confirmation": "Pendiente de confirmación",
       "cancelled": "Cancelada",
       "completed": "Finalizada"

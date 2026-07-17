@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../ui';
 import type { ManageBookingView } from '../../types';
+import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
 import HostContactSection from './HostContactSection';
 
 interface ReservationManageDetailsProps {
@@ -21,13 +22,15 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
   onCancel,
   cardVariant = 'default',
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const localizedSuccessMessage = t('reservationLookup.messages.cancelSuccess').toLowerCase();
   const isSuccessMessage =
     cancelMessage?.toLowerCase().includes(localizedSuccessMessage) ||
     cancelMessage?.toLowerCase().includes('success') ||
     false;
+  const formattedCheckIn = formatReservationStayDate(booking.checkIn, i18n.language);
+  const formattedCheckOut = formatReservationStayDate(booking.checkOut, i18n.language);
 
   return (
     <Card variant={cardVariant} className="w-full max-w-2xl p-8 space-y-4">
@@ -43,8 +46,8 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
       <p>
         <span className="font-semibold">{t('reservationLookup.details.datesLabel')}</span>{' '}
         {t('reservationLookup.details.datesValue', {
-          checkIn: booking.checkIn,
-          checkOut: booking.checkOut,
+          checkIn: formattedCheckIn,
+          checkOut: formattedCheckOut,
         })}
       </p>
       <p>

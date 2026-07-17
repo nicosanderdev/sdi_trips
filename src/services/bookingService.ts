@@ -301,7 +301,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
 
     if (error) {
       console.error('Error creating booking hold:', error);
-      return { success: false, error: 'Failed to create hold. Please try again.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.unableToCreateHold' };
     }
 
     const payload = data as Record<string, unknown> | null;
@@ -309,7 +309,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
       const errorCode = payload?.error_code as string | undefined;
       return {
         success: false,
-        error: (payload?.error as string | undefined) ?? 'Unable to hold selected dates',
+        error: (payload?.error as string | undefined) ?? 'propertyDetail.bookingFlow.errors.unableToCreateHold',
         errorCode,
         validation: payload?.validation as BookingHoldResponse['validation'],
       };
@@ -322,7 +322,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
       .single();
 
     if (holdError || !holdRow) {
-      return { success: false, error: 'Hold created but could not be loaded.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.holdCreatedButNotLoaded' };
     }
 
     return {
@@ -332,7 +332,7 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
     };
   } catch (error) {
     console.error('Unexpected error creating booking hold:', error);
-    return { success: false, error: 'Failed to create hold. Please try again.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.unableToCreateHold' };
   }
 }
 
@@ -343,13 +343,16 @@ export async function sendGuestOtp(holdId: string, phone: string): Promise<OtpSe
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotSendOtp' };
     }
 
     const payload = data as Record<string, unknown> | null;
     const success = Boolean(payload?.success);
     if (!success) {
-      return { success: false, error: payload?.error as string | undefined };
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'propertyDetail.bookingFlow.errors.couldNotSendOtp',
+      };
     }
 
     return {
@@ -362,7 +365,7 @@ export async function sendGuestOtp(holdId: string, phone: string): Promise<OtpSe
     };
   } catch (error) {
     console.error('Failed to send OTP:', error);
-    return { success: false, error: 'Failed to send OTP.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotSendOtp' };
   }
 }
 
@@ -377,14 +380,17 @@ export async function verifyGuestOtp(
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.invalidOtp' };
     }
 
     const payload = data as Record<string, unknown> | null;
-    return { success: Boolean(payload?.success), error: payload?.error as string | undefined };
+    return {
+      success: Boolean(payload?.success),
+      error: (payload?.error as string | undefined) ?? (payload?.success ? undefined : 'propertyDetail.bookingFlow.errors.invalidOtp'),
+    };
   } catch (error) {
     console.error('Failed to verify OTP:', error);
-    return { success: false, error: 'Failed to verify OTP.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.invalidOtp' };
   }
 }
 
@@ -395,12 +401,15 @@ export async function reconfirmHold(holdId: string): Promise<BookingHoldResponse
     });
 
     if (error) {
-      return { success: false, error: 'Failed to revalidate hold.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.holdNoLongerValid' };
     }
 
     const payload = data as Record<string, unknown> | null;
     if (!payload?.success) {
-      return { success: false, error: (payload?.error as string | undefined) ?? 'Hold is no longer valid.' };
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'propertyDetail.bookingFlow.errors.holdNoLongerValid',
+      };
     }
 
     const hold = payload?.hold as Record<string, unknown> | undefined;
@@ -419,20 +428,22 @@ export async function reconfirmHold(holdId: string): Promise<BookingHoldResponse
     };
   } catch (error) {
     console.error('Failed to reconfirm hold:', error);
-    return { success: false, error: 'Failed to revalidate hold.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.holdNoLongerValid' };
   }
 }
 
-const CONFIRM_GUEST_PAYLOAD_ERROR =
-  'Guest first name, last name, email, and phone are required';
+const CONFIRM_GUEST_PAYLOAD_ERRORS = new Set([
+  'Guest first name, last name, email, and phone are required',
+  'Guest first name, last name, and phone are required',
+]);
 
 const GUEST_BOOKING_OVERLAP_I18N_KEY = 'propertyDetail.bookingFlow.errors.guestBookingOverlap';
 
 function mapConfirmGuestBookingError(message: string | undefined): string {
-  if (message === CONFIRM_GUEST_PAYLOAD_ERROR) {
+  if (message && CONFIRM_GUEST_PAYLOAD_ERRORS.has(message)) {
     return 'propertyDetail.bookingFlow.errors.guestFieldsRequired';
   }
-  return message ?? 'Could not confirm booking.';
+  return message ?? 'propertyDetail.bookingFlow.errors.couldNotConfirmReservation';
 }
 
 export async function validateGuestBookingOverlap(
@@ -447,13 +458,13 @@ export async function validateGuestBookingOverlap(
 
     if (error) {
       console.error('Error validating guest booking overlap:', error);
-      return { success: false, error: 'Failed to validate dates.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.failedToValidateDates' };
     }
 
     return data as ValidateGuestBookingOverlapResponse;
   } catch (error) {
     console.error('Failed to validate guest booking overlap:', error);
-    return { success: false, error: 'Failed to validate dates.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.failedToValidateDates' };
   }
 }
 
@@ -474,7 +485,7 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
     });
 
     if (error) {
-      return { success: false, error: 'Failed to confirm booking.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotConfirmReservation' };
     }
 
     const payload = data as ConfirmBookingFromHoldResponse | null;
@@ -512,7 +523,7 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
     };
   } catch (error) {
     console.error('Failed to confirm guest booking:', error);
-    return { success: false, error: 'Failed to confirm booking.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotConfirmReservation' };
   }
 }
 

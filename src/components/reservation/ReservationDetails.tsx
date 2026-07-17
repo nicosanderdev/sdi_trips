@@ -8,6 +8,7 @@ import type { GuestExistingReview } from '../../types/guestReviewContract';
 import type { ReservationLookupData } from '../../services/bookingService';
 import { getGuestReviewLookupState } from '../../core/services/guestReviewEligibility';
 import { getGuestReviewWindow } from '../../core/services/guestReviewWindow';
+import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
 import GuestReservationReviewForm from './GuestReservationReviewForm';
 import GuestReviewReadOnlyCard from './GuestReviewReadOnlyCard';
 import HostContactSection from './HostContactSection';
@@ -79,6 +80,8 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
   const statusKey = `reservationLookup.status.${localReservation.status}`;
   const translatedStatus = t(statusKey);
   const statusLabel = translatedStatus === statusKey ? localReservation.status : translatedStatus;
+  const formattedCheckIn = formatReservationStayDate(localReservation.checkIn, i18n.language);
+  const formattedCheckOut = formatReservationStayDate(localReservation.checkOut, i18n.language);
   const localizedSuccessMessage = t('reservationLookup.messages.cancelSuccess').toLowerCase();
   const isSuccessMessage =
     cancelMessage?.toLowerCase().includes(localizedSuccessMessage) ||
@@ -165,7 +168,10 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
         <p><span className="font-semibold">{t('reservationLookup.details.propertyLabel')}</span> {localReservation.propertyTitle}</p>
         <p>
           <span className="font-semibold">{t('reservationLookup.details.datesLabel')}</span>{' '}
-          {t('reservationLookup.details.datesValue', { checkIn: localReservation.checkIn, checkOut: localReservation.checkOut })}
+          {t('reservationLookup.details.datesValue', {
+            checkIn: formattedCheckIn,
+            checkOut: formattedCheckOut,
+          })}
         </p>
         <p><span className="font-semibold">{t('reservationLookup.details.statusLabel')}</span> {statusLabel}</p>
         <p><span className="font-semibold">{t('reservationLookup.details.guestLabel')}</span> {guestInfo || t('reservationLookup.details.notAvailable')}</p>

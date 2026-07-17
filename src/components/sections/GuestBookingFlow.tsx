@@ -115,6 +115,23 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
   const canValidate = Boolean(checkIn && checkOut);
 
+  const resolveBookingError = useCallback(
+    (error: string | null | undefined, fallbackKey: string) => {
+      if (!error) return bookingT(fallbackKey);
+      if (error.startsWith('propertyDetail.') || error.startsWith('alt.')) {
+        return t(error);
+      }
+      const relativeKey = error.startsWith('errors.') ? error : `errors.${error}`;
+      const mainKey = `propertyDetail.bookingFlow.${relativeKey}`;
+      const altKey = `alt.bookingFlow.${relativeKey}`;
+      if ((isEvent && i18n.exists(altKey)) || i18n.exists(mainKey)) {
+        return bookingT(relativeKey);
+      }
+      return bookingT(fallbackKey);
+    },
+    [bookingT, isEvent, t],
+  );
+
   useEffect(() => {
     let cancelled = false;
     if (!canValidate || !checkIn || !checkOut) {
@@ -128,7 +145,11 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       setValidationLoading(true);
       const result = await validateBookingSelection(property.id, checkIn, checkOut, 1);
       if (!cancelled) {
-        setValidationError(result.isValid ? null : (result.errors[0] ?? bookingT('errors.invalidDateSelection')));
+        setValidationError(
+          result.isValid
+            ? null
+            : resolveBookingError(result.errors[0], 'errors.invalidDateSelection'),
+        );
       }
       setValidationLoading(false);
     }, 350);
@@ -137,7 +158,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [canValidate, checkIn, checkOut, property.id, bookingT]);
+  }, [canValidate, checkIn, checkOut, property.id, resolveBookingError]);
 
   useEffect(() => {
     let cancelled = false;
@@ -166,7 +187,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           setOverlapError(
             isGuestBookingOverlapError(result.error_code) || result.hasOverlap
               ? bookingT('errors.guestBookingOverlap')
-              : (result.error ?? bookingT('errors.couldNotConfirmReservation')),
+              : resolveBookingError(result.error, 'errors.couldNotConfirmReservation'),
           );
         } else {
           setOverlapError(null);
@@ -179,7 +200,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [step, email, checkIn, checkOut, bookingT]);
+  }, [step, email, checkIn, checkOut, bookingT, resolveBookingError]);
 
   useEffect(() => {
     if (!holdExpiresAt) {
@@ -211,7 +232,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
   const isGuestFormValid = useMemo(() => {
     if (!firstName.trim() || !lastName.trim()) return false;
-    if (!email.trim() || !EMAIL_PATTERN.test(email.trim())) return false;
+    const trimmedEmail = email.trim();
+    if (trimmedEmail && !EMAIL_PATTERN.test(trimmedEmail)) return false;
     if (isEvent) {
       if (!isValidLocalPhone(phoneLocal)) return false;
       if (!PHONE_PATTERN.test(fullPhone)) return false;
@@ -277,7 +299,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
             : bookingT('errors.priceQuoteMismatch'),
         );
       } else {
-        setFlowError(response.error ?? bookingT('errors.unableToCreateHold'));
+        setFlowError(resolveBookingError(response.error, 'errors.unableToCreateHold'));
       }
       return;
     }
@@ -296,10 +318,10 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setActionLoading(false);
     if (!result.success) {
       setFlowError(
-        result.error
-          ?? (isEvent
-            ? bookingT('errors.couldNotSendConfirmationCode')
-            : bookingT('errors.couldNotSendOtp')),
+        resolveBookingError(
+          result.error,
+          isEvent ? 'errors.couldNotSendConfirmationCode' : 'errors.couldNotSendOtp',
+        ),
       );
       return;
     }
@@ -316,10 +338,10 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     if (!verifyResult.success) {
       setActionLoading(false);
       setFlowError(
-        verifyResult.error
-          ?? (isEvent
-            ? bookingT('errors.invalidConfirmationCode')
-            : bookingT('errors.invalidOtp')),
+        resolveBookingError(
+          verifyResult.error,
+          isEvent ? 'errors.invalidConfirmationCode' : 'errors.invalidOtp',
+        ),
       );
       return;
     }
@@ -327,7 +349,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     const reconfirmResult = await reconfirmHold(holdId);
     if (!reconfirmResult.success) {
       setActionLoading(false);
-      setFlowError(reconfirmResult.error ?? bookingT('errors.holdNoLongerValid'));
+      setFlowError(resolveBookingError(reconfirmResult.error, 'errors.holdNoLongerValid'));
       setStep('dates');
       return;
     }
@@ -352,12 +374,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         setOverlapError(bookingT('errors.guestBookingOverlap'));
         setFlowError(null);
       } else {
-        const errKey = confirmResult.error;
-        const errMessage =
-          errKey?.startsWith('propertyDetail.')
-            ? t(errKey)
-            : (errKey ?? bookingT('errors.couldNotConfirmReservation'));
-        setFlowError(errMessage);
+        setFlowError(
+          resolveBookingError(confirmResult.error, 'errors.couldNotConfirmReservation'),
+        );
         setOverlapError(null);
       }
       setStep('guest');
@@ -552,7 +571,6 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={bookingT('form.email')}
-              required
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
             {isEvent ? (

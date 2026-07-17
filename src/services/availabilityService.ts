@@ -175,7 +175,7 @@ export async function validateBookingSelection(
       console.error('Error validating booking selection:', error);
       return {
         isValid: false,
-        errors: ['Failed to validate booking selection. Please try again.'],
+        errors: ['propertyDetail.bookingFlow.errors.invalidDateSelection'],
       };
     }
 
@@ -190,7 +190,7 @@ export async function validateBookingSelection(
     console.error('Failed to validate booking selection:', error);
     return {
       isValid: false,
-      errors: ['Unexpected validation error. Please try again.'],
+      errors: ['propertyDetail.bookingFlow.errors.invalidDateSelection'],
     };
   }
 }

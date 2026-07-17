@@ -357,7 +357,8 @@
     },
     "form": {
       "phone": "Phone number",
-      "enterConfirmationCode": "Enter confirmation code"
+      "enterConfirmationCode": "Enter confirmation code",
+      "estimatedGuests": "Estimated number of people for the event (optional)"
     },
     "errors": {
       "couldNotSendConfirmationCode": "Could not send confirmation code.",
