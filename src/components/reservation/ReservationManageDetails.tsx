@@ -4,6 +4,7 @@ import { Button, Card } from '../ui';
 import type { ManageBookingView } from '../../types';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
 import HostContactSection from './HostContactSection';
+import MercadoPagoPaySection from './MercadoPagoPaySection';
 
 interface ReservationManageDetailsProps {
   booking: ManageBookingView;
@@ -11,6 +12,8 @@ interface ReservationManageDetailsProps {
   cancelMessage: string | null;
   isCancelling: boolean;
   onCancel: () => void;
+  /** Manage token for Mercado Pago preference creation when available. */
+  manageToken?: string;
   cardVariant?: 'default' | 'elevated' | 'glass' | 'surface';
 }
 
@@ -20,6 +23,7 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
   cancelMessage,
   isCancelling,
   onCancel,
+  manageToken,
   cardVariant = 'default',
 }) => {
   const { t, i18n } = useTranslation();
@@ -59,6 +63,19 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
       </p>
 
       <HostContactSection status={booking.status} hostContact={booking.hostContact} />
+
+      {(booking.canPayOnline || booking.mercadoPagoApproved) && (
+        <MercadoPagoPaySection
+          bookingId={booking.bookingId}
+          canPayOnline={booking.canPayOnline}
+          mercadoPagoApproved={booking.mercadoPagoApproved}
+          totalAmount={booking.totalAmount}
+          currencyCode={booking.currencyCode}
+          manageToken={manageToken}
+          reservationCode={booking.reservationCode}
+          listingType={booking.listingType}
+        />
+      )}
 
       <div className="pt-2 flex flex-wrap gap-3">
         {booking.canCancel && (

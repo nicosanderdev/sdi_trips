@@ -262,6 +262,7 @@ const ReservationLookup: React.FC = () => {
               cancelMessage={cancelMessage}
               isCancelling={loadingCancel}
               onCancel={handleCancelManage}
+              manageToken={view.token}
             />
           )}
 

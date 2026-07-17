@@ -266,6 +266,7 @@ export default function AltReservationLookup() {
               cancelMessage={cancelMessage}
               isCancelling={loadingCancel}
               onCancel={handleCancelManage}
+              manageToken={view.token}
               cardVariant="surface"
             />
           )}
