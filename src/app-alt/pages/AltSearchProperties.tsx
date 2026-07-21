@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Calendar, MapPin, Search as SearchIcon, SlidersHorizontal, Users } from 'lucide-react';
+import { RangeSlider } from '../../components/ui';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { usePortalPropertySearch } from '../../hooks/usePortalPropertySearch';
 import type { EventVenue } from '../../services/eventVenueService';
@@ -16,12 +17,24 @@ import {
 
 const UY_CITIES_MAX_SUGGESTIONS = 10;
 const DEBOUNCE_MS = 450;
+const GUESTS_SLIDER_MIN = 25;
+const GUESTS_SLIDER_MAX = 300;
+const GUESTS_SLIDER_STEP = 5;
+const DEFAULT_GUESTS_RANGE: [number, number] = [GUESTS_SLIDER_MIN, GUESTS_SLIDER_MAX];
 
 const uyCities = getUyCities();
 
-function parseOptionalInt(value: string): number | undefined {
-  const n = parseInt(value, 10);
-  return Number.isFinite(n) && n >= 1 ? n : undefined;
+function clampGuestsValue(value: number): number {
+  const stepped = Math.round(value / GUESTS_SLIDER_STEP) * GUESTS_SLIDER_STEP;
+  return Math.min(GUESTS_SLIDER_MAX, Math.max(GUESTS_SLIDER_MIN, stepped));
+}
+
+function parseGuestsRangeFromParams(params: URLSearchParams): [number, number] {
+  const rawMin = parseInt(params.get('capacityMin') ?? params.get('guests') ?? '', 10);
+  const rawMax = parseInt(params.get('capacityMax') ?? '', 10);
+  const min = Number.isFinite(rawMin) ? clampGuestsValue(rawMin) : GUESTS_SLIDER_MIN;
+  const max = Number.isFinite(rawMax) ? clampGuestsValue(rawMax) : GUESTS_SLIDER_MAX;
+  return [Math.min(min, max), Math.max(min, max)];
 }
 
 function applyCapacityMaxFilter(venues: EventVenue[], capacityMax?: number): EventVenue[] {
@@ -44,11 +57,8 @@ export default function AltSearchProperties() {
   const [debouncedLocationQuery, setDebouncedLocationQuery] = useState(locationQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const [capacityMinInput, setCapacityMinInput] = useState(
-    () => searchParams.get('capacityMin') ?? searchParams.get('guests') ?? '',
-  );
-  const [capacityMaxInput, setCapacityMaxInput] = useState(
-    () => searchParams.get('capacityMax') ?? '',
+  const [guestsRange, setGuestsRange] = useState<[number, number]>(() =>
+    parseGuestsRangeFromParams(searchParams),
   );
 
   const [availableFrom, setAvailableFrom] = useState(() => {
@@ -62,6 +72,12 @@ export default function AltSearchProperties() {
     return searchParams.get('date') ?? '';
   });
 
+  const isDefaultGuestsRange =
+    guestsRange[0] === DEFAULT_GUESTS_RANGE[0] && guestsRange[1] === DEFAULT_GUESTS_RANGE[1];
+  const isOpenEndedGuestsMax = guestsRange[1] === GUESTS_SLIDER_MAX;
+  const capacityMin = isDefaultGuestsRange ? undefined : guestsRange[0];
+  const capacityMax = isDefaultGuestsRange || isOpenEndedGuestsMax ? undefined : guestsRange[1];
+
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedLocationQuery(locationQuery), DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
@@ -72,18 +88,16 @@ export default function AltSearchProperties() {
     const trimmedLocation = locationQuery.trim();
     if (trimmedLocation) params.set('location', trimmedLocation);
 
-    const capMin = parseOptionalInt(capacityMinInput);
-    const capMax = parseOptionalInt(capacityMaxInput);
-    if (capMin != null) params.set('capacityMin', String(capMin));
-    if (capMax != null) params.set('capacityMax', String(capMax));
+    if (capacityMin != null) params.set('capacityMin', String(capacityMin));
+    if (capacityMax != null) params.set('capacityMax', String(capacityMax));
     if (availableFrom) params.set('from', availableFrom);
     if (availableTo) params.set('to', availableTo);
 
     setSearchParams(params, { replace: true });
   }, [
     locationQuery,
-    capacityMinInput,
-    capacityMaxInput,
+    capacityMin,
+    capacityMax,
     availableFrom,
     availableTo,
     setSearchParams,
@@ -111,9 +125,6 @@ export default function AltSearchProperties() {
     setLocationQuery(city.name);
     setShowSuggestions(false);
   }, []);
-
-  const capacityMin = parseOptionalInt(capacityMinInput);
-  const capacityMax = parseOptionalInt(capacityMaxInput);
 
   const portalRpcFilters = useMemo(() => {
     const trimmedLocation = debouncedLocationQuery.trim();
@@ -151,10 +162,16 @@ export default function AltSearchProperties() {
 
   const { priceByPropertyId } = useSearchPricing(filtered, pricingCheckIn, pricingCheckOut);
 
+  const formatGuestsSliderValue = (value: number, edge: 'min' | 'max') => {
+    if (edge === 'max' && value === GUESTS_SLIDER_MAX) {
+      return `${GUESTS_SLIDER_MAX}+`;
+    }
+    return String(value);
+  };
+
   const resetFilters = () => {
     setLocationQuery('');
-    setCapacityMinInput('');
-    setCapacityMaxInput('');
+    setGuestsRange(DEFAULT_GUESTS_RANGE);
     setAvailableFrom('');
     setAvailableTo('');
   };
@@ -224,39 +241,17 @@ export default function AltSearchProperties() {
                 </div>
               </label>
 
-              <label className="flex flex-col gap-2 text-sm font-medium text-navy lg:col-span-3">
-                {t('alt.search.capacityMin')}
-                <div className="relative">
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/50 pointer-events-none" />
-                  <input
-                    type="number"
-                    min={1}
-                    max={5000}
-                    inputMode="numeric"
-                    value={capacityMinInput}
-                    onChange={(e) => setCapacityMinInput(e.target.value)}
-                    placeholder={t('alt.search.capacityMinPlaceholder')}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
-                  />
-                </div>
-              </label>
-
-              <label className="flex flex-col gap-2 text-sm font-medium text-navy lg:col-span-3">
-                {t('alt.search.capacityMax')}
-                <div className="relative">
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/50 pointer-events-none" />
-                  <input
-                    type="number"
-                    min={1}
-                    max={5000}
-                    inputMode="numeric"
-                    value={capacityMaxInput}
-                    onChange={(e) => setCapacityMaxInput(e.target.value)}
-                    placeholder={t('alt.search.capacityMaxPlaceholder')}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
-                  />
-                </div>
-              </label>
+              <div className="flex flex-col gap-2 md:col-span-2 lg:col-span-6 rounded-xl border-2 border-gray-200 bg-white px-4 py-3">
+                <RangeSlider
+                  label={t('alt.search.guestsRange')}
+                  min={GUESTS_SLIDER_MIN}
+                  max={GUESTS_SLIDER_MAX}
+                  step={GUESTS_SLIDER_STEP}
+                  value={guestsRange}
+                  onChange={setGuestsRange}
+                  formatValue={formatGuestsSliderValue}
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">
