@@ -414,7 +414,7 @@
       }
     },
     "secondaryGallery": {
-      "heading": "Más fotos"
+      "heading": "Todas las fotos"
     },
     "amenities": {
       "heading": "Comodidades y qué incluye",
@@ -480,6 +480,10 @@
         "avgPerNight": "{{amount}} promedio por noche",
         "longStayApplied": "Descuento por estadía larga aplicado"
       },
+      "stayRules": {
+        "minStay": "Estadía mínima: {{count}} noches",
+        "longStayDiscount": "{{percent}}% de descuento en estadías de {{count}}+ noches"
+      },
       "confirmingMessage": "Confirmando tu reserva...",
       "modal": {
         "title": "Completa tu reserva"
@@ -488,9 +492,9 @@
         "firstName": "Nombre",
         "lastName": "Apellido",
         "email": "Correo electrónico (opcional)",
-        "phone": "Teléfono (+598...)",
+        "phone": "Número de teléfono",
         "documentIdOptional": "Documento de identidad (opcional)",
-        "estimatedGuests": "Cantidad estimada de invitados (opcional)",
+        "estimatedGuests": "Número de huéspedes (opcional)",
         "enterOtp": "Ingresa el OTP"
       },
       "actions": {
@@ -529,7 +533,9 @@
         "guestBookingOverlap": "Ya tenés una reserva para estas fechas.",
         "priceQuoteMismatch": "El precio se actualizó. Revisá e intentá de nuevo.",
         "priceQuoteMismatchWithTotal": "El precio cambió. Total actualizado: {{total}}. Intentá de nuevo.",
-        "failedToValidateDates": "No se pudieron validar las fechas."
+        "failedToValidateDates": "No se pudieron validar las fechas.",
+        "minStayRequired": "La estadía mínima es de {{count}} noches.",
+        "maxStayExceeded": "La estadía máxima es de {{count}} noches."
       }
     },
     "someFeatures": {
@@ -567,6 +573,7 @@
       "loading": "Cargando precio...",
       "fromHint": "Seleccioná fechas para el total exacto",
       "perNight": "por noche",
+      "finalPriceMayVary": "El precio final puede variar según la temporada, fechas especiales o cuánto anticipás la reserva.",
       "total": "Total",
       "guests": "Huéspedes",
       "guest": "huésped",

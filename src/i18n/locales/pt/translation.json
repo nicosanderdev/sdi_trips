@@ -391,7 +391,7 @@
       }
     },
     "secondaryGallery": {
-      "heading": "Mais fotos"
+      "heading": "Todas as fotos"
     },
     "amenities": {
       "heading": "Comodidades e o que está incluído",
@@ -457,6 +457,10 @@
         "avgPerNight": "{{amount}} média por noite",
         "longStayApplied": "Desconto por estadia longa aplicado"
       },
+      "stayRules": {
+        "minStay": "Estadia mínima: {{count}} noites",
+        "longStayDiscount": "{{percent}}% de desconto em estadias de {{count}}+ noites"
+      },
       "confirmingMessage": "Confirmando sua reserva...",
       "modal": {
         "title": "Conclua sua reserva"
@@ -465,9 +469,9 @@
         "firstName": "Nome",
         "lastName": "Sobrenome",
         "email": "E-mail (opcional)",
-        "phone": "Telefone (+598...)",
+        "phone": "Número de telefone",
         "documentIdOptional": "Documento de identidade (opcional)",
-        "estimatedGuests": "Número estimado de convidados (opcional)",
+        "estimatedGuests": "Número de hóspedes (opcional)",
         "enterOtp": "Digite o OTP"
       },
       "actions": {
@@ -506,7 +510,9 @@
         "guestBookingOverlap": "Você já tem uma reserva para estas datas.",
         "priceQuoteMismatch": "O preço foi atualizado. Revise e tente novamente.",
         "priceQuoteMismatchWithTotal": "O preço mudou. Total atualizado: {{total}}. Tente novamente.",
-        "failedToValidateDates": "Não foi possível validar as datas."
+        "failedToValidateDates": "Não foi possível validar as datas.",
+        "minStayRequired": "A estadia mínima é de {{count}} noites.",
+        "maxStayExceeded": "A estadia máxima é de {{count}} noites."
       }
     },
     "someFeatures": {
@@ -544,6 +550,7 @@
       "loading": "Carregando preço...",
       "fromHint": "Selecione datas para o total exato",
       "perNight": "por noite",
+      "finalPriceMayVary": "O preço final pode variar conforme a temporada, datas especiais ou com quanto antecipação você reserva.",
       "total": "Total",
       "guests": "Hóspedes",
       "guest": "hóspede",

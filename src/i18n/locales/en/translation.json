@@ -441,7 +441,7 @@
       }
     },
     "secondaryGallery": {
-      "heading": "More photos"
+      "heading": "All photos"
     },
     "amenities": {
       "heading": "Amenities & what's included",
@@ -507,6 +507,10 @@
         "avgPerNight": "{{amount}} avg per night",
         "longStayApplied": "Long-stay discount applied"
       },
+      "stayRules": {
+        "minStay": "Minimum stay: {{count}} nights",
+        "longStayDiscount": "{{percent}}% off for stays of {{count}}+ nights"
+      },
       "confirmingMessage": "Confirming your reservation...",
       "modal": {
         "title": "Complete your reservation"
@@ -515,9 +519,9 @@
         "firstName": "First name",
         "lastName": "Last name",
         "email": "Email (optional)",
-        "phone": "Phone (+598...)",
+        "phone": "Phone number",
         "documentIdOptional": "Document ID (optional)",
-        "estimatedGuests": "Estimated number of guests (optional)",
+        "estimatedGuests": "Number of guests (optional)",
         "enterOtp": "Enter OTP"
       },
       "actions": {
@@ -556,7 +560,9 @@
         "guestBookingOverlap": "You already have a reservation for these dates.",
         "priceQuoteMismatch": "The price was updated. Please review and try again.",
         "priceQuoteMismatchWithTotal": "The price changed. Updated total: {{total}}. Please try again.",
-        "failedToValidateDates": "Failed to validate dates."
+        "failedToValidateDates": "Failed to validate dates.",
+        "minStayRequired": "Minimum stay is {{count}} nights.",
+        "maxStayExceeded": "Maximum stay is {{count}} nights."
       }
     },
     "someFeatures": {
@@ -594,6 +600,7 @@
       "loading": "Loading price...",
       "fromHint": "Select dates for an exact total",
       "perNight": "per night",
+      "finalPriceMayVary": "The final price may vary depending on season, special dates, or how far ahead you book.",
       "total": "Total",
       "guests": "Guests",
       "guest": "guest",

@@ -40,7 +40,7 @@ interface GuestBookingFlowProps {
   property: Property;
   /** Base path for the post-booking lookup page (`?code=` appended when available). Default: `/reservation-lookup`. */
   reservationManagePath?: string;
-  /** `event` enables alt-site copy and phone prefix UI. Default: `rental`. */
+  /** `event` enables alt-site copy and booking-mode UI. Default: `rental`. */
   variant?: BookingFlowVariant;
   /** Pre-selected check-in date (e.g. from search URL). */
   initialCheckIn?: Date | null;
@@ -69,12 +69,12 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const isEvent = variant === 'event';
 
   const bookingT = useCallback(
-    (key: string) => {
+    (key: string, options?: Record<string, unknown>) => {
       const altKey = `alt.bookingFlow.${key}`;
       if (isEvent && i18n.exists(altKey)) {
-        return t(altKey);
+        return t(altKey, options);
       }
-      return t(`propertyDetail.bookingFlow.${key}`);
+      return t(`propertyDetail.bookingFlow.${key}`, options);
     },
     [isEvent, t],
   );
@@ -96,7 +96,6 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [phoneCountry, setPhoneCountry] = useState<PhoneCountryCode>('UY');
   const [phoneLocal, setPhoneLocal] = useState('');
   const [documentId, setDocumentId] = useState('');
@@ -116,11 +115,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [overlapChecking, setOverlapChecking] = useState(false);
 
   const fullPhone = useMemo(() => {
-    if (isEvent) {
-      return buildInternationalPhone(phoneCountry, phoneLocal);
-    }
-    return phone.trim();
-  }, [isEvent, phone, phoneCountry, phoneLocal]);
+    return buildInternationalPhone(phoneCountry, phoneLocal);
+  }, [phoneCountry, phoneLocal]);
 
   const canValidate = Boolean(checkIn && checkOut);
 
@@ -152,6 +148,29 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
     const timer = window.setTimeout(async () => {
       setValidationLoading(true);
+
+      const stayNights = Math.ceil(
+        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      if (property.maxStayDays && stayNights > property.maxStayDays) {
+        if (!cancelled) {
+          setValidationError(
+            bookingT('errors.maxStayExceeded', { count: property.maxStayDays }),
+          );
+          setValidationLoading(false);
+        }
+        return;
+      }
+      if (property.minStayDays && stayNights < property.minStayDays) {
+        if (!cancelled) {
+          setValidationError(
+            bookingT('errors.minStayRequired', { count: property.minStayDays }),
+          );
+          setValidationLoading(false);
+        }
+        return;
+      }
+
       const result = await validateBookingSelection(property.id, checkIn, checkOut, 1);
       if (!cancelled) {
         setValidationError(
@@ -167,7 +186,16 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [canValidate, checkIn, checkOut, property.id, resolveBookingError]);
+  }, [
+    canValidate,
+    checkIn,
+    checkOut,
+    property.id,
+    property.maxStayDays,
+    property.minStayDays,
+    bookingT,
+    resolveBookingError,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -243,14 +271,10 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     if (!firstName.trim() || !lastName.trim()) return false;
     const trimmedEmail = email.trim();
     if (trimmedEmail && !EMAIL_PATTERN.test(trimmedEmail)) return false;
-    if (isEvent) {
-      if (!isValidLocalPhone(phoneLocal)) return false;
-      if (!PHONE_PATTERN.test(fullPhone)) return false;
-    } else if (!PHONE_PATTERN.test(fullPhone)) {
-      return false;
-    }
+    if (!isValidLocalPhone(phoneLocal)) return false;
+    if (!PHONE_PATTERN.test(fullPhone)) return false;
     return true;
-  }, [firstName, lastName, fullPhone, phoneLocal, email, isEvent]);
+  }, [firstName, lastName, fullPhone, phoneLocal, email]);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
@@ -440,8 +464,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setFirstName('');
     setLastName('');
     setEmail('');
-    setPhone('');
     setPhoneLocal('');
+    setPhoneCountry('UY');
     setDocumentId('');
     setEstimatedGuests('');
     setOtpCode('');
@@ -469,8 +493,32 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
   const phonePlaceholder = bookingT('form.phone');
 
+  const showMinStayInfo =
+    typeof property.minStayDays === 'number' && property.minStayDays > 1;
+  const showLongStayPromo =
+    Boolean(property.longStayDiscountEnabled) &&
+    property.longStayMinDays != null &&
+    property.longStayDiscountPercentage != null &&
+    property.longStayDiscountPercentage > 0;
+
   return (
     <div className="space-y-4">
+      {(showMinStayInfo || showLongStayPromo) && (
+        <div className="space-y-1 text-xs text-charcoal">
+          {showMinStayInfo && (
+            <p>{bookingT('stayRules.minStay', { count: property.minStayDays })}</p>
+          )}
+          {showLongStayPromo && (
+            <p className="text-green-700">
+              {bookingT('stayRules.longStayDiscount', {
+                percent: property.longStayDiscountPercentage,
+                count: property.longStayMinDays,
+              })}
+            </p>
+          )}
+        </div>
+      )}
+
       {isEvent && (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-navy">{bookingT('bookingModeLabel')}</label>
@@ -598,38 +646,28 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               placeholder={bookingT('form.email')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
-            {isEvent ? (
-              <div className="flex gap-2">
-                <select
-                  value={phoneCountry}
-                  onChange={(e) => setPhoneCountry(e.target.value as PhoneCountryCode)}
-                  className="w-28 shrink-0 rounded-2xl border border-warm-gray bg-white px-2 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
-                  aria-label={phonePlaceholder}
-                >
-                  {SUPPORTED_PHONE_COUNTRIES.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.flag} {country.dialCode}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  value={phoneLocal}
-                  onChange={(e) => setPhoneLocal(e.target.value.replace(/\D/g, ''))}
-                  placeholder={phonePlaceholder}
-                  className="min-w-0 flex-1 rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
-                />
-              </div>
-            ) : (
+            <div className="flex gap-2">
+              <select
+                value={phoneCountry}
+                onChange={(e) => setPhoneCountry(e.target.value as PhoneCountryCode)}
+                className="w-28 shrink-0 rounded-2xl border border-warm-gray bg-white px-2 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+                aria-label={phonePlaceholder}
+              >
+                {SUPPORTED_PHONE_COUNTRIES.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.dialCode}
+                  </option>
+                ))}
+              </select>
               <input
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                inputMode="numeric"
+                value={phoneLocal}
+                onChange={(e) => setPhoneLocal(e.target.value.replace(/\D/g, ''))}
                 placeholder={phonePlaceholder}
-                className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+                className="min-w-0 flex-1 rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
               />
-            )}
+            </div>
             <input
               type="text"
               value={documentId}

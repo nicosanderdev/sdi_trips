@@ -112,7 +112,7 @@ export function validateDateSelection(
   if (rules.minStayDays && nights < rules.minStayDays) {
     return {
       isValid: false,
-      error: `Minimum stay is ${rules.minStayDays} nights`
+      error: 'propertyDetail.bookingFlow.errors.minStayRequired'
     };
   }
 
@@ -120,7 +120,7 @@ export function validateDateSelection(
   if (rules.maxStayDays && nights > rules.maxStayDays) {
     return {
       isValid: false,
-      error: `Maximum stay is ${rules.maxStayDays} nights`
+      error: 'propertyDetail.bookingFlow.errors.maxStayExceeded'
     };
   }
 
