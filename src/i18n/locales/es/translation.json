@@ -1162,7 +1162,6 @@
       "priceRange": "Rango de Precio (por noche)",
       "bedrooms": "Dormitorios",
       "guests": "Huéspedes",
-      "minimumRating": "Calificación Mínima",
       "amenities": "Comodidades",
       "options": {
         "any": "Cualquiera",
@@ -1179,11 +1178,10 @@
           "4": "4 huéspedes",
           "5": "5+ huéspedes"
         },
-        "rating": {
-          "any": "Cualquiera",
-          "3": "3+",
-          "4": "4+",
-          "4.5": "4.5+"
+        "amenities": {
+          "pool": "Piscina",
+          "garage": "Garaje",
+          "barbecue": "Parrilla"
         }
       }
     },

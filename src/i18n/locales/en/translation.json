@@ -1189,7 +1189,6 @@
       "priceRange": "Price Range (per night)",
       "bedrooms": "Bedrooms",
       "guests": "Guests",
-      "minimumRating": "Minimum Rating",
       "amenities": "Amenities",
       "options": {
         "any": "Any",
@@ -1206,11 +1205,10 @@
           "4": "4 guests",
           "5": "5+ guests"
         },
-        "rating": {
-          "3": "3+",
-          "4": "4+",
-          "any": "Any",
-          "4.5": "4.5+"
+        "amenities": {
+          "pool": "Pool",
+          "garage": "Garage",
+          "barbecue": "Barbecue"
         }
       }
     },
