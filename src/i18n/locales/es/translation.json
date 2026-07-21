@@ -1334,5 +1334,40 @@
       "questionsBody": "Si tienes preguntas sobre esta Política de Privacidad o sobre cómo tratamos tus datos personales, ponte en contacto con nuestro equipo.",
       "contactButton": "Contactar al equipo de privacidad"
     }
+  },
+  "mercadoPago": {
+    "amountLabel": "Monto a pagar:",
+    "payNow": "Pagar ahora",
+    "payLater": "Pagar después",
+    "paying": "Redirigiendo…",
+    "cancel": "Cancelar",
+    "continueToMercadoPago": "Continuar a Mercado Pago",
+    "disclaimerTitle": "Antes de pagar",
+    "bridgeDisclaimer": "No somos responsables de los pagos. Solo actuamos como puente entre el propietario y el huésped. El dinero va directamente a la cuenta de Mercado Pago del propietario.",
+    "paymentRegistered": "Pago registrado.",
+    "errors": {
+      "generic": "No se pudo iniciar el pago en línea. Intentá de nuevo.",
+      "SELLER_NOT_CONNECTED": "El propietario no está conectado a Mercado Pago.",
+      "NO_DESIGNATED_SELLER": "El pago en línea aún no está disponible para esta propiedad.",
+      "ALREADY_APPROVED": "Ya se registró un pago para esta reserva.",
+      "CANNOT_PAY": "El pago en línea no está disponible para esta reserva.",
+      "INVALID_AMOUNT": "Esta reserva tiene un monto de pago inválido."
+    },
+    "return": {
+      "pageLabel": "Resultado del pago",
+      "polling": "Verificando el estado del pago…",
+      "pendingTitle": "Pago pendiente",
+      "pendingBody": "Mercado Pago aún no confirmó el pago. Podés revisar tu reserva en unos minutos.",
+      "approvedTitle": "Pago registrado",
+      "approvedBody": "Registramos tu pago de Mercado Pago. Esto no cambia el estado de tu reserva con el anfitrión.",
+      "failureTitle": "Pago no completado",
+      "failureBody": "El pago no se completó. Podés intentar de nuevo desde la página de tu reserva.",
+      "timeoutTitle": "Aún confirmando",
+      "timeoutBody": "Todavía no recibimos la confirmación. Si completaste el pago, puede demorar unos minutos. Revisá tu reserva en breve.",
+      "errorTitle": "No se pudo verificar el pago",
+      "errorBody": "No pudimos verificar este retorno de pago. Abrí tu reserva para ver el estado más reciente.",
+      "viewReservation": "Ver mi reserva",
+      "goHome": "Volver al inicio"
+    }
   }
 }

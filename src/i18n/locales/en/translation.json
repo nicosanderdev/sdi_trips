@@ -1361,5 +1361,40 @@
       "questionsBody": "If you have any questions about this Privacy Policy or how we handle your personal data, please contact our team.",
       "contactButton": "Contact Privacy Team"
     }
+  },
+  "mercadoPago": {
+    "amountLabel": "Amount due:",
+    "payNow": "Pay now",
+    "payLater": "Pay later",
+    "paying": "Redirecting…",
+    "cancel": "Cancel",
+    "continueToMercadoPago": "Continue to Mercado Pago",
+    "disclaimerTitle": "Before you pay",
+    "bridgeDisclaimer": "We are not responsible for payments. We only act as a bridge between the property owner and the guest. Money goes directly to the property owner's Mercado Pago account.",
+    "paymentRegistered": "Payment registered.",
+    "errors": {
+      "generic": "Could not start online payment. Please try again.",
+      "SELLER_NOT_CONNECTED": "The property owner is not connected to Mercado Pago.",
+      "NO_DESIGNATED_SELLER": "Online payment is not available for this property yet.",
+      "ALREADY_APPROVED": "A payment was already registered for this booking.",
+      "CANNOT_PAY": "Online payment is not available for this booking.",
+      "INVALID_AMOUNT": "This booking has an invalid payment amount."
+    },
+    "return": {
+      "pageLabel": "Payment result",
+      "polling": "Checking payment status…",
+      "pendingTitle": "Payment pending",
+      "pendingBody": "Mercado Pago has not confirmed the payment yet. You can check your reservation again in a few minutes.",
+      "approvedTitle": "Payment registered",
+      "approvedBody": "We recorded your Mercado Pago payment. This does not change your booking status with the host.",
+      "failureTitle": "Payment not completed",
+      "failureBody": "The payment was not completed. You can try again from your reservation page.",
+      "timeoutTitle": "Still confirming",
+      "timeoutBody": "We have not received confirmation yet. If you completed payment, it may take a few minutes. Check your reservation shortly.",
+      "errorTitle": "Unable to verify payment",
+      "errorBody": "We could not verify this payment return. Open your reservation to check the latest status.",
+      "viewReservation": "View my reservation",
+      "goHome": "Back to home"
+    }
   }
 }

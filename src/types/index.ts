@@ -1,6 +1,10 @@
 export * from '../core/models';
 export * from './guestReviewContract';
-import type { GuestBookingErrorCode, GuestSiteListingType } from './guestReviewContract';
+import type {
+  GuestBookingErrorCode,
+  GuestSiteListingType,
+  MercadoPagoBookingEligibility,
+} from './guestReviewContract';
 
 export interface BookingSelectionValidation {
   isValid: boolean;
@@ -47,6 +51,10 @@ export interface GuestBookingConfirmation {
   manageUrl?: string;
   guestId?: string;
   listingType?: GuestSiteListingType;
+  totalAmount?: number;
+  currency?: number;
+  currencyCode?: string;
+  mercadoPago?: MercadoPagoBookingEligibility;
   errorCode?: GuestBookingErrorCode;
   error?: string;
 }
@@ -79,4 +87,12 @@ export interface ManageBookingView {
   status: string;
   canCancel: boolean;
   hostContact?: HostContactInfo | null;
+  totalAmount?: number | null;
+  currency?: number | null;
+  currencyCode?: string | null;
+  mercadoPagoApproved?: boolean;
+  mercadoPagoApprovedAt?: string | null;
+  canPayOnline?: boolean;
+  sellerConnected?: boolean;
+  listingType?: GuestSiteListingType;
 }

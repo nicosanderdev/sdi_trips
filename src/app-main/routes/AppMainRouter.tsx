@@ -21,6 +21,7 @@ import PropertyDetail from '../pages/PropertyDetail';
 import NotFound from '../pages/NotFound';
 import BookingManageRedirect from '../pages/BookingManageRedirect';
 import ReservationLookup from '../pages/ReservationLookup';
+import MercadoPagoPaymentResultPage from '../pages/MercadoPagoPaymentResultPage';
 
 function PageViewTracker() {
   const location = useLocation();
@@ -55,6 +56,7 @@ export function AppMainRouter() {
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/booking/manage" element={<BookingManageRedirect />} />
           <Route path="/reservation-lookup" element={<ReservationLookup />} />
+          <Route path="/pago-mercado-pago/resultado" element={<MercadoPagoPaymentResultPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

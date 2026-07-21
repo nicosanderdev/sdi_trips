@@ -6,6 +6,7 @@ import AltContact from '../pages/AltContact';
 import AltLanding from '../pages/AltLanding';
 import AltNotFound from '../pages/AltNotFound';
 import AltReservationLookup from '../pages/AltReservationLookup';
+import AltMercadoPagoPaymentResultPage from '../pages/AltMercadoPagoPaymentResultPage';
 import AltSearchProperties from '../pages/AltSearchProperties';
 import AltTermsAndConditions from '../pages/AltTermsAndConditions';
 import AltVenueDetail from '../pages/AltVenueDetail';
@@ -23,6 +24,7 @@ export function AppAltRouter() {
             <Route path="/contact" element={<AltContact />} />
             <Route path="/about" element={<About variant="alt" />} />
             <Route path="/reservation-lookup" element={<AltReservationLookup />} />
+            <Route path="/pago-mercado-pago/resultado" element={<AltMercadoPagoPaymentResultPage />} />
             <Route path="/terms-and-conditions" element={<AltTermsAndConditions />} />
             <Route path="/venue/:id" element={<AltVenueDetail />} />
             <Route path="/forgot-password" element={<ForgotPassword variant="alt" />} />

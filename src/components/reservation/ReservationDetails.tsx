@@ -12,6 +12,7 @@ import { formatReservationStayDate } from '../../utils/formatReservationStayDate
 import GuestReservationReviewForm from './GuestReservationReviewForm';
 import GuestReviewReadOnlyCard from './GuestReviewReadOnlyCard';
 import HostContactSection from './HostContactSection';
+import MercadoPagoPaySection from './MercadoPagoPaySection';
 
 const defaultPropertyPath = (propertyId: string) => `/property/${propertyId}`;
 
@@ -180,6 +181,18 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
           status={localReservation.status}
           hostContact={localReservation.hostContact}
         />
+
+        {(localReservation.canPayOnline || localReservation.mercadoPagoApproved) && (
+          <MercadoPagoPaySection
+            bookingId={localReservation.bookingId}
+            canPayOnline={localReservation.canPayOnline}
+            mercadoPagoApproved={localReservation.mercadoPagoApproved}
+            totalAmount={localReservation.totalAmount}
+            currencyCode={localReservation.currencyCode}
+            reservationCode={localReservation.reservationCode}
+            listingType={localReservation.listingType}
+          />
+        )}
 
         <div className="pt-2 flex flex-wrap justify-center gap-3">
           <Link to={propertyPath(localReservation.propertyId)}>
