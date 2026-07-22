@@ -13,6 +13,7 @@ import GuestReservationReviewForm from './GuestReservationReviewForm';
 import GuestReviewReadOnlyCard from './GuestReviewReadOnlyCard';
 import HostContactSection from './HostContactSection';
 import MercadoPagoPaySection from './MercadoPagoPaySection';
+import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
 
 const defaultPropertyPath = (propertyId: string) => `/property/${propertyId}`;
 
@@ -182,7 +183,8 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
           hostContact={localReservation.hostContact}
         />
 
-        {(localReservation.canPayOnline || localReservation.mercadoPagoApproved) && (
+        {(shouldShowMercadoPagoPay(localReservation.status) &&
+          (localReservation.canPayOnline || localReservation.mercadoPagoApproved)) && (
           <MercadoPagoPaySection
             bookingId={localReservation.bookingId}
             canPayOnline={localReservation.canPayOnline}

@@ -482,6 +482,9 @@
       },
       "stayRules": {
         "minStay": "Estadía mínima: {{count}} noches",
+        "maxStay": "Estadía máxima: {{count}} noches",
+        "leadTime": "Las reservas deben hacerse con al menos {{count}} días de anticipación",
+        "bookingWindow": "Podés seleccionar fechas hasta {{count}} meses por adelantado",
         "longStayDiscount": "{{percent}}% de descuento en estadías de {{count}}+ noches"
       },
       "confirmingMessage": "Confirmando tu reserva...",
@@ -535,7 +538,13 @@
         "priceQuoteMismatchWithTotal": "El precio cambió. Total actualizado: {{total}}. Intentá de nuevo.",
         "failedToValidateDates": "No se pudieron validar las fechas.",
         "minStayRequired": "La estadía mínima es de {{count}} noches.",
-        "maxStayExceeded": "La estadía máxima es de {{count}} noches."
+        "maxStayExceeded": "La estadía máxima es de {{count}} noches.",
+        "leadTimeRequired": "Estas fechas son demasiado próximas. Las reservas deben hacerse con al menos {{count}} días de anticipación.",
+        "datesTooFarAhead": "Estas fechas son demasiado lejanas. Solo podés seleccionar fechas hasta {{count}} meses por adelantado.",
+        "dateUnavailable": "Esa fecha no está disponible.",
+        "rangeUnavailable": "El rango seleccionado incluye fechas no disponibles.",
+        "checkOutAfterCheckIn": "La fecha de salida debe ser posterior a la de entrada.",
+        "bothDatesRequired": "Seleccioná las fechas de entrada y salida."
       }
     },
     "someFeatures": {
@@ -1350,6 +1359,9 @@
     "disclaimerTitle": "Antes de pagar",
     "bridgeDisclaimer": "No somos responsables de los pagos. Solo actuamos como puente entre el propietario y el huésped. El dinero va directamente a la cuenta de Mercado Pago del propietario.",
     "paymentRegistered": "Pago registrado.",
+    "infoTitle": "Pagá en línea con Mercado Pago",
+    "infoBody": "Cuando tu reserva esté confirmada, podés pagar de forma segura en línea con Mercado Pago. Tenés varios medios de pago, confirmación inmediata para el anfitrión y un registro claro del pago de tu estadía.",
+    "infoFees": "Comisiones: Mercado Pago puede aplicar sus propias comisiones según el medio de pago que elijas. Esta plataforma no agrega una comisión de marketplace adicional a tu pago.",
     "errors": {
       "generic": "No se pudo iniciar el pago en línea. Intentá de nuevo.",
       "SELLER_NOT_CONNECTED": "El propietario no está conectado a Mercado Pago.",

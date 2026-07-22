@@ -63,6 +63,27 @@ export function getBlockedDates(availability: DateAvailability[]): Set<string> {
   return blocked;
 }
 
+/** How far ahead guests can select dates on the booking calendar. */
+export const BOOKING_AVAILABILITY_MONTHS = 3;
+
+export interface DateSelectionValidationResult {
+  isValid: boolean;
+  /** Relative key under `propertyDetail.bookingFlow`, e.g. `errors.minStayRequired`. */
+  errorKey?: string;
+  errorParams?: Record<string, unknown>;
+}
+
+function startOfLocalDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 /**
  * Validate date selection according to booking rules
  */
@@ -71,39 +92,38 @@ export function validateDateSelection(
   checkOut: Date | null,
   blockedDates: Set<string>,
   rules: PropertyBookingRules = {}
-): { isValid: boolean; error?: string } {
+): DateSelectionValidationResult {
   // Must have both dates selected
   if (!checkIn || !checkOut) {
-    return { isValid: false, error: 'Both check-in and check-out dates are required' };
+    return { isValid: false, errorKey: 'errors.bothDatesRequired' };
   }
 
   // Check-in must be before check-out
   if (checkIn >= checkOut) {
-    return { isValid: false, error: 'Check-out date must be after check-in date' };
+    return { isValid: false, errorKey: 'errors.checkOutAfterCheckIn' };
   }
 
-  // Convert dates to YYYY-MM-DD strings for comparison
-  const checkInStr = checkIn.toISOString().split('T')[0];
-  const checkOutStr = checkOut.toISOString().split('T')[0];
+  const checkInStr = toLocalDateString(checkIn);
+  const checkOutStr = toLocalDateString(checkOut);
 
   // Check-in date cannot be blocked
   if (blockedDates.has(checkInStr)) {
-    return { isValid: false, error: 'Selected check-in date is not available' };
+    return { isValid: false, errorKey: 'errors.dateUnavailable' };
   }
 
   // Check-out date cannot be blocked
   if (blockedDates.has(checkOutStr)) {
-    return { isValid: false, error: 'Selected check-out date is not available' };
+    return { isValid: false, errorKey: 'errors.dateUnavailable' };
   }
 
   // Check that no dates in the range are blocked
-  const current = new Date(checkIn);
-  const end = new Date(checkOut);
+  const current = startOfLocalDay(checkIn);
+  const end = startOfLocalDay(checkOut);
 
   while (current < end) {
-    const dateStr = current.toISOString().split('T')[0];
+    const dateStr = toLocalDateString(current);
     if (blockedDates.has(dateStr)) {
-      return { isValid: false, error: 'Selected date range contains unavailable dates' };
+      return { isValid: false, errorKey: 'errors.rangeUnavailable' };
     }
     current.setDate(current.getDate() + 1);
   }
@@ -115,7 +135,8 @@ export function validateDateSelection(
   if (rules.minStayDays && nights < rules.minStayDays) {
     return {
       isValid: false,
-      error: 'propertyDetail.bookingFlow.errors.minStayRequired'
+      errorKey: 'errors.minStayRequired',
+      errorParams: { count: rules.minStayDays },
     };
   }
 
@@ -123,21 +144,31 @@ export function validateDateSelection(
   if (rules.maxStayDays && nights > rules.maxStayDays) {
     return {
       isValid: false,
-      error: 'propertyDetail.bookingFlow.errors.maxStayExceeded'
+      errorKey: 'errors.maxStayExceeded',
+      errorParams: { count: rules.maxStayDays },
     };
   }
 
-  // Check lead time requirement
-  if (rules.leadTimeDays) {
-    const earliestAllowed = new Date();
-    earliestAllowed.setDate(earliestAllowed.getDate() + rules.leadTimeDays);
-
-    if (checkIn < earliestAllowed) {
+  // Check lead time requirement (too soon / too close)
+  if (rules.leadTimeDays && rules.leadTimeDays > 0) {
+    const earliestAllowed = getEarliestAvailableDate(rules.leadTimeDays);
+    if (startOfLocalDay(checkIn) < startOfLocalDay(earliestAllowed)) {
       return {
         isValid: false,
-        error: `Bookings must be made at least ${rules.leadTimeDays} days in advance`
+        errorKey: 'errors.leadTimeRequired',
+        errorParams: { count: rules.leadTimeDays },
       };
     }
+  }
+
+  // Check booking horizon (too far / too late to select)
+  const latestAllowed = getLatestBookableDate(rules.leadTimeDays);
+  if (startOfLocalDay(checkIn) > startOfLocalDay(latestAllowed)) {
+    return {
+      isValid: false,
+      errorKey: 'errors.datesTooFarAhead',
+      errorParams: { count: BOOKING_AVAILABILITY_MONTHS },
+    };
   }
 
   return { isValid: true };
@@ -147,10 +178,19 @@ export function validateDateSelection(
  * Calculate the earliest available date based on lead time
  */
 export function getEarliestAvailableDate(leadTimeDays?: number): Date {
-  const date = new Date();
+  const date = startOfLocalDay(new Date());
   if (leadTimeDays && leadTimeDays > 0) {
     date.setDate(date.getDate() + leadTimeDays);
   }
+  return date;
+}
+
+/**
+ * Latest date guests can book on the calendar (availability fetch horizon).
+ */
+export function getLatestBookableDate(leadTimeDays?: number): Date {
+  const date = getEarliestAvailableDate(leadTimeDays);
+  date.setMonth(date.getMonth() + BOOKING_AVAILABILITY_MONTHS);
   return date;
 }
 

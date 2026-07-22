@@ -509,6 +509,9 @@
       },
       "stayRules": {
         "minStay": "Minimum stay: {{count}} nights",
+        "maxStay": "Maximum stay: {{count}} nights",
+        "leadTime": "Bookings must be made at least {{count}} days in advance",
+        "bookingWindow": "Dates can be selected up to {{count}} months ahead",
         "longStayDiscount": "{{percent}}% off for stays of {{count}}+ nights"
       },
       "confirmingMessage": "Confirming your reservation...",
@@ -562,7 +565,13 @@
         "priceQuoteMismatchWithTotal": "The price changed. Updated total: {{total}}. Please try again.",
         "failedToValidateDates": "Failed to validate dates.",
         "minStayRequired": "Minimum stay is {{count}} nights.",
-        "maxStayExceeded": "Maximum stay is {{count}} nights."
+        "maxStayExceeded": "Maximum stay is {{count}} nights.",
+        "leadTimeRequired": "These dates are too soon. Bookings must be made at least {{count}} days in advance.",
+        "datesTooFarAhead": "These dates are too far ahead. You can only select dates up to {{count}} months in advance.",
+        "dateUnavailable": "That date is not available.",
+        "rangeUnavailable": "The selected range includes unavailable dates.",
+        "checkOutAfterCheckIn": "Check-out must be after check-in.",
+        "bothDatesRequired": "Please select both check-in and check-out dates."
       }
     },
     "someFeatures": {
@@ -1377,6 +1386,9 @@
     "disclaimerTitle": "Before you pay",
     "bridgeDisclaimer": "We are not responsible for payments. We only act as a bridge between the property owner and the guest. Money goes directly to the property owner's Mercado Pago account.",
     "paymentRegistered": "Payment registered.",
+    "infoTitle": "Pay online with Mercado Pago",
+    "infoBody": "Once your booking is confirmed, you can pay securely online through Mercado Pago. You get multiple payment methods, instant confirmation for the host, and a clear payment record for your stay.",
+    "infoFees": "Fees: Mercado Pago may apply its own processing fees depending on the payment method you choose. This platform does not add an extra marketplace fee to your payment.",
     "errors": {
       "generic": "Could not start online payment. Please try again.",
       "SELLER_NOT_CONNECTED": "The property owner is not connected to Mercado Pago.",
