@@ -178,14 +178,14 @@ export default function AltLanding() {
         />
 
         <div className="relative z-10 max-w-7xl mx-auto px-8 py-16 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
+          <div className="flex flex-col justify-center animate-[fadeInUp_700ms_ease-out_both]">
             <h1 className="m-0 text-white font-bold text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] max-w-[16ch]">
               {t('alt.landing.hero.title')}
             </h1>
             <p className="mt-4 text-white/95 text-[clamp(1rem,1.8vw,1.25rem)] max-w-[36ch]">{t('alt.landing.hero.subtitle')}</p>
 
             <form
-              className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_1fr_0.9fr_auto] gap-3 items-end w-full max-w-[900px] p-3 rounded-2xl border border-gold/35 bg-white/95 backdrop-blur-sm"
+              className="mt-5 grid grid-cols-1 gap-2 w-full max-w-[900px] p-3 rounded-2xl border border-gold/35 bg-white/95 backdrop-blur-sm"
               onSubmit={(event) => {
                 event.preventDefault();
                 if (eventDateFrom && eventDateTo && eventDateTo < eventDateFrom) {
@@ -206,37 +206,6 @@ export default function AltLanding() {
                 navigate(query ? `/search?${query}` : '/search');
               }}
             >
-              <label htmlFor="hero-search-date-from" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-                {t('alt.landing.hero.searchDateFromLabel')}
-                <input
-                  id="hero-search-date-from"
-                  className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                  type="date"
-                  name="from"
-                  value={eventDateFrom}
-                  onChange={(e) => {
-                    const next = e.target.value;
-                    setEventDateFrom(next);
-                    if (!eventDateTo || next > eventDateTo) {
-                      setEventDateTo(next);
-                    }
-                  }}
-                  aria-label={t('alt.landing.hero.searchDateFromAria')}
-                />
-              </label>
-              <label htmlFor="hero-search-date-to" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-                {t('alt.landing.hero.searchDateToLabel')}
-                <input
-                  id="hero-search-date-to"
-                  className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                  type="date"
-                  name="to"
-                  value={eventDateTo}
-                  min={eventDateFrom || undefined}
-                  onChange={(e) => setEventDateTo(e.target.value)}
-                  aria-label={t('alt.landing.hero.searchDateToAria')}
-                />
-              </label>
               <label htmlFor="hero-search-location" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
                 {t('alt.landing.hero.searchLocationLabel')}
                 <div ref={searchContainerRef} className="relative">
@@ -275,42 +244,77 @@ export default function AltLanding() {
                   )}
                 </div>
               </label>
-              <Button type="submit" variant="primary" size="md" className="w-full md:w-auto justify-center">
-                {t('alt.landing.hero.searchCta')}
-              </Button>
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
+                <label htmlFor="hero-search-date-from" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+                  {t('alt.landing.hero.searchDateFromLabel')}
+                  <input
+                    id="hero-search-date-from"
+                    className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                    type="date"
+                    name="from"
+                    value={eventDateFrom}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setEventDateFrom(next);
+                      if (!eventDateTo || next > eventDateTo) {
+                        setEventDateTo(next);
+                      }
+                    }}
+                    aria-label={t('alt.landing.hero.searchDateFromAria')}
+                  />
+                </label>
+                <label htmlFor="hero-search-date-to" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+                  {t('alt.landing.hero.searchDateToLabel')}
+                  <input
+                    id="hero-search-date-to"
+                    className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                    type="date"
+                    name="to"
+                    value={eventDateTo}
+                    min={eventDateFrom || undefined}
+                    onChange={(e) => setEventDateTo(e.target.value)}
+                    aria-label={t('alt.landing.hero.searchDateToAria')}
+                  />
+                </label>
+                <Button type="submit" variant="primary" size="md" className="w-full sm:w-auto justify-center">
+                  {t('alt.landing.hero.searchCta')}
+                </Button>
+              </div>
             </form>
 
-            <div className="mt-4 flex flex-wrap gap-4">
-              <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-                {t('alt.landing.hero.badgeCurated')}
-              </p>
-              <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-                {t('alt.landing.hero.badgeCapacity')}
-              </p>
-              <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-                {t('alt.landing.hero.badgeHoldDemo')}
-              </p>
-            </div>
+            <div className="mt-4">
+              <div className="flex flex-wrap gap-4">
+                <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+                  {t('alt.landing.hero.badgeCurated')}
+                </p>
+                <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+                  {t('alt.landing.hero.badgeCapacity')}
+                </p>
+                <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+                  {t('alt.landing.hero.badgeHoldDemo')}
+                </p>
+              </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/search">
-                <Button variant="primary" size="lg">
-                  {t('alt.landing.hero.exploreCta')}
-                </Button>
-              </Link>
-              <Link to="/reservation-lookup">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold"
-                >
-                  {t('alt.landing.hero.talkCta')}
-                </Button>
-              </Link>
+              <div className="mt-4 flex flex-wrap gap-3 items-start">
+                <Link to="/search">
+                  <Button variant="primary" size="lg">
+                    {t('alt.landing.hero.exploreCta')}
+                  </Button>
+                </Link>
+                <Link to="/reservation-lookup">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold"
+                  >
+                    {t('alt.landing.hero.talkCta')}
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
 
-          <div className="relative min-h-[400px] rounded-3xl overflow-hidden border border-gold/25 shadow-2xl bg-white/10 backdrop-blur-sm">
+          <div className="relative min-h-[430px] lg:h-[46rem] rounded-3xl overflow-hidden border border-gold/25 shadow-2xl bg-white/10 backdrop-blur-sm">
             <div
               className={`absolute inset-0 p-8 flex flex-col justify-end bg-cover bg-center transition-opacity duration-500 ${fade ? 'opacity-80' : 'opacity-100'}`}
               style={{ backgroundImage: `url("${heroImage}")` }}

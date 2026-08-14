@@ -35,7 +35,7 @@
       "searchDateToLabel": "Fecha más tardía",
       "searchDateToAria": "Fecha más tardía del evento",
       "searchLocationLabel": "Ubicación",
-      "searchLocationPlaceholder": "Ciudad o barrio",
+      "searchLocationPlaceholder": "Ciudad",
       "searchLocationAria": "Ubicación",
       "searchCta": "Exploremos",
       "badgeCurated": "Espacios que conocemos",
@@ -127,7 +127,8 @@
     "filtersHeading": "Filtros",
     "filtersHint": "Los filtros actualizan la lista mientras afinas la búsqueda.",
     "location": "Ubicación",
-    "locationPlaceholder": "Ciudad o barrio",
+    "locationPlaceholder": "Ciudad",
+    "guestsRange": "Invitados",
     "capacityMin": "Mín. invitados",
     "capacityMinPlaceholder": "ej. 50",
     "capacityMax": "Máx. invitados",
@@ -174,9 +175,15 @@
     "coordinatorRole": "Coordinadores para este listado (demo)",
     "coordinatorBullet1": "Ventanas para visitas in situ",
     "coordinatorBullet2": "Lista de proveedores preferidos bajo solicitud",
+    "host": {
+      "heading": "Conoce al anfitrión",
+      "defaultName": "Anfitrión",
+      "bioDefault": "Nos encanta compartir este espacio y ayudar a que tu evento salga impecable."
+    },
     "messageVenue": "Escribir al espacio",
     "startingFrom": "Desde",
     "taxesNote": "Impuestos, personal y alquileres pueden aplicar.",
+    "finalPriceMayVary": "El precio final puede variar según la temporada, fechas especiales o cuánto anticipás la reserva.",
     "checkAvailability": "Ver disponibilidad",
     "calendarDemoNote": "Elige fechas del evento (calendario demo, sin backend). Usa el mismo estilo de selector que el sitio principal.",
     "eventStart": "Inicio del evento",
@@ -358,7 +365,7 @@
     "form": {
       "phone": "Número de teléfono",
       "enterConfirmationCode": "Ingresa el código de confirmación",
-      "estimatedGuests": "Cantidad estimada de personas para el evento (opcional)"
+      "estimatedGuests": "Número de invitados (opcional)"
     },
     "errors": {
       "couldNotSendConfirmationCode": "No se pudo enviar el código de confirmación.",

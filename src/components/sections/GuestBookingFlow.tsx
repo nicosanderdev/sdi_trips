@@ -8,8 +8,12 @@ import { isValidTOTPSecret } from '../../core/services/mfaService';
 import { buildGuestManageUrl } from '../../core/config/guestBookingManageUrl';
 import { getGuestSiteListingType, isGuestSiteListingType } from '../../core/config/guestSiteListingType';
 import type { GuestSiteListingType, OtpChannel, Property } from '../../types';
-import type { MercadoPagoBookingEligibility } from '../../types/guestReviewContract';
-import { validateBookingSelection } from '../../services/availabilityService';
+import {
+  BOOKING_AVAILABILITY_MONTHS,
+  getEarliestAvailableDate,
+  getLatestBookableDate,
+  validateBookingSelection,
+} from '../../services/availabilityService';
 import {
   confirmGuestBooking,
   createBookingHold,
@@ -30,7 +34,6 @@ import {
   SUPPORTED_PHONE_COUNTRIES,
   type PhoneCountryCode,
 } from '../../utils/phoneCountries';
-import MercadoPagoPaySection from '../reservation/MercadoPagoPaySection';
 
 type BookingStep = 'dates' | 'guest' | 'otp' | 'confirming' | 'done';
 type BookingMode = 'singleNight' | 'multipleDays';
@@ -40,7 +43,7 @@ interface GuestBookingFlowProps {
   property: Property;
   /** Base path for the post-booking lookup page (`?code=` appended when available). Default: `/reservation-lookup`. */
   reservationManagePath?: string;
-  /** `event` enables alt-site copy and phone prefix UI. Default: `rental`. */
+  /** `event` enables alt-site copy and booking-mode UI. Default: `rental`. */
   variant?: BookingFlowVariant;
   /** Pre-selected check-in date (e.g. from search URL). */
   initialCheckIn?: Date | null;
@@ -69,12 +72,12 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const isEvent = variant === 'event';
 
   const bookingT = useCallback(
-    (key: string) => {
+    (key: string, options?: Record<string, unknown>) => {
       const altKey = `alt.bookingFlow.${key}`;
       if (isEvent && i18n.exists(altKey)) {
-        return t(altKey);
+        return t(altKey, options);
       }
-      return t(`propertyDetail.bookingFlow.${key}`);
+      return t(`propertyDetail.bookingFlow.${key}`, options);
     },
     [isEvent, t],
   );
@@ -96,7 +99,6 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [phoneCountry, setPhoneCountry] = useState<PhoneCountryCode>('UY');
   const [phoneLocal, setPhoneLocal] = useState('');
   const [documentId, setDocumentId] = useState('');
@@ -104,23 +106,14 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [otpChannel, setOtpChannel] = useState<OtpChannel | null>(null);
   const [reservationCode, setReservationCode] = useState<string | null>(null);
   const [confirmedListingType, setConfirmedListingType] = useState<GuestSiteListingType | null>(null);
-  const [confirmedBookingId, setConfirmedBookingId] = useState<string | null>(null);
-  const [confirmedManageToken, setConfirmedManageToken] = useState<string | null>(null);
-  const [confirmedTotalAmount, setConfirmedTotalAmount] = useState<number | null>(null);
-  const [confirmedCurrencyCode, setConfirmedCurrencyCode] = useState<string | null>(null);
-  const [confirmedMercadoPago, setConfirmedMercadoPago] = useState<MercadoPagoBookingEligibility | null>(
-    null,
-  );
   const [flowError, setFlowError] = useState<string | null>(null);
   const [overlapError, setOverlapError] = useState<string | null>(null);
   const [overlapChecking, setOverlapChecking] = useState(false);
+  const [dateSelectionError, setDateSelectionError] = useState<string | null>(null);
 
   const fullPhone = useMemo(() => {
-    if (isEvent) {
-      return buildInternationalPhone(phoneCountry, phoneLocal);
-    }
-    return phone.trim();
-  }, [isEvent, phone, phoneCountry, phoneLocal]);
+    return buildInternationalPhone(phoneCountry, phoneLocal);
+  }, [phoneCountry, phoneLocal]);
 
   const canValidate = Boolean(checkIn && checkOut);
 
@@ -152,6 +145,54 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
     const timer = window.setTimeout(async () => {
       setValidationLoading(true);
+
+      const stayNights = Math.ceil(
+        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      const startOfDay = (date: Date) =>
+        new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+      if (property.maxStayDays && stayNights > property.maxStayDays) {
+        if (!cancelled) {
+          setValidationError(
+            bookingT('errors.maxStayExceeded', { count: property.maxStayDays }),
+          );
+          setValidationLoading(false);
+        }
+        return;
+      }
+      if (property.minStayDays && stayNights < property.minStayDays) {
+        if (!cancelled) {
+          setValidationError(
+            bookingT('errors.minStayRequired', { count: property.minStayDays }),
+          );
+          setValidationLoading(false);
+        }
+        return;
+      }
+      if (property.leadTimeDays && property.leadTimeDays > 0) {
+        const earliest = getEarliestAvailableDate(property.leadTimeDays);
+        if (startOfDay(checkIn) < startOfDay(earliest)) {
+          if (!cancelled) {
+            setValidationError(
+              bookingT('errors.leadTimeRequired', { count: property.leadTimeDays }),
+            );
+            setValidationLoading(false);
+          }
+          return;
+        }
+      }
+      const latest = getLatestBookableDate(property.leadTimeDays);
+      if (startOfDay(checkIn) > startOfDay(latest)) {
+        if (!cancelled) {
+          setValidationError(
+            bookingT('errors.datesTooFarAhead', { count: BOOKING_AVAILABILITY_MONTHS }),
+          );
+          setValidationLoading(false);
+        }
+        return;
+      }
+
       const result = await validateBookingSelection(property.id, checkIn, checkOut, 1);
       if (!cancelled) {
         setValidationError(
@@ -167,7 +208,17 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [canValidate, checkIn, checkOut, property.id, resolveBookingError]);
+  }, [
+    canValidate,
+    checkIn,
+    checkOut,
+    property.id,
+    property.maxStayDays,
+    property.minStayDays,
+    property.leadTimeDays,
+    bookingT,
+    resolveBookingError,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -243,14 +294,10 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     if (!firstName.trim() || !lastName.trim()) return false;
     const trimmedEmail = email.trim();
     if (trimmedEmail && !EMAIL_PATTERN.test(trimmedEmail)) return false;
-    if (isEvent) {
-      if (!isValidLocalPhone(phoneLocal)) return false;
-      if (!PHONE_PATTERN.test(fullPhone)) return false;
-    } else if (!PHONE_PATTERN.test(fullPhone)) {
-      return false;
-    }
+    if (!isValidLocalPhone(phoneLocal)) return false;
+    if (!PHONE_PATTERN.test(fullPhone)) return false;
     return true;
-  }, [firstName, lastName, fullPhone, phoneLocal, email, isEvent]);
+  }, [firstName, lastName, fullPhone, phoneLocal, email]);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
@@ -393,11 +440,6 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     }
 
     setReservationCode(confirmResult.reservationCode ?? null);
-    setConfirmedBookingId(confirmResult.bookingId ?? null);
-    setConfirmedManageToken(confirmResult.manageToken ?? null);
-    setConfirmedTotalAmount(confirmResult.totalAmount ?? null);
-    setConfirmedCurrencyCode(confirmResult.currencyCode ?? null);
-    setConfirmedMercadoPago(confirmResult.mercadoPago ?? null);
     setConfirmedListingType(
       confirmResult.listingType && isGuestSiteListingType(confirmResult.listingType)
         ? confirmResult.listingType
@@ -427,11 +469,6 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setStep('dates');
     setReservationCode(null);
     setConfirmedListingType(null);
-    setConfirmedBookingId(null);
-    setConfirmedManageToken(null);
-    setConfirmedTotalAmount(null);
-    setConfirmedCurrencyCode(null);
-    setConfirmedMercadoPago(null);
     setOtpChannel(null);
     setHoldId(null);
     setHoldExpiresAt(null);
@@ -440,19 +477,13 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setFirstName('');
     setLastName('');
     setEmail('');
-    setPhone('');
     setPhoneLocal('');
+    setPhoneCountry('UY');
     setDocumentId('');
     setEstimatedGuests('');
     setOtpCode('');
     setFlowError(null);
     setOverlapError(null);
-  };
-
-  const handlePayLater = () => {
-    const href = lookupHref;
-    handleCloseSuccess();
-    window.location.assign(href);
   };
 
   const continueButtonLabel = isEvent
@@ -469,8 +500,32 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
 
   const phonePlaceholder = bookingT('form.phone');
 
+  const showMinStayInfo =
+    typeof property.minStayDays === 'number' && property.minStayDays > 1;
+  const showLongStayPromo =
+    Boolean(property.longStayDiscountEnabled) &&
+    property.longStayMinDays != null &&
+    property.longStayDiscountPercentage != null &&
+    property.longStayDiscountPercentage > 0;
+
   return (
     <div className="space-y-4">
+      {(showMinStayInfo || showLongStayPromo) && (
+        <div className="space-y-1 text-xs text-charcoal">
+          {showMinStayInfo && (
+            <p>{bookingT('stayRules.minStay', { count: property.minStayDays })}</p>
+          )}
+          {showLongStayPromo && (
+            <p className="text-green-700">
+              {bookingT('stayRules.longStayDiscount', {
+                percent: property.longStayDiscountPercentage,
+                count: property.longStayMinDays,
+              })}
+            </p>
+          )}
+        </div>
+      )}
+
       {isEvent && (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-navy">{bookingT('bookingModeLabel')}</label>
@@ -505,6 +560,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         maxStayDays={property.maxStayDays}
         leadTimeDays={property.leadTimeDays}
         bufferDays={property.bufferDays}
+        onSelectionErrorChange={setDateSelectionError}
       />
 
       {holdExpiresAt && step !== 'done' && (
@@ -518,7 +574,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         <p className="text-xs text-charcoal">{bookingT('calculatingPrice')}</p>
       )}
       {priceError && <p className="text-xs text-red-600">{priceError}</p>}
-      {breakdown && checkIn && checkOut && !priceLoading && (
+      {breakdown && checkIn && checkOut && !priceLoading && !validationError && !dateSelectionError && (
         <div className="rounded-2xl border border-warm-gray bg-white/80 px-4 py-3 text-sm text-charcoal space-y-1">
           <p className="font-medium text-navy">
             {priceSummaryLabel}: {formattedTotal}
@@ -539,7 +595,10 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           )}
         </div>
       )}
-      {validationError && <p className="text-xs text-red-600">{validationError}</p>}
+      {/* Picker already shows client date-rule errors; this covers server-side validation. */}
+      {!dateSelectionError && validationError && (
+        <p className="text-xs text-red-600">{validationError}</p>
+      )}
       {flowError && <p className="text-xs text-red-600">{flowError}</p>}
 
       {step === 'dates' && (
@@ -551,6 +610,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
             !checkIn ||
             !checkOut ||
             !!validationError ||
+            !!dateSelectionError ||
             actionLoading ||
             priceLoading ||
             !breakdown
@@ -598,38 +658,28 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               placeholder={bookingT('form.email')}
               className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
             />
-            {isEvent ? (
-              <div className="flex gap-2">
-                <select
-                  value={phoneCountry}
-                  onChange={(e) => setPhoneCountry(e.target.value as PhoneCountryCode)}
-                  className="w-28 shrink-0 rounded-2xl border border-warm-gray bg-white px-2 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
-                  aria-label={phonePlaceholder}
-                >
-                  {SUPPORTED_PHONE_COUNTRIES.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.flag} {country.dialCode}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  value={phoneLocal}
-                  onChange={(e) => setPhoneLocal(e.target.value.replace(/\D/g, ''))}
-                  placeholder={phonePlaceholder}
-                  className="min-w-0 flex-1 rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
-                />
-              </div>
-            ) : (
+            <div className="flex gap-2">
+              <select
+                value={phoneCountry}
+                onChange={(e) => setPhoneCountry(e.target.value as PhoneCountryCode)}
+                className="w-28 shrink-0 rounded-2xl border border-warm-gray bg-white px-2 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+                aria-label={phonePlaceholder}
+              >
+                {SUPPORTED_PHONE_COUNTRIES.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.dialCode}
+                  </option>
+                ))}
+              </select>
               <input
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                inputMode="numeric"
+                value={phoneLocal}
+                onChange={(e) => setPhoneLocal(e.target.value.replace(/\D/g, ''))}
                 placeholder={phonePlaceholder}
-                className="w-full rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
+                className="min-w-0 flex-1 rounded-2xl border border-warm-gray bg-white px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold"
               />
-            )}
+            </div>
             <input
               type="text"
               value={documentId}
@@ -721,76 +771,42 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
               </p>
             </div>
           )}
-          {confirmedMercadoPago?.can_pay_online && confirmedBookingId ? (
-            <MercadoPagoPaySection
-              bookingId={confirmedBookingId}
-              canPayOnline={confirmedMercadoPago.can_pay_online}
-              mercadoPagoApproved={confirmedMercadoPago.mercado_pago_approved}
-              totalAmount={confirmedTotalAmount}
-              currencyCode={confirmedCurrencyCode}
-              manageToken={confirmedManageToken ?? undefined}
-              reservationCode={reservationCode ?? undefined}
-              listingType={confirmedListingType ?? undefined}
-              showPayLater
-              onPayLater={handlePayLater}
-            />
-          ) : (
-            <>
-              <p className="text-sm text-charcoal">{bookingT('done.lookupHint')}</p>
-              <div className="flex flex-col gap-2">
-                {lookupIsExternal ? (
-                  <a
-                    href={lookupHref}
-                    className="block w-full"
-                    onClick={handleCloseSuccess}
-                  >
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      className="w-full bg-gold text-navy hover:bg-gold-dark"
-                    >
-                      {bookingT('done.goToReservationLookup')}
-                    </Button>
-                  </a>
-                ) : (
-                  <Link to={lookupHref} className="block w-full" onClick={handleCloseSuccess}>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      className="w-full bg-gold text-navy hover:bg-gold-dark"
-                    >
-                      {bookingT('done.goToReservationLookup')}
-                    </Button>
-                  </Link>
-                )}
+          <p className="text-sm text-charcoal">{bookingT('done.lookupHint')}</p>
+          <div className="flex flex-col gap-2">
+            {lookupIsExternal ? (
+              <a
+                href={lookupHref}
+                className="block w-full"
+                onClick={handleCloseSuccess}
+              >
                 <Button
-                  variant="outline"
+                  variant="primary"
                   size="lg"
-                  className="w-full rounded-2xl"
-                  onClick={handleCloseSuccess}
+                  className="w-full bg-gold text-navy hover:bg-gold-dark"
                 >
-                  {bookingT('done.close')}
+                  {bookingT('done.goToReservationLookup')}
                 </Button>
-              </div>
-            </>
-          )}
-          {confirmedMercadoPago?.can_pay_online && (
-            <div className="flex flex-col gap-2">
-              {lookupIsExternal ? (
-                <a href={lookupHref} className="block w-full" onClick={handleCloseSuccess}>
-                  <Button variant="outline" size="lg" className="w-full rounded-2xl">
-                    {bookingT('done.goToReservationLookup')}
-                  </Button>
-                </a>
-              ) : (
-                <Link to={lookupHref} className="block w-full" onClick={handleCloseSuccess}>
-                  <Button variant="outline" size="lg" className="w-full rounded-2xl">
-                    {bookingT('done.goToReservationLookup')}
-                  </Button>
-                </Link>
-              )}
-            </div>
-          )}
+              </a>
+            ) : (
+              <Link to={lookupHref} className="block w-full" onClick={handleCloseSuccess}>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full bg-gold text-navy hover:bg-gold-dark"
+                >
+                  {bookingT('done.goToReservationLookup')}
+                </Button>
+              </Link>
+            )}
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full rounded-2xl"
+              onClick={handleCloseSuccess}
+            >
+              {bookingT('done.close')}
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

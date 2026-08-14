@@ -35,7 +35,7 @@
       "searchDateToLabel": "Data mais tarde",
       "searchDateToAria": "Data mais tarde do evento",
       "searchLocationLabel": "Localização",
-      "searchLocationPlaceholder": "Cidade ou bairro",
+      "searchLocationPlaceholder": "Cidade",
       "searchLocationAria": "Localização",
       "searchCta": "Vamos explorar",
       "badgeCurated": "Espaços que conhecemos",
@@ -127,7 +127,8 @@
     "filtersHeading": "Filtros",
     "filtersHint": "Os filtros atualizam a lista enquanto você refina a busca.",
     "location": "Localização",
-    "locationPlaceholder": "Cidade ou bairro",
+    "locationPlaceholder": "Cidade",
+    "guestsRange": "Convidados",
     "capacityMin": "Mín. convidados",
     "capacityMinPlaceholder": "ex. 50",
     "capacityMax": "Máx. convidados",
@@ -174,9 +175,15 @@
     "coordinatorRole": "Coordenadores desta listagem (demo)",
     "coordinatorBullet1": "Janelas para visitas in loco",
     "coordinatorBullet2": "Lista de fornecedores preferenciais sob pedido",
+    "host": {
+      "heading": "Conheça o anfitrião",
+      "defaultName": "Anfitrião",
+      "bioDefault": "Adoramos compartilhar este espaço e ajudar seu evento a correr bem."
+    },
     "messageVenue": "Mensagem ao espaço",
     "startingFrom": "A partir de",
     "taxesNote": "Taxas, equipe e locações podem se aplicar.",
+    "finalPriceMayVary": "O preço final pode variar conforme a temporada, datas especiais ou com quanto antecipação você reserva.",
     "checkAvailability": "Ver disponibilidade",
     "calendarDemoNote": "Selecione as datas do evento (calendário demo—sem backend). Mesmo estilo de seletor do site principal.",
     "eventStart": "Início do evento",
@@ -358,7 +365,7 @@
     "form": {
       "phone": "Número de telefone",
       "enterConfirmationCode": "Digite o código de confirmação",
-      "estimatedGuests": "Número estimado de pessoas para o evento (opcional)"
+      "estimatedGuests": "Número de convidados (opcional)"
     },
     "errors": {
       "couldNotSendConfirmationCode": "Não foi possível enviar o código de confirmação.",

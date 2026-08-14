@@ -35,7 +35,7 @@
       "searchDateToLabel": "Latest date",
       "searchDateToAria": "Latest event date",
       "searchLocationLabel": "Location",
-      "searchLocationPlaceholder": "City or neighborhood",
+      "searchLocationPlaceholder": "City",
       "searchLocationAria": "Location",
       "searchCta": "Let's Explore",
       "badgeCurated": "Spaces we know personally",
@@ -127,7 +127,8 @@
     "filtersHeading": "Filters",
     "filtersHint": "Filters update the list below as you refine your search.",
     "location": "Location",
-    "locationPlaceholder": "City or neighborhood",
+    "locationPlaceholder": "City",
+    "guestsRange": "Guests",
     "capacityMin": "Min guests",
     "capacityMinPlaceholder": "e.g. 50",
     "capacityMax": "Max guests",
@@ -174,9 +175,15 @@
     "coordinatorRole": "Coordinators for this listing (demo)",
     "coordinatorBullet1": "Site visit windows available",
     "coordinatorBullet2": "Preferred vendor list on request",
+    "host": {
+      "heading": "Meet your host",
+      "defaultName": "Host",
+      "bioDefault": "We love sharing this space and helping your event run smoothly."
+    },
     "messageVenue": "Message the venue",
     "startingFrom": "Starting from",
     "taxesNote": "Taxes, staffing, and rentals may apply.",
+    "finalPriceMayVary": "The final price may vary depending on season, special dates, or how far ahead you book.",
     "checkAvailability": "Check availability",
     "calendarDemoNote": "Select event dates (demo calendar—no backend). This uses the same date picker styling as the main site.",
     "eventStart": "Event start",
@@ -358,7 +365,7 @@
     "form": {
       "phone": "Phone number",
       "enterConfirmationCode": "Enter confirmation code",
-      "estimatedGuests": "Estimated number of people for the event (optional)"
+      "estimatedGuests": "Number of invitees (optional)"
     },
     "errors": {
       "couldNotSendConfirmationCode": "Could not send confirmation code.",

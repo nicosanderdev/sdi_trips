@@ -178,7 +178,7 @@ const HeroSplit: React.FC = () => {
       <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(10,26,47,0.85)_0%,rgba(10,26,47,0.74)_45%,rgba(10,26,47,0.56)_100%)]" aria-hidden="true" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <div className="animate-[fadeInUp_700ms_ease-out_both]">
+        <div className="flex flex-col justify-center animate-[fadeInUp_700ms_ease-out_both]">
           <h1 className="m-0 text-white font-bold text-[clamp(2rem,4vw,4rem)] leading-[1.1] max-w-[13ch]">
             {t('landing.hero.title')}
           </h1>
@@ -193,7 +193,7 @@ const HeroSplit: React.FC = () => {
           <p className="mt-3 text-white/85 text-base font-medium">{t('landing.hero.support')}</p>
 
           <form
-            className="mt-5 grid grid-cols-1 md:grid-cols-[1fr_1fr_0.9fr_auto] gap-2 w-full max-w-[900px] p-3 rounded-2xl border border-gold/40 bg-white/95 backdrop-blur-sm"
+            className="mt-5 grid grid-cols-1 gap-2 w-full max-w-[900px] p-3 rounded-2xl border border-gold/40 bg-white/95 backdrop-blur-sm"
             onSubmit={(event) => {
               event.preventDefault();
               const form = event.currentTarget;
@@ -218,26 +218,6 @@ const HeroSplit: React.FC = () => {
               navigate(query ? `/search?${query}` : '/search');
             }}
           >
-            <label htmlFor="hero-search-check-in" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-              {t('landing.hero.search.checkInLabel')}
-              <input
-                id="hero-search-check-in"
-                className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                type="date"
-                name="checkIn"
-                aria-label={t('landing.hero.search.checkInAria')}
-              />
-            </label>
-            <label htmlFor="hero-search-check-out" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-              {t('landing.hero.search.checkOutLabel')}
-              <input
-                id="hero-search-check-out"
-                className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                type="date"
-                name="checkOut"
-                aria-label={t('landing.hero.search.checkOutAria')}
-              />
-            </label>
             <label htmlFor="hero-search-city" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
               {t('landing.hero.search.locationLabel')}
               <div ref={searchContainerRef} className="relative">
@@ -276,49 +256,73 @@ const HeroSplit: React.FC = () => {
                 )}
               </div>
             </label>
-            <button
-              className="inline-flex items-center justify-center rounded-full border-2 border-gold bg-gold text-navy font-semibold px-6 py-3 transition-all hover:scale-[1.04] hover:bg-navy hover:text-gold"
-              type="submit"
-            >
-              {t('landing.hero.search.submit')}
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
+              <label htmlFor="hero-search-check-in" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+                {t('landing.hero.search.checkInLabel')}
+                <input
+                  id="hero-search-check-in"
+                  className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                  type="date"
+                  name="checkIn"
+                  aria-label={t('landing.hero.search.checkInAria')}
+                />
+              </label>
+              <label htmlFor="hero-search-check-out" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
+                {t('landing.hero.search.checkOutLabel')}
+                <input
+                  id="hero-search-check-out"
+                  className="w-full border border-navy/20 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
+                  type="date"
+                  name="checkOut"
+                  aria-label={t('landing.hero.search.checkOutAria')}
+                />
+              </label>
+              <button
+                className="inline-flex items-center justify-center rounded-full border-2 border-gold bg-gold text-navy font-semibold px-6 py-3 transition-all hover:scale-[1.04] hover:bg-navy hover:text-gold"
+                type="submit"
+              >
+                {t('landing.hero.search.submit')}
+              </button>
+            </div>
           </form>
 
-          <div className="mt-4 flex flex-wrap gap-4">
-            <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-              {t('landing.hero.trust.verified')}
-            </p>
-            <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-              {t('landing.hero.trust.payments')}
-            </p>
-            <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-              {t('landing.hero.trust.bookings')}
-            </p>
-          </div>
+          <div className="mt-4">
+            <div className="flex flex-wrap gap-4">
+              <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+                {t('landing.hero.trust.verified')}
+              </p>
+              <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+                {t('landing.hero.trust.payments')}
+              </p>
+              <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
+                {t('landing.hero.trust.bookings')}
+              </p>
+            </div>
 
-          <div className="mt-7 flex flex-wrap gap-3 items-start">
-            <Link to="/search">
-              <Button variant="primary" size="lg">
-                {t('landing.hero.cta.search')}
-              </Button>
-            </Link>
-            <div className="flex flex-col items-start gap-2">
-              <Link to="/reservation-lookup">
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold">
-                  {t('landing.hero.cta.manage')}
+            <div className="mt-4 flex flex-wrap gap-3 items-start">
+              <Link to="/search">
+                <Button variant="primary" size="lg">
+                  {t('landing.hero.cta.search')}
                 </Button>
               </Link>
+              <div className="flex flex-col items-start gap-2">
+                <Link to="/reservation-lookup">
+                  <Button variant="outline" size="lg" className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold">
+                    {t('landing.hero.cta.manage')}
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
 
-          {t('landing.hero.links.security').trim() ? (
-            <Link to="/privacy" className="inline-block mt-4 text-white/80 underline underline-offset-4 hover:text-white">
-              {t('landing.hero.links.security')}
-            </Link>
-          ) : null}
+            {t('landing.hero.links.security').trim() ? (
+              <Link to="/privacy" className="inline-block mt-4 text-white/80 underline underline-offset-4 hover:text-white">
+                {t('landing.hero.links.security')}
+              </Link>
+            ) : null}
+          </div>
         </div>
 
-        <div className="relative min-h-[430px] rounded-3xl overflow-hidden border border-gold/30 shadow-2xl bg-white/10 backdrop-blur-sm">
+        <div className="relative min-h-[430px] lg:h-[46rem] rounded-3xl overflow-hidden border border-gold/30 shadow-2xl bg-white/10 backdrop-blur-sm">
           <div
             className={`absolute inset-0 p-8 flex flex-col justify-end bg-cover bg-center transition-all duration-500 ${isFading ? 'opacity-70 translate-x-2' : 'opacity-100 translate-x-0'}`}
             style={{ backgroundImage: `url("${currentReview.image}")` }}

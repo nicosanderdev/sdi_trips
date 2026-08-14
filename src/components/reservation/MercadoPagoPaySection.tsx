@@ -117,6 +117,12 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
 
   return (
     <div className={`space-y-3 ${className}`}>
+      <div className="space-y-2 text-left text-sm text-charcoal">
+        <p className="font-semibold text-navy">{t('mercadoPago.infoTitle')}</p>
+        <p>{t('mercadoPago.infoBody')}</p>
+        <p className="text-charcoal/80">{t('mercadoPago.infoFees')}</p>
+      </div>
+
       {amountLabel && (
         <p className="text-sm text-charcoal">
           <span className="font-semibold">{t('mercadoPago.amountLabel')}</span> {amountLabel}

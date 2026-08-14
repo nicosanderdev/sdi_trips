@@ -164,6 +164,8 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     bufferDays: row.BufferDays ?? undefined,
     ownerId: row.OwnerId ?? undefined,
     listingType: 'SummerRent',
+    hasPool: row.HasPool,
+    hasGarage: row.HasGarage,
   };
 }
 

@@ -5,6 +5,7 @@ import type { ManageBookingView } from '../../types';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
 import HostContactSection from './HostContactSection';
 import MercadoPagoPaySection from './MercadoPagoPaySection';
+import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
 
 interface ReservationManageDetailsProps {
   booking: ManageBookingView;
@@ -64,7 +65,8 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
 
       <HostContactSection status={booking.status} hostContact={booking.hostContact} />
 
-      {(booking.canPayOnline || booking.mercadoPagoApproved) && (
+      {(shouldShowMercadoPagoPay(booking.status) &&
+        (booking.canPayOnline || booking.mercadoPagoApproved)) && (
         <MercadoPagoPaySection
           bookingId={booking.bookingId}
           canPayOnline={booking.canPayOnline}

@@ -10,6 +10,7 @@ import PropertyContentSections from '../../components/sections/PropertyContentSe
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import { getPropertyById } from '../../services/propertyService';
+import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { getUtmSourceAndMedium, trackEvent } from '../../lib/analytics';
 import { logPropertyVisit } from '../../services/propertyVisitService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -28,7 +29,6 @@ import {
     Bath,
     ChevronLeft,
     ChevronRight,
-    MessageCircle,
     X,
     CheckCircle
 } from 'lucide-react';
@@ -122,7 +122,8 @@ const PropertyDetail: React.FC = () => {
                 setError(null);
                 const propertyData = await getPropertyById(id);
                 if (propertyData) {
-                    setProperty(propertyData);
+                    const host = await fetchHostForProperty(propertyData.id, propertyData.ownerId);
+                    setProperty({ ...propertyData, host });
                 } else {
                     setError(t('propertyDetail.errors.propertyNotFound'));
                 }
@@ -240,7 +241,6 @@ const PropertyDetail: React.FC = () => {
     const heroImageIndex = heroImageCount ? currentImageIndex % heroImageCount : 0;
     const hostName = property.host?.name?.trim() || t('propertyDetail.host.defaultName');
     const hostFirstName = hostName.split(' ')[0];
-    const hostSinceYear = property.host?.sinceYear || '2019';
     const hostBio = property.host?.bio || t('propertyDetail.host.bioDefault');
     const descriptionBody =
         property.description?.trim() || t('propertyDetail.description.fallback');
@@ -425,12 +425,14 @@ const PropertyDetail: React.FC = () => {
                                                 {t('propertyDetail.host.heading')}
                                             </p>
                                             <h3 className="text-xl font-semibold text-navy">{hostName}</h3>
-                                            <p className="text-sm text-charcoal">
-                                                {t('propertyDetail.trustSignals.hostSince', {
-                                                    name: hostFirstName,
-                                                    year: hostSinceYear
-                                                })}
-                                            </p>
+                                            {property.host?.sinceYear != null && property.host.sinceYear !== '' && (
+                                                <p className="text-sm text-charcoal">
+                                                    {t('propertyDetail.trustSignals.hostSince', {
+                                                        name: hostFirstName,
+                                                        year: property.host.sinceYear
+                                                    })}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="space-y-2 text-sm text-charcoal">
@@ -458,6 +460,9 @@ const PropertyDetail: React.FC = () => {
                                                 ? t('propertyDetail.pricing.fromHint')
                                                 : t('propertyDetail.pricing.perNight')}
                                         </p>
+                                        <p className="text-xs text-charcoal/80 leading-relaxed">
+                                            {t('propertyDetail.pricing.finalPriceMayVary')}
+                                        </p>
                                     </div>
                                     {!hasDateSearchContext && (
                                         <Button
@@ -478,15 +483,6 @@ const PropertyDetail: React.FC = () => {
                                             />
                                         </div>
                                     )}
-                                    <p className="text-xs text-charcoal">{t('propertyDetail.cta.confirmWithHost', { name: hostFirstName })}</p>
-                                    <p className="text-xs text-charcoal">{t('propertyDetail.cta.noPaymentYet')}</p>
-                                    <Link
-                                        to="/contact"
-                                        className="flex items-center justify-center gap-2 rounded-full border border-warm-gray px-4 py-2 text-sm font-medium text-navy"
-                                    >
-                                        <MessageCircle className="h-4 w-4" />
-                                        <span>{t('propertyDetail.cta.contactHost', { name: hostFirstName })}</span>
-                                    </Link>
                                 </Card>
                             </div>
                     </div>
