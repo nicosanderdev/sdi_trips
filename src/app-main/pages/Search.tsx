@@ -6,7 +6,10 @@ import { Layout } from '../../components/layout';
 import { Button, Input, RangeSlider, Card } from '../../components/ui';
 import PropertyCard from '../../components/sections/PropertyCard';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
-import { usePortalPropertySearch } from '../../hooks/usePortalPropertySearch';
+import {
+  usePortalPropertySearch,
+  type SearchAmenityKey,
+} from '../../hooks/usePortalPropertySearch';
 import { getFavoriteProperties } from '../../services/propertyService';
 import { buildPropertyDetailPath, parseIsoDateLocal, toIsoDate } from '../../services/pricing/listingPricing';
 import type { Property } from '../../types';
@@ -24,7 +27,11 @@ import { supabase } from '../../lib/supabase';
 
 const DEBOUNCE_MS = 450;
 const UY_CITIES_MAX_SUGGESTIONS = 10;
-const DEFAULT_PRICE_RANGE: [number, number] = [100, 600];
+const PRICE_SLIDER_MIN = 500;
+const PRICE_SLIDER_MAX = 10000;
+const PRICE_SLIDER_STEP = 100;
+const DEFAULT_PRICE_RANGE: [number, number] = [PRICE_SLIDER_MIN, PRICE_SLIDER_MAX];
+const SEARCH_AMENITY_KEYS: SearchAmenityKey[] = ['pool', 'garage', 'barbecue'];
 const PRIVACY_OFFSET_METERS = 120;
 const APPROX_ZONE_RADIUS_METERS = 100;
 const APPROX_ZONE_MIN_ZOOM = 14;
@@ -38,8 +45,7 @@ interface SearchFilters {
   priceRange: [number, number];
   bedrooms: number;
   guests: number;
-  amenities: string[];
-  minRating: number;
+  amenities: SearchAmenityKey[];
   checkIn?: Date;
   checkOut?: Date;
 }
@@ -55,7 +61,6 @@ const Search: React.FC = () => {
     bedrooms: 0,
     guests: 1,
     amenities: [],
-    minRating: 0,
   });
 
   const [showFilters, setShowFilters] = useState(false);
@@ -225,9 +230,10 @@ const Search: React.FC = () => {
   const portalRpcFilters = useMemo(() => {
     const trimmedLocation = debouncedSearchQuery.trim();
     const exactCity = findExactUyCityMatch(trimmedLocation);
-    const shouldApplyPriceRange =
-      filters.priceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
-      filters.priceRange[1] !== DEFAULT_PRICE_RANGE[1];
+    const [minPrice, maxPrice] = filters.priceRange;
+    const isDefaultPriceRange =
+      minPrice === DEFAULT_PRICE_RANGE[0] && maxPrice === DEFAULT_PRICE_RANGE[1];
+    const isOpenEndedMax = maxPrice === PRICE_SLIDER_MAX;
 
     return {
       swLat: debouncedMapBounds?.getSouth(),
@@ -236,8 +242,8 @@ const Search: React.FC = () => {
       neLng: debouncedMapBounds?.getEast(),
       city: exactCity ? portalRpcCityFromUyLabel(exactCity.name) : undefined,
       searchText: exactCity ? undefined : trimmedLocation || undefined,
-      minPrice: shouldApplyPriceRange ? filters.priceRange[0] : undefined,
-      maxPrice: shouldApplyPriceRange ? filters.priceRange[1] : undefined,
+      minPrice: isDefaultPriceRange ? undefined : minPrice,
+      maxPrice: isDefaultPriceRange || isOpenEndedMax ? undefined : maxPrice,
       bedroomsMin: filters.bedrooms > 0 ? filters.bedrooms : undefined,
       capacityMin: filters.guests > 0 ? filters.guests : undefined,
       checkIn: filters.checkIn ? toIsoDate(filters.checkIn) : undefined,
@@ -249,10 +255,9 @@ const Search: React.FC = () => {
 
   const portalPostFilters = useMemo(
     () => ({
-      amenityNames: filters.amenities.length > 0 ? filters.amenities : undefined,
-      minRating: filters.minRating > 0 ? filters.minRating : undefined,
+      requiredAmenities: filters.amenities.length > 0 ? filters.amenities : undefined,
     }),
-    [filters.amenities, filters.minRating],
+    [filters.amenities],
   );
 
   const {
@@ -368,18 +373,11 @@ const Search: React.FC = () => {
     };
   }, []);
 
-  // Get available amenities from current properties
-  const availableAmenities = useMemo(() => {
-    const allAmenities = properties.flatMap(p => p.amenities);
-    return [...new Set(allAmenities)].sort();
-  }, [properties]);
-
-
   const handleFilterChange = (key: keyof SearchFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const toggleAmenity = (amenity: string) => {
+  const toggleAmenity = (amenity: SearchAmenityKey) => {
     setFilters(prev => ({
       ...prev,
       amenities: prev.amenities.includes(amenity)
@@ -388,13 +386,19 @@ const Search: React.FC = () => {
     }));
   };
 
+  const formatPriceSliderValue = (value: number, edge: 'min' | 'max') => {
+    if (edge === 'max' && value === PRICE_SLIDER_MAX) {
+      return `$${PRICE_SLIDER_MAX}+`;
+    }
+    return `$${value}`;
+  };
+
   const clearFilters = () => {
     setFilters({
       priceRange: DEFAULT_PRICE_RANGE,
       bedrooms: 0,
       guests: 1,
       amenities: [],
-      minRating: 0,
     });
   };
 
@@ -757,10 +761,12 @@ const Search: React.FC = () => {
 
                   <RangeSlider
                     label={t('search.filters.priceRange')}
-                    min={50}
-                    max={1000}
+                    min={PRICE_SLIDER_MIN}
+                    max={PRICE_SLIDER_MAX}
+                    step={PRICE_SLIDER_STEP}
                     value={filters.priceRange}
                     onChange={(value) => handleFilterChange('priceRange', value)}
+                    formatValue={formatPriceSliderValue}
                   />
 
                   <div className="grid grid-cols-2 gap-4">
@@ -801,33 +807,13 @@ const Search: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-navy mb-3">
-                      {t('search.filters.minimumRating')}
-                    </label>
-                    <div className="flex space-x-2">
-                      {[0, 3, 4, 4.5].map(rating => (
-                        <button
-                          key={rating}
-                          onClick={() => handleFilterChange('minRating', rating)}
-                          className={`px-3 py-2 rounded-lg border ${
-                            filters.minRating === rating
-                              ? 'bg-gold text-navy border-gold'
-                              : 'bg-white text-charcoal border-gray-300 hover:border-gold'
-                          } transition-colors`}
-                        >
-                          {rating === 0 ? t('search.filters.options.rating.any') : t(`search.filters.options.rating.${rating}`)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-navy mb-3">
                       {t('search.filters.amenities')}
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {availableAmenities.map(amenity => (
+                      {SEARCH_AMENITY_KEYS.map(amenity => (
                         <button
                           key={amenity}
+                          type="button"
                           onClick={() => toggleAmenity(amenity)}
                           className={`px-3 py-2 text-left rounded-lg border text-sm ${
                             filters.amenities.includes(amenity)
@@ -835,7 +821,7 @@ const Search: React.FC = () => {
                               : 'bg-white text-charcoal border-gray-300 hover:border-gold'
                           } transition-colors`}
                         >
-                          {amenity}
+                          {t(`search.filters.options.amenities.${amenity}`)}
                         </button>
                       ))}
                     </div>

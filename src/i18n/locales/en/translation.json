@@ -441,7 +441,7 @@
       }
     },
     "secondaryGallery": {
-      "heading": "More photos"
+      "heading": "All photos"
     },
     "amenities": {
       "heading": "Amenities & what's included",
@@ -507,6 +507,13 @@
         "avgPerNight": "{{amount}} avg per night",
         "longStayApplied": "Long-stay discount applied"
       },
+      "stayRules": {
+        "minStay": "Minimum stay: {{count}} nights",
+        "maxStay": "Maximum stay: {{count}} nights",
+        "leadTime": "Bookings must be made at least {{count}} days in advance",
+        "bookingWindow": "Dates can be selected up to {{count}} months ahead",
+        "longStayDiscount": "{{percent}}% off for stays of {{count}}+ nights"
+      },
       "confirmingMessage": "Confirming your reservation...",
       "modal": {
         "title": "Complete your reservation"
@@ -515,9 +522,9 @@
         "firstName": "First name",
         "lastName": "Last name",
         "email": "Email (optional)",
-        "phone": "Phone (+598...)",
+        "phone": "Phone number",
         "documentIdOptional": "Document ID (optional)",
-        "estimatedGuests": "Estimated number of guests (optional)",
+        "estimatedGuests": "Number of guests (optional)",
         "enterOtp": "Enter OTP"
       },
       "actions": {
@@ -556,7 +563,15 @@
         "guestBookingOverlap": "You already have a reservation for these dates.",
         "priceQuoteMismatch": "The price was updated. Please review and try again.",
         "priceQuoteMismatchWithTotal": "The price changed. Updated total: {{total}}. Please try again.",
-        "failedToValidateDates": "Failed to validate dates."
+        "failedToValidateDates": "Failed to validate dates.",
+        "minStayRequired": "Minimum stay is {{count}} nights.",
+        "maxStayExceeded": "Maximum stay is {{count}} nights.",
+        "leadTimeRequired": "These dates are too soon. Bookings must be made at least {{count}} days in advance.",
+        "datesTooFarAhead": "These dates are too far ahead. You can only select dates up to {{count}} months in advance.",
+        "dateUnavailable": "That date is not available.",
+        "rangeUnavailable": "The selected range includes unavailable dates.",
+        "checkOutAfterCheckIn": "Check-out must be after check-in.",
+        "bothDatesRequired": "Please select both check-in and check-out dates."
       }
     },
     "someFeatures": {
@@ -594,6 +609,7 @@
       "loading": "Loading price...",
       "fromHint": "Select dates for an exact total",
       "perNight": "per night",
+      "finalPriceMayVary": "The final price may vary depending on season, special dates, or how far ahead you book.",
       "total": "Total",
       "guests": "Guests",
       "guest": "guest",
@@ -1182,7 +1198,6 @@
       "priceRange": "Price Range (per night)",
       "bedrooms": "Bedrooms",
       "guests": "Guests",
-      "minimumRating": "Minimum Rating",
       "amenities": "Amenities",
       "options": {
         "any": "Any",
@@ -1199,11 +1214,10 @@
           "4": "4 guests",
           "5": "5+ guests"
         },
-        "rating": {
-          "3": "3+",
-          "4": "4+",
-          "any": "Any",
-          "4.5": "4.5+"
+        "amenities": {
+          "pool": "Pool",
+          "garage": "Garage",
+          "barbecue": "Barbecue"
         }
       }
     },
@@ -1372,6 +1386,9 @@
     "disclaimerTitle": "Before you pay",
     "bridgeDisclaimer": "We are not responsible for payments. We only act as a bridge between the property owner and the guest. Money goes directly to the property owner's Mercado Pago account.",
     "paymentRegistered": "Payment registered.",
+    "infoTitle": "Pay online with Mercado Pago",
+    "infoBody": "Once your booking is confirmed, you can pay securely online through Mercado Pago. You get multiple payment methods, instant confirmation for the host, and a clear payment record for your stay.",
+    "infoFees": "Fees: Mercado Pago may apply its own processing fees depending on the payment method you choose. This platform does not add an extra marketplace fee to your payment.",
     "errors": {
       "generic": "Could not start online payment. Please try again.",
       "SELLER_NOT_CONNECTED": "The property owner is not connected to Mercado Pago.",

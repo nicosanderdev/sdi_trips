@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
+import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
 
 export default function AltVenueDetail() {
@@ -75,7 +76,12 @@ export default function AltVenueDetail() {
         setLoading(true);
         setError(null);
         const data = await getEventVenueById(id);
-        setVenue(data);
+        if (data) {
+          const host = await fetchHostForProperty(data.id, data.ownerId);
+          setVenue({ ...data, host });
+        } else {
+          setVenue(null);
+        }
       } catch (_error) {
         setError('Failed to load venue details.');
       } finally {
@@ -225,28 +231,47 @@ export default function AltVenueDetail() {
 
           <div className="space-y-4">
             <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white/80 p-6 shadow-[0_20px_40px_-20px_rgba(43,43,43,0.35)]">
-              <div className="flex items-center gap-4">
-                <img
-                  src="https://ui-avatars.com/api/?name=Venue+Coordinator&background=F3E9DD&color=2B2B2B"
-                  alt=""
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-charcoal/70">{t('alt.venueDetail.coordinatorTeam')}</p>
-                  <h3 className="text-xl font-semibold text-navy">{t('alt.venueDetail.coordinatorNames')}</h3>
-                  <p className="text-sm text-charcoal">{t('alt.venueDetail.coordinatorRole')}</p>
-                </div>
-              </div>
-              <div className="space-y-2 text-sm text-charcoal">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-gold" />
-                  <span>{t('alt.venueDetail.coordinatorBullet1')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-gold" />
-                  <span>{t('alt.venueDetail.coordinatorBullet2')}</span>
-                </div>
-              </div>
+              {(() => {
+                const hostName =
+                  venue.host?.name?.trim() || t('alt.venueDetail.host.defaultName');
+                const hostBio =
+                  venue.host?.bio?.trim() || t('alt.venueDetail.host.bioDefault');
+                return (
+                  <>
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={
+                          venue.host?.avatar ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(hostName)}&background=F3E9DD&color=2B2B2B`
+                        }
+                        alt={hostName}
+                        className="h-16 w-16 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.25em] text-charcoal/70">
+                          {t('alt.venueDetail.host.heading')}
+                        </p>
+                        <h3 className="text-xl font-semibold text-navy">{hostName}</h3>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm text-charcoal">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-gold" />
+                        <span>{t('alt.venueDetail.coordinatorBullet1')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-gold" />
+                        <span>{t('alt.venueDetail.coordinatorBullet2')}</span>
+                      </div>
+                    </div>
+                    {hostBio && (
+                      <p className="text-sm leading-relaxed text-charcoal pt-2 border-t border-warm-gray">
+                        {hostBio}
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
             </Card>
 
             <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(43,43,43,0.35)]">
@@ -268,6 +293,9 @@ export default function AltVenueDetail() {
                   <p className="text-xs text-charcoal">{t(getPriceLabelKey(exploreBreakdown.displayLabel))}</p>
                 )}
                 <p className="text-sm text-charcoal">{t('alt.venueDetail.taxesNote')}</p>
+                <p className="text-xs text-charcoal/80 leading-relaxed">
+                  {t('alt.venueDetail.finalPriceMayVary')}
+                </p>
               </div>
               <Button variant="primary" size="lg" className="w-full" type="button" onClick={() => setShowBookingFlow((s) => !s)}>
                 {t('alt.venueDetail.checkAvailability')}

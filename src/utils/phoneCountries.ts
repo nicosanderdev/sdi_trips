@@ -15,7 +15,9 @@ export function buildInternationalPhone(country: string, local: string): string 
   const countryConfig = SUPPORTED_PHONE_COUNTRIES.find((c) => c.code === country);
   if (countryConfig) {
     const dialDigits = countryConfig.dialCode.replace(/\D/g, '');
-    return `+${dialDigits}${localDigits}`;
+    // Strip trunk prefix 0 (e.g. UY 099123456 → 99123456 → +59899123456)
+    const nationalNumber = localDigits.replace(/^0+/, '') || localDigits;
+    return `+${dialDigits}${nationalNumber}`;
   }
 
   return '';

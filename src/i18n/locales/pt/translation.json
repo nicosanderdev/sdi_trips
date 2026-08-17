@@ -391,7 +391,7 @@
       }
     },
     "secondaryGallery": {
-      "heading": "Mais fotos"
+      "heading": "Todas as fotos"
     },
     "amenities": {
       "heading": "Comodidades e o que está incluído",
@@ -457,6 +457,13 @@
         "avgPerNight": "{{amount}} média por noite",
         "longStayApplied": "Desconto por estadia longa aplicado"
       },
+      "stayRules": {
+        "minStay": "Estadia mínima: {{count}} noites",
+        "maxStay": "Estadia máxima: {{count}} noites",
+        "leadTime": "As reservas devem ser feitas com pelo menos {{count}} dias de antecedência",
+        "bookingWindow": "Você pode selecionar datas com até {{count}} meses de antecedência",
+        "longStayDiscount": "{{percent}}% de desconto em estadias de {{count}}+ noites"
+      },
       "confirmingMessage": "Confirmando sua reserva...",
       "modal": {
         "title": "Conclua sua reserva"
@@ -465,9 +472,9 @@
         "firstName": "Nome",
         "lastName": "Sobrenome",
         "email": "E-mail (opcional)",
-        "phone": "Telefone (+598...)",
+        "phone": "Número de telefone",
         "documentIdOptional": "Documento de identidade (opcional)",
-        "estimatedGuests": "Número estimado de convidados (opcional)",
+        "estimatedGuests": "Número de hóspedes (opcional)",
         "enterOtp": "Digite o OTP"
       },
       "actions": {
@@ -506,7 +513,15 @@
         "guestBookingOverlap": "Você já tem uma reserva para estas datas.",
         "priceQuoteMismatch": "O preço foi atualizado. Revise e tente novamente.",
         "priceQuoteMismatchWithTotal": "O preço mudou. Total atualizado: {{total}}. Tente novamente.",
-        "failedToValidateDates": "Não foi possível validar as datas."
+        "failedToValidateDates": "Não foi possível validar as datas.",
+        "minStayRequired": "A estadia mínima é de {{count}} noites.",
+        "maxStayExceeded": "A estadia máxima é de {{count}} noites.",
+        "leadTimeRequired": "Essas datas são muito próximas. As reservas devem ser feitas com pelo menos {{count}} dias de antecedência.",
+        "datesTooFarAhead": "Essas datas são muito distantes. Você só pode selecionar datas com até {{count}} meses de antecedência.",
+        "dateUnavailable": "Essa data não está disponível.",
+        "rangeUnavailable": "O intervalo selecionado inclui datas indisponíveis.",
+        "checkOutAfterCheckIn": "A data de saída deve ser posterior à de entrada.",
+        "bothDatesRequired": "Selecione as datas de entrada e saída."
       }
     },
     "someFeatures": {
@@ -544,6 +559,7 @@
       "loading": "Carregando preço...",
       "fromHint": "Selecione datas para o total exato",
       "perNight": "por noite",
+      "finalPriceMayVary": "O preço final pode variar conforme a temporada, datas especiais ou com quanto antecipação você reserva.",
       "total": "Total",
       "guests": "Hóspedes",
       "guest": "hóspede",
@@ -1132,7 +1148,6 @@
       "priceRange": "Faixa de Preço (por noite)",
       "bedrooms": "Quartos",
       "guests": "Hóspedes",
-      "minimumRating": "Avaliação Mínima",
       "amenities": "Comodidades",
       "options": {
         "any": "Qualquer",
@@ -1149,11 +1164,10 @@
           "4": "4 hóspedes",
           "5": "5+ hóspedes"
         },
-        "rating": {
-          "any": "Qualquer",
-          "3": "3+",
-          "4": "4+",
-          "4.5": "4.5+"
+        "amenities": {
+          "pool": "Piscina",
+          "garage": "Garagem",
+          "barbecue": "Churrasqueira"
         }
       }
     },
@@ -1322,6 +1336,9 @@
     "disclaimerTitle": "Antes de pagar",
     "bridgeDisclaimer": "Não somos responsáveis pelos pagamentos. Atuamos apenas como ponte entre o proprietário e o hóspede. O dinheiro vai diretamente para a conta Mercado Pago do proprietário.",
     "paymentRegistered": "Pagamento registrado.",
+    "infoTitle": "Pague online com Mercado Pago",
+    "infoBody": "Depois que sua reserva for confirmada, você pode pagar com segurança online pelo Mercado Pago. Você tem várias formas de pagamento, confirmação imediata para o anfitrião e um registro claro do pagamento da sua estadia.",
+    "infoFees": "Taxas: o Mercado Pago pode aplicar taxas próprias de acordo com a forma de pagamento escolhida. Esta plataforma não adiciona uma taxa de marketplace extra ao seu pagamento.",
     "errors": {
       "generic": "Não foi possível iniciar o pagamento online. Tente novamente.",
       "SELLER_NOT_CONNECTED": "O proprietário não está conectado ao Mercado Pago.",

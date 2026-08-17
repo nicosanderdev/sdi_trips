@@ -141,6 +141,7 @@ export interface Property {
   /** Infrastructure flags from EstateProperties */
   hasLaundryRoom?: boolean;
   hasPool?: boolean;
+  hasGarage?: boolean;
   hasBalcony?: boolean;
   isFurnished?: boolean;
   /** Capacity from EstateProperties or Listings */

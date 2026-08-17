@@ -16,10 +16,39 @@ import {
   type PortalSearchFilters,
 } from '../services/search';
 
+export type SearchAmenityKey = 'pool' | 'garage' | 'barbecue';
+
 export interface PortalSearchPostFilters {
   amenityNames?: string[];
+  requiredAmenities?: SearchAmenityKey[];
   minRating?: number;
   eventType?: VenueEventTag;
+}
+
+const AMENITY_NAME_ALIASES: Record<SearchAmenityKey, string[]> = {
+  pool: ['pool', 'piscina'],
+  garage: ['garage', 'garaje'],
+  barbecue: ['barbecue', 'bbq', 'parrilla', 'quincho'],
+};
+
+function amenityNameMatches(names: string[], aliases: string[]): boolean {
+  return names.some((name) => {
+    const lower = name.toLowerCase().trim();
+    return aliases.some((alias) => lower === alias || lower.includes(alias));
+  });
+}
+
+function propertyHasAmenity(property: Property, key: SearchAmenityKey): boolean {
+  const aliases = AMENITY_NAME_ALIASES[key];
+  const names = property.amenities ?? [];
+
+  if (key === 'pool') {
+    return property.hasPool === true || amenityNameMatches(names, aliases);
+  }
+  if (key === 'garage') {
+    return property.hasGarage === true || amenityNameMatches(names, aliases);
+  }
+  return amenityNameMatches(names, aliases);
 }
 
 export interface UsePortalPropertySearchOptions {
@@ -85,6 +114,12 @@ export function usePortalPropertySearch({
           const lower = property.amenities.map((n) => n.toLowerCase().trim());
           return Array.from(required).every((req) => lower.includes(req));
         });
+      }
+
+      if (postFilters?.requiredAmenities?.length && listingType === 'SummerRent') {
+        hydrated = (hydrated as Property[]).filter((property) =>
+          postFilters.requiredAmenities!.every((key) => propertyHasAmenity(property, key)),
+        );
       }
 
       if (postFilters?.minRating && postFilters.minRating > 0 && listingType === 'SummerRent') {
