@@ -7,7 +7,12 @@ import { Button, Modal, SixDigitCodeInput } from '../ui';
 import { isValidTOTPSecret } from '../../core/services/mfaService';
 import { buildGuestManageUrl } from '../../core/config/guestBookingManageUrl';
 import { getGuestSiteListingType, isGuestSiteListingType } from '../../core/config/guestSiteListingType';
-import type { GuestSiteListingType, OtpChannel, Property } from '../../types';
+import type {
+  GuestSiteListingType,
+  MercadoPagoBookingEligibility,
+  OtpChannel,
+  Property,
+} from '../../types';
 import {
   BOOKING_AVAILABILITY_MONTHS,
   getEarliestAvailableDate,
@@ -28,6 +33,9 @@ import {
   getPriceLabelKey,
 } from '../../services/pricing/formatPrice';
 import { isGuestBookingOverlapError, isPriceQuoteMismatchError } from '../../types/guestReviewContract';
+import MercadoPagoPaySection from '../reservation/MercadoPagoPaySection';
+import { saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
+import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
 import {
   buildInternationalPhone,
   isValidLocalPhone,
@@ -106,6 +114,13 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [otpChannel, setOtpChannel] = useState<OtpChannel | null>(null);
   const [reservationCode, setReservationCode] = useState<string | null>(null);
   const [confirmedListingType, setConfirmedListingType] = useState<GuestSiteListingType | null>(null);
+  const [confirmedPayment, setConfirmedPayment] = useState<{
+    bookingId: string;
+    manageToken: string;
+    totalAmount?: number;
+    currencyCode?: string;
+    mercadoPago: MercadoPagoBookingEligibility;
+  } | null>(null);
   const [flowError, setFlowError] = useState<string | null>(null);
   const [overlapError, setOverlapError] = useState<string | null>(null);
   const [overlapChecking, setOverlapChecking] = useState(false);
@@ -439,12 +454,38 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
       return;
     }
 
-    setReservationCode(confirmResult.reservationCode ?? null);
-    setConfirmedListingType(
+    const listingType =
       confirmResult.listingType && isGuestSiteListingType(confirmResult.listingType)
         ? confirmResult.listingType
-        : resolveHoldListingType(property),
-    );
+        : resolveHoldListingType(property);
+    setReservationCode(confirmResult.reservationCode ?? null);
+    setConfirmedListingType(listingType);
+
+    const bookingId = confirmResult.bookingId?.trim();
+    const manageToken = confirmResult.manageToken?.trim();
+    if (bookingId && manageToken) {
+      saveMercadoPagoPayHandoff({
+        bookingId,
+        manageToken,
+        manageExpiresAt: confirmResult.manageExpiresAt,
+        reservationCode: confirmResult.reservationCode ?? undefined,
+        listingType,
+      });
+      setConfirmedPayment({
+        bookingId,
+        manageToken,
+        totalAmount: confirmResult.totalAmount,
+        currencyCode: confirmResult.currencyCode,
+        mercadoPago: confirmResult.mercadoPago ?? {
+          can_pay_online: false,
+          seller_connected: false,
+          mercado_pago_approved: false,
+        },
+      });
+    } else {
+      setConfirmedPayment(null);
+    }
+
     setStep('done');
   };
 
@@ -469,6 +510,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     setStep('dates');
     setReservationCode(null);
     setConfirmedListingType(null);
+    setConfirmedPayment(null);
     setOtpChannel(null);
     setHoldId(null);
     setHoldExpiresAt(null);
@@ -772,6 +814,25 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
             </div>
           )}
           <p className="text-sm text-charcoal">{bookingT('done.lookupHint')}</p>
+          {confirmedPayment &&
+            shouldShowMercadoPagoPay({
+              canPayOnline: confirmedPayment.mercadoPago.can_pay_online,
+              mercadoPagoApproved: confirmedPayment.mercadoPago.mercado_pago_approved,
+            }) && (
+              <MercadoPagoPaySection
+                className="text-left"
+                bookingId={confirmedPayment.bookingId}
+                canPayOnline={confirmedPayment.mercadoPago.can_pay_online}
+                mercadoPagoApproved={confirmedPayment.mercadoPago.mercado_pago_approved}
+                totalAmount={confirmedPayment.totalAmount}
+                currencyCode={confirmedPayment.currencyCode}
+                manageToken={confirmedPayment.manageToken}
+                reservationCode={reservationCode ?? undefined}
+                listingType={confirmedListingType ?? undefined}
+                showPayLater
+                onPayLater={handleCloseSuccess}
+              />
+            )}
           <div className="flex flex-col gap-2">
             {lookupIsExternal ? (
               <a

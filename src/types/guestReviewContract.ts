@@ -49,10 +49,10 @@ export interface GuestReservationLookupReservation {
   totalAmount?: number | null;
   currency?: number | null;
   currencyCode?: string | null;
-  /** True when a verified Mercado Pago webhook marked approval (audit only). */
+  /** True when a verified Mercado Pago webhook set PaymentStatus = 1. Not booking Status. */
   mercadoPagoApproved?: boolean;
   mercadoPagoApprovedAt?: string | null;
-  /** True when seller is connected, booking unpaid via MP, and amount > 0. */
+  /** True when seller is connected, booking pending/confirmed, unpaid via MP, and amount > 0. */
   canPayOnline?: boolean;
   sellerConnected?: boolean;
 }
@@ -119,9 +119,7 @@ export interface ConfirmBookingFromHoldResponse {
 }
 
 export interface CreateMercadoPagoPreferenceRequest {
-  manageToken?: string;
-  reservationCode?: string;
-  listingType?: GuestSiteListingType;
+  manageToken: string;
 }
 
 export interface CreateMercadoPagoPreferenceSuccess {
@@ -140,6 +138,8 @@ export interface MercadoPagoPreferenceFailure {
   success: false;
   error?: string;
   error_code?: GuestBookingErrorCode;
+  /** Present when the edge function returned a non-2xx (e.g. 401 expired token). */
+  httpStatus?: number;
 }
 
 export type CreateMercadoPagoPreferenceResponse =
@@ -158,7 +158,6 @@ export interface BookingPaymentStatusSuccess {
   can_pay_online: boolean;
   seller_connected: boolean;
   seller_error_code?: string | null;
-  seller_member_id?: string | null;
 }
 
 export interface BookingPaymentStatusFailure {

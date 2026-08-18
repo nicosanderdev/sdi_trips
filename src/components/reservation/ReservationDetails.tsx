@@ -14,6 +14,7 @@ import GuestReviewReadOnlyCard from './GuestReviewReadOnlyCard';
 import HostContactSection from './HostContactSection';
 import MercadoPagoPaySection from './MercadoPagoPaySection';
 import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
+import { getLiveManageToken } from '../../utils/mercadoPagoPayHandoff';
 
 const defaultPropertyPath = (propertyId: string) => `/property/${propertyId}`;
 
@@ -183,14 +184,17 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
           hostContact={localReservation.hostContact}
         />
 
-        {(shouldShowMercadoPagoPay(localReservation.status) &&
-          (localReservation.canPayOnline || localReservation.mercadoPagoApproved)) && (
+        {shouldShowMercadoPagoPay({
+          canPayOnline: localReservation.canPayOnline,
+          mercadoPagoApproved: localReservation.mercadoPagoApproved,
+        }) && (
           <MercadoPagoPaySection
             bookingId={localReservation.bookingId}
             canPayOnline={localReservation.canPayOnline}
             mercadoPagoApproved={localReservation.mercadoPagoApproved}
             totalAmount={localReservation.totalAmount}
             currencyCode={localReservation.currencyCode}
+            manageToken={getLiveManageToken(localReservation.bookingId) ?? undefined}
             reservationCode={localReservation.reservationCode}
             listingType={localReservation.listingType}
           />

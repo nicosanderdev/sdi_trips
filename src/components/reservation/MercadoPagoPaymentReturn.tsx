@@ -2,16 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../ui';
-import {
-  getBookingPaymentStatusByManageToken,
-  getReservationByCode,
-} from '../../services/bookingService';
+import { getBookingPaymentStatusByManageToken } from '../../services/bookingService';
 import { buildGuestManageUrl } from '../../core/config/guestBookingManageUrl';
 import { isGuestSiteListingType } from '../../core/config/guestSiteListingType';
 import {
   clearMercadoPagoPayHandoff,
+  getLiveManageToken,
   loadMercadoPagoPayHandoff,
 } from '../../utils/mercadoPagoPayHandoff';
+import MercadoPagoPaySection from './MercadoPagoPaySection';
 
 const POLL_INTERVAL_MS = 2500;
 const POLL_TIMEOUT_MS = 40_000;
@@ -34,11 +33,13 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
   const statusHint = (searchParams.get('status') ?? '').toLowerCase();
   const bookingId = searchParams.get('bookingId')?.trim() ?? '';
 
-  const [pollState, setPollState] = useState<PollState>(() =>
-    statusHint === 'failure' ? 'failure' : 'polling',
-  );
+  const [pollState, setPollState] = useState<PollState>('polling');
   const [reservationCode, setReservationCode] = useState<string | null>(null);
   const [listingType, setListingType] = useState<string | undefined>(undefined);
+  const [liveToken, setLiveToken] = useState<string | null>(null);
+  const [canPayOnline, setCanPayOnline] = useState(false);
+  const [payAmount, setPayAmount] = useState<number | null>(null);
+  const [payCurrencyCode, setPayCurrencyCode] = useState<string | null>(null);
 
   const lookupHref = useMemo(() => {
     return buildGuestManageUrl({
@@ -49,7 +50,7 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
 
   useEffect(() => {
     if (!bookingId) {
-      setPollState(statusHint === 'failure' ? 'failure' : 'error');
+      setPollState('error');
       return;
     }
 
@@ -57,41 +58,56 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
     if (handoff?.reservationCode) setReservationCode(handoff.reservationCode);
     if (handoff?.listingType) setListingType(handoff.listingType);
 
-    if (statusHint === 'failure') {
-      setPollState('failure');
+    const token = getLiveManageToken(bookingId);
+    setLiveToken(token);
+
+    if (!token) {
+      setPollState(statusHint === 'failure' ? 'failure' : 'error');
       return;
     }
 
     let cancelled = false;
     const startedAt = Date.now();
 
-    const pollOnce = async (): Promise<boolean> => {
-      if (handoff?.manageToken) {
-        const result = await getBookingPaymentStatusByManageToken(handoff.manageToken);
-        if (!result.success) return false;
-        if (result.reservation_code) setReservationCode(result.reservation_code);
-        return result.mercado_pago_approved;
+    const pollOnce = async (): Promise<'approved' | 'cannot_pay' | 'expired' | 'continue'> => {
+      const result = await getBookingPaymentStatusByManageToken(token);
+      if (!result.success) {
+        const message = (result.error ?? '').toLowerCase();
+        if (message.includes('expired') || message.includes('invalid') || message.includes('missing token')) {
+          setCanPayOnline(false);
+          setLiveToken(null);
+          return 'expired';
+        }
+        return 'continue';
       }
 
-      if (handoff?.reservationCode && handoff.listingType) {
-        const result = await getReservationByCode(handoff.reservationCode, handoff.listingType);
-        if (!result.success || !result.reservation) return false;
-        setReservationCode(result.reservation.reservationCode);
-        if (result.reservation.listingType) setListingType(result.reservation.listingType);
-        return Boolean(result.reservation.mercadoPagoApproved);
-      }
+      if (result.reservation_code) setReservationCode(result.reservation_code);
+      setPayAmount(result.amount);
+      setPayCurrencyCode(result.currency_code);
+      setCanPayOnline(result.can_pay_online);
 
-      return false;
+      if (result.mercado_pago_approved) return 'approved';
+      if (!result.can_pay_online) return 'cannot_pay';
+      return 'continue';
     };
 
     const run = async () => {
       while (!cancelled && Date.now() - startedAt < POLL_TIMEOUT_MS) {
         try {
-          const approved = await pollOnce();
+          const outcome = await pollOnce();
           if (cancelled) return;
-          if (approved) {
+          if (outcome === 'approved') {
             clearMercadoPagoPayHandoff(bookingId);
+            setCanPayOnline(false);
             setPollState('approved');
+            return;
+          }
+          if (outcome === 'cannot_pay') {
+            setPollState(statusHint === 'failure' ? 'failure' : 'pending');
+            return;
+          }
+          if (outcome === 'expired') {
+            setPollState('error');
             return;
           }
         } catch {
@@ -101,7 +117,9 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
       }
 
       if (cancelled) return;
-      if (statusHint === 'pending' || statusHint === 'success') {
+      if (statusHint === 'failure') {
+        setPollState('failure');
+      } else if (statusHint === 'pending' || statusHint === 'success') {
         setPollState('timeout');
       } else {
         setPollState('pending');
@@ -136,6 +154,11 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
             ? 'mercadoPago.return.errorBody'
             : 'mercadoPago.return.pendingBody';
 
+  const showPayAgain =
+    pollState !== 'polling' &&
+    pollState !== 'approved' &&
+    Boolean(liveToken && canPayOnline);
+
   return (
     <div className={`flex flex-col items-center ${className}`}>
       <Card variant={cardVariant} className="w-full max-w-2xl p-8 space-y-4 text-center">
@@ -143,6 +166,18 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
         <p className="text-sm text-charcoal">{t(bodyKey)}</p>
         {pollState === 'polling' && (
           <p className="text-sm text-charcoal/80">{t('mercadoPago.return.polling')}</p>
+        )}
+        {showPayAgain && bookingId && liveToken && (
+          <MercadoPagoPaySection
+            className="text-left"
+            bookingId={bookingId}
+            canPayOnline={canPayOnline}
+            totalAmount={payAmount}
+            currencyCode={payCurrencyCode}
+            manageToken={liveToken}
+            reservationCode={reservationCode ?? undefined}
+            listingType={listingType && isGuestSiteListingType(listingType) ? listingType : undefined}
+          />
         )}
         <div className="pt-2 flex flex-wrap justify-center gap-3">
           <Link to={lookupHref}>

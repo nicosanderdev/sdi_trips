@@ -585,6 +585,9 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
         (raw.reservationCode as string | undefined),
       manageToken:
         (raw.manage_token as string | undefined) ?? (raw.manageToken as string | undefined),
+      manageExpiresAt:
+        (raw.manage_expires_at as string | undefined) ??
+        (raw.manageExpiresAt as string | undefined),
       guestId,
       listingType: listingTypeRaw,
       totalAmount: optionalNumber(raw.total_amount ?? raw.totalAmount) ?? undefined,
@@ -657,19 +660,53 @@ export async function getBookingByManageToken(token: string): Promise<{ success:
   }
 }
 
-function useMercadoPagoSandboxCheckout(): boolean {
-  return String(import.meta.env.VITE_MERCADO_PAGO_USE_SANDBOX ?? '').toLowerCase() === 'true';
-}
-
-/** Prefer production initPoint; sandbox only when explicitly enabled. */
+/** Always use production initPoint. Ignore sandboxInitPoint even when present. */
 export function resolveMercadoPagoCheckoutUrl(result: {
   initPoint?: string;
   sandboxInitPoint?: string;
 }): string | null {
-  if (useMercadoPagoSandboxCheckout()) {
-    return result.sandboxInitPoint?.trim() || result.initPoint?.trim() || null;
-  }
   return result.initPoint?.trim() || null;
+}
+
+function invokeHttpStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+  const status = (error as { context?: { status?: number } }).context?.status;
+  return typeof status === 'number' ? status : undefined;
+}
+
+function asPreferenceFailure(
+  raw: unknown,
+  httpStatus?: number,
+): CreateMercadoPagoPreferenceResponse | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  if (obj.success === true) return null;
+  const errorCode = obj.error_code;
+  return {
+    success: false,
+    error:
+      obj.error != null
+        ? String(obj.error)
+        : 'Could not start Mercado Pago checkout.',
+    error_code:
+      typeof errorCode === 'string' ? (errorCode as GuestBookingErrorCode) : undefined,
+    httpStatus,
+  };
+}
+
+async function readFunctionsErrorBody(error: unknown): Promise<unknown> {
+  const context = error && typeof error === 'object'
+    ? (error as { context?: Response }).context
+    : undefined;
+  if (!context || typeof context.json !== 'function') return null;
+  try {
+    if (typeof context.clone === 'function') {
+      return await context.clone().json();
+    }
+    return await context.json();
+  } catch {
+    return null;
+  }
 }
 
 export async function createMercadoPagoPreference(
@@ -681,20 +718,26 @@ export async function createMercadoPagoPreference(
     });
 
     if (error) {
+      const httpStatus = invokeHttpStatus(error);
+      const fromData = asPreferenceFailure(data, httpStatus);
+      if (fromData) return fromData;
+      const fromContext = asPreferenceFailure(await readFunctionsErrorBody(error), httpStatus);
+      if (fromContext) return fromContext;
       return {
         success: false,
         error: error.message || 'Could not start Mercado Pago checkout.',
+        httpStatus,
       };
     }
 
     const payload = data as CreateMercadoPagoPreferenceResponse | null;
     if (!payload?.success) {
-      const failure = payload as { success?: false; error?: string; error_code?: GuestBookingErrorCode } | null;
-      return {
-        success: false,
-        error: failure?.error ?? 'Could not start Mercado Pago checkout.',
-        error_code: failure?.error_code,
-      };
+      return (
+        asPreferenceFailure(payload) ?? {
+          success: false,
+          error: 'Could not start Mercado Pago checkout.',
+        }
+      );
     }
 
     return payload;
@@ -751,10 +794,6 @@ export async function getBookingPaymentStatusByManageToken(
       seller_error_code:
         (payload.seller_error_code as string | null | undefined) ??
         (payload.sellerErrorCode as string | null | undefined) ??
-        null,
-      seller_member_id:
-        (payload.seller_member_id as string | null | undefined) ??
-        (payload.sellerMemberId as string | null | undefined) ??
         null,
     };
   } catch (err) {

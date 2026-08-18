@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../ui';
 import type { ManageBookingView } from '../../types';
@@ -6,6 +6,7 @@ import { formatReservationStayDate } from '../../utils/formatReservationStayDate
 import HostContactSection from './HostContactSection';
 import MercadoPagoPaySection from './MercadoPagoPaySection';
 import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
+import { saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
 
 interface ReservationManageDetailsProps {
   booking: ManageBookingView;
@@ -37,6 +38,22 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
   const formattedCheckIn = formatReservationStayDate(booking.checkIn, i18n.language);
   const formattedCheckOut = formatReservationStayDate(booking.checkOut, i18n.language);
 
+  useEffect(() => {
+    const token = manageToken?.trim();
+    if (!token || !booking.bookingId) return;
+    saveMercadoPagoPayHandoff({
+      bookingId: booking.bookingId,
+      manageToken: token,
+      reservationCode: booking.reservationCode,
+      listingType: booking.listingType,
+    });
+  }, [
+    booking.bookingId,
+    booking.listingType,
+    booking.reservationCode,
+    manageToken,
+  ]);
+
   return (
     <Card variant={cardVariant} className="w-full max-w-2xl p-8 space-y-4">
       <h2 className="text-2xl font-semibold text-navy">{t('reservationLookup.details.title')}</h2>
@@ -65,8 +82,10 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
 
       <HostContactSection status={booking.status} hostContact={booking.hostContact} />
 
-      {(shouldShowMercadoPagoPay(booking.status) &&
-        (booking.canPayOnline || booking.mercadoPagoApproved)) && (
+      {shouldShowMercadoPagoPay({
+        canPayOnline: booking.canPayOnline,
+        mercadoPagoApproved: booking.mercadoPagoApproved,
+      }) && (
         <MercadoPagoPaySection
           bookingId={booking.bookingId}
           canPayOnline={booking.canPayOnline}
