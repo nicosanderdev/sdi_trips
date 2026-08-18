@@ -1387,10 +1387,12 @@
     "bridgeDisclaimer": "We are not responsible for payments. We only act as a bridge between the property owner and the guest. Money goes directly to the property owner's Mercado Pago account.",
     "paymentRegistered": "Payment registered.",
     "infoTitle": "Pay online with Mercado Pago",
-    "infoBody": "Once your booking is confirmed, you can pay securely online through Mercado Pago. You get multiple payment methods, instant confirmation for the host, and a clear payment record for your stay.",
+    "infoBody": "You can pay securely online through Mercado Pago. You get multiple payment methods, instant confirmation for the host, and a clear payment record for your stay.",
     "infoFees": "Fees: Mercado Pago may apply its own processing fees depending on the payment method you choose. This platform does not add an extra marketplace fee to your payment.",
+    "payableWithoutToken": "Online payment is available for this booking. Open the manage link from your confirmation message to pay.",
     "errors": {
       "generic": "Could not start online payment. Please try again.",
+      "expiredToken": "This payment session expired. Open your reservation with the manage link to try again.",
       "SELLER_NOT_CONNECTED": "The property owner is not connected to Mercado Pago.",
       "NO_DESIGNATED_SELLER": "Online payment is not available for this property yet.",
       "ALREADY_APPROVED": "A payment was already registered for this booking.",

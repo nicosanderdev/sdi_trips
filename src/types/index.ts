@@ -48,6 +48,7 @@ export interface GuestBookingConfirmation {
   bookingId?: string;
   reservationCode?: string;
   manageToken?: string;
+  manageExpiresAt?: string;
   manageUrl?: string;
   guestId?: string;
   listingType?: GuestSiteListingType;

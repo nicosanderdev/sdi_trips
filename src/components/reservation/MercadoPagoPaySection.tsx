@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Modal } from '../ui';
-import type { CreateMercadoPagoPreferenceRequest, GuestSiteListingType } from '../../types';
+import type { GuestSiteListingType } from '../../types';
 import {
   createMercadoPagoPreference,
   resolveMercadoPagoCheckoutUrl,
 } from '../../services/bookingService';
 import { formatPriceAmount } from '../../services/pricing/formatPrice';
 import { isMercadoPagoPreferenceErrorCode } from '../../types/guestReviewContract';
-import { saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
+import { clearMercadoPagoPayHandoff, saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
 
 export interface MercadoPagoPaySectionProps {
   bookingId: string;
@@ -16,6 +16,7 @@ export interface MercadoPagoPaySectionProps {
   mercadoPagoApproved?: boolean;
   totalAmount?: number | null;
   currencyCode?: string | null;
+  /** Required to start Checkout Pro. Without it, only paid/payable state is shown. */
   manageToken?: string;
   reservationCode?: string;
   listingType?: GuestSiteListingType;
@@ -27,9 +28,13 @@ export interface MercadoPagoPaySectionProps {
 
 function mapPreferenceError(
   errorCode: string | undefined,
+  httpStatus: number | undefined,
   fallback: string | undefined,
   t: (key: string) => string,
 ): string {
+  if (httpStatus === 401) {
+    return t('mercadoPago.errors.expiredToken');
+  }
   if (isMercadoPagoPreferenceErrorCode(errorCode)) {
     return t(`mercadoPago.errors.${errorCode}`);
   }
@@ -53,8 +58,13 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [markedApproved, setMarkedApproved] = useState(false);
 
-  if (mercadoPagoApproved) {
+  const isApproved = Boolean(mercadoPagoApproved || markedApproved);
+  const checkoutToken = manageToken?.trim() ?? '';
+  const canStartCheckout = Boolean(canPayOnline && checkoutToken && !isApproved);
+
+  if (isApproved) {
     return (
       <div className={`rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900 ${className}`}>
         {t('mercadoPago.paymentRegistered')}
@@ -71,20 +81,9 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
       ? formatPriceAmount(totalAmount, currencyCode ?? 'USD')
       : null;
 
-  const buildRequest = (): CreateMercadoPagoPreferenceRequest | null => {
-    if (manageToken?.trim()) {
-      return { manageToken: manageToken.trim() };
-    }
-    if (reservationCode?.trim() && listingType) {
-      return { reservationCode: reservationCode.trim(), listingType };
-    }
-    return null;
-  };
-
   const handleConfirmPay = async () => {
-    const request = buildRequest();
-    if (!request) {
-      setError(t('mercadoPago.errors.generic'));
+    if (!checkoutToken) {
+      setError(t('mercadoPago.errors.expiredToken'));
       return;
     }
 
@@ -93,15 +92,23 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
 
     saveMercadoPagoPayHandoff({
       bookingId,
-      manageToken,
+      manageToken: checkoutToken,
       reservationCode,
       listingType,
     });
 
-    const result = await createMercadoPagoPreference(request);
+    const result = await createMercadoPagoPreference({ manageToken: checkoutToken });
     if (!result.success) {
       setLoading(false);
-      setError(mapPreferenceError(result.error_code, result.error, t));
+      if (result.error_code === 'ALREADY_APPROVED') {
+        setShowDisclaimer(false);
+        setMarkedApproved(true);
+        return;
+      }
+      if (result.httpStatus === 401) {
+        clearMercadoPagoPayHandoff(bookingId);
+      }
+      setError(mapPreferenceError(result.error_code, result.httpStatus, result.error, t));
       return;
     }
 
@@ -129,24 +136,28 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
         </p>
       )}
 
-      <div className={`flex flex-wrap gap-3 ${showPayLater ? 'justify-center' : ''}`}>
-        <Button
-          variant="primary"
-          className="bg-gold text-navy hover:bg-gold-dark"
-          disabled={loading}
-          onClick={() => {
-            setError(null);
-            setShowDisclaimer(true);
-          }}
-        >
-          {loading ? t('mercadoPago.paying') : t('mercadoPago.payNow')}
-        </Button>
-        {showPayLater && (
-          <Button variant="outline" disabled={loading} onClick={onPayLater}>
-            {t('mercadoPago.payLater')}
+      {canStartCheckout ? (
+        <div className={`flex flex-wrap gap-3 ${showPayLater ? 'justify-center' : ''}`}>
+          <Button
+            variant="primary"
+            className="bg-gold text-navy hover:bg-gold-dark"
+            disabled={loading}
+            onClick={() => {
+              setError(null);
+              setShowDisclaimer(true);
+            }}
+          >
+            {loading ? t('mercadoPago.paying') : t('mercadoPago.payNow')}
           </Button>
-        )}
-      </div>
+          {showPayLater && (
+            <Button variant="outline" disabled={loading} onClick={onPayLater}>
+              {t('mercadoPago.payLater')}
+            </Button>
+          )}
+        </div>
+      ) : (
+        <p className="text-sm text-charcoal/80">{t('mercadoPago.payableWithoutToken')}</p>
+      )}
 
       {error && (
         <p className="text-sm text-red-700" role="alert">

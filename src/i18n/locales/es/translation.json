@@ -1360,10 +1360,12 @@
     "bridgeDisclaimer": "No somos responsables de los pagos. Solo actuamos como puente entre el propietario y el huésped. El dinero va directamente a la cuenta de Mercado Pago del propietario.",
     "paymentRegistered": "Pago registrado.",
     "infoTitle": "Pagá en línea con Mercado Pago",
-    "infoBody": "Cuando tu reserva esté confirmada, podés pagar de forma segura en línea con Mercado Pago. Tenés varios medios de pago, confirmación inmediata para el anfitrión y un registro claro del pago de tu estadía.",
+    "infoBody": "Podés pagar de forma segura en línea con Mercado Pago. Tenés varios medios de pago, confirmación inmediata para el anfitrión y un registro claro del pago de tu estadía.",
     "infoFees": "Comisiones: Mercado Pago puede aplicar sus propias comisiones según el medio de pago que elijas. Esta plataforma no agrega una comisión de marketplace adicional a tu pago.",
+    "payableWithoutToken": "El pago en línea está disponible para esta reserva. Abrí el enlace de gestión que recibiste en la confirmación para pagar.",
     "errors": {
       "generic": "No se pudo iniciar el pago en línea. Intentá de nuevo.",
+      "expiredToken": "Esta sesión de pago venció. Abrí tu reserva con el enlace de gestión para intentar de nuevo.",
       "SELLER_NOT_CONNECTED": "El propietario no está conectado a Mercado Pago.",
       "NO_DESIGNATED_SELLER": "El pago en línea aún no está disponible para esta propiedad.",
       "ALREADY_APPROVED": "Ya se registró un pago para esta reserva.",
