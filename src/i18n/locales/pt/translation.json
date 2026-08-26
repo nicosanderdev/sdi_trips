@@ -702,6 +702,15 @@
     "backToHome": "Voltar ao Início",
     "searchProperties": "Explorar casas"
   },
+  "comingSoon": {
+    "documentTitle": "Em breve — En cartelera",
+    "languageLabel": "Idioma",
+    "eyebrow": "En cartelera",
+    "titleBefore": "",
+    "titleHighlight": "Em breve",
+    "message": "A nossa plataforma estará disponível em breve.",
+    "supporting": "Estamos a preparar tudo para si."
+  },
   "profile": {
     "header": {
       "title": "Meu Perfil",

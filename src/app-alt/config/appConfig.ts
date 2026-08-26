@@ -7,5 +7,7 @@ export const appConfig = {
   guestSiteListingType: 'EventVenue' as const,
   featureFlags: {
     showLandingAds: false,
+    /** When true, all public routes serve the Coming Soon page instead of the normal site. */
+    comingSoon: true,
   },
 } as const;

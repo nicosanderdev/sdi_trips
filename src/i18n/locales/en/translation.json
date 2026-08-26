@@ -752,6 +752,15 @@
     "backToHome": "Back to Home",
     "searchProperties": "Explore Homes"
   },
+  "comingSoon": {
+    "documentTitle": "Coming soon — En cartelera",
+    "languageLabel": "Language",
+    "eyebrow": "En cartelera",
+    "titleBefore": "We're ",
+    "titleHighlight": "coming soon",
+    "message": "Our platform will be available soon.",
+    "supporting": "We're getting everything ready for you."
+  },
   "profile": {
     "header": {
       "title": "My Profile",

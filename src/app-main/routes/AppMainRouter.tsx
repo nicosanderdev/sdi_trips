@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from '../../core/auth/AuthProvider';
 import { initAnalytics, sendPageView } from '../../core/services/analyticsService';
@@ -22,6 +22,8 @@ import NotFound from '../pages/NotFound';
 import BookingManageRedirect from '../pages/BookingManageRedirect';
 import ReservationLookup from '../pages/ReservationLookup';
 import MercadoPagoPaymentResultPage from '../pages/MercadoPagoPaymentResultPage';
+import ComingSoon from '../../components/pages/ComingSoon';
+import { appConfig } from '../config/appConfig';
 
 function PageViewTracker() {
   const location = useLocation();
@@ -49,23 +51,32 @@ export function AppMainRouter() {
       <Router>
         <PageViewTracker />
         <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/property/:id" element={<PropertyDetail />} />
-          <Route path="/booking/manage" element={<BookingManageRedirect />} />
-          <Route path="/reservation-lookup" element={<ReservationLookup />} />
-          <Route path="/pago-mercado-pago/resultado" element={<MercadoPagoPaymentResultPage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/inbox" element={<Inbox />} />
-          <Route path="/inbox/:conversationId" element={<ChatDetail />} />
-          <Route path="/checkout/:propertyId" element={<Checkout />} />
-          <Route path="*" element={<NotFound />} />
+          {appConfig.featureFlags.comingSoon ? (
+            <>
+              <Route path="/" element={<ComingSoon variant="main" />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<Landing />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/booking/manage" element={<BookingManageRedirect />} />
+              <Route path="/reservation-lookup" element={<ReservationLookup />} />
+              <Route path="/pago-mercado-pago/resultado" element={<MercadoPagoPaymentResultPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/inbox" element={<Inbox />} />
+              <Route path="/inbox/:conversationId" element={<ChatDetail />} />
+              <Route path="/checkout/:propertyId" element={<Checkout />} />
+              <Route path="*" element={<NotFound />} />
+            </>
+          )}
         </Routes>
       </Router>
       <Analytics />
