@@ -9,7 +9,6 @@ const LANG_CODES = ['en', 'es', 'pt'] as const;
 type NavItem = {
   path: string;
   labelKey: string;
-  hash?: string;
 };
 
 export function AltNavbar() {
@@ -19,22 +18,16 @@ export function AltNavbar() {
 
   const navItems: NavItem[] = [
     { path: '/search', labelKey: 'alt.nav.exploreVenues' },
-    { path: '/', labelKey: 'alt.nav.howItWorks', hash: 'how-it-works' },
     { path: '/about', labelKey: 'alt.nav.aboutUs' },
     { path: '/contact', labelKey: 'common.contact' },
   ];
 
   const isActive = (item: NavItem) => {
-    if (item.hash) {
-      return location.pathname === '/' && location.hash === `#${item.hash}`;
-    }
     if (item.path === '/search') {
       return location.pathname === '/search' || location.pathname.startsWith('/venue/');
     }
     return location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
   };
-
-  const getItemHref = (item: NavItem) => (item.hash ? `${item.path}#${item.hash}` : item.path);
 
   const changeLanguage = (code: string) => {
     void i18n.changeLanguage(code);
@@ -53,25 +46,16 @@ export function AltNavbar() {
     </Link>
   );
 
-  const ctaButton = (
-    <Link
-      to="/search"
-      className="inline-flex items-center justify-center rounded-full bg-gold text-navy text-sm font-semibold px-4 py-2 hover:bg-navy hover:text-gold transition-all duration-200 whitespace-nowrap"
-    >
-      {t('alt.nav.ctaFindVenue')}
-    </Link>
-  );
-
   return (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-6xl" aria-label={t('alt.nav.mainNavAria')}>
       <div className="bg-white/95 backdrop-blur-md rounded-full px-6 md:px-8 py-4 shadow-gold border border-gold/20">
-        <div className="hidden md:flex items-center gap-6 lg:gap-8">
+        <div className="hidden md:flex items-center justify-center gap-3 lg:gap-4">
           {logoBlock}
-          <div className="flex items-center space-x-4 lg:space-x-5 flex-1 justify-center">
+          <div className="flex items-center space-x-2 lg:space-x-3">
             {navItems.map((item) => (
               <Link
                 key={item.labelKey}
-                to={getItemHref(item)}
+                to={item.path}
                 className={`px-3 lg:px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                   isActive(item)
                     ? 'bg-navy text-gold'
@@ -81,23 +65,22 @@ export function AltNavbar() {
                 {t(item.labelKey)}
               </Link>
             ))}
-            <div className="flex items-center space-x-1 ml-2 pl-3 border-l border-gray-300">
-              <Globe className="h-4 w-4 text-navy shrink-0" aria-hidden />
-              <select
-                aria-label={t('alt.nav.languageSelectAria')}
-                value={LANG_CODES.includes(i18nInstance.language as (typeof LANG_CODES)[number]) ? i18nInstance.language : 'en'}
-                onChange={(e) => changeLanguage(e.target.value)}
-                className="bg-transparent text-sm text-navy font-medium focus:outline-none cursor-pointer max-w-28"
-              >
-                {LANG_CODES.map((code) => (
-                  <option key={code} value={code}>
-                    {t(`alt.languages.${code}`)}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
-          <div className="shrink-0">{ctaButton}</div>
+          <div className="flex items-center space-x-1 pl-3 border-l border-gray-300 shrink-0">
+            <Globe className="h-4 w-4 text-navy shrink-0" aria-hidden />
+            <select
+              aria-label={t('alt.nav.languageSelectAria')}
+              value={LANG_CODES.includes(i18nInstance.language as (typeof LANG_CODES)[number]) ? i18nInstance.language : 'en'}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="bg-transparent text-sm text-navy font-medium focus:outline-none cursor-pointer max-w-28"
+            >
+              {LANG_CODES.map((code) => (
+                <option key={code} value={code}>
+                  {t(`alt.languages.${code}`)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="md:hidden flex items-center justify-between gap-2">
@@ -135,11 +118,11 @@ export function AltNavbar() {
 
         {isOpen && (
           <div className="md:hidden absolute left-0 right-0 top-full mt-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-gold border border-gold/20 p-6">
-            <div className="space-y-2 mb-6">
+            <div className="space-y-2">
               {navItems.map((item) => (
                 <Link
                   key={item.labelKey}
-                  to={getItemHref(item)}
+                  to={item.path}
                   onClick={() => setIsOpen(false)}
                   className={`block px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive(item)
@@ -151,7 +134,6 @@ export function AltNavbar() {
                 </Link>
               ))}
             </div>
-            <div className="mb-4">{ctaButton}</div>
           </div>
         )}
       </div>

@@ -308,15 +308,54 @@
   "about": {
     "hero": {
       "title": "Acerca de",
-      "titleHighlight": "En cartelera - Espacios",
-      "description": "Somos un equipo chico en Rivera que ayuda a la gente a encontrar buenos espacios para sus eventos — y a dueños de espacios a compartir los suyos sin complicaciones."
+      "titleHighlight": "En cartelera - Espacios"
     },
-    "story": {
-      "title": "Nuestra",
-      "titleHighlight": "Historia",
-      "paragraph1": "En cartelera Espacios nació de una frustración simple: encontrar un espacio para eventos en Rivera significaba recorrer publicaciones impersonales o buscar opciones dispersas sin saber con quién ibas a tratar.",
-      "paragraph2": "Queríamos algo distinto — un lugar donde pudieras ver espacios reales, hablar con equipos reales y reservar sin vueltas. Así que lo construimos, acá en Rivera.",
-      "paragraph3": "Hoy trabajamos con dueños de espacios y organizadores locales todos los días. Visitamos lugares, respondemos preguntas y mantenemos las cosas humanas. Ese es el punto."
+    "mission": {
+      "title": "Misión y",
+      "titleHighlight": "visión",
+      "missionLabel": "Misión",
+      "missionText": "Conectar personas con espacios, ayudando a los propietarios a gestionar sus propiedades y a las personas a encontrar el lugar que se adapte a sus necesidades.",
+      "visionLabel": "Visión",
+      "visionText": "Ser la plataforma de referencia para descubrir y reservar espacios, haciendo que encontrar el lugar adecuado sea simple, confiable y accesible.",
+      "imageAlt": "En cartelera - Espacios"
+    },
+    "values": {
+      "title": "Nuestros",
+      "titleHighlight": "Valores",
+      "trust": {
+        "title": "Confianza",
+        "description": "Construimos relaciones transparentes entre propietarios y visitantes."
+      },
+      "simplicity": {
+        "title": "Simplicidad",
+        "description": "Eliminamos pasos innecesarios y hacemos que encontrar y ofrecer un espacio sea fácil."
+      },
+      "closeness": {
+        "title": "Cercanía",
+        "description": "Diseñamos pensando en las personas, no solamente en las propiedades."
+      },
+      "experience": {
+        "title": "Experiencia",
+        "description": "Nuestro objetivo no es solamente facilitar una reserva, sino ayudar a crear buenos momentos."
+      },
+      "transparency": {
+        "title": "Transparencia",
+        "description": "Información, precios, condiciones y expectativas claras."
+      },
+      "innovation": {
+        "title": "Innovación útil",
+        "description": "Utilizamos tecnología para resolver problemas reales."
+      },
+      "community": {
+        "title": "Comunidad",
+        "description": "Queremos construir una red donde propietarios y visitantes se beneficien mutuamente."
+      }
+    },
+    "cta": {
+      "title": "Encontrá el espacio",
+      "titleHighlight": "ideal",
+      "description": "Explorá las opciones disponibles o contactanos. Estamos para ayudarte a conectar con el espacio que necesitás.",
+      "browseProperties": "Explorar espacios"
     }
   },
   "reservations": {

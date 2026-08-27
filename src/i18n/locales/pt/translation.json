@@ -1066,70 +1066,53 @@
   "about": {
     "hero": {
       "title": "Sobre",
-      "titleHighlight": "En cartelera - Escapadas",
-      "description": "Somos uma equipe pequena em Rivera que ajuda viajantes a encontrar ótimos lugares para ficar — e proprietários a compartilhar suas casas sem complicação."
+      "titleHighlight": "En cartelera - Escapadas"
     },
-    "story": {
-      "title": "Nossa",
-      "titleHighlight": "História",
-      "paragraph1": "O En cartelera começou com uma frustração simples: encontrar uma casa de férias em Rivera significava rolar por plataformas grandes que pareciam impessoais, ou caçar anúncios espalhados sem saber com quem você estaria lidando.",
-      "paragraph2": "Queríamos algo diferente — um lugar onde você pudesse ver casas reais, falar com anfitriões reais e reservar sem enrolação. Então construímos, aqui em Rivera.",
-      "paragraph3": "Hoje trabalhamos com proprietários e hóspedes locais todos os dias. Visitamos propriedades, respondemos perguntas e mantemos as coisas humanas. Esse é o ponto.",
-      "imageAlt": "Equipe En cartelera - Escapadas"
-    },
-    "stats": {
-      "curatedProperties": "Propriedades Selecionadas",
-      "countries": "Países",
-      "happyGuests": "Hóspedes Felizes",
-      "averageRating": "Avaliação Média"
+    "mission": {
+      "title": "Missão e",
+      "titleHighlight": "visão",
+      "missionLabel": "Missão",
+      "missionText": "Conectar pessoas com espaços, ajudando os proprietários a gerenciar suas propriedades e as pessoas a encontrar o lugar que se adapte às suas necessidades.",
+      "visionLabel": "Visão",
+      "visionText": "Ser a plataforma de referência para descobrir e reservar espaços, tornando simples, confiável e acessível encontrar o lugar certo.",
+      "imageAlt": "En cartelera - Escapadas"
     },
     "values": {
       "title": "Nossos",
       "titleHighlight": "Valores",
-      "subtitle": "Esses princípios guiam tudo o que fazemos e moldam as experiências que criamos para nossos hóspedes.",
-      "passion": {
-        "title": "Paixão pela Hospitalidade",
-        "description": "Acreditamos que cada férias deve parecer voltar para casa em um lugar que realmente se preocupa com seu conforto e felicidade."
-      },
-      "excellence": {
-        "title": "Excelência em Cada Detalhe",
-        "description": "Desde a seleção de propriedades até o suporte ao hóspede, mantemos os mais altos padrões em tudo o que fazemos."
-      },
-      "global": {
-        "title": "Perspectiva Global",
-        "description": "Nossa equipe internacional traz experiências e insights diversos para criar experiências de férias verdadeiramente especiais."
-      },
       "trust": {
-        "title": "Confiança e Transparência",
-        "description": "Construímos relacionamentos duradouros através de comunicação honesta e serviço confiável em que você pode contar."
-      }
-    },
-    "team": {
-      "title": "Conheça Nossa",
-      "titleHighlight": "Equipe",
-      "subtitle": "Os indivíduos apaixonados por trás do En cartelera - Escapadas, dedicados a criar experiências extraordinárias para nossos hóspedes.",
-      "members": {
-        "anna": {
-          "name": "Anna Svensson",
-          "role": "Fundadora e CEO",
-          "bio": "Com mais de 15 anos em hospitalidade de luxo, Anna fundou En cartelera - Escapadas para revolucionar como as pessoas experimentam casas de férias."
-        },
-        "marcus": {
-          "name": "Marcus Johnson",
-          "role": "Chefe de Operações",
-          "bio": "Marcus garante que cada propriedade atenda aos nossos padrões rigorosos de luxo, conforto e autenticidade."
-        },
-        "elena": {
-          "name": "Elena Rodriguez",
-          "role": "Diretora de Experiência do Cliente",
-          "bio": "Elena lidera nossa equipe de suporte ao cliente 24/7, garantindo que cada hóspede tenha uma experiência excepcional."
-        }
+        "title": "Confiança",
+        "description": "Construímos relações transparentes entre proprietários e visitantes."
+      },
+      "simplicity": {
+        "title": "Simplicidade",
+        "description": "Eliminamos passos desnecessários e tornamos fácil encontrar e oferecer um espaço."
+      },
+      "closeness": {
+        "title": "Proximidade",
+        "description": "Projetamos pensando nas pessoas, não somente nas propriedades."
+      },
+      "experience": {
+        "title": "Experiência",
+        "description": "Nosso objetivo não é somente facilitar uma reserva, mas ajudar a criar bons momentos."
+      },
+      "transparency": {
+        "title": "Transparência",
+        "description": "Informações, preços, condições e expectativas claras."
+      },
+      "innovation": {
+        "title": "Inovação útil",
+        "description": "Utilizamos tecnologia para resolver problemas reais."
+      },
+      "community": {
+        "title": "Comunidade",
+        "description": "Queremos construir uma rede onde proprietários e visitantes se beneficiem mutuamente."
       }
     },
     "cta": {
-      "title": "Junte-se à Nossa",
-      "titleHighlight": "Comunidade",
-      "description": "Experimente a diferença que paixão, atenção aos detalhes e cuidado genuíno podem fazer. Sua casa de férias perfeita está esperando.",
+      "title": "Encontre o lugar",
+      "titleHighlight": "ideal",
+      "description": "Explore as opções disponíveis ou fale conosco. Estamos aqui para ajudar você a conectar com o espaço que precisa.",
       "getStarted": "Comece Hoje",
       "browseProperties": "Explorar Propriedades"
     }

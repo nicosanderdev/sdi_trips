@@ -308,15 +308,54 @@
   "about": {
     "hero": {
       "title": "About",
-      "titleHighlight": "En cartelera - Espacios",
-      "description": "We're a small team in Rivera helping people find great spaces for their events — and helping venue owners share theirs without the hassle."
+      "titleHighlight": "En cartelera - Espacios"
     },
-    "story": {
+    "mission": {
+      "title": "Mission and",
+      "titleHighlight": "vision",
+      "missionLabel": "Mission",
+      "missionText": "Connect people with spaces, helping owners manage their properties and helping people find the place that fits their needs.",
+      "visionLabel": "Vision",
+      "visionText": "To be the go-to platform for discovering and booking spaces, making it simple, reliable, and accessible to find the right place.",
+      "imageAlt": "En cartelera - Espacios"
+    },
+    "values": {
       "title": "Our",
-      "titleHighlight": "Story",
-      "paragraph1": "En cartelera Espacios started with a simple frustration: finding an event venue in Rivera meant scrolling through impersonal listings or hunting through scattered options with no way to know who you'd actually be dealing with.",
-      "paragraph2": "We wanted something different — a place where you could see real spaces, talk to real venue teams, and book without the runaround. So we built it, right here in Rivera.",
-      "paragraph3": "Today we work with local venue owners and event organizers every day. We visit spaces, answer questions, and keep things human. That's the whole point."
+      "titleHighlight": "Values",
+      "trust": {
+        "title": "Trust",
+        "description": "We build transparent relationships between owners and visitors."
+      },
+      "simplicity": {
+        "title": "Simplicity",
+        "description": "We remove unnecessary steps and make finding and offering a space easy."
+      },
+      "closeness": {
+        "title": "Closeness",
+        "description": "We design with people in mind, not only properties."
+      },
+      "experience": {
+        "title": "Experience",
+        "description": "Our goal is not only to facilitate a booking, but to help create good moments."
+      },
+      "transparency": {
+        "title": "Transparency",
+        "description": "Clear information, prices, conditions, and expectations."
+      },
+      "innovation": {
+        "title": "Useful innovation",
+        "description": "We use technology to solve real problems."
+      },
+      "community": {
+        "title": "Community",
+        "description": "We want to build a network where owners and visitors benefit from each other."
+      }
+    },
+    "cta": {
+      "title": "Find the",
+      "titleHighlight": "ideal space",
+      "description": "Explore the available options or get in touch. We're here to help you connect with the space you need.",
+      "browseProperties": "Explore Venues"
     }
   },
   "reservations": {

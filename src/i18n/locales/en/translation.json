@@ -1116,70 +1116,53 @@
   "about": {
     "hero": {
       "title": "About",
-      "titleHighlight": "En cartelera - Escapadas",
-      "description": "We're a small team in Rivera helping travelers find great places to stay — and helping homeowners share theirs without the hassle."
+      "titleHighlight": "En cartelera - Escapadas"
     },
-    "story": {
-      "title": "Our",
-      "titleHighlight": "Story",
-      "paragraph1": "En cartelera started with a simple frustration: finding a vacation home in Rivera meant scrolling through big platforms that felt impersonal, or hunting through scattered listings with no way to know who you'd actually be dealing with.",
-      "paragraph2": "We wanted something different — a place where you could see real homes, talk to real hosts, and book without the runaround. So we built it, right here in Rivera.",
-      "paragraph3": "Today we work with local homeowners and guests every day. We visit properties, answer questions, and keep things human. That's the whole point.",
-      "imageAlt": "En cartelera - Escapadas team"
-    },
-    "stats": {
-      "curatedProperties": "Curated Properties",
-      "countries": "Countries",
-      "happyGuests": "Happy Guests",
-      "averageRating": "Average Rating"
+    "mission": {
+      "title": "Mission and",
+      "titleHighlight": "vision",
+      "missionLabel": "Mission",
+      "missionText": "Connect people with spaces, helping owners manage their properties and helping people find the place that fits their needs.",
+      "visionLabel": "Vision",
+      "visionText": "To be the go-to platform for discovering and booking spaces, making it simple, reliable, and accessible to find the right place.",
+      "imageAlt": "En cartelera - Escapadas"
     },
     "values": {
       "title": "Our",
       "titleHighlight": "Values",
-      "subtitle": "These principles guide everything we do and shape the experiences we create for our guests.",
-      "passion": {
-        "title": "Passion for Hospitality",
-        "description": "We believe that every vacation should feel like coming home to a place that truly cares about your comfort and happiness."
-      },
-      "excellence": {
-        "title": "Excellence in Every Detail",
-        "description": "From property selection to guest support, we maintain the highest standards in everything we do."
-      },
-      "global": {
-        "title": "Global Perspective",
-        "description": "Our international team brings diverse experiences and insights to create truly special vacation experiences."
-      },
       "trust": {
-        "title": "Trust & Transparency",
-        "description": "We build lasting relationships through honest communication and reliable service you can count on."
-      }
-    },
-    "team": {
-      "title": "Meet Our",
-      "titleHighlight": "Team",
-      "subtitle": "The passionate individuals behind En cartelera - Escapadas, dedicated to creating extraordinary experiences for our guests.",
-      "members": {
-        "anna": {
-          "name": "Anna Svensson",
-          "role": "Founder & CEO",
-          "bio": "With over 15 years in luxury hospitality, Anna founded En cartelera - Escapadas to revolutionize how people experience vacation homes."
-        },
-        "marcus": {
-          "name": "Marcus Johnson",
-          "role": "Head of Operations",
-          "bio": "Marcus ensures every property meets our exacting standards for luxury, comfort, and authenticity."
-        },
-        "elena": {
-          "name": "Elena Rodriguez",
-          "role": "Customer Experience Director",
-          "bio": "Elena leads our 24/7 customer support team, ensuring every guest has an exceptional experience."
-        }
+        "title": "Trust",
+        "description": "We build transparent relationships between owners and visitors."
+      },
+      "simplicity": {
+        "title": "Simplicity",
+        "description": "We remove unnecessary steps and make finding and offering a space easy."
+      },
+      "closeness": {
+        "title": "Closeness",
+        "description": "We design with people in mind, not only properties."
+      },
+      "experience": {
+        "title": "Experience",
+        "description": "Our goal is not only to facilitate a booking, but to help create good moments."
+      },
+      "transparency": {
+        "title": "Transparency",
+        "description": "Clear information, prices, conditions, and expectations."
+      },
+      "innovation": {
+        "title": "Useful innovation",
+        "description": "We use technology to solve real problems."
+      },
+      "community": {
+        "title": "Community",
+        "description": "We want to build a network where owners and visitors benefit from each other."
       }
     },
     "cta": {
-      "title": "Join Our",
-      "titleHighlight": "Community",
-      "description": "Experience the difference that passion, attention to detail, and genuine care can make. Your perfect holiday home awaits.",
+      "title": "Find the",
+      "titleHighlight": "ideal place",
+      "description": "Explore the available options or get in touch. We're here to help you connect with the space you need.",
       "getStarted": "Get Started Today",
       "browseProperties": "Browse Properties"
     }
