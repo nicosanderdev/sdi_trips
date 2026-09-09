@@ -10,8 +10,6 @@ import About from '../pages/About';
 import Contact from '../pages/Contact';
 import Terms from '../pages/Terms';
 import Privacy from '../pages/Privacy';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
 import ForgotPassword from '../pages/ForgotPassword';
 import Profile from '../pages/Profile';
 import Wishlist from '../pages/Wishlist';
@@ -21,8 +19,9 @@ import Checkout from '../pages/Checkout';
 import Search from '../pages/Search';
 import PropertyDetail from '../pages/PropertyDetail';
 import NotFound from '../pages/NotFound';
-import BookingManage from '../pages/BookingManage';
+import BookingManageRedirect from '../pages/BookingManageRedirect';
 import ReservationLookup from '../pages/ReservationLookup';
+import MercadoPagoPaymentResultPage from '../pages/MercadoPagoPaymentResultPage';
 
 function PageViewTracker() {
   const location = useLocation();
@@ -55,12 +54,11 @@ export function AppMainRouter() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/search" element={<Search />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
-          <Route path="/booking/manage" element={<BookingManage />} />
+          <Route path="/booking/manage" element={<BookingManageRedirect />} />
           <Route path="/reservation-lookup" element={<ReservationLookup />} />
+          <Route path="/pago-mercado-pago/resultado" element={<MercadoPagoPaymentResultPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/wishlist" element={<Wishlist />} />

@@ -1,112 +1,47 @@
 import React from 'react';
-import { Star, Quote } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Card } from '../ui';
 
-const Testimonials: React.FC = () => {
+type TestimonialsVariant = 'main' | 'alt';
+
+interface TestimonialsProps {
+  variant?: TestimonialsVariant;
+}
+
+const Testimonials: React.FC<TestimonialsProps> = ({ variant = 'main' }) => {
   const { t } = useTranslation();
+  const prefix = variant === 'alt' ? 'alt.landing.testimonials' : 'landing.testimonials';
 
-  const testimonials = [
-    {
-      id: 1,
-      name: t('landing.testimonials.items.1.author'),
-      location: t('landing.testimonials.items.1.location'),
-      rating: 5,
-      text: t('landing.testimonials.items.1.text'),
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-      propertyType: "Property Owner"
-    },
-    {
-      id: 2,
-      name: t('landing.testimonials.items.2.author'),
-      location: t('landing.testimonials.items.2.location'),
-      rating: 5,
-      text: t('landing.testimonials.items.2.text'),
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      propertyType: "Rivera"
-    },
-    {
-      id: 3,
-      name: t('landing.testimonials.items.3.author'),
-      location: t('landing.testimonials.items.3.location'),
-      rating: 5,
-      text: t('landing.testimonials.items.3.text'),
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      propertyType: "Property Owner"
-    }
-  ];
+  const testimonials = [1, 2, 3].map((id) => ({
+    id,
+    text: t(`${prefix}.items.${id}.text`),
+    author: t(`${prefix}.items.${id}.author`),
+    location: t(`${prefix}.items.${id}.location`),
+  }));
 
   return (
-    <section className="py-20 bg-warm-gray-light">
+    <section className="py-24 bg-warm-gray-light">
       <div className="max-w-7xl mx-auto px-8">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-thin text-navy mb-4">
-            {t('landing.testimonials.title')}
+        <div className="text-center mb-12">
+          <h2 className="m-0 text-3xl md:text-4xl font-bold text-navy">
+            {t(`${prefix}.title`)}
           </h2>
-          <p className="text-xl text-charcoal max-w-2xl mx-auto">
-            {t('landing.testimonials.subtitle')}
+          <p className="mt-3 m-0 text-charcoal/80 max-w-xl mx-auto">
+            {t(`${prefix}.subtitle`)}
           </p>
         </div>
 
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} variant="default" className="relative">
-              {/* Quote Icon */}
-              <div className="absolute -top-4 -left-4 w-12 h-12 bg-gold rounded-full flex items-center justify-center shadow-lg">
-                <Quote className="h-6 w-6 text-navy" />
-              </div>
-
-              {/* Rating */}
-              <div className="flex items-center space-x-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-gold text-gold" />
-                ))}
-              </div>
-
-              {/* Testimonial Text */}
-              <blockquote className="text-charcoal mb-6 italic leading-relaxed">
-                "{testimonial.text}"
-              </blockquote>
-
-              {/* Author Info */}
-              <div className="flex items-center space-x-4">
-                <img
-                  src={testimonial.avatar}
-                  alt={testimonial.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div className="flex-1">
-                  <div className="font-semibold text-navy">{testimonial.name}</div>
-                  <div className="text-sm text-charcoal">{testimonial.location}</div>
-                  <div className="text-xs text-gold font-medium">{testimonial.propertyType}</div>
-                </div>
-              </div>
-            </Card>
+            <blockquote
+              key={testimonial.id}
+              className="m-0 rounded-3xl border border-navy/10 bg-white p-6 text-charcoal leading-relaxed"
+            >
+              <p className="m-0 italic">&ldquo;{testimonial.text}&rdquo;</p>
+              <footer className="mt-4 text-sm text-navy/70 not-italic">
+                — {testimonial.author}, {testimonial.location}
+              </footer>
+            </blockquote>
           ))}
-        </div>
-
-        {/* Trust Indicators */}
-        <div className="mt-16 text-center">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-navy mb-2">4.9/5</div>
-              <div className="text-sm text-charcoal">Average Rating</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-navy mb-2">10,000+</div>
-              <div className="text-sm text-charcoal">Happy Guests</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-navy mb-2">99%</div>
-              <div className="text-sm text-charcoal">Satisfaction Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-navy mb-2">24/7</div>
-              <div className="text-sm text-charcoal">Support Available</div>
-            </div>
-          </div>
         </div>
       </div>
     </section>

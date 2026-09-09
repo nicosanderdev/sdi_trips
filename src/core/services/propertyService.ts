@@ -1,6 +1,8 @@
 import { supabase } from '../api/supabaseClient';
 import type { Database } from '../../types/supabase';
 import type { Property } from '../models';
+import { parseAmenities } from '../../models/properties/publicAmenity';
+import { resolvePublicContentSectionsFromRow } from '../../models/properties/propertyContentSections';
 import { getRatingsForProperties } from './reviewService';
 
 type DbProperty = Database['public']['Tables']['EstateProperties']['Row'];
@@ -58,6 +60,28 @@ interface RpcSummerRentPropertyRow {
   LeadTimeDays: number | null;
   BufferDays: number | null;
   AmenityNames: string[] | null;
+  Amenities?: unknown;
+  ContentSections?: unknown;
+  SectionData?: RpcPropertySectionRow[] | null;
+}
+
+interface RpcPropertySectionImageRow {
+  Id: string;
+  PropertyImageId: string | null;
+  R2Url: string;
+  Title: string | null;
+  Metadata: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+}
+
+interface RpcPropertySectionRow {
+  Id: string;
+  Name: string;
+  Description: string | null;
+  LayoutType: 'split' | 'carousel' | 'stacked' | null;
+  LayoutConfig: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+  Images: RpcPropertySectionImageRow[] | null;
 }
 
 export interface PropertyFilters {
@@ -72,6 +96,18 @@ export interface PropertyFilters {
 export interface PropertySearchResult {
   properties: Property[];
   totalCount: number;
+}
+
+/** Public listings must never expose owner email/phone. */
+function mapPublicHostProfile(ownerId: string | null | undefined): Property['host'] {
+  return {
+    id: ownerId || '',
+    name: 'Host',
+    email: '',
+    avatar: undefined,
+    phone: undefined,
+    verified: false,
+  };
 }
 
 /**
@@ -94,6 +130,11 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     (row.Bedrooms != null ? row.Bedrooms * 2 : 0);
 
   const amenities = row.AmenityNames ?? [];
+  const publicAmenities = parseAmenities(row.Amenities);
+  const publicContentSections = resolvePublicContentSectionsFromRow(
+    row.ContentSections,
+    row.SectionData,
+  );
 
   return {
     id: row.EstatePropertyId,
@@ -107,16 +148,11 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     maxGuests,
     description: row.ListingDescription || '',
     amenities,
+    publicAmenities: publicAmenities.length ? publicAmenities : undefined,
+    publicContentSections: publicContentSections.length ? publicContentSections : undefined,
     rating: 0,
     reviewCount: 0,
-    host: {
-      id: row.OwnerId || '',
-      name: 'Host',
-      email: '',
-      avatar: undefined,
-      phone: undefined,
-      verified: false,
-    },
+    host: mapPublicHostProfile(row.OwnerId),
     available: row.IsActive && row.IsPropertyVisible && !row.BlockedForBooking,
     coordinates: {
       lat: Number(row.LocationLatitude),
@@ -128,6 +164,8 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     bufferDays: row.BufferDays ?? undefined,
     ownerId: row.OwnerId ?? undefined,
     listingType: 'SummerRent',
+    hasPool: row.HasPool,
+    hasGarage: row.HasGarage,
   };
 }
 

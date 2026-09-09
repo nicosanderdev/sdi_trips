@@ -5,10 +5,21 @@ import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
 import { Button, Input, RangeSlider, Card } from '../../components/ui';
 import PropertyCard from '../../components/sections/PropertyCard';
-import { getFavoriteProperties, searchProperties } from '../../services/propertyService';
+import { useSearchPricing } from '../../hooks/useSearchPricing';
+import {
+  usePortalPropertySearch,
+  type SearchAmenityKey,
+} from '../../hooks/usePortalPropertySearch';
+import { getFavoriteProperties } from '../../services/propertyService';
+import { buildPropertyDetailPath, parseIsoDateLocal, toIsoDate } from '../../services/pricing/listingPricing';
 import type { Property } from '../../types';
 import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
-import uyCitiesData from '../../data/uy-cities.json';
+import {
+  findExactUyCityMatch,
+  getUyCities,
+  portalRpcCityFromUyLabel,
+  type UyCity,
+} from '../../data/uyCityUtils';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useAuth } from '../../hooks/useAuth';
 import { getMemberProfile } from '../../services/memberService';
@@ -16,7 +27,11 @@ import { supabase } from '../../lib/supabase';
 
 const DEBOUNCE_MS = 450;
 const UY_CITIES_MAX_SUGGESTIONS = 10;
-const DEFAULT_PRICE_RANGE: [number, number] = [100, 600];
+const PRICE_SLIDER_MIN = 500;
+const PRICE_SLIDER_MAX = 10000;
+const PRICE_SLIDER_STEP = 100;
+const DEFAULT_PRICE_RANGE: [number, number] = [PRICE_SLIDER_MIN, PRICE_SLIDER_MAX];
+const SEARCH_AMENITY_KEYS: SearchAmenityKey[] = ['pool', 'garage', 'barbecue'];
 const PRIVACY_OFFSET_METERS = 120;
 const APPROX_ZONE_RADIUS_METERS = 100;
 const APPROX_ZONE_MIN_ZOOM = 14;
@@ -24,21 +39,13 @@ const APPROX_ZONE_SOURCE_ID = 'selected-property-approx-zone-source';
 const APPROX_ZONE_FILL_LAYER_ID = 'selected-property-approx-zone-fill-layer';
 const APPROX_ZONE_STROKE_LAYER_ID = 'selected-property-approx-zone-stroke-layer';
 
-interface UyCity {
-  name: string;
-  lat: string;
-  long: string;
-  zoom: string;
-}
-
-const uyCities: UyCity[] = uyCitiesData as UyCity[];
+const uyCities = getUyCities();
 
 interface SearchFilters {
   priceRange: [number, number];
   bedrooms: number;
   guests: number;
-  amenities: string[];
-  minRating: number;
+  amenities: SearchAmenityKey[];
   checkIn?: Date;
   checkOut?: Date;
 }
@@ -54,19 +61,19 @@ const Search: React.FC = () => {
     bedrooms: 0,
     guests: 1,
     amenities: [],
-    minRating: 0,
   });
 
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
-  const [properties, setProperties] = useState<Property[]>([]);
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [memberId, setMemberId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mapBounds, setMapBounds] = useState<mapboxgl.LngLatBounds | null>(null);
+  const [debouncedMapBounds, setDebouncedMapBounds] = useState<mapboxgl.LngLatBounds | null>(null);
+  const [mapCenter, setMapCenter] = useState({ lat: -30.901139, lng: -55.543487 });
   const [mapViewport, setMapViewport] = useState({
     latitude: -30.901139,
     longitude: -55.543487,
@@ -183,6 +190,25 @@ const Search: React.FC = () => {
     if (!trimmed) return;
     setSearchQuery(trimmed);
     setDebouncedSearchQuery(trimmed);
+
+    const exactMatch = findExactUyCityMatch(trimmed);
+    if (exactMatch) {
+      const lat = parseFloat(exactMatch.lat);
+      const lng = parseFloat(exactMatch.long);
+      const zoom = parseInt(exactMatch.zoom, 10);
+      setMapViewport({ latitude: lat, longitude: lng, zoom });
+    }
+  }, [searchParams]);
+
+  useLayoutEffect(() => {
+    const checkInParam = searchParams.get('checkIn');
+    const checkOutParam = searchParams.get('checkOut');
+    if (!checkInParam && !checkOutParam) return;
+    setFilters((prev) => ({
+      ...prev,
+      checkIn: checkInParam ? parseIsoDateLocal(checkInParam) ?? prev.checkIn : prev.checkIn,
+      checkOut: checkOutParam ? parseIsoDateLocal(checkOutParam) ?? prev.checkOut : prev.checkOut,
+    }));
   }, [searchParams]);
 
   // Debounce search query
@@ -193,68 +219,80 @@ const Search: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [searchQuery]);
 
-  function findExactCityMatch(query: string): UyCity | undefined {
-    const q = query.trim().toLowerCase();
-    return uyCities.find((c) => c.name.toLowerCase() === q);
-  }
+  // Debounce map bounds for portal search refetch
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedMapBounds(mapBounds);
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [mapBounds]);
 
-  // Fetch properties based on current non-location filters
-  const fetchProperties = useCallback(
-    async () => {
-      try {
-        const trimmedLocation = debouncedSearchQuery.trim();
-        const shouldApplyPriceRange =
-          filters.priceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
-          filters.priceRange[1] !== DEFAULT_PRICE_RANGE[1];
-        const searchFilters = {
-          priceRange: shouldApplyPriceRange ? filters.priceRange : undefined,
-          bedrooms: filters.bedrooms > 0 ? filters.bedrooms : undefined,
-          guests: filters.guests > 0 ? filters.guests : undefined,
-          amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
-          minRating: filters.minRating > 0 ? filters.minRating : undefined,
-          location: trimmedLocation.length > 0 ? trimmedLocation : undefined,
-        };
+  const portalRpcFilters = useMemo(() => {
+    const trimmedLocation = debouncedSearchQuery.trim();
+    const exactCity = findExactUyCityMatch(trimmedLocation);
+    const [minPrice, maxPrice] = filters.priceRange;
+    const isDefaultPriceRange =
+      minPrice === DEFAULT_PRICE_RANGE[0] && maxPrice === DEFAULT_PRICE_RANGE[1];
+    const isOpenEndedMax = maxPrice === PRICE_SLIDER_MAX;
 
-        const result = await searchProperties(searchFilters, 1, 50);
-        setProperties(result.properties);
-      } catch (err) {
-        console.error('Error fetching properties:', err);
-        setProperties([]);
-      }
-    },
-    [filters, debouncedSearchQuery]
+    return {
+      swLat: debouncedMapBounds?.getSouth(),
+      neLat: debouncedMapBounds?.getNorth(),
+      swLng: debouncedMapBounds?.getWest(),
+      neLng: debouncedMapBounds?.getEast(),
+      city: exactCity ? portalRpcCityFromUyLabel(exactCity.name) : undefined,
+      searchText: exactCity ? undefined : trimmedLocation || undefined,
+      minPrice: isDefaultPriceRange ? undefined : minPrice,
+      maxPrice: isDefaultPriceRange || isOpenEndedMax ? undefined : maxPrice,
+      bedroomsMin: filters.bedrooms > 0 ? filters.bedrooms : undefined,
+      capacityMin: filters.guests > 0 ? filters.guests : undefined,
+      checkIn: filters.checkIn ? toIsoDate(filters.checkIn) : undefined,
+      checkOut: filters.checkOut ? toIsoDate(filters.checkOut) : undefined,
+      centerLat: mapCenter.lat,
+      centerLng: mapCenter.lng,
+    };
+  }, [debouncedSearchQuery, debouncedMapBounds, filters, mapCenter.lat, mapCenter.lng]);
+
+  const portalPostFilters = useMemo(
+    () => ({
+      requiredAmenities: filters.amenities.length > 0 ? filters.amenities : undefined,
+    }),
+    [filters.amenities],
   );
 
-  // Fetch properties when debounced location or filters change
-  useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+  const {
+    properties,
+    loading: searchLoading,
+    error: searchError,
+  } = usePortalPropertySearch({
+    rpcFilters: portalRpcFilters,
+    postFilters: portalPostFilters,
+    hydrateLimit: 50,
+  });
 
-  // Keep map in sync with current results so markers/list are visible.
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || properties.length === 0) return;
+  const { priceByPropertyId } = useSearchPricing(
+    properties as Property[],
+    filters.checkIn,
+    filters.checkOut,
+  );
 
-    const bounds = new mapboxgl.LngLatBounds();
-    properties.forEach((property) => {
-      const offsetCoordinates = getOffsetCoordinates(property);
-      bounds.extend([offsetCoordinates.lng, offsetCoordinates.lat]);
-    });
+  const propertyDetailPath = useCallback(
+    (propertyId: string) =>
+      buildPropertyDetailPath(propertyId, {
+        checkIn: filters.checkIn,
+        checkOut: filters.checkOut,
+      }),
+    [filters.checkIn, filters.checkOut],
+  );
 
-    if (bounds.isEmpty()) return;
-
-    map.fitBounds(bounds, {
-      padding: 80,
-      maxZoom: 13,
-      duration: 600,
-    });
-  }, [properties, getOffsetCoordinates]);
+  // Markers are placed in a separate effect; do not auto fitBounds on every
+  // search result — that triggers moveend → bounds filter change → refetch loop.
 
   // When debounced query is set and not from list, geocode and move map
   useEffect(() => {
     const q = debouncedSearchQuery.trim();
     if (!q || !mapboxToken) return;
-    const exactMatch = findExactCityMatch(q);
+    const exactMatch = findExactUyCityMatch(q);
     if (exactMatch) return; // use list coordinates only on explicit select; debounced flow doesn't set viewport for list matches
 
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${mapboxToken}&country=UY`;
@@ -335,18 +373,11 @@ const Search: React.FC = () => {
     };
   }, []);
 
-  // Get available amenities from current properties
-  const availableAmenities = useMemo(() => {
-    const allAmenities = properties.flatMap(p => p.amenities);
-    return [...new Set(allAmenities)].sort();
-  }, [properties]);
-
-
   const handleFilterChange = (key: keyof SearchFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const toggleAmenity = (amenity: string) => {
+  const toggleAmenity = (amenity: SearchAmenityKey) => {
     setFilters(prev => ({
       ...prev,
       amenities: prev.amenities.includes(amenity)
@@ -355,13 +386,19 @@ const Search: React.FC = () => {
     }));
   };
 
+  const formatPriceSliderValue = (value: number, edge: 'min' | 'max') => {
+    if (edge === 'max' && value === PRICE_SLIDER_MAX) {
+      return `$${PRICE_SLIDER_MAX}+`;
+    }
+    return `$${value}`;
+  };
+
   const clearFilters = () => {
     setFilters({
       priceRange: DEFAULT_PRICE_RANGE,
       bedrooms: 0,
       guests: 1,
       amenities: [],
-      minRating: 0,
     });
   };
 
@@ -371,20 +408,6 @@ const Search: React.FC = () => {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
-
-  const visibleProperties = useMemo(() => {
-    if (!mapBounds) return properties;
-
-    return properties.filter((property) => {
-      const { lng, lat } = property.coordinates;
-      return (
-        lng >= mapBounds.getWest() &&
-        lng <= mapBounds.getEast() &&
-        lat >= mapBounds.getSouth() &&
-        lat <= mapBounds.getNorth()
-      );
-    });
-  }, [properties, mapBounds]);
 
   const focusOnProperty = useCallback(
     (property: Property) => {
@@ -417,11 +440,16 @@ const Search: React.FC = () => {
     mapRef.current = map;
 
     map.on('load', () => {
-      setMapBounds(map.getBounds());
+      const bounds = map.getBounds();
+      setMapBounds(bounds);
+      const center = map.getCenter();
+      setMapCenter({ lat: center.lat, lng: center.lng });
     });
 
     map.on('moveend', () => {
       setMapBounds(map.getBounds());
+      const center = map.getCenter();
+      setMapCenter({ lat: center.lat, lng: center.lng });
     });
 
     return () => {
@@ -444,10 +472,12 @@ const Search: React.FC = () => {
     markersRef.current = [];
     popupsRef.current = [];
 
-    visibleProperties.forEach((property) => {
+    properties.forEach((property) => {
       if (selectedProperty?.id === property.id) {
         return;
       }
+      const priced = priceByPropertyId.get(property.id);
+      const markerPrice = priced?.amount ?? property.price;
       const offsetCoordinates = getOffsetCoordinates(property);
       const markerElement = document.createElement('div');
       markerElement.className = `w-10 h-10 rounded-full shadow-lg cursor-pointer transition-all ${
@@ -457,7 +487,7 @@ const Search: React.FC = () => {
       }`;
       markerElement.innerHTML = `
         <div class="w-full h-full rounded-full flex items-center justify-center">
-          <span class="text-xs font-bold text-white">$${property.price}</span>
+          <span class="text-xs font-bold text-white">$${markerPrice}</span>
         </div>
       `;
 
@@ -473,6 +503,8 @@ const Search: React.FC = () => {
     });
 
     if (selectedProperty) {
+      const selectedPriced = priceByPropertyId.get(selectedProperty.id);
+      const popupPrice = selectedPriced?.amount ?? selectedProperty.price;
       const selectedOffsetCoordinates = getOffsetCoordinates(selectedProperty);
       const popup = new mapboxgl.Popup({
         closeOnClick: false,
@@ -481,17 +513,28 @@ const Search: React.FC = () => {
       })
         .setLngLat([selectedOffsetCoordinates.lng, selectedOffsetCoordinates.lat])
         .setHTML(`
-          <div class="sdi-map-popup-card flex flex-col gap-2.5">
-            <img src="${selectedProperty.images[0]}" alt="${selectedProperty.title}" class="w-full h-20 object-cover rounded-xl" />
-            <h3 class="font-semibold text-navy text-sm leading-5 max-h-10 overflow-hidden wrap-break-word">${selectedProperty.title}</h3>
+          <div class="sdi-map-popup-card flex flex-col gap-2">
+            <h3 class="font-semibold text-navy text-sm leading-5 line-clamp-2 pr-6">${selectedProperty.title}</h3>
             <p class="text-xs text-charcoal truncate">${selectedProperty.location}</p>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-gold">$${selectedProperty.price}${t('search.map.perNight')}</span>
-              <div class="flex items-center space-x-1">
-                <span class="text-xs text-charcoal">★ ${selectedProperty.rating}</span>
-              </div>
+            <div class="sdi-map-popup-meta flex items-center gap-3 text-xs text-charcoal">
+              <span class="inline-flex items-center gap-1" title="${t('propertyDetail.propertyIdentity.guests', { count: selectedProperty.maxGuests })}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                ${selectedProperty.maxGuests}
+              </span>
+              <span class="inline-flex items-center gap-1" title="${t('propertyDetail.propertyIdentity.bedrooms', { count: selectedProperty.bedrooms })}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+                ${selectedProperty.bedrooms}
+              </span>
+              <span class="inline-flex items-center gap-1" title="${t('propertyDetail.propertyIdentity.bathrooms', { count: selectedProperty.bathrooms })}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" x2="8" y1="5" y2="7"/><line x1="2" x2="22" y1="12" y2="12"/><line x1="7" x2="7" y1="19" y2="21"/><line x1="17" x2="17" y1="19" y2="21"/></svg>
+                ${selectedProperty.bathrooms}
+              </span>
             </div>
-            <a href="/property/${selectedProperty.id}" class="block mt-1">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-bold text-gold text-xl leading-none">$${popupPrice}<span class="text-xs font-semibold text-charcoal ml-0.5">${t('search.map.perNight')}</span></span>
+              <span class="text-xs text-charcoal shrink-0">★ ${selectedProperty.rating}</span>
+            </div>
+            <a href="${propertyDetailPath(selectedProperty.id)}" class="block">
               <button class="w-full bg-gold text-navy px-3 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 active:bg-navy active:text-white cursor-pointer">
                 ${t('search.map.viewDetails')}
               </button>
@@ -502,7 +545,7 @@ const Search: React.FC = () => {
 
       popupsRef.current.push(popup);
     }
-  }, [visibleProperties, hoveredProperty, selectedProperty, t, getOffsetCoordinates]);
+  }, [properties, hoveredProperty, selectedProperty, t, getOffsetCoordinates, priceByPropertyId, focusOnProperty, propertyDetailPath]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -586,13 +629,13 @@ const Search: React.FC = () => {
   // Delay visible properties list rendering slightly for smoother UX
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setDelayedVisibleProperties(visibleProperties);
+      setDelayedVisibleProperties(properties);
     }, 500);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [visibleProperties]);
+  }, [properties]);
 
   const handleToggleWishlist = async (propertyId: string) => {
     if (!user) return;
@@ -718,10 +761,12 @@ const Search: React.FC = () => {
 
                   <RangeSlider
                     label={t('search.filters.priceRange')}
-                    min={50}
-                    max={1000}
+                    min={PRICE_SLIDER_MIN}
+                    max={PRICE_SLIDER_MAX}
+                    step={PRICE_SLIDER_STEP}
                     value={filters.priceRange}
                     onChange={(value) => handleFilterChange('priceRange', value)}
+                    formatValue={formatPriceSliderValue}
                   />
 
                   <div className="grid grid-cols-2 gap-4">
@@ -762,33 +807,13 @@ const Search: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-navy mb-3">
-                      {t('search.filters.minimumRating')}
-                    </label>
-                    <div className="flex space-x-2">
-                      {[0, 3, 4, 4.5].map(rating => (
-                        <button
-                          key={rating}
-                          onClick={() => handleFilterChange('minRating', rating)}
-                          className={`px-3 py-2 rounded-lg border ${
-                            filters.minRating === rating
-                              ? 'bg-gold text-navy border-gold'
-                              : 'bg-white text-charcoal border-gray-300 hover:border-gold'
-                          } transition-colors`}
-                        >
-                          {rating === 0 ? t('search.filters.options.rating.any') : t(`search.filters.options.rating.${rating}`)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-navy mb-3">
                       {t('search.filters.amenities')}
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {availableAmenities.map(amenity => (
+                      {SEARCH_AMENITY_KEYS.map(amenity => (
                         <button
                           key={amenity}
+                          type="button"
                           onClick={() => toggleAmenity(amenity)}
                           className={`px-3 py-2 text-left rounded-lg border text-sm ${
                             filters.amenities.includes(amenity)
@@ -796,7 +821,7 @@ const Search: React.FC = () => {
                               : 'bg-white text-charcoal border-gray-300 hover:border-gold'
                           } transition-colors`}
                         >
-                          {amenity}
+                          {t(`search.filters.options.amenities.${amenity}`)}
                         </button>
                       ))}
                     </div>
@@ -831,16 +856,25 @@ const Search: React.FC = () => {
                     >
                       <PropertyCard
                         property={property}
+                        displayAmount={priceByPropertyId.get(property.id)?.amount}
+                        displayLabelKey={priceByPropertyId.get(property.id)?.labelKey}
                         onToggleWishlist={handleToggleWishlist}
                         isInWishlist={wishlistIds.includes(property.id)}
                         showWishlist={!!user}
                         disableLink
+                        detailTo={propertyDetailPath(property.id)}
                       />
                     </div>
                   );
                 })}
 
-                {delayedVisibleProperties.length === 0 && (
+                {searchLoading && (
+                  <p className="text-center py-8 text-charcoal">{t('search.results.loading', { defaultValue: 'Loading properties…' })}</p>
+                )}
+                {searchError && !searchLoading && (
+                  <p className="text-center py-8 text-red-600">{searchError}</p>
+                )}
+                {!searchLoading && !searchError && delayedVisibleProperties.length === 0 && (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🏠</div>
                     <h3 className="text-xl font-semibold text-navy mb-2">{t('search.results.empty.title')}</h3>

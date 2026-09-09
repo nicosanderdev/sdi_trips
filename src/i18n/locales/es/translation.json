@@ -3,8 +3,8 @@
     "home": "Inicio",
     "about": "Acerca de",
     "contact": "Contacto",
-    "search": "Buscar",
-    "login": "Iniciar sesión",
+    "search": "Exploremos",
+    "login": "Mi cuenta",
     "register": "Registrarse",
     "logout": "Cerrar sesión",
     "profile": "Perfil",
@@ -25,12 +25,16 @@
   },
   "nav": {
     "home": "Inicio",
-    "explore": "Explorar",
+    "explore": "Explorar casas",
+    "howItWorks": "Cómo funciona",
+    "aboutUs": "Sobre nosotros",
     "contact": "Contacto",
     "about": "Acerca",
     "terms": "Términos",
+    "tagline": "Casas de vacaciones en Rivera, sin complicaciones.",
+    "ctaFindStay": "Encontrá tu estadía",
     "searchPlaceholder": "Buscar destinos...",
-    "signIn": "Iniciar sesión",
+    "signIn": "Mi cuenta",
     "signUp": "Registrarse",
     "myTrips": "Mis viajes",
     "wishlist": "Lista de deseos",
@@ -41,7 +45,17 @@
     "logoutAlert": "Tu sesión se cerrará."
   },
   "footer": {
-    "brandDescription": "Propiedades disponibles en la zona, sin intermediarios. Entrá en contacto y conocé nuestros demás servicios.",
+    "brandDescription": "Ayudamos a la gente a encontrar lugares memorables donde quedarse en Rivera.",
+    "welcomeMessage": "Ya sea que estés planeando tu próxima escapada o compartiendo tu casa con huéspedes, nos alegra que estés acá.",
+    "madeWithCare": "Hecho con cariño en Uruguay.",
+    "exploreHeading": "Explorar",
+    "vacationHomes": "Casas de vacaciones",
+    "popularAreas": "Zonas populares",
+    "howItWorks": "Cómo funciona",
+    "supportHeading": "Soporte",
+    "legalHeading": "Legal",
+    "privacyPolicy": "Privacidad",
+    "termsOfService": "Términos",
     "allRightsReserved": "Todos los derechos reservados.",
     "contact": {
       "email": "admin@encartelera.uy",
@@ -135,27 +149,32 @@
   },
   "landing": {
     "hero": {
-      "title": "Una forma confiable de alquilar casas",
-      "description": "Elegí la propiedad, coordiná el horario y hablá directo con el dueño. Sin vueltas.",
+      "title": "Tu próxima escapada empieza acá.",
+      "description": "Explorá casas en Rivera, elegí tus fechas y coordiná directo con quienes las conocen de verdad.",
       "valueProposition": "",
       "subtitle": "Alquilá con tranquilidad. Publicá con confianza.",
-      "support": "Reserva rápida. Sin vueltas. Con seguridad.",
+      "support": "Casas reales. Anfitriones reales. Sin vueltas.",
       "search": {
         "locationPlaceholder": "Ubicación",
         "locationAria": "Ubicación o zona",
+        "locationLabel": "Ubicación",
         "datePlaceholder": "Fechas (check-in - check-out)",
         "dateAria": "Rango de fechas",
+        "checkInLabel": "Entrada",
+        "checkInAria": "Fecha de entrada",
+        "checkOutLabel": "Salida",
+        "checkOutAria": "Fecha de salida",
         "cityPlaceholder": "Ubicación",
         "cityAria": "Ciudad o localidad (Uruguay)",
-        "submit": "Buscar"
+        "submit": "Exploremos"
       },
       "trust": {
-        "verified": "Propietarios verificados",
-        "payments": "Reservas directas y seguras",
-        "bookings": "Coordinación inmediata"
+        "verified": "Anfitriones que conocemos",
+        "payments": "Reservá directo, sin sorpresas",
+        "bookings": "Estamos acá si nos necesitás"
       },
       "cta": {
-        "search": "Ver propiedades disponibles",
+        "search": "Explorar casas",
         "login": "Ingresar",
         "manage": "Ver mi reserva"
       },
@@ -166,7 +185,7 @@
         "reservationPrompt": "¿Ya tienes una reserva?"
       },
       "story": {
-        "title": "Reservá en minutos",
+        "title": "Los recuerdos empiezan acá",
         "stepAria": "Paso {{step}}"
       },
       "stats": {
@@ -177,9 +196,9 @@
     },
     "featured": {
       "eyebrow": "Elegí tu estilo",
-      "title": "Propiedades destacadas",
-      "subtitle": "Casas seleccionadas, en las que podés confiar",
-      "viewAll": "Ver Todas las Propiedades",
+      "title": "Casas elegidas que nuestros huéspedes aman",
+      "subtitle": "Lugares para tomarse el tiempo.",
+      "viewAll": "Explorar casas",
       "popular": "Popular",
       "empty": "No hay propiedades destacadas disponibles por el momento.",
       "errors": {
@@ -187,52 +206,59 @@
       }
     },
     "platform": {
-      "title": "¿Por qué usar nuestra plataforma?",
+      "title": "Por qué nos eligen los huéspedes",
       "cards": {
         "1": {
-          "title": "Reserva rápida",
-          "description": "Reservá en pocos pasos sin complicaciones."
+          "title": "Reservá con confianza",
+          "description": "Unos pocos pasos claros y listo — sin adivinar, sin estrés."
         },
         "2": {
-          "title": "Seguridad garantizada",
-          "description": "Validación de identidad y reservas confiables."
+          "title": "Casas confiables y anfitriones verificados",
+          "description": "Nuestro equipo local revisa cada publicación para que sepas qué esperar."
         },
         "3": {
-          "title": "Opciones en Rivera",
-          "description": "Encontrá casas disponibles fácilmente."
+          "title": "Casas que se sienten como Rivera",
+          "description": "Barrios reales, carácter real — el tipo de lugar al que querés volver."
         },
         "4": {
-          "title": "Sin necesidad de cuenta",
-          "description": "Reservá sin registrarte."
+          "title": "Empezá a planear ya",
+          "description": "Explorá y reservá sin crear una cuenta primero."
         }
       }
     },
     "howItWorks": {
       "eyebrow": "Proceso simple",
       "title": "Cómo funciona",
-      "subtitle": "Reservar tu casa de vacaciones soñada es simple y seguro. Aquí te mostramos cómo comenzar.",
+      "subtitle": "Encontrar tu próxima estadía no debería sentirse como una tarea. Así lo hacemos simple.",
       "steps": {
         "1": {
-          "title": "Explorá propiedades",
+          "title": "Explorá casas",
           "subtitle": "",
-          "description": "Buscá por zona y encontrá opciones disponibles."
+          "description": "Navegá por zona y encontrá lugares que encajen con tu viaje."
         },
         "2": {
-          "title": "Elige un día",
+          "title": "Elegí tus fechas",
           "subtitle": "",
-          "description": "Consultá la agenda y seleccioná cuándo querés visitar."
+          "description": "Consultá disponibilidad y elegí cuándo querés llegar."
         },
         "3": {
-          "title": "Reservá tu visita",
+          "title": "Reservá tu estadía",
           "subtitle": "",
-          "description": "Llegá sabiendo qué esperar. Casas reales, acuerdos claros y la tranquilidad de alquilar en una plataforma local."
+          "description": "Detalles claros, publicaciones honestas y la tranquilidad de una plataforma local."
         },
         "4": {
-          "title": "Finaliza con el propietario",
+          "title": "Coordiná con tu anfitrión",
           "subtitle": "",
-          "description": "Recibí la confirmación y preparate para tu próxima estadía."
+          "description": "Recibí la confirmación y empezá a ilusionarte con tu escapada."
         }
       }
+    },
+    "humanTouch": {
+      "title": "Somos personas ayudando a personas.",
+      "paragraph1": "Creamos En cartelera porque encontrar una casa de vacaciones en Rivera no debería significar saltar entre docenas de sitios ni preguntarse con quién hablás en realidad.",
+      "paragraph2": "Ya sea que planees un fin de semana largo o abras tu casa a huéspedes, lo hicimos para los dos lados — viajeros que buscan algo real, y propietarios que quieren algo simple.",
+      "paragraph3": "Somos un equipo chico en Rivera. Cuando nos escribís, responde una persona. Así creemos que debería funcionar.",
+      "learnMore": "Conocé más"
     },
     "whyChooseUs": {
       "title": "Por qué elegirnos",
@@ -247,23 +273,23 @@
       }
     },
     "testimonials": {
-      "title": "Comentarios de huéspedes",
-      "subtitle": "Experiencias reales de personas como vos",
+      "title": "Lo que dicen los huéspedes",
+      "subtitle": "Historias cortas de quienes ya lo vivieron",
       "items": {
         "1": {
-          "text": "Todo fue tal como se mostraba en la publicación. Coordinamos fácil y la casa estaba impecable.",
+          "text": "Encontramos el lugar perfecto para Año Nuevo en menos de una hora.",
           "author": "María",
           "location": "Rivera"
         },
         "2": {
-          "text": "Se nota que es una plataforma local. Mucha más tranquilidad que otras opciones.",
+          "text": "Fue mucho más fácil que buscar en distintos sitios.",
           "author": "Andrés",
           "location": "Rivera"
         },
         "3": {
-          "text": "Publicar mi casa fue simple y sin vueltas. Todo claro desde el primer momento.",
+          "text": "El proceso de reserva fue simple de principio a fin.",
           "author": "Laura",
-          "location": "Propietaria"
+          "location": "Rivera"
         }
       }
     },
@@ -388,7 +414,7 @@
       }
     },
     "secondaryGallery": {
-      "heading": "Más fotos"
+      "heading": "Todas las fotos"
     },
     "amenities": {
       "heading": "Comodidades y qué incluye",
@@ -425,8 +451,8 @@
       }
     },
     "reviews": {
-      "heading": "Comentarios",
-      "noReviews": "Aún no hay comentarios",
+      "heading": "Reseñas",
+      "noReviews": "Aún no hay reseñas",
       "ratingCount": "{{rating}} · {{count}} reseñas",
       "reviewsCount": "({{count}} reseñas)"
     },
@@ -448,16 +474,30 @@
       "singleNightHint": "Selecciona un solo día. El check-out será automáticamente al día siguiente.",
       "holdActiveFor": "Reserva temporal activa por:",
       "checkingAvailability": "Validando reglas y disponibilidad...",
+      "calculatingPrice": "Calculando precio...",
+      "priceSummary": {
+        "nights": "{{count}} noches",
+        "avgPerNight": "{{amount}} promedio por noche",
+        "longStayApplied": "Descuento por estadía larga aplicado"
+      },
+      "stayRules": {
+        "minStay": "Estadía mínima: {{count}} noches",
+        "maxStay": "Estadía máxima: {{count}} noches",
+        "leadTime": "Las reservas deben hacerse con al menos {{count}} días de anticipación",
+        "bookingWindow": "Podés seleccionar fechas hasta {{count}} meses por adelantado",
+        "longStayDiscount": "{{percent}}% de descuento en estadías de {{count}}+ noches"
+      },
       "confirmingMessage": "Confirmando tu reserva...",
       "modal": {
         "title": "Completa tu reserva"
       },
       "form": {
-        "fullName": "Nombre completo",
-        "emailOptional": "Correo electrónico (opcional)",
-        "phone": "Teléfono (+598...)",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo electrónico (opcional)",
+        "phone": "Número de teléfono",
         "documentIdOptional": "Documento de identidad (opcional)",
-        "estimatedGuests": "Cantidad estimada de invitados (opcional)",
+        "estimatedGuests": "Número de huéspedes (opcional)",
         "enterOtp": "Ingresa el OTP"
       },
       "actions": {
@@ -470,20 +510,45 @@
         "verifyAndConfirm": "Verificar y confirmar"
       },
       "done": {
-        "reservationConfirmed": "Reserva confirmada.",
-        "codeLabel": "Código",
-        "manageLinkLabel": "Enlace de gestión:",
-        "openReservationManager": "abrir gestor de reservas"
+        "modalTitle": "Solicitud recibida",
+        "reservationConfirmed": "Solicitud recibida.",
+        "body": "Tu solicitud de reserva fue enviada y está pendiente de aprobación del anfitrión. Recibirás un correo cuando se confirme (o WhatsApp si no proporcionaste un correo).",
+        "codeLabel": "Tu código de reserva",
+        "lookupHint": "Guarda este código para consultar o gestionar tu reserva más adelante. Usa el botón de abajo para abrir tu reserva.",
+        "goToReservationLookup": "Ver mi reserva",
+        "close": "Cerrar"
+      },
+      "otpHint": {
+        "whatsapp": "Enviamos un código de verificación por WhatsApp.",
+        "sms": "WhatsApp no estuvo disponible, así que enviamos el código por SMS.",
+        "localMock": "Dry-run local: revisa el código en la terminal de functions."
       },
       "errors": {
         "invalidDateSelection": "Selección de fechas inválida.",
         "holdExpired": "Tu reserva temporal expiró. Selecciona fechas nuevamente.",
         "unableToCreateHold": "No se pudo crear la reserva temporal.",
+        "holdCreatedButNotLoaded": "La reserva temporal se creó pero no se pudo cargar.",
         "couldNotSendOtp": "No se pudo enviar el código OTP.",
         "invalidOtp": "Código OTP inválido.",
         "holdNoLongerValid": "Tu reserva temporal ya no es válida.",
-        "couldNotConfirmReservation": "No se pudo confirmar la reserva."
+        "couldNotConfirmReservation": "No se pudo confirmar la reserva.",
+        "guestFieldsRequired": "Nombre, apellido y teléfono son obligatorios.",
+        "guestBookingOverlap": "Ya tenés una reserva para estas fechas.",
+        "priceQuoteMismatch": "El precio se actualizó. Revisá e intentá de nuevo.",
+        "priceQuoteMismatchWithTotal": "El precio cambió. Total actualizado: {{total}}. Intentá de nuevo.",
+        "failedToValidateDates": "No se pudieron validar las fechas.",
+        "minStayRequired": "La estadía mínima es de {{count}} noches.",
+        "maxStayExceeded": "La estadía máxima es de {{count}} noches.",
+        "leadTimeRequired": "Estas fechas son demasiado próximas. Las reservas deben hacerse con al menos {{count}} días de anticipación.",
+        "datesTooFarAhead": "Estas fechas son demasiado lejanas. Solo podés seleccionar fechas hasta {{count}} meses por adelantado.",
+        "dateUnavailable": "Esa fecha no está disponible.",
+        "rangeUnavailable": "El rango seleccionado incluye fechas no disponibles.",
+        "checkOutAfterCheckIn": "La fecha de salida debe ser posterior a la de entrada.",
+        "bothDatesRequired": "Seleccioná las fechas de entrada y salida."
       }
+    },
+    "someFeatures": {
+      "heading": "Algunas características"
     },
     "host": {
       "heading": "Conoce a tu anfitrión",
@@ -509,12 +574,15 @@
       "amenities": "Qué ofrece este lugar",
       "location": "Ubicación",
       "host": "Anfitrión",
-      "reviews": "Comentarios",
+      "reviews": "Reseñas",
       "questions": "Preguntas y Respuestas",
       "similarProperties": "Propiedades similares"
     },
     "pricing": {
+      "loading": "Cargando precio...",
+      "fromHint": "Seleccioná fechas para el total exacto",
       "perNight": "por noche",
+      "finalPriceMayVary": "El precio final puede variar según la temporada, fechas especiales o cuánto anticipás la reserva.",
       "total": "Total",
       "guests": "Huéspedes",
       "guest": "huésped",
@@ -546,7 +614,7 @@
   "reservationLookup": {
     "actions": {
       "searchAnotherCode": "Buscar con otro código",
-      "search": "Buscar",
+      "search": "Busquemos",
       "searching": "Buscando...",
       "viewProperty": "Ver propiedad",
       "cancelReservation": "Cancelar reserva",
@@ -566,13 +634,34 @@
       "datesValue": "{{checkIn}} a {{checkOut}}",
       "statusLabel": "Estado:",
       "guestLabel": "Huésped:",
+      "guestsLabel": "Invitados:",
+      "guestsCount": "{{count}} invitados",
       "notAvailable": "No disponible"
+    },
+    "hostContact": {
+      "heading": "Contacto del anfitrión",
+      "nameLabel": "Nombre:",
+      "emailLabel": "Correo:",
+      "phoneLabel": "Teléfono:",
+      "notAvailable": "No disponible"
+    },
+    "manageToken": {
+      "loading": "Cargando reserva…",
+      "missingToken": "Falta el token en este enlace de gestión. Revisá la URL completa del correo de confirmación.",
+      "invalidOrExpired": "Enlace de gestión no válido o caducado."
     },
     "status": {
       "confirmed": "Confirmada",
+      "pending": "Pendiente de confirmación",
       "pending_confirmation": "Pendiente de confirmación",
       "cancelled": "Cancelada",
       "completed": "Finalizada"
+    },
+    "confirmCancel": {
+      "title": "¿Cancelar esta reserva?",
+      "message": "La cancelación puede afectar tu reembolso según la política de la propiedad. Esta acción no se puede deshacer.",
+      "dismiss": "No, volver",
+      "confirm": "Sí, cancelar reserva"
     },
     "messages": {
       "cancelSuccess": "Reserva cancelada correctamente."
@@ -583,6 +672,45 @@
       "expired": "Esta reserva ha vencido y ya no se puede gestionar aquí.",
       "couldNotFindCode": "No se pudo encontrar este código de reserva.",
       "cancelFailed": "No se pudo cancelar la reserva."
+    },
+    "review": {
+      "promptTitle": "¿Cómo fue tu estadía?",
+      "promptBody": "Tu opinión ayuda a otros huéspedes y al anfitrión. Compartí una reseña breve sobre tu experiencia.",
+      "emailLabel": "Correo electrónico",
+      "nameLabel": "Tu nombre",
+      "namePlaceholder": "Nombre como figura en la reserva",
+      "ratingLabel": "Calificación",
+      "commentLabel": "Tu reseña",
+      "commentPlaceholder": "Contanos sobre tu estadía…",
+      "submit": "Enviar reseña",
+      "submitting": "Enviando…",
+      "successMessage": "¡Gracias! Tu reseña ha sido registrada.",
+      "updateSuccessMessage": "Tu reseña ha sido actualizada.",
+      "windowOpens": "Podés dejar una reseña desde el último día de tu estadía ({{checkOut}}). El plazo cierra el {{windowEnd}} (48 horas después del fin de la estadía).",
+      "windowOpen": "El plazo para dejar o editar tu reseña está abierto hasta el {{windowEnd}}.",
+      "codeExpired": "El plazo para dejar o editar tu reseña ha vencido.",
+      "editTitle": "Editar tu reseña",
+      "editPromptBody": "Podés actualizar tu calificación y comentarios mientras el plazo esté abierto.",
+      "saveChanges": "Guardar cambios",
+      "yourReview": "Tu reseña",
+      "ratingRequired": "Seleccioná una calificación de 1 a 5 estrellas.",
+      "nameRequired": "Ingresá tu nombre.",
+      "commentRequired": "Escribí unas palabras sobre tu estadía.",
+      "emailMissing": "No tenemos un correo registrado para esta reserva; no se puede enviar una reseña aquí.",
+      "errors": {
+        "invalidCode": "Formato de código de reserva no válido.",
+        "notFound": "Reserva no encontrada.",
+        "notEligible": "Esta reserva no es elegible para una reseña.",
+        "checkoutNotPassed": "Las reseñas están disponibles después de la fecha de salida.",
+        "emailMismatch": "El correo no coincide con el de esta reserva.",
+        "alreadyExists": "Ya enviaste una reseña para esta estadía.",
+        "ratingInvalid": "Elegí una calificación entre 1 y 5.",
+        "nameRequired": "Ingresá tu nombre.",
+        "commentRequired": "Escribí unas palabras sobre tu estadía.",
+        "invalidListingType": "Esta reserva no está disponible en este sitio.",
+        "codeExpired": "El plazo para dejar o editar tu reseña ha vencido.",
+        "submitFailed": "Algo salió mal. Inténtalo de nuevo."
+      }
     }
   },
   "booking": {
@@ -611,7 +739,7 @@
     "title": "Página No Encontrada",
     "description": "Lo sentimos, la página que buscas no existe o ha sido movida.",
     "backToHome": "Volver al Inicio",
-    "searchProperties": "Buscar Propiedades"
+    "searchProperties": "Explorar casas"
   },
   "profile": {
     "header": {
@@ -732,7 +860,7 @@
     "leaveReviewFor": "Dejar una reseña de {{title}}",
     "rating": "Calificación",
     "stars": "estrellas",
-    "comment": "Comentario",
+    "comment": "Reseña",
     "commentPlaceholder": "Comparte tu experiencia (opcional)",
     "anonymous": "Huésped",
     "addReview": "Dejar reseña",
@@ -860,7 +988,7 @@
         "description": "Verifica las fechas, número de huéspedes y cualquier solicitud especial antes de finalizar."
       },
       "leaveReviews": {
-        "title": "Deja Comentarios",
+        "title": "Dejar reseñas",
         "description": "Comparte tu experiencia después de tu estadía para ayudar a otros viajeros a tomar decisiones informadas."
       }
     }
@@ -914,7 +1042,7 @@
     "lastUpdated": "Última actualización",
     "emptyTitle": "Tu Lista de Deseos Está Vacía",
     "emptyDescription": "Comienza a guardar propiedades en tu lista de deseos para hacer seguimiento de los lugares que te gustaría visitar.",
-    "exploreProperties": "Explorar Propiedades"
+    "exploreProperties": "Explorar casas"
   },
   "contact": {
     "title": {
@@ -961,79 +1089,62 @@
   "about": {
     "hero": {
       "title": "Acerca de",
-      "titleHighlight": "En cartelera - Escapadas",
-      "description": "Estamos en una misión para transformar cómo las personas experimentan las casas de vacaciones. Al seleccionar propiedades extraordinarias y brindar un servicio sin igual, creamos recuerdos que duran toda la vida."
+      "titleHighlight": "En cartelera - Escapadas"
     },
-    "story": {
-      "title": "Nuestra",
-      "titleHighlight": "Historia",
-      "paragraph1": "En cartelera - Escapadas comenzó con una idea simple: los alquileres vacacionales deberían ser tan lujosos y memorables como los mejores hoteles, pero con el espacio y la privacidad de un hogar.",
-      "paragraph2": "Nuestra fundadora, Anna Svensson, experimentó esto de primera mano al buscar la casa de vacaciones perfecta para su familia. Frustrada por la falta de opciones de calidad y experiencias inconsistentes, decidió crear una plataforma que cambiaría la industria de alquileres vacacionales para siempre.",
-      "paragraph3": "Hoy, hemos seleccionado más de 800 propiedades excepcionales en más de 50 países, cada una inspeccionada y verificada personalmente para asegurar que cumplan con nuestros estándares inquebrantables de lujo, comodidad y autenticidad.",
-      "imageAlt": "Equipo de En cartelera - Escapadas"
-    },
-    "stats": {
-      "curatedProperties": "Propiedades Seleccionadas",
-      "countries": "Países",
-      "happyGuests": "Huéspedes Felices",
-      "averageRating": "Calificación Promedio"
+    "mission": {
+      "title": "Misión y",
+      "titleHighlight": "visión",
+      "missionLabel": "Misión",
+      "missionText": "Conectar personas con espacios, ayudando a los propietarios a gestionar sus propiedades y a las personas a encontrar el lugar que se adapte a sus necesidades.",
+      "visionLabel": "Visión",
+      "visionText": "Ser la plataforma de referencia para descubrir y reservar espacios, haciendo que encontrar el lugar adecuado sea simple, confiable y accesible.",
+      "imageAlt": "En cartelera - Escapadas"
     },
     "values": {
       "title": "Nuestros",
       "titleHighlight": "Valores",
-      "subtitle": "Estos principios guían todo lo que hacemos y dan forma a las experiencias que creamos para nuestros huéspedes.",
-      "passion": {
-        "title": "Pasión por la Hospitalidad",
-        "description": "Creemos que cada vacación debería sentirse como llegar a casa a un lugar que realmente se preocupa por tu comodidad y felicidad."
-      },
-      "excellence": {
-        "title": "Excelencia en Cada Detalle",
-        "description": "Desde la selección de propiedades hasta el apoyo al huésped, mantenemos los más altos estándares en todo lo que hacemos."
-      },
-      "global": {
-        "title": "Perspectiva Global",
-        "description": "Nuestro equipo internacional aporta experiencias e ideas diversas para crear experiencias vacacionales verdaderamente especiales."
-      },
       "trust": {
-        "title": "Confianza y Transparencia",
-        "description": "Construimos relaciones duraderas a través de una comunicación honesta y un servicio confiable en el que puedes contar."
-      }
-    },
-    "team": {
-      "title": "Conoce a Nuestro",
-      "titleHighlight": "Equipo",
-      "subtitle": "Los individuos apasionados detrás de En cartelera - Escapadas, dedicados a crear experiencias extraordinarias para nuestros huéspedes.",
-      "members": {
-        "anna": {
-          "name": "Anna Svensson",
-          "role": "Fundadora y CEO",
-          "bio": "Con más de 15 años en hospitalidad de lujo, Anna fundó En cartelera - Escapadas para revolucionar cómo las personas experimentan las casas de vacaciones."
-        },
-        "marcus": {
-          "name": "Marcus Johnson",
-          "role": "Jefe de Operaciones",
-          "bio": "Marcus asegura que cada propiedad cumpla con nuestros estándares exigentes de lujo, comodidad y autenticidad."
-        },
-        "elena": {
-          "name": "Elena Rodriguez",
-          "role": "Directora de Experiencia del Cliente",
-          "bio": "Elena lidera nuestro equipo de atención al cliente 24/7, asegurando que cada huésped tenga una experiencia excepcional."
-        }
+        "title": "Confianza",
+        "description": "Construimos relaciones transparentes entre propietarios y visitantes."
+      },
+      "simplicity": {
+        "title": "Simplicidad",
+        "description": "Eliminamos pasos innecesarios y hacemos que encontrar y ofrecer un espacio sea fácil."
+      },
+      "closeness": {
+        "title": "Cercanía",
+        "description": "Diseñamos pensando en las personas, no solamente en las propiedades."
+      },
+      "experience": {
+        "title": "Experiencia",
+        "description": "Nuestro objetivo no es solamente facilitar una reserva, sino ayudar a crear buenos momentos."
+      },
+      "transparency": {
+        "title": "Transparencia",
+        "description": "Información, precios, condiciones y expectativas claras."
+      },
+      "innovation": {
+        "title": "Innovación útil",
+        "description": "Utilizamos tecnología para resolver problemas reales."
+      },
+      "community": {
+        "title": "Comunidad",
+        "description": "Queremos construir una red donde propietarios y visitantes se beneficien mutuamente."
       }
     },
     "cta": {
-      "title": "Únete a Nuestra",
-      "titleHighlight": "Comunidad",
-      "description": "Experimenta la diferencia que la pasión, la atención al detalle y el cuidado genuino pueden hacer. Tu casa de vacaciones perfecta te espera.",
+      "title": "Encontrá el lugar",
+      "titleHighlight": "ideal",
+      "description": "Explorá las opciones disponibles o contactanos. Estamos para ayudarte a conectar con el espacio que necesitás.",
       "getStarted": "Comienza Hoy",
       "browseProperties": "Explorar Propiedades"
     }
   },
   "search": {
     "header": {
-      "titlePrefix": "Encuentra tu",
-      "titleHighlight": "Estancia Perfecta",
-      "subtitle": "Descubre propiedades increíbles alrededor del mundo"
+      "titlePrefix": "Descubrí",
+      "titleHighlight": "tu próxima estadía",
+      "subtitle": "Explorá casas de vacaciones en Rivera y alrededores — lugares reales, listos para recibirte."
     },
     "searchPlaceholder": "Buscar destinos...",
     "filters": {
@@ -1043,7 +1154,6 @@
       "priceRange": "Rango de Precio (por noche)",
       "bedrooms": "Dormitorios",
       "guests": "Huéspedes",
-      "minimumRating": "Calificación Mínima",
       "amenities": "Comodidades",
       "options": {
         "any": "Cualquiera",
@@ -1060,11 +1170,10 @@
           "4": "4 huéspedes",
           "5": "5+ huéspedes"
         },
-        "rating": {
-          "any": "Cualquiera",
-          "3": "3+",
-          "4": "4+",
-          "4.5": "4.5+"
+        "amenities": {
+          "pool": "Piscina",
+          "garage": "Garaje",
+          "barbecue": "Parrilla"
         }
       }
     },
@@ -1081,6 +1190,11 @@
       "viewDetails": "Ver Detalles",
       "perNight": "/noche"
     }
+  },
+  "pricing": {
+    "from": "Desde",
+    "perNight": "por noche",
+    "totalStay": "total estadía"
   },
   "propertyCard": {
     "perNight": "/noche",
@@ -1216,6 +1330,46 @@
       "questionsTitle": "¿Dudas sobre nuestra Política de Privacidad?",
       "questionsBody": "Si tienes preguntas sobre esta Política de Privacidad o sobre cómo tratamos tus datos personales, ponte en contacto con nuestro equipo.",
       "contactButton": "Contactar al equipo de privacidad"
+    }
+  },
+  "mercadoPago": {
+    "amountLabel": "Monto a pagar:",
+    "payNow": "Pagar ahora",
+    "payLater": "Pagar después",
+    "paying": "Redirigiendo…",
+    "cancel": "Cancelar",
+    "continueToMercadoPago": "Continuar a Mercado Pago",
+    "disclaimerTitle": "Antes de pagar",
+    "bridgeDisclaimer": "No somos responsables de los pagos. Solo actuamos como puente entre el propietario y el huésped. El dinero va directamente a la cuenta de Mercado Pago del propietario.",
+    "paymentRegistered": "Pago registrado.",
+    "infoTitle": "Pagá en línea con Mercado Pago",
+    "infoBody": "Podés pagar de forma segura en línea con Mercado Pago. Tenés varios medios de pago, confirmación inmediata para el anfitrión y un registro claro del pago de tu estadía.",
+    "infoFees": "Comisiones: Mercado Pago puede aplicar sus propias comisiones según el medio de pago que elijas. Esta plataforma no agrega una comisión de marketplace adicional a tu pago.",
+    "payableWithoutToken": "El pago en línea está disponible para esta reserva. Abrí el enlace de gestión que recibiste en la confirmación para pagar.",
+    "errors": {
+      "generic": "No se pudo iniciar el pago en línea. Intentá de nuevo.",
+      "expiredToken": "Esta sesión de pago venció. Abrí tu reserva con el enlace de gestión para intentar de nuevo.",
+      "SELLER_NOT_CONNECTED": "El propietario no está conectado a Mercado Pago.",
+      "NO_DESIGNATED_SELLER": "El pago en línea aún no está disponible para esta propiedad.",
+      "ALREADY_APPROVED": "Ya se registró un pago para esta reserva.",
+      "CANNOT_PAY": "El pago en línea no está disponible para esta reserva.",
+      "INVALID_AMOUNT": "Esta reserva tiene un monto de pago inválido."
+    },
+    "return": {
+      "pageLabel": "Resultado del pago",
+      "polling": "Verificando el estado del pago…",
+      "pendingTitle": "Pago pendiente",
+      "pendingBody": "Mercado Pago aún no confirmó el pago. Podés revisar tu reserva en unos minutos.",
+      "approvedTitle": "Pago registrado",
+      "approvedBody": "Registramos tu pago de Mercado Pago. Esto no cambia el estado de tu reserva con el anfitrión.",
+      "failureTitle": "Pago no completado",
+      "failureBody": "El pago no se completó. Podés intentar de nuevo desde la página de tu reserva.",
+      "timeoutTitle": "Aún confirmando",
+      "timeoutBody": "Todavía no recibimos la confirmación. Si completaste el pago, puede demorar unos minutos. Revisá tu reserva en breve.",
+      "errorTitle": "No se pudo verificar el pago",
+      "errorBody": "No pudimos verificar este retorno de pago. Abrí tu reserva para ver el estado más reciente.",
+      "viewReservation": "Ver mi reserva",
+      "goHome": "Volver al inicio"
     }
   }
 }

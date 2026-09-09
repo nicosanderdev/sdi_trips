@@ -6,7 +6,9 @@ import { Card, Button, Badge } from '../../components/ui';
 import { Heart, MapPin, Users, Bed, Bath, Star, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { getMemberProfile } from '../../services/memberService';
+import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { getFavoriteProperties } from '../../services/propertyService';
+import type { Property } from '../../types';
 import { supabase } from '../../lib/supabase';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
@@ -14,7 +16,8 @@ import ErrorMessage from '../../components/common/ErrorMessage';
 const Wishlist: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<Property[]>([]);
+  const { priceByPropertyId } = useSearchPricing(wishlistItems);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -105,7 +108,12 @@ const Wishlist: React.FC = () => {
         {/* Price Badge */}
         <div className="absolute top-4 left-4">
           <Badge variant="default" className="bg-navy text-gold font-bold">
-            ${property.price}/night
+            {(() => {
+              const priced = priceByPropertyId.get(property.id);
+              const prefix = priced ? `${t(priced.labelKey)} ` : '';
+              const amount = priced?.amount ?? property.price;
+              return `${prefix}$${amount}${priced ? '' : '/night'}`;
+            })()}
           </Badge>
         </div>
 

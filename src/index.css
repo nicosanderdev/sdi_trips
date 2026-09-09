@@ -70,12 +70,13 @@
     border: 1px solid rgba(10, 26, 47, 0.12);
     box-shadow: 0 16px 30px rgba(10, 26, 47, 0.16);
     padding: 0;
-    overflow: hidden;
+    max-width: min(20rem, calc(100vw - 2rem));
+    overflow: visible;
   }
 
   .sdi-map-popup .mapboxgl-popup-close-button {
-    top: 0.45rem;
-    right: 0.65rem;
+    top: 0.4rem;
+    right: 0.4rem;
     color: rgba(10, 26, 47, 0.72);
     font-size: 1.1rem;
     font-weight: 600;
@@ -84,6 +85,7 @@
     height: 1.6rem;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.92);
+    z-index: 1;
   }
 
   .sdi-map-popup .mapboxgl-popup-close-button:hover {
@@ -96,12 +98,19 @@
   }
 
   .sdi-map-popup-card {
-    width: min(18rem, calc(100vw - 2rem));
-    padding: 0.85rem;
+    box-sizing: border-box;
+    width: min(20rem, calc(100vw - 2rem));
+    max-width: 100%;
+    padding: 0.9rem 0.9rem 0.85rem;
     border-radius: 1rem;
     border: 1px solid rgba(10, 26, 47, 0.06);
     background: #ffffff;
     color: #1E1E1E;
+    overflow-wrap: anywhere;
+  }
+
+  .sdi-map-popup-meta {
+    flex-wrap: wrap;
   }
 
   .outline-number {

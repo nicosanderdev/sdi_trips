@@ -13,6 +13,7 @@ const Card: React.FC<CardProps> = ({
     default: 'bg-warm-gray border border-gray-200 shadow-lg',
     elevated: 'bg-warm-gray border border-gray-200 shadow-gold-lg hover:shadow-gold',
     glass: 'glass-effect shadow-lg',
+    surface: 'bg-white border border-navy/10 shadow-md',
   };
 
   const paddingClasses = {

@@ -1,14 +1,31 @@
+import { getGuestSiteListingType } from '../core/config/guestSiteListingType';
 import { supabase } from '../lib/supabase';
 import type {
   Booking,
   BookingHold,
+  BookingPaymentStatusResponse,
+  ConfirmBookingFromHoldResponse,
+  CreateMercadoPagoPreferenceRequest,
+  CreateMercadoPagoPreferenceResponse,
   GuestBookingConfirmation,
+  GuestBookingErrorCode,
   GuestBookingProfile,
+  GuestExistingReview,
+  GuestSiteListingType,
+  HostContactInfo,
   ManageBookingView,
+  MercadoPagoBookingEligibility,
+  OtpChannel,
+  OtpSendResponse,
+  OtpVerifyResponse,
   Property,
-  User
+  User,
+  ValidateGuestBookingOverlapParams,
+  ValidateGuestBookingOverlapResponse,
 } from '../types';
+import { isGuestBookingOverlapError } from '../types/guestReviewContract';
 import { getPropertyById } from './propertyService';
+import { isGuestSiteListingType } from '../core/config/guestSiteListingType';
 
 export interface CreateBookingParams {
   propertyId: string;
@@ -47,18 +64,38 @@ export interface CreateBookingHoldParams {
   estimatedGuests?: number;
   ipHash?: string;
   idempotencyKey?: string;
+  /** Site listing type; defaults to current deployment (main/alt). */
+  listingType?: GuestSiteListingType;
+  /** Client-computed total for dynamic pricing tamper check */
+  clientTotal?: number;
+}
+
+export interface BookingHoldPricingValidation {
+  nightly_price?: number;
+  nights?: number;
+  total_price?: number;
 }
 
 export interface BookingHoldResponse {
   success: boolean;
   hold?: BookingHold;
-  validation?: Record<string, unknown>;
+  validation?: {
+    pricing?: BookingHoldPricingValidation;
+    [key: string]: unknown;
+  };
   error?: string;
+  errorCode?: string;
 }
 
-export interface OtpResponse {
-  success: boolean;
-  error?: string;
+/** @deprecated Prefer OtpSendResponse / OtpVerifyResponse from guestReviewContract. */
+export type OtpResponse = OtpSendResponse | OtpVerifyResponse;
+
+const OTP_CHANNELS: readonly OtpChannel[] = ['whatsapp', 'sms_fallback', 'local_mock'] as const;
+
+function parseOtpChannel(value: unknown): OtpChannel | undefined {
+  return typeof value === 'string' && (OTP_CHANNELS as readonly string[]).includes(value)
+    ? (value as OtpChannel)
+    : undefined;
 }
 
 export interface ReservationLookupData {
@@ -69,11 +106,160 @@ export interface ReservationLookupData {
   checkIn: string;
   checkOut: string;
   status: string;
+  hostContact?: HostContactInfo | null;
   guestName?: string | null;
   guestEmail?: string | null;
   guestPhone?: string | null;
+  /** Bookings.GuestId — Guests.Id or Members.Id; null for legacy bookings. */
+  guestId?: string | null;
+  listingType?: GuestSiteListingType;
   canCancel: boolean;
   isExpired: boolean;
+  /** When true, guest review form is hidden. Populated by get_reservation_by_code when available. */
+  isDeleted?: boolean;
+  /** When true, guest has already submitted a review. Populated by get_reservation_by_code when available. */
+  hasExistingReview?: boolean;
+  existingGuestReview?: GuestExistingReview | null;
+  /** Server-computed eligibility for guest review form. Populated by get_reservation_by_code when available. */
+  canSubmitGuestReview?: boolean;
+  canEditGuestReview?: boolean;
+  guestReviewWindowEnd?: string;
+  totalAmount?: number | null;
+  currency?: number | null;
+  currencyCode?: string | null;
+  mercadoPagoApproved?: boolean;
+  mercadoPagoApprovedAt?: string | null;
+  canPayOnline?: boolean;
+  sellerConnected?: boolean;
+}
+
+export function mapHostContactFromPayload(raw: Record<string, unknown>): HostContactInfo | null {
+  const nested = raw.hostContact ?? raw.host_contact;
+  if (nested && typeof nested === 'object') {
+    const obj = nested as Record<string, unknown>;
+    const name = (obj.name as string | null | undefined) ?? null;
+    const email = (obj.email as string | null | undefined) ?? null;
+    const phone = (obj.phone as string | null | undefined) ?? null;
+    if (!name?.trim() && !email?.trim() && !phone?.trim()) return null;
+    return { name: name?.trim() || null, email: email?.trim() || null, phone: phone?.trim() || null };
+  }
+
+  const name =
+    (raw.hostName as string | null | undefined) ??
+    (raw.host_name as string | null | undefined) ??
+    null;
+  const email =
+    (raw.hostEmail as string | null | undefined) ??
+    (raw.host_email as string | null | undefined) ??
+    null;
+  const phone =
+    (raw.hostPhone as string | null | undefined) ??
+    (raw.host_phone as string | null | undefined) ??
+    null;
+
+  if (!name?.trim() && !email?.trim() && !phone?.trim()) return null;
+  return {
+    name: name?.trim() || null,
+    email: email?.trim() || null,
+    phone: phone?.trim() || null,
+  };
+}
+
+function mapExistingGuestReview(raw: unknown): GuestExistingReview | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  const reviewId = String(r.reviewId ?? r.review_id ?? '');
+  if (!reviewId) return null;
+  return {
+    reviewId,
+    rating: Number(r.rating ?? 0),
+    comment: String(r.comment ?? ''),
+    updatedAt: r.updatedAt != null ? String(r.updatedAt) : r.updated_at != null ? String(r.updated_at) : undefined,
+  };
+}
+
+function optionalNumber(value: unknown): number | null | undefined {
+  if (value == null) return value === null ? null : undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function optionalBoolean(value: unknown): boolean | undefined {
+  if (value === true) return true;
+  if (value === false) return false;
+  return undefined;
+}
+
+function mapMercadoPagoEligibility(raw: unknown): MercadoPagoBookingEligibility | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const obj = raw as Record<string, unknown>;
+  return {
+    can_pay_online: Boolean(obj.can_pay_online ?? obj.canPayOnline),
+    seller_connected: Boolean(obj.seller_connected ?? obj.sellerConnected),
+    mercado_pago_approved: Boolean(obj.mercado_pago_approved ?? obj.mercadoPagoApproved),
+  };
+}
+
+export function mapReservationFromLookupPayload(raw: Record<string, unknown>): ReservationLookupData {
+  const listingTypeRaw =
+    (raw.listingType as string | undefined) ?? (raw.listing_type as string | undefined);
+  return {
+    bookingId: String(raw.bookingId ?? raw.booking_id ?? ''),
+    reservationCode: String(raw.reservationCode ?? raw.reservation_code ?? ''),
+    propertyId: String(raw.propertyId ?? raw.property_id ?? ''),
+    propertyTitle: String(raw.propertyTitle ?? raw.property_title ?? ''),
+    checkIn: String(raw.checkIn ?? raw.check_in ?? ''),
+    checkOut: String(raw.checkOut ?? raw.check_out ?? ''),
+    status: String(raw.status ?? ''),
+    guestName: (raw.guestName as string | null | undefined) ?? (raw.guest_name as string | null | undefined) ?? null,
+    guestEmail:
+      (raw.guestEmail as string | null | undefined) ?? (raw.guest_email as string | null | undefined) ?? null,
+    guestPhone:
+      (raw.guestPhone as string | null | undefined) ?? (raw.guest_phone as string | null | undefined) ?? null,
+    guestId: (raw.guestId as string | null | undefined) ?? (raw.guest_id as string | null | undefined) ?? null,
+    listingType: listingTypeRaw && isGuestSiteListingType(listingTypeRaw) ? listingTypeRaw : undefined,
+    canCancel: Boolean(raw.canCancel ?? raw.can_cancel),
+    isExpired: Boolean(raw.isExpired ?? raw.is_expired),
+    isDeleted: raw.isDeleted === true || raw.is_deleted === true,
+    hasExistingReview: raw.hasExistingReview === true || raw.has_existing_review === true,
+    existingGuestReview: mapExistingGuestReview(raw.existingGuestReview ?? raw.existing_guest_review),
+    canSubmitGuestReview:
+      raw.canSubmitGuestReview === true || raw.can_submit_guest_review === true
+        ? true
+        : raw.canSubmitGuestReview === false || raw.can_submit_guest_review === false
+          ? false
+          : undefined,
+    canEditGuestReview:
+      raw.canEditGuestReview === true || raw.can_edit_guest_review === true
+        ? true
+        : raw.canEditGuestReview === false || raw.can_edit_guest_review === false
+          ? false
+          : undefined,
+    guestReviewWindowEnd:
+      raw.guestReviewWindowEnd != null
+        ? String(raw.guestReviewWindowEnd)
+        : raw.guest_review_window_end != null
+          ? String(raw.guest_review_window_end)
+          : undefined,
+    totalAmount: optionalNumber(raw.totalAmount ?? raw.total_amount),
+    currency: optionalNumber(raw.currency),
+    currencyCode:
+      raw.currencyCode != null
+        ? String(raw.currencyCode)
+        : raw.currency_code != null
+          ? String(raw.currency_code)
+          : null,
+    mercadoPagoApproved: optionalBoolean(raw.mercadoPagoApproved ?? raw.mercado_pago_approved),
+    mercadoPagoApprovedAt:
+      raw.mercadoPagoApprovedAt != null
+        ? String(raw.mercadoPagoApprovedAt)
+        : raw.mercado_pago_approved_at != null
+          ? String(raw.mercado_pago_approved_at)
+          : null,
+    canPayOnline: optionalBoolean(raw.canPayOnline ?? raw.can_pay_online),
+    sellerConnected: optionalBoolean(raw.sellerConnected ?? raw.seller_connected),
+    hostContact: mapHostContactFromPayload(raw),
+  };
 }
 
 export interface ReservationLookupResponse {
@@ -163,6 +349,7 @@ export async function cancelBooking(params: CancelBookingParams): Promise<Cancel
 
 export async function createBookingHold(params: CreateBookingHoldParams): Promise<BookingHoldResponse> {
   try {
+    const listingType = params.listingType ?? getGuestSiteListingType();
     const { data, error } = await supabase.rpc('create_booking_hold', {
       p_property_id: params.propertyId,
       p_check_in: params.checkIn.toISOString().split('T')[0],
@@ -172,19 +359,23 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
       p_estimated_guests: params.estimatedGuests ?? null,
       p_ip_hash: params.ipHash ?? null,
       p_idempotency_key: params.idempotencyKey ?? null,
+      p_listing_type: listingType,
+      p_client_total: params.clientTotal ?? null,
     });
 
     if (error) {
       console.error('Error creating booking hold:', error);
-      return { success: false, error: 'Failed to create hold. Please try again.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.unableToCreateHold' };
     }
 
     const payload = data as Record<string, unknown> | null;
     if (!payload?.success) {
+      const errorCode = payload?.error_code as string | undefined;
       return {
         success: false,
-        error: (payload?.error as string | undefined) ?? 'Unable to hold selected dates',
-        validation: (payload?.validation as Record<string, unknown> | undefined),
+        error: (payload?.error as string | undefined) ?? 'propertyDetail.bookingFlow.errors.unableToCreateHold',
+        errorCode,
+        validation: payload?.validation as BookingHoldResponse['validation'],
       };
     }
 
@@ -195,53 +386,75 @@ export async function createBookingHold(params: CreateBookingHoldParams): Promis
       .single();
 
     if (holdError || !holdRow) {
-      return { success: false, error: 'Hold created but could not be loaded.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.holdCreatedButNotLoaded' };
     }
 
     return {
       success: true,
       hold: mapHoldRow(holdRow),
-      validation: (payload?.validation as Record<string, unknown> | undefined),
+      validation: payload?.validation as BookingHoldResponse['validation'],
     };
   } catch (error) {
     console.error('Unexpected error creating booking hold:', error);
-    return { success: false, error: 'Failed to create hold. Please try again.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.unableToCreateHold' };
   }
 }
 
-export async function sendGuestOtp(holdId: string, phone: string): Promise<OtpResponse> {
+export async function sendGuestOtp(holdId: string, phone: string): Promise<OtpSendResponse> {
   try {
     const { data, error } = await supabase.functions.invoke('booking-send-otp', {
       body: { holdId, phone },
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotSendOtp' };
     }
 
     const payload = data as Record<string, unknown> | null;
-    return { success: Boolean(payload?.success), error: payload?.error as string | undefined };
+    const success = Boolean(payload?.success);
+    if (!success) {
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'propertyDetail.bookingFlow.errors.couldNotSendOtp',
+      };
+    }
+
+    return {
+      success: true,
+      channel: parseOtpChannel(payload?.channel),
+      otpRequestId:
+        (payload?.otpRequestId as string | undefined) ??
+        (payload?.otp_request_id as string | undefined),
+      mode: typeof payload?.mode === 'string' ? payload.mode : undefined,
+    };
   } catch (error) {
     console.error('Failed to send OTP:', error);
-    return { success: false, error: 'Failed to send OTP.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotSendOtp' };
   }
 }
 
-export async function verifyGuestOtp(holdId: string, phone: string, code: string): Promise<OtpResponse> {
+export async function verifyGuestOtp(
+  holdId: string,
+  phone: string,
+  code: string,
+): Promise<OtpVerifyResponse> {
   try {
     const { data, error } = await supabase.functions.invoke('booking-verify-otp', {
       body: { holdId, phone, code },
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.invalidOtp' };
     }
 
     const payload = data as Record<string, unknown> | null;
-    return { success: Boolean(payload?.success), error: payload?.error as string | undefined };
+    return {
+      success: Boolean(payload?.success),
+      error: (payload?.error as string | undefined) ?? (payload?.success ? undefined : 'propertyDetail.bookingFlow.errors.invalidOtp'),
+    };
   } catch (error) {
     console.error('Failed to verify OTP:', error);
-    return { success: false, error: 'Failed to verify OTP.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.invalidOtp' };
   }
 }
 
@@ -252,12 +465,15 @@ export async function reconfirmHold(holdId: string): Promise<BookingHoldResponse
     });
 
     if (error) {
-      return { success: false, error: 'Failed to revalidate hold.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.holdNoLongerValid' };
     }
 
     const payload = data as Record<string, unknown> | null;
     if (!payload?.success) {
-      return { success: false, error: (payload?.error as string | undefined) ?? 'Hold is no longer valid.' };
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'propertyDetail.bookingFlow.errors.holdNoLongerValid',
+      };
     }
 
     const hold = payload?.hold as Record<string, unknown> | undefined;
@@ -276,18 +492,56 @@ export async function reconfirmHold(holdId: string): Promise<BookingHoldResponse
     };
   } catch (error) {
     console.error('Failed to reconfirm hold:', error);
-    return { success: false, error: 'Failed to revalidate hold.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.holdNoLongerValid' };
+  }
+}
+
+const CONFIRM_GUEST_PAYLOAD_ERRORS = new Set([
+  'Guest first name, last name, email, and phone are required',
+  'Guest first name, last name, and phone are required',
+]);
+
+const GUEST_BOOKING_OVERLAP_I18N_KEY = 'propertyDetail.bookingFlow.errors.guestBookingOverlap';
+
+function mapConfirmGuestBookingError(message: string | undefined): string {
+  if (message && CONFIRM_GUEST_PAYLOAD_ERRORS.has(message)) {
+    return 'propertyDetail.bookingFlow.errors.guestFieldsRequired';
+  }
+  return message ?? 'propertyDetail.bookingFlow.errors.couldNotConfirmReservation';
+}
+
+export async function validateGuestBookingOverlap(
+  params: ValidateGuestBookingOverlapParams,
+): Promise<ValidateGuestBookingOverlapResponse> {
+  try {
+    const { data, error } = await supabase.rpc('validate_guest_booking_overlap', {
+      p_email: params.email.trim(),
+      p_check_in: params.checkIn.toISOString().split('T')[0],
+      p_check_out: params.checkOut.toISOString().split('T')[0],
+    });
+
+    if (error) {
+      console.error('Error validating guest booking overlap:', error);
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.failedToValidateDates' };
+    }
+
+    return data as ValidateGuestBookingOverlapResponse;
+  } catch (error) {
+    console.error('Failed to validate guest booking overlap:', error);
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.failedToValidateDates' };
   }
 }
 
 export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Promise<GuestBookingConfirmation> {
   try {
+    const { firstName, lastName, email, phone } = params.profile;
     const { data, error } = await supabase.rpc('confirm_booking_from_hold', {
       p_hold_id: params.holdId,
       p_guest_payload: {
-        fullName: params.profile.fullName,
-        email: params.profile.email ?? null,
-        phone: params.profile.phone,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
         documentId: params.profile.documentId ?? null,
         estimatedGuests: params.profile.estimatedGuests ?? null,
         totalPrice: params.profile.totalPrice ?? null,
@@ -295,23 +549,60 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
     });
 
     if (error) {
-      return { success: false, error: 'Failed to confirm booking.' };
+      return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotConfirmReservation' };
     }
 
-    const payload = data as Record<string, unknown> | null;
+    const payload = data as ConfirmBookingFromHoldResponse | null;
     if (!payload?.success) {
-      return { success: false, error: (payload?.error as string | undefined) ?? 'Could not confirm booking.' };
+      const rawPayload = payload as (ConfirmBookingFromHoldResponse & { errorCode?: string }) | null;
+      const errorCode = rawPayload?.error_code ?? rawPayload?.errorCode;
+      if (isGuestBookingOverlapError(errorCode)) {
+        return {
+          success: false,
+          errorCode,
+          error: GUEST_BOOKING_OVERLAP_I18N_KEY,
+        };
+      }
+      return { success: false, error: mapConfirmGuestBookingError(payload?.error) };
     }
+
+    const raw = payload as ConfirmBookingFromHoldResponse & Record<string, unknown>;
+    const guestId =
+      (raw.guest_id as string | undefined) ?? (raw.guestId as string | undefined);
+    const listingTypeRaw =
+      (raw.listing_type as GuestSiteListingType | undefined) ??
+      (raw.listingType as GuestSiteListingType | undefined);
+    const mercadoPago =
+      mapMercadoPagoEligibility(raw.mercado_pago) ??
+      mapMercadoPagoEligibility(raw.mercadoPago);
 
     return {
       success: true,
-      bookingId: payload.booking_id as string | undefined,
-      reservationCode: payload.reservation_code as string | undefined,
-      manageToken: payload.manage_token as string | undefined,
+      bookingId:
+        (raw.booking_id as string | undefined) ?? (raw.bookingId as string | undefined),
+      reservationCode:
+        (raw.reservation_code as string | undefined) ??
+        (raw.reservationCode as string | undefined),
+      manageToken:
+        (raw.manage_token as string | undefined) ?? (raw.manageToken as string | undefined),
+      manageExpiresAt:
+        (raw.manage_expires_at as string | undefined) ??
+        (raw.manageExpiresAt as string | undefined),
+      guestId,
+      listingType: listingTypeRaw,
+      totalAmount: optionalNumber(raw.total_amount ?? raw.totalAmount) ?? undefined,
+      currency: optionalNumber(raw.currency) ?? undefined,
+      currencyCode:
+        raw.currency_code != null
+          ? String(raw.currency_code)
+          : raw.currencyCode != null
+            ? String(raw.currencyCode)
+            : undefined,
+      mercadoPago,
     };
   } catch (error) {
     console.error('Failed to confirm guest booking:', error);
-    return { success: false, error: 'Failed to confirm booking.' };
+    return { success: false, error: 'propertyDetail.bookingFlow.errors.couldNotConfirmReservation' };
   }
 }
 
@@ -327,10 +618,187 @@ export async function getBookingByManageToken(token: string): Promise<{ success:
       return { success: false, error: (payload?.error as string | undefined) ?? 'Invalid or expired token.' };
     }
 
-    return { success: true, booking: payload.booking as ManageBookingView };
+    const bookingRaw = payload.booking as Record<string, unknown>;
+    const listingTypeRaw =
+      (bookingRaw.listingType as string | undefined) ??
+      (bookingRaw.listing_type as string | undefined);
+    const booking: ManageBookingView = {
+      bookingId: String(bookingRaw.bookingId ?? bookingRaw.booking_id ?? ''),
+      reservationCode: String(bookingRaw.reservationCode ?? bookingRaw.reservation_code ?? ''),
+      propertyTitle: String(bookingRaw.propertyTitle ?? bookingRaw.property_title ?? ''),
+      checkIn: String(bookingRaw.checkIn ?? bookingRaw.check_in ?? ''),
+      checkOut: String(bookingRaw.checkOut ?? bookingRaw.check_out ?? ''),
+      guests: Number(bookingRaw.guests ?? 0),
+      status: String(bookingRaw.status ?? ''),
+      canCancel: Boolean(bookingRaw.canCancel ?? bookingRaw.can_cancel),
+      hostContact: mapHostContactFromPayload(bookingRaw),
+      totalAmount: optionalNumber(bookingRaw.totalAmount ?? bookingRaw.total_amount),
+      currency: optionalNumber(bookingRaw.currency),
+      currencyCode:
+        bookingRaw.currencyCode != null
+          ? String(bookingRaw.currencyCode)
+          : bookingRaw.currency_code != null
+            ? String(bookingRaw.currency_code)
+            : null,
+      mercadoPagoApproved: optionalBoolean(
+        bookingRaw.mercadoPagoApproved ?? bookingRaw.mercado_pago_approved,
+      ),
+      mercadoPagoApprovedAt:
+        bookingRaw.mercadoPagoApprovedAt != null
+          ? String(bookingRaw.mercadoPagoApprovedAt)
+          : bookingRaw.mercado_pago_approved_at != null
+            ? String(bookingRaw.mercado_pago_approved_at)
+            : null,
+      canPayOnline: optionalBoolean(bookingRaw.canPayOnline ?? bookingRaw.can_pay_online),
+      sellerConnected: optionalBoolean(bookingRaw.sellerConnected ?? bookingRaw.seller_connected),
+      listingType: listingTypeRaw && isGuestSiteListingType(listingTypeRaw) ? listingTypeRaw : undefined,
+    };
+    return { success: true, booking };
   } catch (error) {
     console.error('Failed to get booking by token:', error);
     return { success: false, error: 'Failed to load reservation.' };
+  }
+}
+
+/** Always use production initPoint. Ignore sandboxInitPoint even when present. */
+export function resolveMercadoPagoCheckoutUrl(result: {
+  initPoint?: string;
+  sandboxInitPoint?: string;
+}): string | null {
+  return result.initPoint?.trim() || null;
+}
+
+function invokeHttpStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+  const status = (error as { context?: { status?: number } }).context?.status;
+  return typeof status === 'number' ? status : undefined;
+}
+
+function asPreferenceFailure(
+  raw: unknown,
+  httpStatus?: number,
+): CreateMercadoPagoPreferenceResponse | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  if (obj.success === true) return null;
+  const errorCode = obj.error_code;
+  return {
+    success: false,
+    error:
+      obj.error != null
+        ? String(obj.error)
+        : 'Could not start Mercado Pago checkout.',
+    error_code:
+      typeof errorCode === 'string' ? (errorCode as GuestBookingErrorCode) : undefined,
+    httpStatus,
+  };
+}
+
+async function readFunctionsErrorBody(error: unknown): Promise<unknown> {
+  const context = error && typeof error === 'object'
+    ? (error as { context?: Response }).context
+    : undefined;
+  if (!context || typeof context.json !== 'function') return null;
+  try {
+    if (typeof context.clone === 'function') {
+      return await context.clone().json();
+    }
+    return await context.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function createMercadoPagoPreference(
+  body: CreateMercadoPagoPreferenceRequest,
+): Promise<CreateMercadoPagoPreferenceResponse> {
+  try {
+    const { data, error } = await supabase.functions.invoke('mercado-pago-create-preference', {
+      body,
+    });
+
+    if (error) {
+      const httpStatus = invokeHttpStatus(error);
+      const fromData = asPreferenceFailure(data, httpStatus);
+      if (fromData) return fromData;
+      const fromContext = asPreferenceFailure(await readFunctionsErrorBody(error), httpStatus);
+      if (fromContext) return fromContext;
+      return {
+        success: false,
+        error: error.message || 'Could not start Mercado Pago checkout.',
+        httpStatus,
+      };
+    }
+
+    const payload = data as CreateMercadoPagoPreferenceResponse | null;
+    if (!payload?.success) {
+      return (
+        asPreferenceFailure(payload) ?? {
+          success: false,
+          error: 'Could not start Mercado Pago checkout.',
+        }
+      );
+    }
+
+    return payload;
+  } catch (err) {
+    console.error('Failed to create Mercado Pago preference:', err);
+    return { success: false, error: 'Could not start Mercado Pago checkout.' };
+  }
+}
+
+export async function getBookingPaymentStatusByManageToken(
+  token: string,
+): Promise<BookingPaymentStatusResponse> {
+  try {
+    const { data, error } = await supabase.rpc('get_booking_payment_status_by_manage_token', {
+      p_token: token,
+    });
+
+    if (error) {
+      return { success: false, error: 'Failed to load payment status.' };
+    }
+
+    const payload = data as Record<string, unknown> | null;
+    if (!payload?.success) {
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'Failed to load payment status.',
+        error_code: payload?.error_code as GuestBookingErrorCode | undefined,
+      };
+    }
+
+    return {
+      success: true,
+      booking_id: String(payload.booking_id ?? payload.bookingId ?? ''),
+      reservation_code:
+        payload.reservation_code != null
+          ? String(payload.reservation_code)
+          : payload.reservationCode != null
+            ? String(payload.reservationCode)
+            : null,
+      amount: optionalNumber(payload.amount) ?? null,
+      currency: optionalNumber(payload.currency) ?? null,
+      currency_code: String(payload.currency_code ?? payload.currencyCode ?? 'USD'),
+      mercado_pago_approved: Boolean(
+        payload.mercado_pago_approved ?? payload.mercadoPagoApproved,
+      ),
+      mercado_pago_approved_at:
+        payload.mercado_pago_approved_at != null
+          ? String(payload.mercado_pago_approved_at)
+          : payload.mercadoPagoApprovedAt != null
+            ? String(payload.mercadoPagoApprovedAt)
+            : null,
+      can_pay_online: Boolean(payload.can_pay_online ?? payload.canPayOnline),
+      seller_connected: Boolean(payload.seller_connected ?? payload.sellerConnected),
+      seller_error_code:
+        (payload.seller_error_code as string | null | undefined) ??
+        (payload.sellerErrorCode as string | null | undefined) ??
+        null,
+    };
+  } catch (err) {
+    console.error('Failed to get booking payment status:', err);
+    return { success: false, error: 'Failed to load payment status.' };
   }
 }
 
@@ -355,7 +823,10 @@ export async function cancelBookingByManageToken(token: string, reason?: string)
   }
 }
 
-export async function getReservationByCode(reservationCode: string): Promise<ReservationLookupResponse> {
+export async function getReservationByCode(
+  reservationCode: string,
+  listingType?: GuestSiteListingType,
+): Promise<ReservationLookupResponse> {
   const normalizedCode = normalizeReservationCode(reservationCode);
   if (!normalizedCode) {
     return { success: false, error: 'Invalid reservation code format.' };
@@ -364,6 +835,7 @@ export async function getReservationByCode(reservationCode: string): Promise<Res
   try {
     const { data, error } = await supabase.rpc('get_reservation_by_code', {
       reservation_code: normalizedCode,
+      p_listing_type: listingType ?? getGuestSiteListingType(),
     });
 
     if (error) {
@@ -380,7 +852,9 @@ export async function getReservationByCode(reservationCode: string): Promise<Res
 
     return {
       success: true,
-      reservation: payload.reservation as ReservationLookupData,
+      reservation: mapReservationFromLookupPayload(
+        payload.reservation as Record<string, unknown>,
+      ),
     };
   } catch (serviceError) {
     console.error('Failed to get reservation by code:', serviceError);

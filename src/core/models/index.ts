@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react';
+import type { PublicAmenity } from '../../models/properties/publicAmenity';
+import type { PublicContentSection } from '../../models/properties/propertyContentSections';
+import type { PublicPropertyPolicy } from '../../models/properties/propertyPolicies';
 
 // Common UI component props
 export interface BaseComponentProps {
@@ -17,7 +20,7 @@ export interface ButtonProps extends BaseComponentProps {
 
 // Card component props
 export interface CardProps extends BaseComponentProps {
-  variant?: 'default' | 'elevated' | 'glass';
+  variant?: 'default' | 'elevated' | 'glass' | 'surface';
   padding?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
@@ -58,6 +61,37 @@ export interface OutlineNumberProps extends BaseComponentProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 }
 
+export type SectionLayoutType = 'split' | 'carousel' | 'stacked';
+export type CarouselDescriptionPosition = 'top' | 'right' | 'bottom';
+export type StackedContentOrder = 'text-first' | 'images-first';
+
+export interface PropertySectionImage {
+  id: string;
+  imageId?: string;
+  url: string;
+  title?: string | null;
+  metadata?: Record<string, unknown> | null;
+  displayOrder?: number;
+}
+
+export type SectionDisplayVariant = 'default' | 'compact' | 'hero';
+
+export interface PropertySectionLayoutConfig {
+  descriptionPosition?: CarouselDescriptionPosition;
+  contentOrder?: StackedContentOrder;
+  displayVariant?: SectionDisplayVariant;
+}
+
+export interface PropertyContentSection {
+  id: string;
+  name: string;
+  description?: string | null;
+  layoutType?: SectionLayoutType;
+  displayOrder?: number;
+  layoutConfig?: PropertySectionLayoutConfig | null;
+  images: PropertySectionImage[];
+}
+
 // Property types
 export interface Property {
   id: string;
@@ -67,12 +101,27 @@ export interface Property {
   location: string;
   price: number;
   currency: string;
+  /** Featured listing id for dynamic pricing RPCs */
+  listingId?: string;
+  /** Base nightly rate (dynamic pricing); falls back to price */
+  basePrice?: number;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  longStayDiscountEnabled?: boolean;
+  longStayMinDays?: number | null;
+  longStayDiscountPercentage?: number | null;
   images: string[] | never[];
   bedrooms: number;
   bathrooms: number;
   maxGuests: number;
   description: string;
   amenities: string[];
+  /** Structured amenities from detail RPC (`Amenities` jsonb); list endpoints omit this. */
+  publicAmenities?: PublicAmenity[];
+  /** Estate policies from detail RPC (`Policies` jsonb); list endpoints omit this. */
+  publicPolicies?: PublicPropertyPolicy[];
+  /** Marketing content sections from detail RPC (`ContentSections` jsonb); list endpoints omit this. */
+  publicContentSections?: PublicContentSection[];
   rating: number;
   reviewCount: number;
   host: User;
@@ -92,6 +141,7 @@ export interface Property {
   /** Infrastructure flags from EstateProperties */
   hasLaundryRoom?: boolean;
   hasPool?: boolean;
+  hasGarage?: boolean;
   hasBalcony?: boolean;
   isFurnished?: boolean;
   /** Capacity from EstateProperties or Listings */
@@ -105,6 +155,7 @@ export interface Property {
   homeLayout?: string;
   outdoorDetails?: string;
   neighborhoodDetails?: string;
+  sections?: PropertyContentSection[];
 }
 
 export interface User {

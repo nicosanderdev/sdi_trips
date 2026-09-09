@@ -1,5 +1,10 @@
 import type { Property } from '../types';
 import { supabase } from '../lib/supabase';
+import { parseAmenities } from '../models/properties/publicAmenity';
+import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
+import { parsePolicies } from '../models/properties/propertyPolicies';
+import { enrichPropertiesWithImages } from './propertyImageService';
+import { mapRpcPricingFields } from './pricing/listingPricing';
 
 export type VenueEventTag = 'wedding' | 'corporate' | 'party' | 'workshop';
 
@@ -11,7 +16,6 @@ export interface EventVenue extends Property {
   eventTypeTags: VenueEventTag[];
   eventTypes: string[];
   layoutNotes: string;
-  policies: { title: string; body: string }[];
   hasCatering: boolean;
   hasSoundSystem: boolean;
   closingHour?: string | null;
@@ -29,6 +33,7 @@ export interface EventVenueFilters {
 
 interface EventVenueRpcRow {
   EstatePropertyId: string;
+  ListingId?: string;
   OwnerId: string | null;
   Neighborhood: string | null;
   City: string | null;
@@ -45,22 +50,45 @@ interface EventVenueRpcRow {
   Currency: number;
   RentPrice: number | null;
   SalePrice: number | null;
+  BasePrice?: number | null;
+  MinPrice?: number | null;
+  MaxPrice?: number | null;
+  LongStayDiscountEnabled?: boolean | null;
+  LongStayMinDays?: number | null;
+  LongStayDiscountPercentage?: number | null;
   IsActive: boolean;
   IsPropertyVisible: boolean;
   BlockedForBooking: boolean;
   AmenityNames: string[] | null;
+  Amenities?: unknown;
+  Policies?: unknown;
   MaxGuests: number | null;
   HasCatering: boolean | null;
   HasSoundSystem: boolean | null;
   ClosingHour: string | null;
   AllowedEventsDescription: string | null;
+  ContentSections?: unknown;
+  SectionData?: RpcPropertySectionRow[] | null;
 }
 
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1519167758481-83f29da3a0a6?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80',
-];
+interface RpcPropertySectionImageRow {
+  Id: string;
+  PropertyImageId: string | null;
+  R2Url: string;
+  Title: string | null;
+  Metadata: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+}
+
+interface RpcPropertySectionRow {
+  Id: string;
+  Name: string;
+  Description: string | null;
+  LayoutType: 'split' | 'carousel' | 'stacked' | null;
+  LayoutConfig: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+  Images: RpcPropertySectionImageRow[] | null;
+}
 
 function inferEventTypes(allowed: string | null | undefined): string[] {
   if (!allowed) return ['Private events'];
@@ -83,12 +111,30 @@ function inferEventTags(eventTypes: string[]): VenueEventTag[] {
   return tags.length ? tags : ['party'];
 }
 
-function mapRow(row: EventVenueRpcRow): EventVenue {
+/** Public venue listings must never expose owner email/phone. */
+function mapPublicVenueHost(ownerId: string | null | undefined): Property['host'] {
+  return {
+    id: ownerId ?? '',
+    name: 'Venue coordinator',
+    email: '',
+    verified: false,
+    phone: undefined,
+  };
+}
+
+export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
   const location = [row.Neighborhood, row.City, row.State].filter(Boolean).join(', ') || 'Location not specified';
   const maxGuests = row.MaxGuests ?? row.ListingCapacity ?? row.Capacity ?? 0;
   const amenities = row.AmenityNames ?? [];
+  const publicAmenities = parseAmenities(row.Amenities);
+  const publicPolicies = parsePolicies(row.Policies);
+  const publicContentSections = resolvePublicContentSectionsFromRow(
+    row.ContentSections,
+    row.SectionData,
+  );
   const eventTypes = inferEventTypes(row.AllowedEventsDescription);
-  const price = row.RentPrice ?? row.SalePrice ?? 0;
+  const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
+  const price = pricing.basePrice;
   const venueName = row.Title ?? 'Untitled venue';
 
   return {
@@ -98,21 +144,26 @@ function mapRow(row: EventVenueRpcRow): EventVenue {
     subtitle: row.AllowedEventsDescription ?? 'Event-ready venue for curated experiences.',
     location,
     price,
+    listingId: pricing.listingId ?? row.ListingId,
+    basePrice: pricing.basePrice,
+    minPrice: pricing.minPrice,
+    maxPrice: pricing.maxPrice,
+    longStayDiscountEnabled: pricing.longStayDiscountEnabled,
+    longStayMinDays: pricing.longStayMinDays,
+    longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: row.Currency === 1 ? 'UYU' : 'USD',
-    images: FALLBACK_IMAGES,
+    images: [],
     bedrooms: row.Bedrooms ?? 0,
     bathrooms: row.Bathrooms ?? 0,
     maxGuests,
     description: row.ListingDescription ?? '',
     amenities,
+    publicAmenities: publicAmenities.length ? publicAmenities : undefined,
+    publicPolicies: publicPolicies.length ? publicPolicies : undefined,
+    publicContentSections: publicContentSections.length ? publicContentSections : undefined,
     rating: 0,
     reviewCount: 0,
-    host: {
-      id: row.OwnerId ?? '',
-      name: 'Venue coordinator',
-      email: '',
-      verified: false,
-    },
+    host: mapPublicVenueHost(row.OwnerId),
     available: row.IsActive && row.IsPropertyVisible && !row.BlockedForBooking,
     coordinates: {
       lat: Number(row.LocationLatitude),
@@ -126,10 +177,6 @@ function mapRow(row: EventVenueRpcRow): EventVenue {
     eventTypes,
     eventTypeTags: inferEventTags(eventTypes),
     layoutNotes: `Up to ${maxGuests} guests`,
-    policies: [
-      { title: 'Availability', body: 'Final confirmation depends on date and operations review.' },
-      { title: 'Cancellation', body: 'Cancellation policies are shared in booking confirmation.' },
-    ],
     hasCatering: Boolean(row.HasCatering),
     hasSoundSystem: Boolean(row.HasSoundSystem),
     closingHour: row.ClosingHour,
@@ -155,15 +202,16 @@ export async function searchEventVenues(
     throw error;
   }
 
-  let venues = ((data ?? []) as EventVenueRpcRow[]).map(mapRow);
+  let venues = ((data ?? []) as EventVenueRpcRow[]).map(mapEventVenueFromRpc);
   if (filters.eventType) {
     venues = venues.filter((venue) => venue.eventTypeTags.includes(filters.eventType as VenueEventTag));
   }
 
   const totalCount = venues.length;
   const offset = (page - 1) * limit;
+  const paged = venues.slice(offset, offset + limit);
   return {
-    venues: venues.slice(offset, offset + limit),
+    venues: await enrichPropertiesWithImages(paged),
     totalCount,
   };
 }
@@ -184,5 +232,7 @@ export async function getEventVenueById(id: string): Promise<EventVenue | null> 
   }
 
   const row = ((data ?? []) as EventVenueRpcRow[])[0];
-  return row ? mapRow(row) : null;
+  if (!row) return null;
+  const [venue] = await enrichPropertiesWithImages([mapEventVenueFromRpc(row)]);
+  return venue;
 }

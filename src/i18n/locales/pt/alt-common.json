@@ -1,6 +1,9 @@
 {
   "layout": {
-    "documentTitle": "Event venues: En cartelera - Espacios"
+    "documentTitle": "En cartelera - Espacios"
+  },
+  "pricing": {
+    "perEvent": "por evento"
   },
   "brand": {
     "venue": "En cartelera - ",
@@ -11,7 +14,12 @@
     "mainNavAria": "Navegação principal",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
-    "languageSelectAria": "Idioma"
+    "languageSelectAria": "Idioma",
+    "tagline": "Espaços para eventos em Rivera, sem complicação.",
+    "exploreVenues": "Explorar espaços",
+    "howItWorks": "Como funciona",
+    "aboutUs": "Sobre nós",
+    "ctaFindVenue": "Encontre seu espaço"
   },
   "languages": {
     "en": "English",
@@ -20,101 +28,121 @@
   },
   "landing": {
     "hero": {
-      "title": "Encontre o espaço que seus convidados vão lembrar",
-      "subtitle": "Consulte disponibilidade real, escolha a data e coordene direto com o local. Sem intermediários. Sem demoras.",
-      "searchDateLabel": "Data do evento",
-      "searchDateAria": "Data do evento",
-      "searchGuestsLabel": "Número de pessoas",
-      "searchGuestsPlaceholder": "Ex.: 120",
-      "searchGuestsAria": "Número de pessoas",
-      "searchCta": "Buscar",
-      "badgeCurated": "Espaços verificados",
-      "badgeCapacity": "Capacidade e layout",
-      "badgeHoldDemo": "Demo de reserva de data",
-      "exploreCta": "Explorar locais",
+      "title": "Uma celebração da qual seus convidados vão falar",
+      "subtitle": "Explore espaços em Rivera, consulte disponibilidade real e coordene direto com quem os gerencia — sem intermediários, sem enrolação.",
+      "searchDateFromLabel": "Data mais cedo",
+      "searchDateFromAria": "Data mais cedo do evento",
+      "searchDateToLabel": "Data mais tarde",
+      "searchDateToAria": "Data mais tarde do evento",
+      "searchLocationLabel": "Localização",
+      "searchLocationPlaceholder": "Cidade",
+      "searchLocationAria": "Localização",
+      "searchCta": "Vamos explorar",
+      "badgeCurated": "Espaços que conhecemos",
+      "badgeCapacity": "Capacidade e layout claros",
+      "badgeHoldDemo": "Reservas de data simples",
+      "exploreCta": "Explorar espaços",
       "talkCta": "Ver reserva",
-      "storiesHeading": "Histórias de produtores e anfitriões",
-      "storyDotAria": "Mostrar história {{n}}",
-      "slides": {
-        "0": {
-          "quote": "Nosso casamento foi tranquilo: a equipe fez a virada da cerimônia para a festa em menos de uma hora."
-        },
-        "1": {
-          "quote": "Fizemos um lançamento para 150 convidados. Som, montagem e segurança impecáveis desde o primeiro dia."
-        },
-        "2": {
-          "quote": "As fotos do salão no pôr do sol ficaram incríveis. Os convidados ainda falam da pista de dança."
-        }
-      }
+      "storiesHeading": "Onde começam as boas memórias",
+      "storiesDescription": "Salões, jardins e espaços prontos para aniversários, casamentos, eventos corporativos e muito mais.",
+      "storyDotAria": "Mostrar imagem {{n}}"
     },
     "occasions": {
       "eyebrow": "Toda ocasião",
-      "heading": "Espaços conforme o seu evento"
+      "heading": "Espaços que facilitam seu dia"
     },
     "features": {
       "weddings": {
         "title": "Casamentos",
-        "description": "Espaços para cerimônia e recepção com margem para tradições, cronograma e pista de dança."
+        "description": "Espaços para cerimônia e recepção com margem para suas tradições — para você focar nas pessoas, não na logística."
       },
       "corporate": {
         "title": "Corporativo",
-        "description": "Summits, offsites e jantares com clientes com assentos flexíveis e AV profissional."
+        "description": "Summits e jantares com clientes com assentos flexíveis — um ambiente profissional sem frieza corporativa."
       },
       "parties": {
         "title": "Festas",
-        "description": "Marcos, arrecadações e celebrações com capacidade e layout sob medida."
+        "description": "Marcos e celebrações com capacidade e layout que combinam com sua lista de convidados e seu estilo."
       }
     },
     "popular": {
       "eyebrow": "Em destaque",
-      "heading": "Espaços populares nesta temporada",
-      "sub": "Escolhidos por qualidade e disponibilidade.",
+      "heading": "Espaços que nossos hóspedes amam",
+      "sub": "Lugares que valem celebrar.",
       "popularBadge": "Popular",
       "guestsLine": "Até {{count}} convidados · {{priceHint}}",
-      "cta": "Encontre o espaço ideal"
+      "cta": "Explorar espaços"
     },
     "howItWorks": {
       "heading": "Como funciona",
       "step1Title": "Explore espaços",
-      "step1Desc": "Filtre por capacidade, tipo de evento e localização.",
-      "step2Title": "Escolher data",
-      "step2Desc": "Consulte disponibilidade em tempo real",
-      "step3Title": "Reserve",
-      "step3Desc": "Complete as informações solicitadas e confirme seu evento",
+      "step1Desc": "Filtre por localização, capacidade e quando precisa do espaço.",
+      "step2Title": "Escolha uma data",
+      "step2Desc": "Consulte disponibilidade e escolha um dia que funcione para todos.",
+      "step3Title": "Reserve seu evento",
+      "step3Desc": "Alguns passos claros e pronto — sem adivinhação.",
       "step4Title": "Coordene direto",
-      "step4Desc": "Conecte-se ao local sem intermediários"
+      "step4Desc": "Fale com a equipe do espaço sem passar por um call center."
+    },
+    "humanTouch": {
+      "title": "Somos pessoas ajudando pessoas.",
+      "paragraph1": "Criamos o En cartelera Espacios porque encontrar um espaço para eventos em Rivera não deveria significar anúncios frios e ligações sem fim.",
+      "paragraph2": "Seja planejando um casamento ou abrindo seu espaço a eventos, fizemos isso para os dois lados — organizadores que querem algo real, e donos de espaços que querem algo simples.",
+      "paragraph3": "Somos uma equipe pequena em Rivera. Quando você entra em contato, uma pessoa responde. É assim que achamos que deveria funcionar.",
+      "learnMore": "Saiba mais"
+    },
+    "testimonials": {
+      "title": "O que os organizadores dizem",
+      "subtitle": "Histórias curtas de quem já passou por aqui",
+      "items": {
+        "1": {
+          "text": "Encontramos o espaço perfeito para nosso jantar de empresa em menos de uma hora.",
+          "author": "María",
+          "location": "Rivera"
+        },
+        "2": {
+          "text": "Foi muito mais fácil do que buscar em sites diferentes.",
+          "author": "Andrés",
+          "location": "Rivera"
+        },
+        "3": {
+          "text": "O processo de reserva foi simples do início ao fim.",
+          "author": "Laura",
+          "location": "Rivera"
+        }
+      }
     },
     "ctaBand": {
       "titleBefore": "Pronto para ",
-      "titleHighlight": "pré-selecionar",
+      "titleHighlight": "encontrar",
       "titleAfter": " seu espaço?",
-      "button": "Começar a explorar"
+      "button": "Explorar espaços"
     }
   },
   "search": {
     "heroTitleBefore": "Descubra ",
     "heroTitleHighlight": "espaços",
     "heroTitleAfter": " para o seu evento",
-    "heroSub": "Sem mapa—apenas uma lista objetiva. Use filtros para refinar a grade (demo; ajuste a lógica como quiser).",
+    "heroSub": "Explore espaços por localização, capacidade e datas em que precisa de disponibilidade.",
     "filtersHeading": "Filtros",
-    "filtersHint": "Os filtros atualizam a lista para explorar rápido.",
-    "eventType": "Tipo de evento",
-    "capacity": "Capacidade",
-    "priceTier": "Valor indicativo",
+    "filtersHint": "Os filtros atualizam a lista enquanto você refina a busca.",
+    "location": "Localização",
+    "locationPlaceholder": "Cidade",
+    "guestsRange": "Convidados",
+    "capacityMin": "Mín. convidados",
+    "capacityMinPlaceholder": "ex. 50",
+    "capacityMax": "Máx. convidados",
+    "capacityMaxPlaceholder": "ex. 200",
+    "availabilityRange": "Janela de disponibilidade",
+    "availableFrom": "De",
+    "availableTo": "Até",
+    "availabilityHint": "Mostra espaços com pelo menos um dia livre neste intervalo para um evento de um dia.",
     "resetFilters": "Redefinir filtros",
-    "optionAny": "Qualquer",
-    "eventWedding": "Casamentos",
-    "eventCorporate": "Corporativo",
-    "eventParty": "Festas",
-    "eventWorkshop": "Workshops",
-    "capSmall": "Até 80",
-    "capMedium": "81 – 150",
-    "capLarge": "151+",
-    "priceBudget": "Abaixo de ~US$ 3k",
-    "pricePremium": "US$ 4k+",
     "resultsLine": "Mostrando {{count}} espaços",
     "guestsUpTo": "Até {{count}} convidados",
-    "viewDetails": "Ver detalhes"
+    "viewDetails": "Ver detalhes",
+    "loading": "Carregando espaços...",
+    "empty": "Nenhum espaço encontrado para os filtros selecionados."
   },
   "venueDetail": {
     "notFoundTitle": "Espaço não encontrado",
@@ -130,8 +158,16 @@
     "pricingHintTitle": "Valor indicativo",
     "pricingHintDesc": "{{priceHint}}. {{suffix}}",
     "pricingHintSuffix": "Orçamentos finais dependem da data, equipe e extras.",
+    "someFeatures": "Algumas características",
     "amenities": "Comodidades",
+    "venueRules": "Políticas e regras do local",
     "policies": "Políticas e logística",
+    "trustFooter": {
+      "heading": "Como verificamos os locais",
+      "description": "Cada espaço em nossa plataforma é revisado pela nossa equipe local antes da publicação. Visitamos pessoalmente, confirmamos o local e garantimos a precisão do anúncio.",
+      "learnMore": "Leia nossos padrões de confiança e qualidade",
+      "support": "Dúvidas sobre este espaço? Entre em contato com nossa equipe de suporte"
+    },
     "prevImage": "Imagem anterior",
     "nextImage": "Próxima imagem",
     "coordinatorTeam": "Equipe do espaço",
@@ -139,9 +175,15 @@
     "coordinatorRole": "Coordenadores desta listagem (demo)",
     "coordinatorBullet1": "Janelas para visitas in loco",
     "coordinatorBullet2": "Lista de fornecedores preferenciais sob pedido",
+    "host": {
+      "heading": "Conheça o anfitrião",
+      "defaultName": "Anfitrião",
+      "bioDefault": "Adoramos compartilhar este espaço e ajudar seu evento a correr bem."
+    },
     "messageVenue": "Mensagem ao espaço",
     "startingFrom": "A partir de",
     "taxesNote": "Taxas, equipe e locações podem se aplicar.",
+    "finalPriceMayVary": "O preço final pode variar conforme a temporada, datas especiais ou com quanto antecipação você reserva.",
     "checkAvailability": "Ver disponibilidade",
     "calendarDemoNote": "Selecione as datas do evento (calendário demo—sem backend). Mesmo estilo de seletor do site principal.",
     "eventStart": "Início do evento",
@@ -153,23 +195,22 @@
   "contact": {
     "heroTitleBefore": "Vamos planejar ",
     "heroTitleHighlight": "algo memorável",
-    "heroSub": "Conte seu evento. Este formulário é só interface—nada é enviado ao servidor nesta demo.",
+    "heroSub": "Conte seu evento. Estamos aqui para ajudar.",
     "whyHeading": "Por que falar conosco",
     "reasonPlanningTitle": "Produção de eventos",
     "reasonPlanningDesc": "Dúvidas sobre capacidade, montagem ou cronograma para casamentos ou programas corporativos.",
-    "reasonVenueTitle": "Parcerias com espaços",
-    "reasonVenueDesc": "Publique um novo espaço ou atualize imagens e valores indicativos no catálogo.",
-    "reasonSponsorTitle": "Patrocínios",
-    "reasonSponsorDesc": "Colabore em guias de cidade, portas abertas ou eventos do setor.",
+    "reasonPublishSpaceTitle": "Publicar seu espaço",
+    "reasonPublishSpaceDesc": "Adicione seu espaço ao nosso catálogo e comece a receber consultas de clientes em potencial.",
+    "reasonGeneralInquiriesTitle": "Consultas gerais",
+    "reasonGeneralInquiriesDesc": "Se você tiver dúvidas sobre reservas, funcionamento do site ou informações dos espaços, estamos aqui para ajudar.",
     "directLineHeading": "Contato direto",
-    "directLineBody": "hello@venuespace.example · Em geral respondemos em um dia útil.",
+    "directLineBody": "admin@encartelera.uy",
     "successTitle": "Obrigado pela mensagem",
-    "successBody": "Em produção isso iria para sua caixa de entrada. Aqui é apenas demo estática.",
+    "successBody": "Obrigado por entrar em contato. Responderemos em breve.",
     "messagePlaceholder": "Data do evento, número de convidados, estilo do espaço…",
-    "submitDemo": "Enviar mensagem (demo)",
-    "listVenueHeading": "Liste seu espaço",
-    "listVenueSub": "Entre em coleções curadas para produtores que buscam por capacidade, estética e bairro.",
-    "partnerDemo": "Consulta de parceiro (demo)"
+    "searchCtaHeading": "Ainda procura um espaço?",
+    "searchCtaSub": "Explore espaços por localização, capacidade e datas.",
+    "searchCtaButton": "Explorar espaços"
   },
   "terms": {
     "heroTitleBefore": "Termos e ",
@@ -242,12 +283,18 @@
     ]
   },
   "footer": {
-    "email": "hello@venuespace.example",
-    "phone": "+1 (555) 010-2030",
-    "address": "Austin, TX",
-    "tagline": "Encontre e reserve espaços excepcionais para casamentos, encontros corporativos e celebrações.",
+    "email": "admin@encartelera.uy",
+    "phone": "+598 99 205 886",
+    "address": "Rivera, Uruguay",
+    "tagline": "Ajudamos pessoas a encontrar espaços memoráveis para suas celebrações.",
+    "welcomeMessage": "Seja planejando seu próximo evento ou compartilhando seu espaço com convidados, ficamos felizes em ter você aqui.",
+    "madeWithCare": "Feito com carinho no Uruguai.",
     "companyHeading": "Empresa",
+    "supportHeading": "Suporte",
+    "legalHeading": "Legal",
+    "contactLink": "Contato",
     "termsLink": "Termos e condições",
+    "howItWorks": "Como funciona",
     "exploreHeading": "Explorar",
     "browseVenues": "Ver espaços",
     "weddingVenues": "Espaços para casamento",
@@ -258,10 +305,72 @@
     "twitter": "Twitter",
     "instagram": "Instagram"
   },
+  "about": {
+    "hero": {
+      "title": "Sobre",
+      "titleHighlight": "En cartelera - Espacios"
+    },
+    "mission": {
+      "title": "Missão e",
+      "titleHighlight": "visão",
+      "missionLabel": "Missão",
+      "missionText": "Conectar pessoas com espaços, ajudando os proprietários a gerenciar suas propriedades e as pessoas a encontrar o lugar que se adapte às suas necessidades.",
+      "visionLabel": "Visão",
+      "visionText": "Ser a plataforma de referência para descobrir e reservar espaços, tornando simples, confiável e acessível encontrar o lugar certo.",
+      "imageAlt": "En cartelera - Espacios"
+    },
+    "values": {
+      "title": "Nossos",
+      "titleHighlight": "Valores",
+      "trust": {
+        "title": "Confiança",
+        "description": "Construímos relações transparentes entre proprietários e visitantes."
+      },
+      "simplicity": {
+        "title": "Simplicidade",
+        "description": "Eliminamos passos desnecessários e tornamos fácil encontrar e oferecer um espaço."
+      },
+      "closeness": {
+        "title": "Proximidade",
+        "description": "Projetamos pensando nas pessoas, não somente nas propriedades."
+      },
+      "experience": {
+        "title": "Experiência",
+        "description": "Nosso objetivo não é somente facilitar uma reserva, mas ajudar a criar bons momentos."
+      },
+      "transparency": {
+        "title": "Transparência",
+        "description": "Informações, preços, condições e expectativas claras."
+      },
+      "innovation": {
+        "title": "Inovação útil",
+        "description": "Utilizamos tecnologia para resolver problemas reais."
+      },
+      "community": {
+        "title": "Comunidade",
+        "description": "Queremos construir uma rede onde proprietários e visitantes se beneficiem mutuamente."
+      }
+    },
+    "cta": {
+      "title": "Encontre o espaço",
+      "titleHighlight": "ideal",
+      "description": "Explore as opções disponíveis ou fale conosco. Estamos aqui para ajudar você a conectar com o espaço que precisa.",
+      "browseProperties": "Explorar espaços"
+    }
+  },
   "reservations": {
     "titleBefore": "Suas ",
     "titleHighlight": "reservas",
-    "subtitle": "Visão demo de reservas e cortesias. Os status ajudam a ver o que está por vir, concluído ou cancelado.",
+    "subtitle": "Consulte uma reserva com o seu código ou abra o link do e-mail de confirmação. Veja detalhes e cancele quando a reserva permitir.",
+    "lookupHeading": "Encontrar uma reserva",
+    "lookupHint": "Introduza o código da confirmação (formato RSV-XXXXXX) ou use o link de gestão recebido por e-mail.",
+    "loadingFromLink": "A carregar a reserva a partir do seu link…",
+    "browseVenues": "Explorar espaços",
+    "guestsNotShown": "Não mostrado na pesquisa por código",
+    "errors": {
+      "missingToken": "Falta o token neste link de gestão. Verifique o URL completo no e-mail de confirmação.",
+      "invalidOrExpiredToken": "Link de gestão inválido ou expirado."
+    },
     "colVenue": "Espaço",
     "colDate": "Data",
     "colGuests": "Convidados",
@@ -273,6 +382,34 @@
     "statusCancelled": "Cancelada",
     "ctaQuestion": "Outra data ou espaço?",
     "ctaBrowse": "Explorar espaços"
+  },
+  "bookingFlow": {
+    "done": {
+      "modalTitle": "Pedido recebido",
+      "body": "Seu pedido de reserva foi enviado e está pendente de aprovação do anfitrião. Você receberá um e-mail quando for confirmado (ou WhatsApp se não informou um e-mail).",
+      "codeLabel": "Seu código de reserva",
+      "lookupHint": "Guarde este código para consultar ou gerenciar sua reserva depois. Use o botão abaixo para abrir sua reserva.",
+      "goToReservationLookup": "Ver minha reserva",
+      "close": "Fechar"
+    },
+    "otpHint": {
+      "whatsapp": "Enviamos um código de verificação pelo WhatsApp.",
+      "sms": "O WhatsApp não estava disponível, então enviamos o código por SMS.",
+      "localMock": "Dry-run local: confira o código no terminal das functions."
+    },
+    "actions": {
+      "continue": "Continuar",
+      "sendConfirmationCode": "Enviar código de confirmação"
+    },
+    "form": {
+      "phone": "Número de telefone",
+      "enterConfirmationCode": "Digite o código de confirmação",
+      "estimatedGuests": "Número de convidados (opcional)"
+    },
+    "errors": {
+      "couldNotSendConfirmationCode": "Não foi possível enviar o código de confirmação.",
+      "invalidConfirmationCode": "Código de confirmação inválido."
+    }
   },
   "notFound": {
     "code": "404",

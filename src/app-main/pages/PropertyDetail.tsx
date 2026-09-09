@@ -1,31 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
-import { Button, Card, LeaveReviewModal } from '../../components/ui';
+import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
+import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
+import PropertyContentSections from '../../components/sections/PropertyContentSections';
+import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
+import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import { getPropertyById } from '../../services/propertyService';
+import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { getUtmSourceAndMedium, trackEvent } from '../../lib/analytics';
 import { logPropertyVisit } from '../../services/propertyVisitService';
-import { getMemberProfile } from '../../services/memberService';
-import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
-import { getReviewsByPropertyId, getReviewEligibilityForProperty } from '../../services/reviewService';
-import type { PropertyReviewsResult } from '../../types';
 import type { Property } from '../../types';
+import { useDisplayPrice } from '../../hooks/useDisplayPrice';
+import {
+  formatPriceAmount,
+  getPriceLabelKey,
+} from '../../services/pricing/formatPrice';
+import { parseIsoDateLocal } from '../../services/pricing/listingPricing';
 import {
     MapPin,
     Users,
     Bed,
     Bath,
-    Star,
     ChevronLeft,
     ChevronRight,
-    Wifi,
-    Shield,
-    MessageCircle,
     X,
     CheckCircle
 } from 'lucide-react';
@@ -39,6 +42,19 @@ const fallbackGalleryImages = [
 
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
+
+    const dateSearchContext = useMemo(() => {
+        const checkInParam = searchParams.get('checkIn');
+        const checkOutParam = searchParams.get('checkOut');
+        if (!checkInParam || !checkOutParam) return null;
+        const checkIn = parseIsoDateLocal(checkInParam);
+        const checkOut = parseIsoDateLocal(checkOutParam);
+        if (!checkIn || !checkOut || checkOut <= checkIn) return null;
+        return { checkIn, checkOut };
+    }, [searchParams]);
+
+    const hasDateSearchContext = dateSearchContext !== null;
 
     const [property, setProperty] = useState<Property | null>(null);
     const [loading, setLoading] = useState(true);
@@ -49,18 +65,52 @@ const PropertyDetail: React.FC = () => {
     const [galleryOpacity, setGalleryOpacity] = useState(1);
     const [lightboxOpacity, setLightboxOpacity] = useState(1);
     const [showBookingCalendar, setShowBookingCalendar] = useState(false);
-    const [reviewsResult, setReviewsResult] = useState<PropertyReviewsResult | null>(null);
-    const [reviewEligibility, setReviewEligibility] = useState<{
-        canReview: boolean;
-        booking?: { id: string };
-        reason?: string;
-    } | null>(null);
-    const [reviewEligibilityLoading, setReviewEligibilityLoading] = useState(false);
-    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-
-    const { t } = useTranslation();
-    const { user } = useAuth();
+    const { t, i18n } = useTranslation();
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+
+    const placeholderProperty = useMemo<Property>(
+        () => ({
+            id: '',
+            title: '',
+            location: '',
+            price: 0,
+            basePrice: 0,
+            currency: 'USD',
+            images: [],
+            bedrooms: 0,
+            bathrooms: 0,
+            maxGuests: 0,
+            description: '',
+            amenities: [],
+            rating: 0,
+            reviewCount: 0,
+            host: { id: '', name: '', email: '', verified: false },
+            available: false,
+            coordinates: { lat: 0, lng: 0 },
+        }),
+        [],
+    );
+
+    const { breakdown: exploreBreakdown, loading: explorePriceLoading } = useDisplayPrice({
+        property: property ?? placeholderProperty,
+        checkIn: dateSearchContext?.checkIn,
+        checkOut: dateSearchContext?.checkOut,
+        enabled: Boolean(property),
+    });
+
+    const showCalendar = hasDateSearchContext || showBookingCalendar;
+
+    const sidebarPriceAmount = exploreBreakdown
+        ? exploreBreakdown.displayLabel === 'total_stay'
+            ? exploreBreakdown.total
+            : exploreBreakdown.nightlyAverage
+        : property?.price ?? 0;
+    const sidebarPriceLabelKey = exploreBreakdown
+        ? getPriceLabelKey(exploreBreakdown.displayLabel)
+        : 'pricing.perNight';
+    const sidebarFormattedPrice = property
+        ? formatPriceAmount(sidebarPriceAmount, property.currency)
+        : '';
 
     // Fetch property data
     useEffect(() => {
@@ -72,7 +122,8 @@ const PropertyDetail: React.FC = () => {
                 setError(null);
                 const propertyData = await getPropertyById(id);
                 if (propertyData) {
-                    setProperty(propertyData);
+                    const host = await fetchHostForProperty(propertyData.id, propertyData.ownerId);
+                    setProperty({ ...propertyData, host });
                 } else {
                     setError(t('propertyDetail.errors.propertyNotFound'));
                 }
@@ -101,52 +152,6 @@ const PropertyDetail: React.FC = () => {
         });
         logPropertyVisit(property.id, source ?? 'unknown');
     }, [property?.id, id, property?.ownerId, property?.listingType]);
-
-    // Fetch reviews for this property
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadReviews = async () => {
-            if (!id) return;
-            try {
-                const result = await getReviewsByPropertyId(id);
-                if (isMounted) setReviewsResult(result);
-            } catch (err) {
-                console.error('Error loading reviews:', err);
-                if (isMounted) setReviewsResult({ reviews: [], averageRating: 0, totalCount: 0 });
-            }
-        };
-
-        loadReviews();
-        return () => { isMounted = false; };
-    }, [id]);
-
-    // Review eligibility for logged-in user (can they leave a review for this property?)
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadReviewEligibility = async () => {
-            if (!user || !id || !property?.id) {
-                if (isMounted) setReviewEligibility(null);
-                return;
-            }
-            try {
-                if (isMounted) setReviewEligibilityLoading(true);
-                const member = await getMemberProfile(user.id);
-                if (!member?.id || !isMounted) return;
-                const result = await getReviewEligibilityForProperty(id, member.id);
-                if (isMounted) setReviewEligibility(result);
-            } catch (err) {
-                console.error('Error loading review eligibility:', err);
-                if (isMounted) setReviewEligibility(null);
-            } finally {
-                if (isMounted) setReviewEligibilityLoading(false);
-            }
-        };
-
-        loadReviewEligibility();
-        return () => { isMounted = false; };
-    }, [user, id, property?.id]);
 
     // Initialize map
     useEffect(() => {
@@ -234,109 +239,14 @@ const PropertyDetail: React.FC = () => {
 
     // Prepare data (heroImages and heroImageCount now computed above before early returns)
     const heroImageIndex = heroImageCount ? currentImageIndex % heroImageCount : 0;
-    const heroSubtitle =
-        property?.subtitle ||
-        property?.description?.split('. ')[0] ||
-        t('propertyDetail.propertyIdentity.defaultSubtitle');
     const hostName = property.host?.name?.trim() || t('propertyDetail.host.defaultName');
     const hostFirstName = hostName.split(' ')[0];
-    const hostSinceYear = property.host?.sinceYear || '2019';
     const hostBio = property.host?.bio || t('propertyDetail.host.bioDefault');
-    const hostResponseHours = property.host?.responseTimeHours || 2;
-    const outdoorDescription =
-        property.outdoorDescription ||
-        property.outdoorHighlights ||
-        t('propertyDetail.attributes.outdoor.descriptionDefault');
-    const homeLayoutCopy =
-        property.homeLayout || t('propertyDetail.detailSections.homeLayout.default');
-    const outdoorCopy =
-        property.outdoorDetails || t('propertyDetail.detailSections.outdoorAreas.default');
+    const descriptionBody =
+        property.description?.trim() || t('propertyDetail.description.fallback');
     const neighborhoodCopy =
         property.neighborhoodDetails || t('propertyDetail.detailSections.neighborhood.default');
-
-    // Grouped attributes (structure, infrastructure, amenities/location)
-    const structureAttributes = [
-        {
-            title: t('propertyDetail.attributes.sleeping.title'),
-            description: t('propertyDetail.attributes.sleeping.description', {
-                bedrooms: property.bedrooms || 0
-            }),
-            icon: <Bed className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.bathrooms.title'),
-            description: t('propertyDetail.attributes.bathrooms.description', {
-                count: property.bathrooms || 0
-            }),
-            icon: <Bath className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.comfort.title'),
-            description: t('propertyDetail.attributes.comfort.description'),
-            icon: <Users className="h-6 w-6 text-gold" />
-        }
-    ];
-
-    const infrastructureAttributes = [
-        {
-            title: t('propertyDetail.attributes.kitchen.title'),
-            description: t('propertyDetail.attributes.kitchen.description'),
-            icon: <Shield className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.wifi.title'),
-            description: t('propertyDetail.attributes.wifi.description'),
-            icon: <Wifi className="h-6 w-6 text-gold" />
-        },
-        {
-            title: t('propertyDetail.attributes.outdoor.title'),
-            description: outdoorDescription,
-            icon: <CheckCircle className="h-6 w-6 text-gold" />
-        }
-    ];
-
     const secondaryGalleryImages = heroImages.slice(0, 6);
-    const amenityList = property.amenities?.length ? property.amenities : [t('propertyDetail.amenities.empty')];
-
-    const policyBlocks = [
-        {
-            title: t('propertyDetail.policies.checkIn.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.checkIn.times', { time: '3 PM' })}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.checkIn.flexible')}</p>
-                </>
-            )
-        },
-        {
-            title: t('propertyDetail.policies.cancellation.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.cancellation.free', { days: 7 })}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.cancellation.refund')}</p>
-                </>
-            )
-        },
-        {
-            title: t('propertyDetail.policies.houseRules.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.houseRules.quiet')}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.houseRules.smoking')}</p>
-                </>
-            )
-        },
-        {
-            title: t('propertyDetail.policies.children.title'),
-            body: (
-                <>
-                    <p className="text-charcoal">{t('propertyDetail.policies.children.childrenWelcome')}</p>
-                    <p className="text-charcoal text-sm mt-1">{t('propertyDetail.policies.children.petsPolicy')}</p>
-                </>
-            )
-        }
-    ];
-
 
     const handleImageClick = (index: number) => {
         setLightboxIndex(index);
@@ -443,9 +353,11 @@ const PropertyDetail: React.FC = () => {
                                 ))}
                             </div>
                         )}
+                    </section>
 
-                        {/* Property Identity & Trust Signals */}
-                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+                    {/* Title, features, host sidebar */}
+                    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+                        <div className="space-y-8">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2 text-sm text-charcoal/80">
                                     <MapPin className="h-4 w-4 text-gold" />
@@ -454,7 +366,15 @@ const PropertyDetail: React.FC = () => {
                                     <span>{t('propertyDetail.trustSignals.localResident')}</span>
                                 </div>
                                 <h1 className="text-4xl font-thin leading-tight text-navy">{property.title}</h1>
-                                <p className="max-w-3xl text-lg text-charcoal">{heroSubtitle}</p>
+                                <p className="max-w-3xl text-lg leading-relaxed text-charcoal whitespace-pre-line">
+                                    {descriptionBody}
+                                </p>
+                            </div>
+
+                            <section className="space-y-4">
+                                <h2 className="text-2xl font-semibold text-navy">
+                                    {t('propertyDetail.someFeatures.heading')}
+                                </h2>
                                 <div className="flex flex-wrap gap-6 text-sm text-charcoal">
                                     <div className="flex items-center gap-2">
                                         <Users className="h-5 w-5 text-gold" />
@@ -481,51 +401,16 @@ const PropertyDetail: React.FC = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 text-sm text-charcoal">
-                                    <Star className="h-4 w-4 fill-gold text-gold" />
-                                    <span className="font-semibold text-navy">
-                                        {property.rating?.toFixed(1) ?? '—'}
-                                    </span>
-                                    <span>({property.reviewCount ?? 0})</span>
-                                </div>
+                            </section>
 
-                                {/* Attributes Section */}
-                                <section className="space-y-4">
-                                    <h2 className="text-2xl font-semibold text-navy">
-                                        {t('propertyDetail.attributes.heading')}
-                                    </h2>
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        {[...structureAttributes, ...infrastructureAttributes].map((item) => (
-                                            <div
-                                                key={item.title}
-                                                className="flex items-start gap-4 rounded-3xl border border-warm-gray bg-white/80 p-4"
-                                            >
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warm-gray-light">
-                                                    {item.icon}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-charcoal">{item.title}</p>
-                                                    <p className="text-sm text-charcoal/80">{item.description}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="space-y-3">
-                                        <h3 className="text-lg font-semibold text-navy">{t('propertyDetail.amenities.heading')}</h3>
-                                        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                                            {amenityList.map((amenity: string) => (
-                                                <div
-                                                    key={amenity}
-                                                    className="flex items-center gap-2 rounded-2xl border border-warm-gray bg-white/80 px-3 py-2 text-sm text-charcoal"
-                                                >
-                                                    <CheckCircle className="h-4 w-4 text-gold flex-shrink-0" />
-                                                    <span>{amenity}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
+                            <PropertyAmenitySections
+                                publicAmenities={property.publicAmenities}
+                                fallbackNames={property.amenities}
+                                locale={i18n.language}
+                                describedHeading={t('propertyDetail.attributes.heading')}
+                                nameOnlyHeading={t('propertyDetail.amenities.heading')}
+                            />
+                        </div>
                             {/* Sidebar - CTA & Host */}
                             <div className="space-y-4">
                                 <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white/80 p-6 shadow-[0_20px_40px_-20px_rgba(10,26,47,0.5)]">
@@ -540,12 +425,14 @@ const PropertyDetail: React.FC = () => {
                                                 {t('propertyDetail.host.heading')}
                                             </p>
                                             <h3 className="text-xl font-semibold text-navy">{hostName}</h3>
-                                            <p className="text-sm text-charcoal">
-                                                {t('propertyDetail.trustSignals.hostSince', {
-                                                    name: hostFirstName,
-                                                    year: hostSinceYear
-                                                })}
-                                            </p>
+                                            {property.host?.sinceYear != null && property.host.sinceYear !== '' && (
+                                                <p className="text-sm text-charcoal">
+                                                    {t('propertyDetail.trustSignals.hostSince', {
+                                                        name: hostFirstName,
+                                                        year: property.host.sinceYear
+                                                    })}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="space-y-2 text-sm text-charcoal">
@@ -556,145 +443,56 @@ const PropertyDetail: React.FC = () => {
                                             </div>
                                         ))}
                                     </div>
-                                    <p className="text-sm text-charcoal">
-                                        {t('propertyDetail.trustSignals.verificationDescription')}
-                                    </p>
-                                    <Link
-                                        to="/trust"
-                                        className="text-sm font-medium text-navy hover:text-gold transition-colors"
-                                    >
-                                        {t('propertyDetail.trustSignals.learnMore')}
-                                    </Link>
                                     <p className="text-sm leading-relaxed text-charcoal pt-2 border-t border-warm-gray">{hostBio}</p>
-                                    <p className="text-xs text-charcoal">{t('propertyDetail.host.responseTime', { hours: hostResponseHours })}</p>
-                                    <Button variant="outline" className="w-full rounded-2xl">
-                                        {t('propertyDetail.cta.sendMessage', { name: hostFirstName })}
-                                    </Button>
                                 </Card>
                                 <Card className="space-y-4 rounded-[2rem] border border-warm-gray bg-white p-6 shadow-[0_20px_45px_-25px_rgba(10,26,47,0.5)]">
                                     <div className="space-y-2 text-center">
                                         <p className="text-xs uppercase tracking-[0.4em] text-charcoal/70">
-                                            {t('propertyDetail.cta.pricePerNight', {
-                                                price: `$${property.price}`
-                                            })}
+                                            {explorePriceLoading
+                                                ? t('propertyDetail.pricing.loading')
+                                                : t(sidebarPriceLabelKey)}
                                         </p>
-                                        <div className="text-3xl font-semibold text-navy">${property.price}</div>
-                                        <p className="text-sm text-charcoal">{t('propertyDetail.pricing.perNight')}</p>
+                                        <div className="text-3xl font-semibold text-navy">
+                                            {explorePriceLoading ? '…' : sidebarFormattedPrice}
+                                        </div>
+                                        <p className="text-sm text-charcoal">
+                                            {exploreBreakdown?.displayLabel === 'from'
+                                                ? t('propertyDetail.pricing.fromHint')
+                                                : t('propertyDetail.pricing.perNight')}
+                                        </p>
+                                        <p className="text-xs text-charcoal/80 leading-relaxed">
+                                            {t('propertyDetail.pricing.finalPriceMayVary')}
+                                        </p>
                                     </div>
-                                    <Button
-                                        variant="primary"
-                                        size="lg"
-                                        className="w-full bg-gold text-navy hover:bg-gold-dark"
-                                        onClick={() => setShowBookingCalendar((prev) => !prev)}
-                                    >
-                                        {t('propertyDetail.cta.checkAvailability')}
-                                    </Button>
-                                    {showBookingCalendar && (
-                                        <div className="relative pt-4 border-t border-warm-gray">
-                                            <GuestBookingFlow property={property} />
+                                    {!hasDateSearchContext && (
+                                        <Button
+                                            variant="primary"
+                                            size="lg"
+                                            className="w-full bg-gold text-navy hover:bg-gold-dark"
+                                            onClick={() => setShowBookingCalendar((prev) => !prev)}
+                                        >
+                                            {t('propertyDetail.cta.checkAvailability')}
+                                        </Button>
+                                    )}
+                                    {showCalendar && (
+                                        <div className={`relative ${hasDateSearchContext ? 'pt-2' : 'pt-4 border-t border-warm-gray'}`}>
+                                            <GuestBookingFlow
+                                                property={property}
+                                                initialCheckIn={dateSearchContext?.checkIn}
+                                                initialCheckOut={dateSearchContext?.checkOut}
+                                            />
                                         </div>
                                     )}
-                                    <p className="text-xs text-charcoal">{t('propertyDetail.cta.confirmWithHost', { name: hostFirstName })}</p>
-                                    <p className="text-xs text-charcoal">{t('propertyDetail.cta.noPaymentYet')}</p>
-                                    <Link
-                                        to="/contact"
-                                        className="flex items-center justify-center gap-2 rounded-full border border-warm-gray px-4 py-2 text-sm font-medium text-navy"
-                                    >
-                                        <MessageCircle className="h-4 w-4" />
-                                        <span>{t('propertyDetail.cta.contactHost', { name: hostFirstName })}</span>
-                                    </Link>
                                 </Card>
                             </div>
-                        </div>
-                    </section>
+                    </div>
 
-                    {/* Reviews Section (includes reviews, house layout, outdoor, map, all photos) */}
                     <section className="space-y-8">
-                        <div className="flex items-center justify-between mr-4">
-                            <h2 className="text-2xl font-semibold text-navy">
-                                {t('propertyDetail.reviews.heading')}
-                            </h2>
-                            <div className="flex items-center gap-2">
-                                <Star className="h-5 w-5 fill-gold text-gold" />
-                                <span className="text-lg font-semibold text-navy">
-                                    {reviewsResult != null
-                                        ? reviewsResult.averageRating > 0
-                                            ? reviewsResult.averageRating.toFixed(1)
-                                            : '—'
-                                        : (property.rating != null ? property.rating.toFixed(1) : '—')}
-                                </span>
-                                <span className="text-charcoal">
-                                    {t('propertyDetail.reviews.reviewsCount', { count: reviewsResult?.totalCount ?? property.reviewCount ?? 0 })}
-                                </span>
-                            </div>
-                        </div>
-                        {/* Add review: show button if eligible, or message if not, or login prompt */}
-                        {!user ? (
-                            <p className="text-charcoal text-sm">{t('reviews.loginToReview')}</p>
-                        ) : reviewEligibilityLoading ? null : reviewEligibility?.canReview && reviewEligibility.booking ? (
-                            <div className="mb-4">
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    onClick={() => setIsReviewModalOpen(true)}
-                                >
-                                    {t('reviews.addReview')}
-                                </Button>
-                            </div>
-                        ) : reviewEligibility?.reason ? (
-                            <p className="text-charcoal text-sm mb-4">
-                                {reviewEligibility.reason.startsWith('reviews.') ? t(reviewEligibility.reason) : reviewEligibility.reason}
-                            </p>
-                        ) : null}
-                        {reviewsResult && reviewsResult.reviews.length > 0 ? (
-                            <div className="space-y-4">
-                                {reviewsResult.reviews.map((review) => (
-                                    <div
-                                        key={review.id}
-                                        className="rounded-2xl border border-warm-gray bg-white/80 p-4 space-y-2"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-warm-gray-light flex items-center justify-center text-navy font-semibold">
-                                                    {(review.reviewerName || '?').charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-navy">{review.reviewerName || t('reviews.anonymous')}</p>
-                                                    <p className="text-xs text-charcoal/80">
-                                                        {new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <Star className="h-4 w-4 fill-gold text-gold" />
-                                                <span className="text-sm font-medium text-navy">{review.rating.toFixed(1)}</span>
-                                            </div>
-                                        </div>
-                                        {review.comment ? (
-                                            <p className="text-sm text-charcoal leading-relaxed">{review.comment}</p>
-                                        ) : null}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-charcoal text-sm">{t('propertyDetail.reviews.noReviews')}</p>
-                        )}
-
-                        {/* House distribution */}
-                        <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
-                            <h3 className="text-xl font-semibold text-navy">
-                                {t('propertyDetail.detailSections.homeLayout.heading')}
-                            </h3>
-                            <p className="text-sm leading-relaxed text-charcoal">{homeLayoutCopy}</p>
-                        </div>
-
-                        {/* Exterior areas */}
-                        <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
-                            <h3 className="text-xl font-semibold text-navy">
-                                {t('propertyDetail.detailSections.outdoorAreas.heading')}
-                            </h3>
-                            <p className="text-sm leading-relaxed text-charcoal">{outdoorCopy}</p>
-                        </div>
+                        <PropertyContentSections
+                            publicContentSections={property.publicContentSections}
+                            legacySections={property.sections}
+                            locale={i18n.language}
+                        />
 
                         {/* Neighborhood & map */}
                         <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
@@ -722,16 +520,9 @@ const PropertyDetail: React.FC = () => {
 
                         {/* All photos */}
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-xl font-semibold text-navy">
-                                    {t('propertyDetail.secondaryGallery.heading')}
-                                </h3>
-                                {secondaryGalleryImages.length > 1 && (
-                                    <span className="text-sm text-charcoal/70">
-                                        {t('propertyDetail.heroGallery.viewAllPhotos')}
-                                    </span>
-                                )}
-                            </div>
+                            <h3 className="text-xl font-semibold text-navy">
+                                {t('propertyDetail.secondaryGallery.heading')}
+                            </h3>
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 {secondaryGalleryImages.map((image: string, index: number) => (
                                     <button
@@ -744,23 +535,22 @@ const PropertyDetail: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+
+                        {id && (
+                            <PropertyReviewsSection
+                                propertyId={id}
+                                propertyTitle={property.title}
+                                fallbackRating={property.rating}
+                                fallbackReviewCount={property.reviewCount}
+                            />
+                        )}
                     </section>
 
-                    {/* Policies - full width */}
-                    <section className="mt-10 space-y-4">
-                        <h2 className="text-2xl font-semibold text-navy">{t('propertyDetail.policies.heading')}</h2>
-                        <div className="grid gap-4 md:grid-cols-2">
-                            {policyBlocks.map((policy) => (
-                                <div
-                                    key={policy.title}
-                                    className="space-y-2 rounded-2xl border border-warm-gray bg-white/90 p-4 text-sm text-charcoal"
-                                >
-                                    <h3 className="text-base font-semibold text-navy">{policy.title}</h3>
-                                    <div className="space-y-1">{policy.body}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                    <PropertyPolicySections
+                        publicPolicies={property.publicPolicies}
+                        heading={t('propertyDetail.policies.heading')}
+                        locale={i18n.language}
+                    />
                 </div>
 
                 {/* Trust Footer */}
@@ -822,17 +612,6 @@ const PropertyDetail: React.FC = () => {
                 </div>
             )}
 
-            <LeaveReviewModal
-                isOpen={isReviewModalOpen}
-                onClose={() => setIsReviewModalOpen(false)}
-                onSuccess={() => {
-                    setIsReviewModalOpen(false);
-                    setReviewEligibility((prev) => (prev?.canReview ? { canReview: false, reason: 'reviews.errors.reviewAlreadyExists' } : prev));
-                    getReviewsByPropertyId(id!).then(setReviewsResult);
-                }}
-                bookingId={reviewEligibility?.booking?.id ?? ''}
-                propertyTitle={property?.title}
-            />
         </Layout>
     );
 };

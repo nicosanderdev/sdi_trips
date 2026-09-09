@@ -1,6 +1,9 @@
 {
   "layout": {
-    "documentTitle": "Event venues: En cartelera - Espacios"
+    "documentTitle": "En cartelera - Espacios"
+  },
+  "pricing": {
+    "perEvent": "per event"
   },
   "brand": {
     "venue": "En cartelera - ",
@@ -11,7 +14,12 @@
     "mainNavAria": "Main navigation",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "languageSelectAria": "Language"
+    "languageSelectAria": "Language",
+    "tagline": "Event spaces in Rivera, made simple.",
+    "exploreVenues": "Explore Venues",
+    "howItWorks": "How It Works",
+    "aboutUs": "About Us",
+    "ctaFindVenue": "Find Your Venue"
   },
   "languages": {
     "en": "English",
@@ -20,101 +28,121 @@
   },
   "landing": {
     "hero": {
-      "title": "Find the venue your guests will remember",
-      "subtitle": "Check real availability, pick a date, and coordinate directly with the venue. No middlemen. No delays.",
-      "searchDateLabel": "Event date",
-      "searchDateAria": "Event date",
-      "searchGuestsLabel": "Number of guests",
-      "searchGuestsPlaceholder": "e.g. 120",
-      "searchGuestsAria": "Number of guests",
-      "searchCta": "Search",
-      "badgeCurated": "Verified spaces",
-      "badgeCapacity": "Capacity & layout notes",
-      "badgeHoldDemo": "Date hold demo",
-      "exploreCta": "Explore local venues",
+      "title": "A celebration your guests will talk about",
+      "subtitle": "Browse venues in Rivera, check real availability, and coordinate directly with the people who run them — no middlemen, no runaround.",
+      "searchDateFromLabel": "Earliest date",
+      "searchDateFromAria": "Earliest event date",
+      "searchDateToLabel": "Latest date",
+      "searchDateToAria": "Latest event date",
+      "searchLocationLabel": "Location",
+      "searchLocationPlaceholder": "City",
+      "searchLocationAria": "Location",
+      "searchCta": "Let's Explore",
+      "badgeCurated": "Spaces we know personally",
+      "badgeCapacity": "Clear capacity & layout info",
+      "badgeHoldDemo": "Simple date holds",
+      "exploreCta": "Explore Venues",
       "talkCta": "View reservation",
-      "storiesHeading": "Planner & host stories",
-      "storyDotAria": "Show story {{n}}",
-      "slides": {
-        "0": {
-          "quote": "Our wedding felt effortless—the team handled the flip from ceremony to reception in under an hour."
-        },
-        "1": {
-          "quote": "We hosted a product launch for 150 guests. AV, load-in, and security were dialed in from day one."
-        },
-        "2": {
-          "quote": "The ballroom photos at golden hour were unreal. Guests are still talking about the dance floor."
-        }
-      }
+      "storiesHeading": "Where great memories begin",
+      "storiesDescription": "Ballrooms, gardens, and venues ready for birthdays, weddings, corporate events, and everything in between.",
+      "storyDotAria": "Show image {{n}}"
     },
     "occasions": {
       "eyebrow": "Every occasion",
-      "heading": "Spaces for your event"
+      "heading": "Spaces that make your day easier"
     },
     "features": {
       "weddings": {
         "title": "Weddings",
-        "description": "Ceremony and reception spaces with room for your traditions, timeline, and dance floor."
+        "description": "Ceremony and reception spaces with room for your traditions — so you can focus on the people, not the logistics."
       },
       "corporate": {
         "title": "Corporate",
-        "description": "Summits, offsites, and client dinners with flexible seating and professional AV options."
+        "description": "Summits and client dinners with flexible seating — a professional setting without the corporate coldness."
       },
       "parties": {
         "title": "Parties",
-        "description": "Milestones, fundraisers, and celebrations with capacity and layout options to match."
+        "description": "Milestones and celebrations with the capacity and layout to match your guest list and your vibe."
       }
     },
     "popular": {
       "eyebrow": "Featured",
-      "heading": "Popular venues this season",
-      "sub": "Selected for quality and availability.",
+      "heading": "Venues our guests love",
+      "sub": "Places worth celebrating in.",
       "popularBadge": "Popular",
       "guestsLine": "Up to {{count}} guests · {{priceHint}}",
-      "cta": "Find your perfect venue"
+      "cta": "Explore Venues"
     },
     "howItWorks": {
       "heading": "How it works",
       "step1Title": "Browse venues",
-      "step1Desc": "Filter by capacity, event type, and location.",
+      "step1Desc": "Filter by location, capacity, and when you need the space.",
       "step2Title": "Choose a date",
-      "step2Desc": "Check availability in real time",
-      "step3Title": "Book",
-      "step3Desc": "Complete the requested information and confirm your event",
+      "step2Desc": "Check availability and pick a day that works for everyone.",
+      "step3Title": "Book your event",
+      "step3Desc": "A few clear steps and you're on your way — no guesswork.",
       "step4Title": "Coordinate directly",
-      "step4Desc": "Connect with the venue without middlemen"
+      "step4Desc": "Talk to the venue team without going through a call center."
+    },
+    "humanTouch": {
+      "title": "We're people helping people.",
+      "paragraph1": "We started En cartelera Espacios because finding a venue in Rivera shouldn't mean cold listings and endless phone tag.",
+      "paragraph2": "Whether you're planning a wedding or opening your space to events, we built this for both sides — organizers who want something real, and venue owners who want something simple.",
+      "paragraph3": "We're a small team in Rivera. When you reach out, a person answers. That's how we think it should work.",
+      "learnMore": "Learn More"
+    },
+    "testimonials": {
+      "title": "What organizers are saying",
+      "subtitle": "Short stories from people who've been there",
+      "items": {
+        "1": {
+          "text": "We found the perfect venue for our company dinner in less than an hour.",
+          "author": "María",
+          "location": "Rivera"
+        },
+        "2": {
+          "text": "It felt much easier than searching across different websites.",
+          "author": "Andrés",
+          "location": "Rivera"
+        },
+        "3": {
+          "text": "The booking process was simple from start to finish.",
+          "author": "Laura",
+          "location": "Rivera"
+        }
+      }
     },
     "ctaBand": {
       "titleBefore": "Ready to ",
-      "titleHighlight": "shortlist",
+      "titleHighlight": "find",
       "titleAfter": " your venue?",
-      "button": "Start browsing"
+      "button": "Explore Venues"
     }
   },
   "search": {
     "heroTitleBefore": "Discover ",
     "heroTitleHighlight": "venues",
     "heroTitleAfter": " for your event",
-    "heroSub": "No map—just a focused list. Use filters to narrow the grid (demo UI; refine logic as you like).",
+    "heroSub": "Browse venues by location, capacity, and when you need the space available.",
     "filtersHeading": "Filters",
-    "filtersHint": "Filters update the list below for quick exploration.",
-    "eventType": "Event type",
-    "capacity": "Capacity",
-    "priceTier": "Price hint",
+    "filtersHint": "Filters update the list below as you refine your search.",
+    "location": "Location",
+    "locationPlaceholder": "City",
+    "guestsRange": "Guests",
+    "capacityMin": "Min guests",
+    "capacityMinPlaceholder": "e.g. 50",
+    "capacityMax": "Max guests",
+    "capacityMaxPlaceholder": "e.g. 200",
+    "availabilityRange": "Availability window",
+    "availableFrom": "From",
+    "availableTo": "To",
+    "availabilityHint": "Shows venues with at least one free day in this range for a one-day event.",
     "resetFilters": "Reset filters",
-    "optionAny": "Any",
-    "eventWedding": "Weddings",
-    "eventCorporate": "Corporate",
-    "eventParty": "Parties",
-    "eventWorkshop": "Workshops",
-    "capSmall": "Up to 80",
-    "capMedium": "81 – 150",
-    "capLarge": "151+",
-    "priceBudget": "Under ~$3k",
-    "pricePremium": "$4k+",
     "resultsLine": "Showing {{count}} venues",
     "guestsUpTo": "Up to {{count}} guests",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "loading": "Loading venues...",
+    "empty": "No venues found for the selected filters."
   },
   "venueDetail": {
     "notFoundTitle": "Venue not found",
@@ -130,8 +158,16 @@
     "pricingHintTitle": "Pricing hint",
     "pricingHintDesc": "{{priceHint}}. {{suffix}}",
     "pricingHintSuffix": "Final quotes depend on date, staffing, and add-ons.",
+    "someFeatures": "Some highlights",
     "amenities": "Amenities",
+    "venueRules": "Policies & venue rules",
     "policies": "Policies & logistics",
+    "trustFooter": {
+      "heading": "How we verify venues",
+      "description": "Every venue on our platform is reviewed by our local team before listing. We visit in person, confirm the space, and ensure listing accuracy.",
+      "learnMore": "Read our full trust & quality standards",
+      "support": "Questions about this venue? Contact our support team"
+    },
     "prevImage": "Previous image",
     "nextImage": "Next image",
     "coordinatorTeam": "Venue team",
@@ -139,9 +175,15 @@
     "coordinatorRole": "Coordinators for this listing (demo)",
     "coordinatorBullet1": "Site visit windows available",
     "coordinatorBullet2": "Preferred vendor list on request",
+    "host": {
+      "heading": "Meet your host",
+      "defaultName": "Host",
+      "bioDefault": "We love sharing this space and helping your event run smoothly."
+    },
     "messageVenue": "Message the venue",
     "startingFrom": "Starting from",
     "taxesNote": "Taxes, staffing, and rentals may apply.",
+    "finalPriceMayVary": "The final price may vary depending on season, special dates, or how far ahead you book.",
     "checkAvailability": "Check availability",
     "calendarDemoNote": "Select event dates (demo calendar—no backend). This uses the same date picker styling as the main site.",
     "eventStart": "Event start",
@@ -153,23 +195,22 @@
   "contact": {
     "heroTitleBefore": "Let's plan ",
     "heroTitleHighlight": "something memorable",
-    "heroSub": "Tell us about your event. This form is UI-only—nothing is sent to a server in this demo.",
+    "heroSub": "Have a question? We'd love to hear from you.",
     "whyHeading": "Why reach out",
     "reasonPlanningTitle": "Event planning",
     "reasonPlanningDesc": "Ask about capacity, load-in, or timeline for your wedding or corporate program.",
-    "reasonVenueTitle": "Venue partnerships",
-    "reasonVenueDesc": "List a new space or update imagery and pricing hints for our catalog.",
-    "reasonSponsorTitle": "Sponsorships",
-    "reasonSponsorDesc": "Collaborate on city guides, open houses, or industry events.",
+    "reasonPublishSpaceTitle": "List your space",
+    "reasonPublishSpaceDesc": "Add your space to our catalog and start receiving inquiries from potential clients.",
+    "reasonGeneralInquiriesTitle": "General inquiries",
+    "reasonGeneralInquiriesDesc": "If you have questions about bookings, how the site works, or venue information, we're here to help.",
     "directLineHeading": "Direct line",
-    "directLineBody": "hello@venuespace.example · We typically reply within one business day.",
+    "directLineBody": "admin@encartelera.uy",
     "successTitle": "Thanks for your note",
-    "successBody": "In a live app, we would route this to your inbox. Here, it's a static demo only.",
+    "successBody": "Thank you for contacting us. We'll get back to you soon.",
     "messagePlaceholder": "Event date, guest count, venue style…",
-    "submitDemo": "Send message (demo)",
-    "listVenueHeading": "List your venue",
-    "listVenueSub": "Join curated collections for planners searching by capacity, aesthetic, and neighborhood.",
-    "partnerDemo": "Partner inquiry (demo)"
+    "searchCtaHeading": "Still looking for a venue?",
+    "searchCtaSub": "Browse venues by location, capacity, and availability.",
+    "searchCtaButton": "Browse venues"
   },
   "terms": {
     "heroTitleBefore": "Terms & ",
@@ -242,12 +283,18 @@
     ]
   },
   "footer": {
-    "email": "hello@venuespace.example",
-    "phone": "+1 (555) 010-2030",
-    "address": "Austin, TX",
-    "tagline": "Find and book exceptional event venues for weddings, corporate gatherings, and celebrations.",
+    "email": "admin@encartelera.uy",
+    "phone": "+598 99 205 886",
+    "address": "Rivera, Uruguay",
+    "tagline": "Helping people find memorable spaces for their celebrations.",
+    "welcomeMessage": "Whether you're planning your next event or sharing your space with guests, we're happy you're here.",
+    "madeWithCare": "Made with care in Uruguay.",
     "companyHeading": "Company",
+    "supportHeading": "Support",
+    "legalHeading": "Legal",
+    "contactLink": "Contact",
     "termsLink": "Terms & conditions",
+    "howItWorks": "How It Works",
     "exploreHeading": "Explore",
     "browseVenues": "Browse venues",
     "weddingVenues": "Wedding venues",
@@ -258,10 +305,72 @@
     "twitter": "Twitter",
     "instagram": "Instagram"
   },
+  "about": {
+    "hero": {
+      "title": "About",
+      "titleHighlight": "En cartelera - Espacios"
+    },
+    "mission": {
+      "title": "Mission and",
+      "titleHighlight": "vision",
+      "missionLabel": "Mission",
+      "missionText": "Connect people with spaces, helping owners manage their properties and helping people find the place that fits their needs.",
+      "visionLabel": "Vision",
+      "visionText": "To be the go-to platform for discovering and booking spaces, making it simple, reliable, and accessible to find the right place.",
+      "imageAlt": "En cartelera - Espacios"
+    },
+    "values": {
+      "title": "Our",
+      "titleHighlight": "Values",
+      "trust": {
+        "title": "Trust",
+        "description": "We build transparent relationships between owners and visitors."
+      },
+      "simplicity": {
+        "title": "Simplicity",
+        "description": "We remove unnecessary steps and make finding and offering a space easy."
+      },
+      "closeness": {
+        "title": "Closeness",
+        "description": "We design with people in mind, not only properties."
+      },
+      "experience": {
+        "title": "Experience",
+        "description": "Our goal is not only to facilitate a booking, but to help create good moments."
+      },
+      "transparency": {
+        "title": "Transparency",
+        "description": "Clear information, prices, conditions, and expectations."
+      },
+      "innovation": {
+        "title": "Useful innovation",
+        "description": "We use technology to solve real problems."
+      },
+      "community": {
+        "title": "Community",
+        "description": "We want to build a network where owners and visitors benefit from each other."
+      }
+    },
+    "cta": {
+      "title": "Find the",
+      "titleHighlight": "ideal space",
+      "description": "Explore the available options or get in touch. We're here to help you connect with the space you need.",
+      "browseProperties": "Explore Venues"
+    }
+  },
   "reservations": {
     "titleBefore": "Your ",
     "titleHighlight": "reservations",
-    "subtitle": "Demo view of holds and bookings. Status chips help you scan what is upcoming, completed, or cancelled.",
+    "subtitle": "Look up a reservation with your code, or open the link from your confirmation email. View details and cancel when your booking allows it.",
+    "lookupHeading": "Find a reservation",
+    "lookupHint": "Enter the reservation code from your confirmation (format RSV-XXXXXX), or use the manage link you received by email.",
+    "loadingFromLink": "Loading reservation from your link…",
+    "browseVenues": "Browse venues",
+    "guestsNotShown": "Not shown for code lookup",
+    "errors": {
+      "missingToken": "This manage link is missing a token. Check the full URL from your confirmation email.",
+      "invalidOrExpiredToken": "Invalid or expired management link."
+    },
     "colVenue": "Venue",
     "colDate": "Date",
     "colGuests": "Guests",
@@ -273,6 +382,34 @@
     "statusCancelled": "Cancelled",
     "ctaQuestion": "Need another date or venue?",
     "ctaBrowse": "Browse venues"
+  },
+  "bookingFlow": {
+    "done": {
+      "modalTitle": "Request received",
+      "body": "Your booking request was submitted and is pending host approval. You will receive an email when it is confirmed (or WhatsApp if you did not provide an email).",
+      "codeLabel": "Your booking code",
+      "lookupHint": "Save this code to look up or manage your booking later. Use the button below to open your booking.",
+      "goToReservationLookup": "View my booking",
+      "close": "Close"
+    },
+    "otpHint": {
+      "whatsapp": "We sent a verification code via WhatsApp.",
+      "sms": "WhatsApp was unavailable, so we sent the code by SMS.",
+      "localMock": "Local dry-run: check the functions terminal for the code."
+    },
+    "actions": {
+      "continue": "Continue",
+      "sendConfirmationCode": "Send confirmation code"
+    },
+    "form": {
+      "phone": "Phone number",
+      "enterConfirmationCode": "Enter confirmation code",
+      "estimatedGuests": "Number of invitees (optional)"
+    },
+    "errors": {
+      "couldNotSendConfirmationCode": "Could not send confirmation code.",
+      "invalidConfirmationCode": "Invalid confirmation code."
+    }
   },
   "notFound": {
     "code": "404",

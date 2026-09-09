@@ -1,13 +1,34 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+function htmlMetaByMode(mode: string): Plugin {
+  const metaByMode: Record<string, { title: string; favicon: string }> = {
+    main: { title: 'En cartelera - Casas', favicon: '/logo-en-cartelera.png' },
+    alt: { title: 'En cartelera - Espacios', favicon: '/logo-en-cartelera-alt.png' },
+  };
+  const meta = metaByMode[mode];
+  if (!meta) return { name: 'html-meta-by-mode' };
+
+  return {
+    name: 'html-meta-by-mode',
+    transformIndexHtml(html) {
+      return html
+        .replace(/<title>.*?<\/title>/, `<title>${meta.title}</title>`)
+        .replace(
+          /<link rel="icon"[^>]*>/,
+          `<link rel="icon" type="image/png" href="${meta.favicon}" />`,
+        );
+    },
+  };
+}
+
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), htmlMetaByMode(mode)],
   resolve: {
     alias: {
       '@core': path.resolve(__dirname, 'src/core'),
@@ -25,4 +46,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

@@ -5,13 +5,13 @@ import { AltLayout } from '../components/layout/AltLayout';
 import AltContact from '../pages/AltContact';
 import AltLanding from '../pages/AltLanding';
 import AltNotFound from '../pages/AltNotFound';
-import AltReservations from '../pages/AltReservations';
 import AltReservationLookup from '../pages/AltReservationLookup';
+import AltMercadoPagoPaymentResultPage from '../pages/AltMercadoPagoPaymentResultPage';
 import AltSearchProperties from '../pages/AltSearchProperties';
 import AltTermsAndConditions from '../pages/AltTermsAndConditions';
 import AltVenueDetail from '../pages/AltVenueDetail';
-import Register from '../../app-main/pages/Register';
 import ForgotPassword from '../../app-main/pages/ForgotPassword';
+import About from '../../app-main/pages/About';
 
 export function AppAltRouter() {
   return (
@@ -22,11 +22,11 @@ export function AppAltRouter() {
             <Route path="/" element={<AltLanding />} />
             <Route path="/search" element={<AltSearchProperties />} />
             <Route path="/contact" element={<AltContact />} />
-            <Route path="/reservations" element={<AltReservations />} />
+            <Route path="/about" element={<About variant="alt" />} />
             <Route path="/reservation-lookup" element={<AltReservationLookup />} />
+            <Route path="/pago-mercado-pago/resultado" element={<AltMercadoPagoPaymentResultPage />} />
             <Route path="/terms-and-conditions" element={<AltTermsAndConditions />} />
             <Route path="/venue/:id" element={<AltVenueDetail />} />
-            <Route path="/register" element={<Register variant="alt" />} />
             <Route path="/forgot-password" element={<ForgotPassword variant="alt" />} />
             <Route path="*" element={<AltNotFound />} />
           </Route>

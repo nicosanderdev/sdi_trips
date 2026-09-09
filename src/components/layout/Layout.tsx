@@ -17,7 +17,7 @@ const Layout: React.FC<LayoutProps> = ({
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <main className={`pt-24 ${className}`}>
+      <main className={`pt-28 md:pt-32 lg:pt-36 ${className}`}>
         {children}
       </main>
       {showFooter && <Footer />}

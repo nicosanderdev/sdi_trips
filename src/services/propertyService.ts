@@ -1,6 +1,11 @@
 import { supabase } from '../lib/supabase';
 import type { RpcSummerRentPropertyRow } from '../models/summerRentProperty';
+import { parseAmenities } from '../models/properties/publicAmenity';
+import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
+import { parsePolicies } from '../models/properties/propertyPolicies';
 import type { Property } from '../types';
+import { mapRpcPricingFields } from './pricing/listingPricing';
+import { enrichPropertiesWithImages } from './propertyImageService';
 import { getRatingsForProperties } from './reviewService';
 
 export interface PropertyFilters {
@@ -17,10 +22,22 @@ export interface PropertySearchResult {
   totalCount: number;
 }
 
+/** Public listings must never expose owner email/phone (even if RPC adds OwnerEmail/OwnerPhone later). */
+function mapPublicHostProfile(ownerId: string | null | undefined): Property['host'] {
+  return {
+    id: ownerId || '',
+    name: 'Host',
+    email: '',
+    avatar: undefined,
+    phone: undefined,
+    verified: false,
+  };
+}
+
 /**
  * Transform SummerRent RPC row to frontend Property type
  */
-function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
+export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
   const location = [
     row.Neighborhood,
     row.City,
@@ -35,29 +52,39 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     (row.Bedrooms != null ? row.Bedrooms * 2 : 0);
 
   const amenities = row.AmenityNames ?? [];
+  const publicAmenities = parseAmenities(row.Amenities);
+  const publicPolicies = parsePolicies(row.Policies);
+  const publicContentSections = resolvePublicContentSectionsFromRow(
+    row.ContentSections,
+    row.SectionData,
+  );
+  const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
 
   return {
     id: row.EstatePropertyId,
     title: row.Title ?? 'Untitled property',
     location: location || 'Location not specified',
-    price: row.RentPrice || row.SalePrice || 0,
+    price: pricing.basePrice,
+    listingId: pricing.listingId ?? row.ListingId,
+    basePrice: pricing.basePrice,
+    minPrice: pricing.minPrice,
+    maxPrice: pricing.maxPrice,
+    longStayDiscountEnabled: pricing.longStayDiscountEnabled,
+    longStayMinDays: pricing.longStayMinDays,
+    longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: getCurrencyCode(row.Currency),
-    images: [], // TODO: Implement image fetching
+    images: [],
     bedrooms: row.Bedrooms,
     bathrooms: row.Bathrooms,
     maxGuests,
     description: row.ListingDescription || '',
     amenities,
+    publicAmenities: publicAmenities.length ? publicAmenities : undefined,
+    publicPolicies: publicPolicies.length ? publicPolicies : undefined,
+    publicContentSections: publicContentSections.length ? publicContentSections : undefined,
     rating: 0,
     reviewCount: 0,
-    host: {
-      id: row.OwnerId || '',
-      name: 'Host',
-      email: '',
-      avatar: undefined,
-      phone: undefined,
-      verified: false,
-    },
+    host: mapPublicHostProfile(row.OwnerId),
     available: row.IsActive && row.IsPropertyVisible && !row.BlockedForBooking,
     coordinates: {
       lat: Number(row.LocationLatitude),
@@ -69,6 +96,8 @@ function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Property {
     bufferDays: row.BufferDays ?? undefined,
     ownerId: row.OwnerId ?? undefined,
     listingType: 'SummerRent',
+    hasPool: row.HasPool,
+    hasGarage: row.HasGarage,
   };
 }
 
@@ -104,7 +133,7 @@ export async function getFeaturedProperties(
   }
 
   const rows = (data ?? []).slice(0, limit);
-  return rows.map(transformSummerRentProperty);
+  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
 }
 
 /**
@@ -129,7 +158,7 @@ export async function getProperties(limit?: number): Promise<Property[]> {
   }
 
   const rows = limit ? (data ?? []).slice(0, limit) : data ?? [];
-  return rows.map(transformSummerRentProperty);
+  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
 }
 
 /**
@@ -203,7 +232,7 @@ export async function getTopRatedPropertiesForHero(
     return 0;
   });
 
-  return enriched.slice(0, limit);
+  return enrichPropertiesWithImages(enriched.slice(0, limit));
 }
 
 /**
@@ -226,7 +255,8 @@ export async function getPropertyById(id: string): Promise<Property | null> {
     return null;
   }
 
-  return transformSummerRentProperty(row);
+  const [property] = await enrichPropertiesWithImages([transformSummerRentProperty(row)]);
+  return property;
 }
 
 /**
@@ -290,7 +320,7 @@ export async function searchProperties(
   const paged = properties.slice(offset, offset + limit);
 
   return {
-    properties: paged,
+    properties: await enrichPropertiesWithImages(paged),
     totalCount,
   };
 }
@@ -347,5 +377,5 @@ export async function getFavoriteProperties(
     }
   }
 
-  return favorites;
+  return enrichPropertiesWithImages(favorites);
 }

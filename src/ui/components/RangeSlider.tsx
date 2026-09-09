@@ -8,6 +8,8 @@ export interface RangeSliderProps {
   step?: number;
   className?: string;
   label?: string;
+  /** Optional formatter for the displayed min/max values. Defaults to `$value`. */
+  formatValue?: (value: number, edge: 'min' | 'max') => string;
 }
 
 const RangeSlider: React.FC<RangeSliderProps> = ({
@@ -18,6 +20,7 @@ const RangeSlider: React.FC<RangeSliderProps> = ({
   step = 1,
   className = '',
   label,
+  formatValue,
 }) => {
   const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -85,8 +88,8 @@ const RangeSlider: React.FC<RangeSliderProps> = ({
       <div className="relative">
         {/* Value Display */}
         <div className="flex justify-between text-sm text-charcoal mb-2">
-          <span>${value[0]}</span>
-          <span>${value[1]}</span>
+          <span>{formatValue ? formatValue(value[0], 'min') : `$${value[0]}`}</span>
+          <span>{formatValue ? formatValue(value[1], 'max') : `$${value[1]}`}</span>
         </div>
 
         {/* Slider Track */}

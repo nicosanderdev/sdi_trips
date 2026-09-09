@@ -111,6 +111,12 @@ export interface RpcSummerRentPropertyRow {
   Currency: Listing['Currency'];
   SalePrice: Listing['SalePrice'];
   RentPrice: Listing['RentPrice'];
+  BasePrice?: number | null;
+  MinPrice?: number | null;
+  MaxPrice?: number | null;
+  LongStayDiscountEnabled?: boolean | null;
+  LongStayMinDays?: number | null;
+  LongStayDiscountPercentage?: number | null;
   HasCommonExpenses: Listing['HasCommonExpenses'];
   CommonExpensesValue: Listing['CommonExpensesValue'];
   IsElectricityIncluded: Listing['IsElectricityIncluded'];
@@ -129,4 +135,27 @@ export interface RpcSummerRentPropertyRow {
   BufferDays: SummerRentExtension['BufferDays'];
 
   AmenityNames: string[] | null;
+  Amenities?: unknown;
+  Policies?: unknown;
+  ContentSections?: unknown;
+  SectionData?: RpcPropertySectionRow[] | null;
+}
+
+export interface RpcPropertySectionImageRow {
+  Id: string;
+  PropertyImageId: string | null;
+  R2Url: string;
+  Title: string | null;
+  Metadata: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+}
+
+export interface RpcPropertySectionRow {
+  Id: string;
+  Name: string;
+  Description: string | null;
+  LayoutType: 'split' | 'carousel' | 'stacked' | null;
+  LayoutConfig: Record<string, unknown> | null;
+  DisplayOrder: number | null;
+  Images: RpcPropertySectionImageRow[] | null;
 }

@@ -3,7 +3,14 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { format, isSameDay } from 'date-fns';
 import { enUS, es, ptBR } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
-import { getPropertyAvailability, getBlockedDates, validateDateSelection, getEarliestAvailableDate } from '../../services/availabilityService';
+import {
+  getPropertyAvailability,
+  getBlockedDates,
+  validateDateSelection,
+  getEarliestAvailableDate,
+  getLatestBookableDate,
+  type DateSelectionValidationResult,
+} from '../../services/availabilityService';
 import type { PropertyBookingRules } from '../../types';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -23,6 +30,7 @@ interface BookingDatePickerProps {
   maxStayDays?: number;
   leadTimeDays?: number;
   bufferDays?: number;
+  onSelectionErrorChange?: (error: string | null) => void;
 }
 
 const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
@@ -36,11 +44,13 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
   maxStayDays,
   leadTimeDays,
   bufferDays,
+  onSelectionErrorChange,
 }) => {
   const { t, i18n } = useTranslation();
   const [blockedDates, setBlockedDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectionError, setSelectionError] = useState<string | null>(null);
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
 
   // Map i18n language to date-fns locale
@@ -63,18 +73,29 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     return lang === 'pt' ? 'pt' : lang === 'es' ? 'es' : 'en';
   }, [i18n.language]);
 
-  const bookingRules: PropertyBookingRules = {
-    minStayDays,
-    maxStayDays,
-    leadTimeDays,
-    bufferDays,
-  };
+  const bookingRules: PropertyBookingRules = useMemo(
+    () => ({
+      minStayDays,
+      maxStayDays,
+      leadTimeDays,
+      bufferDays,
+    }),
+    [minStayDays, maxStayDays, leadTimeDays, bufferDays],
+  );
 
   const addDays = useCallback((date: Date, days: number) => {
     const next = new Date(date);
     next.setDate(next.getDate() + days);
     return next;
   }, []);
+
+  const formatValidationError = useCallback(
+    (validation: DateSelectionValidationResult) => {
+      if (!validation.errorKey) return null;
+      return t(`propertyDetail.bookingFlow.${validation.errorKey}`, validation.errorParams);
+    },
+    [t],
+  );
 
   // Fetch availability when property or date range changes
   useEffect(() => {
@@ -87,8 +108,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
 
         // Calculate date range (3 months ahead from earliest available date)
         const startDate = getEarliestAvailableDate(leadTimeDays);
-        const endDate = new Date(startDate);
-        endDate.setMonth(endDate.getMonth() + 3);
+        const endDate = getLatestBookableDate(leadTimeDays);
 
         const availabilityData = await getPropertyAvailability(propertyId, startDate, endDate);
         setBlockedDates(getBlockedDates(availabilityData));
@@ -101,7 +121,20 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     };
 
     fetchAvailability();
-  }, [propertyId, leadTimeDays]);
+  }, [propertyId, leadTimeDays, t]);
+
+  // Surface rule errors as soon as both dates are present (parent also gates Continue).
+  useEffect(() => {
+    if (!checkIn || !checkOut) {
+      setSelectionError(null);
+      onSelectionErrorChange?.(null);
+      return;
+    }
+    const validation = validateDateSelection(checkIn, checkOut, blockedDates, bookingRules);
+    const message = validation.isValid ? null : formatValidationError(validation);
+    setSelectionError(message);
+    onSelectionErrorChange?.(message ?? null);
+  }, [checkIn, checkOut, blockedDates, bookingRules, formatValidationError, onSelectionErrorChange]);
 
   // Handle hover over dates
   const handleDayMouseEnter = useCallback((date: Date) => {
@@ -130,6 +163,9 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
 
     // Don't allow selection of blocked dates
     if (blockedDates.has(dateStr)) {
+      const message = t('propertyDetail.bookingFlow.errors.dateUnavailable');
+      setSelectionError(message);
+      onSelectionErrorChange?.(message);
       return;
     }
 
@@ -140,22 +176,45 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
       // If check-out is before or same as check-in, clear it
       if (checkOut && (date >= checkOut || isSameDay(date, checkOut))) {
         onCheckOutChange(null);
+        setSelectionError(null);
+        onSelectionErrorChange?.(null);
+        return;
+      }
+
+      if (checkOut) {
+        const validation = validateDateSelection(date, checkOut, blockedDates, bookingRules);
+        const message = validation.isValid ? null : formatValidationError(validation);
+        setSelectionError(message);
+        onSelectionErrorChange?.(message ?? null);
+      } else {
+        setSelectionError(null);
+        onSelectionErrorChange?.(null);
       }
     } else {
       // Selecting check-out date
       // Only allow if we have a check-in date
       if (!checkIn) return;
 
-      // Validate the selection
-      const validation = validateDateSelection(checkIn, date, blockedDates, bookingRules);
-      if (!validation.isValid) {
-        // Could show error message here
-        return;
-      }
-
+      // Always apply the selection so the guest sees the chosen range,
+      // then surface a clear error when rules are not met.
       onCheckOutChange(date);
+      const validation = validateDateSelection(checkIn, date, blockedDates, bookingRules);
+      const message = validation.isValid ? null : formatValidationError(validation);
+      setSelectionError(message);
+      onSelectionErrorChange?.(message ?? null);
     }
-  }, [checkIn, checkOut, blockedDates, bookingRules, onCheckInChange, onCheckOutChange, dateLocale]);
+  }, [
+    checkIn,
+    checkOut,
+    blockedDates,
+    bookingRules,
+    onCheckInChange,
+    onCheckOutChange,
+    dateLocale,
+    formatValidationError,
+    onSelectionErrorChange,
+    t,
+  ]);
 
   const handleSingleNightDateChange = useCallback((date: Date | null) => {
     if (!date) return;
@@ -164,17 +223,29 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
     const visibleCheckOutStr = format(visibleCheckOut, 'yyyy-MM-dd', { locale: dateLocale });
 
     if (blockedDates.has(checkInStr) || blockedDates.has(visibleCheckOutStr)) {
-      return;
-    }
-
-    const validation = validateDateSelection(date, visibleCheckOut, blockedDates, bookingRules);
-    if (!validation.isValid) {
+      const message = t('propertyDetail.bookingFlow.errors.dateUnavailable');
+      setSelectionError(message);
+      onSelectionErrorChange?.(message);
       return;
     }
 
     onCheckInChange(date);
     onCheckOutChange(visibleCheckOut);
-  }, [addDays, blockedDates, bookingRules, dateLocale, onCheckInChange, onCheckOutChange]);
+    const validation = validateDateSelection(date, visibleCheckOut, blockedDates, bookingRules);
+    const message = validation.isValid ? null : formatValidationError(validation);
+    setSelectionError(message);
+    onSelectionErrorChange?.(message ?? null);
+  }, [
+    addDays,
+    blockedDates,
+    bookingRules,
+    dateLocale,
+    formatValidationError,
+    onCheckInChange,
+    onCheckOutChange,
+    onSelectionErrorChange,
+    t,
+  ]);
 
   // Get CSS class for each day
   const getDayClassName = useCallback((date: Date) => {
@@ -210,8 +281,9 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
   // Get dates to exclude (blocked dates)
   const excludeDates = Array.from(blockedDates).map(dateStr => new Date(dateStr + 'T00:00:00'));
 
-  // Calculate min date based on lead time
+  // Calculate min/max dates based on lead time and booking horizon
   const minDate = getEarliestAvailableDate(leadTimeDays);
+  const maxDate = getLatestBookableDate(leadTimeDays);
 
   if (loading) {
     return (
@@ -247,6 +319,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
           startDate={checkIn}
           endDate={checkOut}
           minDate={minDate}
+          maxDate={maxDate}
           excludeDates={excludeDates}
           dayClassName={getDayClassName}
           placeholderText={t('booking.selectCheckIn')}
@@ -275,6 +348,7 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
             startDate={checkIn}
             endDate={checkOut}
             minDate={checkIn || minDate}
+            maxDate={maxDate}
             excludeDates={excludeDates}
             dayClassName={getDayClassName}
             placeholderText={t('booking.selectCheckOut')}
@@ -289,7 +363,6 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
         </div>
       )}
 
-      {/* Validation Messages */}
       {checkIn && checkOut && (
         <div className="mt-4 p-3 bg-warm-gray rounded-lg">
           <div className="text-sm text-charcoal">
@@ -298,13 +371,18 @@ const BookingDatePicker: React.FC<BookingDatePickerProps> = ({
               ? t('booking.nightSelected')
               : t('booking.nightsSelected')}
           </div>
-          {(() => {
-            const validation = validateDateSelection(checkIn, checkOut, blockedDates, bookingRules);
-            return !validation.isValid ? (
-              <div className="text-sm text-red-600 mt-1">{validation.error}</div>
-            ) : null;
-          })()}
+          {selectionError && (
+            <p className="text-sm text-red-600 mt-1" role="alert">
+              {selectionError}
+            </p>
+          )}
         </div>
+      )}
+
+      {selectionError && !(checkIn && checkOut) && (
+        <p className="mt-3 text-sm text-red-600" role="alert">
+          {selectionError}
+        </p>
       )}
     </div>
   );

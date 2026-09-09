@@ -7,21 +7,33 @@ import type { Property } from '../../types';
 
 interface PropertyCardProps {
   property: Property;
+  /** Precomputed display price (dynamic pricing). */
+  displayAmount?: number;
+  /** i18n key for price label, e.g. pricing.from */
+  displayLabelKey?: string;
   onToggleWishlist?: (propertyId: string) => void;
   isInWishlist?: boolean;
   disableLink?: boolean;
   /** When false, the wishlist heart is hidden (e.g. MVP without auth). */
   showWishlist?: boolean;
+  /** Override destination for property detail links (e.g. with date query params). */
+  detailTo?: string;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
+  displayAmount,
+  displayLabelKey,
   onToggleWishlist,
   isInWishlist = false,
   disableLink = false,
   showWishlist = true,
+  detailTo,
 }) => {
   const { t } = useTranslation();
+  const propertyDetailPath = detailTo ?? `/property/${property.id}`;
+  const priceAmount = displayAmount ?? property.price;
+  const pricePrefix = displayLabelKey ? `${t(displayLabelKey)} ` : '';
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -56,7 +68,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           {/* Price Badge */}
           <div className="absolute top-4 left-4">
             <Badge variant="default" className="bg-navy text-gold font-bold">
-              ${property.price}{t('propertyCard.perNight')}
+              {pricePrefix}${priceAmount}
+              {!displayLabelKey && t('propertyCard.perNight')}
             </Badge>
           </div>
 
@@ -134,7 +147,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
             {disableLink && (
               <Link
-                to={`/property/${property.id}`}
+                to={propertyDetailPath}
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
@@ -154,7 +167,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   }
 
   return (
-    <Link to={`/property/${property.id}`}>
+    <Link to={propertyDetailPath}>
       {cardContent}
     </Link>
   );
