@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getGuestSiteListingType } from '../core/config/guestSiteListingType';
+import type { GuestSiteListingType } from '../types/guestReviewContract';
 import type { Property } from '../types';
 import { batchListingDailyFactors } from '../services/pricing/batchDailyFactors';
 import { calculateDisplayPrice } from '../services/pricing/calculateDisplayPrice';
@@ -21,12 +22,13 @@ export function useSearchPricing(
   properties: Property[],
   checkIn?: Date | null,
   checkOut?: Date | null,
+  siteListingType?: GuestSiteListingType,
 ): {
   priceByPropertyId: Map<string, PropertyDisplayPrice>;
   loading: boolean;
   appParameters: AppParametersMap | null;
 } {
-  const scope = getGuestSiteListingType();
+  const scope = siteListingType ?? getGuestSiteListingType();
   const [appParameters, setAppParameters] = useState<AppParametersMap | null>(null);
   const [factorsByListing, setFactorsByListing] = useState<Map<string, DailyFactorEntry[]>>(
     new Map(),

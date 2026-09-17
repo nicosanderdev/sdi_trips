@@ -5,6 +5,7 @@ import { Calendar, MapPin, Search as SearchIcon, SlidersHorizontal, Users } from
 import { RangeSlider } from '../../components/ui';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { usePortalPropertySearch } from '../../hooks/usePortalPropertySearch';
+import { appConfig } from '../config/appConfig';
 import type { EventVenue } from '../../services/eventVenueService';
 import { buildVenuePriceHint } from '../../services/pricing';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
@@ -144,6 +145,7 @@ export default function AltSearchProperties() {
   const { properties, loading, error } = usePortalPropertySearch({
     rpcFilters: portalRpcFilters,
     hydrateLimit: 50,
+    listingType: appConfig.guestSiteListingType,
   });
 
   const filtered = useMemo(
@@ -160,7 +162,12 @@ export default function AltSearchProperties() {
     [availableFrom],
   );
 
-  const { priceByPropertyId } = useSearchPricing(filtered, pricingCheckIn, pricingCheckOut);
+  const { priceByPropertyId } = useSearchPricing(
+    filtered,
+    pricingCheckIn,
+    pricingCheckOut,
+    appConfig.guestSiteListingType,
+  );
 
   const formatGuestsSliderValue = (value: number, edge: 'min' | 'max') => {
     if (edge === 'max' && value === GUESTS_SLIDER_MAX) {
@@ -311,12 +318,12 @@ export default function AltSearchProperties() {
               >
                 <Link to={`/venue/${venue.id}`} className="block relative aspect-4/3 overflow-hidden bg-navy/10">
                   <img
-                    src={venue.images[0]}
+                    src={venue.images?.[0] || '/alt-explore.jpg'}
                     alt={venue.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                   <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                    {venue.eventTypes.slice(0, 2).map((et) => (
+                    {(venue.eventTypes ?? []).slice(0, 2).map((et) => (
                       <span
                         key={et}
                         className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-semibold text-navy border border-navy/10"
