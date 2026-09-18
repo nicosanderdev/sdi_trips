@@ -41,7 +41,7 @@ function mapFeaturedVenueToCard(venue: EventVenue): LandingVenueCard {
     location: venue.location,
     capacity,
     priceHint: venue.priceHint || fallbackPriceHint,
-    images: venue.images?.length ? venue.images : [...HERO_IMAGES],
+    images: venue.images?.length ? venue.images : ['/alt-explore.jpg'],
   };
 }
 
@@ -116,7 +116,7 @@ export default function AltLanding() {
       setPopularVenuesFetchFailed(false);
 
       try {
-        const featuredVenues = await getFeaturedEventVenues(6);
+        const featuredVenues = await getFeaturedEventVenues();
         if (!isMounted) return;
         setPopularVenuesRaw(featuredVenues);
       } catch (error) {
@@ -380,7 +380,7 @@ export default function AltLanding() {
 
             {!loadingPopularVenues &&
               popularCards.map((venue, index) => {
-                const image = venue.images[0] ?? HERO_IMAGES[0];
+                const image = venue.images[0] ?? '/alt-explore.jpg';
                 return (
                   <article key={venue.id} className="relative min-h-[220px] border border-navy/15 rounded-3xl overflow-hidden bg-navy group">
                     <Link to={`/venue/${venue.id}`} className="absolute inset-0 z-10" aria-label={venue.name} />

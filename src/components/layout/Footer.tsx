@@ -17,7 +17,6 @@ const Footer: React.FC = () => {
 
   const exploreLinks = [
     { labelKey: 'footer.vacationHomes', path: '/search' },
-    { labelKey: 'footer.popularAreas', path: '/search?q=Rivera' },
     { labelKey: 'footer.howItWorks', path: '/#how-it-works' },
   ];
 

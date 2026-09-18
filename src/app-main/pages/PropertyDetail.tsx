@@ -573,7 +573,7 @@ const PropertyDetail: React.FC = () => {
                 </div>
 
                 {/* Trust Footer */}
-                <section className="bg-white pb-16">
+                <section className="flex items-center justify-center bg-white py-16">
                     <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 rounded-[2rem] border border-warm-gray px-6 py-10 text-center">
                         <CheckCircle className="h-10 w-10 text-gold" />
                         <h3 className="text-2xl font-semibold text-navy">{t('propertyDetail.trustFooter.heading')}</h3>

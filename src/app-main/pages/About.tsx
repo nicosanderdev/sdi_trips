@@ -111,7 +111,7 @@ export function AboutContent({ variant = 'main' }: AboutProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {values.map((value, index) => (
-              <Card key={index} variant="default" className="p-8">
+              <Card key={index} variant={variant === 'alt' ? 'surface' : 'default'} className="p-8">
                 <div className="flex items-start space-x-4">
                   <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center flex-shrink-0">
                     <value.icon className="h-6 w-6 text-navy" />

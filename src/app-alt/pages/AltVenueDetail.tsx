@@ -174,7 +174,7 @@ export default function AltVenueDetail() {
   }
 
   return (
-    <div className="bg-warm-gray min-h-screen pb-16">
+    <div className="bg-warm-gray min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-charcoal">
           <Link to="/search" className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
@@ -417,7 +417,7 @@ export default function AltVenueDetail() {
         />
       </div>
 
-      <section className="bg-white pb-16">
+      <section className="flex items-center justify-center bg-white py-16">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 rounded-[2rem] border border-warm-gray px-6 py-10 text-center">
           <CheckCircle className="h-10 w-10 text-gold" />
           <h3 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.trustFooter.heading')}</h3>
