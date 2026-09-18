@@ -34,12 +34,6 @@ import {
 } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-const fallbackGalleryImages = [
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1400&q=80',
-    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80',
-    'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1400&q=80'
-];
-
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
@@ -184,8 +178,17 @@ const PropertyDetail: React.FC = () => {
     }, [mapboxToken, property]);
 
     // Sync image indices when gallery changes
-    const heroImages = property?.images?.length ? property.images : fallbackGalleryImages;
-    const heroImageCount = heroImages.length;
+    const galleryItems =
+        property?.publicImages?.length
+            ? property.publicImages.map((img) => ({
+                  url: img.url,
+                  alt: img.altText || property.title,
+              }))
+            : (property?.images ?? []).map((url) => ({
+                  url,
+                  alt: property?.imageAltText || property?.title || '',
+              }));
+    const heroImageCount = galleryItems.length;
 
     useEffect(() => {
         if (!heroImageCount) {
@@ -237,7 +240,7 @@ const PropertyDetail: React.FC = () => {
         );
     }
 
-    // Prepare data (heroImages and heroImageCount now computed above before early returns)
+    // Prepare data (galleryItems and heroImageCount computed above before early returns)
     const heroImageIndex = heroImageCount ? currentImageIndex % heroImageCount : 0;
     const hostName = property.host?.name?.trim() || t('propertyDetail.host.defaultName');
     const hostFirstName = hostName.split(' ')[0];
@@ -246,14 +249,16 @@ const PropertyDetail: React.FC = () => {
         property.description?.trim() || t('propertyDetail.description.fallback');
     const neighborhoodCopy =
         property.neighborhoodDetails || t('propertyDetail.detailSections.neighborhood.default');
-    const secondaryGalleryImages = heroImages.slice(0, 6);
+    const secondaryGalleryImages = galleryItems.slice(0, 6);
 
     const handleImageClick = (index: number) => {
+        if (!heroImageCount) return;
         setLightboxIndex(index);
         setShowLightbox(true);
     };
 
     const transitionThenSetIndex = (nextIndex: number) => {
+        if (!heroImageCount) return;
         setGalleryOpacity(0);
         window.setTimeout(() => {
             setCurrentImageIndex(nextIndex);
@@ -262,14 +267,17 @@ const PropertyDetail: React.FC = () => {
     };
 
     const nextImage = () => {
+        if (!heroImageCount) return;
         transitionThenSetIndex((currentImageIndex + 1) % heroImageCount);
     };
 
     const prevImage = () => {
+        if (!heroImageCount) return;
         transitionThenSetIndex((currentImageIndex - 1 + heroImageCount) % heroImageCount);
     };
 
     const nextLightboxImage = () => {
+        if (!heroImageCount) return;
         setLightboxOpacity(0);
         window.setTimeout(() => {
             setLightboxIndex((prev) => (prev + 1) % heroImageCount);
@@ -278,6 +286,7 @@ const PropertyDetail: React.FC = () => {
     };
 
     const prevLightboxImage = () => {
+        if (!heroImageCount) return;
         setLightboxOpacity(0);
         window.setTimeout(() => {
             setLightboxIndex((prev) => (prev - 1 + heroImageCount) % heroImageCount);
@@ -308,14 +317,20 @@ const PropertyDetail: React.FC = () => {
                     {/* Hero Gallery Section */}
                     <section className="space-y-6">
                         <div className="relative rounded-[2rem] overflow-hidden bg-white shadow-[0_25px_60px_-25px_rgba(10,26,47,0.65)] aspect-[4/3]">
-                            <img
-                                key={heroImageIndex}
-                                src={heroImages[heroImageIndex]}
-                                alt={property.title}
-                                className="absolute inset-0 h-full w-full object-cover cursor-pointer transition-opacity duration-200 ease-in-out"
-                                style={{ opacity: galleryOpacity }}
-                                onClick={() => handleImageClick(heroImageIndex)}
-                            />
+                            {heroImageCount > 0 ? (
+                                <img
+                                    key={heroImageIndex}
+                                    src={galleryItems[heroImageIndex].url}
+                                    alt={galleryItems[heroImageIndex].alt}
+                                    className="absolute inset-0 h-full w-full object-cover cursor-pointer transition-opacity duration-200 ease-in-out"
+                                    style={{ opacity: galleryOpacity }}
+                                    onClick={() => handleImageClick(heroImageIndex)}
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center bg-warm-gray text-sm text-charcoal/70">
+                                    {t('propertyDetail.placeholders.propertyLocation')}
+                                </div>
+                            )}
                             {heroImageCount > 1 && (
                                 <>
                                     <button
@@ -332,23 +347,25 @@ const PropertyDetail: React.FC = () => {
                                     </button>
                                 </>
                             )}
-                            <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium tracking-wide text-navy shadow-md">
-                                {t('propertyDetail.heroGallery.imageCounter', {
-                                    current: heroImageIndex + 1,
-                                    total: heroImageCount
-                                })}
-                            </div>
+                            {heroImageCount > 0 && (
+                                <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium tracking-wide text-navy shadow-md">
+                                    {t('propertyDetail.heroGallery.imageCounter', {
+                                        current: heroImageIndex + 1,
+                                        total: heroImageCount
+                                    })}
+                                </div>
+                            )}
                         </div>
                         {heroImageCount > 1 && (
                             <div className="flex gap-3 overflow-x-auto py-2">
-                                {heroImages.map((image: string, index: number) => (
+                                {galleryItems.map((image, index) => (
                                     <button
-                                        key={`${image}-${index}`}
+                                        key={`${image.url}-${index}`}
                                         onClick={() => index !== heroImageIndex && transitionThenSetIndex(index)}
                                         className={`flex h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border transition-all ${index === heroImageIndex ? 'border-gold' : 'border-transparent'
                                             }`}
                                     >
-                                        <img src={image} alt={`Thumbnail ${index + 1}`} className="h-full w-full object-cover" />
+                                        <img src={image.url} alt={image.alt} className="h-full w-full object-cover" />
                                     </button>
                                 ))}
                             </div>
@@ -519,22 +536,24 @@ const PropertyDetail: React.FC = () => {
                         </div>
 
                         {/* All photos */}
-                        <div className="space-y-4">
-                            <h3 className="text-xl font-semibold text-navy">
-                                {t('propertyDetail.secondaryGallery.heading')}
-                            </h3>
-                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                {secondaryGalleryImages.map((image: string, index: number) => (
-                                    <button
-                                        key={`${image}-${index}`}
-                                        onClick={() => handleImageClick(index)}
-                                        className="overflow-hidden rounded-3xl border border-warm-gray bg-white/70"
-                                    >
-                                        <img src={image} alt={`Gallery ${index + 1}`} className="h-52 w-full object-cover" />
-                                    </button>
-                                ))}
+                        {secondaryGalleryImages.length > 0 && (
+                            <div className="space-y-4">
+                                <h3 className="text-xl font-semibold text-navy">
+                                    {t('propertyDetail.secondaryGallery.heading')}
+                                </h3>
+                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {secondaryGalleryImages.map((image, index) => (
+                                        <button
+                                            key={`${image.url}-${index}`}
+                                            onClick={() => handleImageClick(index)}
+                                            className="overflow-hidden rounded-3xl border border-warm-gray bg-white/70"
+                                        >
+                                            <img src={image.url} alt={image.alt} className="h-52 w-full object-cover" />
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {id && (
                             <PropertyReviewsSection
@@ -572,7 +591,7 @@ const PropertyDetail: React.FC = () => {
             </div>
 
             {/* Lightbox */}
-            {showLightbox && (
+            {showLightbox && heroImageCount > 0 && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4">
                     <button
                         onClick={() => setShowLightbox(false)}
@@ -590,8 +609,8 @@ const PropertyDetail: React.FC = () => {
 
                     <img
                         key={lightboxIndex}
-                        src={heroImages[lightboxIndex]}
-                        alt={`Gallery ${lightboxIndex + 1}`}
+                        src={galleryItems[lightboxIndex]?.url}
+                        alt={galleryItems[lightboxIndex]?.alt || `Gallery ${lightboxIndex + 1}`}
                         className="max-h-[80vh] w-auto max-w-full rounded-3xl object-cover transition-opacity duration-200 ease-in-out"
                         style={{ opacity: lightboxOpacity }}
                     />

@@ -23,6 +23,14 @@ function mapRpcItem(raw: Record<string, unknown>): PortalSearchResultItem {
     areaValue: raw.areaValue != null ? Number(raw.areaValue) : undefined,
     areaUnit: raw.areaUnit != null ? String(raw.areaUnit) : undefined,
     blockedForBooking: raw.blockedForBooking === true,
+    imageUrl:
+      raw.imageUrl != null && String(raw.imageUrl).trim()
+        ? String(raw.imageUrl).trim()
+        : null,
+    imageAltText:
+      raw.imageAltText != null && String(raw.imageAltText).trim()
+        ? String(raw.imageAltText).trim()
+        : null,
     scores: (raw.scores as PortalSearchResultItem['scores']) ?? {},
     offlineBaseScore: raw.offlineBaseScore != null ? Number(raw.offlineBaseScore) : undefined,
     onlineBoosts: (raw.onlineBoosts as PortalSearchResultItem['onlineBoosts']) ?? {},

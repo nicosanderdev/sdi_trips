@@ -7,6 +7,15 @@ export const GUEST_SITE_LISTING_TYPES: readonly GuestSiteListingType[] = [
   'EventVenue',
 ] as const;
 
+/** Gallery item from public detail RPCs (`Images` jsonb). */
+export interface PublicPropertyImage {
+  propertyImageId: string;
+  url: string;
+  altText?: string | null;
+  isMain?: boolean;
+  displayOrder?: number;
+}
+
 export interface GuestExistingReview {
   reviewId: string;
   rating: number;

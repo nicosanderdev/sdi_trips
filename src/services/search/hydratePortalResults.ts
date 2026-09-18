@@ -1,7 +1,6 @@
 import { supabase } from '../../lib/supabase';
 import type { RpcSummerRentPropertyRow } from '../../models/summerRentProperty';
 import type { Property } from '../../types';
-import { enrichPropertiesWithImages } from '../propertyImageService';
 import { transformSummerRentProperty } from '../propertyService';
 import { mapEventVenueFromRpc, type EventVenue } from '../eventVenueService';
 
@@ -35,7 +34,7 @@ export async function hydrateSummerRentProperties(rankedIds: string[]): Promise<
     ]),
   );
 
-  return enrichPropertiesWithImages(orderByIds(rankedIds, byId));
+  return orderByIds(rankedIds, byId);
 }
 
 export async function hydrateEventVenueProperties(rankedIds: string[]): Promise<EventVenue[]> {
@@ -58,5 +57,5 @@ export async function hydrateEventVenueProperties(rankedIds: string[]): Promise<
     ]),
   );
 
-  return enrichPropertiesWithImages(orderByIds(rankedIds, byId));
+  return orderByIds(rankedIds, byId);
 }

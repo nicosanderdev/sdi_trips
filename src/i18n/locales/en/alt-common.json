@@ -162,6 +162,12 @@
     "amenities": "Amenities",
     "venueRules": "Policies & venue rules",
     "policies": "Policies & logistics",
+    "location": {
+      "heading": "Location",
+      "exactPinNote": "The pin shows the exact venue location.",
+      "mapFallback": "Venue location",
+      "mapboxTokenNote": "Add a Mapbox API token to the .env file for an interactive map"
+    },
     "trustFooter": {
       "heading": "How we verify venues",
       "description": "Every venue on our platform is reviewed by our local team before listing. We visit in person, confirm the space, and ensure listing accuracy.",

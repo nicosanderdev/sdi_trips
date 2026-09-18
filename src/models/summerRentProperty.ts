@@ -139,6 +139,11 @@ export interface RpcSummerRentPropertyRow {
   Policies?: unknown;
   ContentSections?: unknown;
   SectionData?: RpcPropertySectionRow[] | null;
+  /** Featured image from list RPC (null when no photos). */
+  MainImageUrl?: string | null;
+  MainImageAltText?: string | null;
+  /** Full gallery from detail RPC (absent on list endpoints). */
+  Images?: unknown;
 }
 
 export interface RpcPropertySectionImageRow {

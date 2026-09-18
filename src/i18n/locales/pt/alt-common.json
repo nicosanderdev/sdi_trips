@@ -162,6 +162,12 @@
     "amenities": "Comodidades",
     "venueRules": "Políticas e regras do local",
     "policies": "Políticas e logística",
+    "location": {
+      "heading": "Localização",
+      "exactPinNote": "O pin mostra a localização exata do espaço.",
+      "mapFallback": "Localização do espaço",
+      "mapboxTokenNote": "Adicione o token do Mapbox ao arquivo .env para um mapa interativo"
+    },
     "trustFooter": {
       "heading": "Como verificamos os locais",
       "description": "Cada espaço em nossa plataforma é revisado pela nossa equipe local antes da publicação. Visitamos pessoalmente, confirmamos o local e garantimos a precisão do anúncio.",

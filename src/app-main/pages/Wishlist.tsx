@@ -90,8 +90,11 @@ const Wishlist: React.FC = () => {
       <div className="relative overflow-hidden">
         <Link to={`/property/${property.id}`}>
           <img
-            src={property.images[0]}
-            alt={property.title}
+            src={
+              property.images?.[0] ||
+              'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80'
+            }
+            alt={property.imageAltText || property.title}
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </Link>

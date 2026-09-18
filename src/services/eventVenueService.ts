@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { parseAmenities } from '../models/properties/publicAmenity';
 import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
 import { parsePolicies } from '../models/properties/propertyPolicies';
-import { enrichPropertiesWithImages } from './propertyImageService';
+import { mapRpcImageFields } from '../models/properties/publicPropertyImages';
 import { mapRpcPricingFields } from './pricing/listingPricing';
 
 export type VenueEventTag = 'wedding' | 'corporate' | 'party' | 'workshop';
@@ -69,6 +69,11 @@ interface EventVenueRpcRow {
   AllowedEventsDescription: string | null;
   ContentSections?: unknown;
   SectionData?: RpcPropertySectionRow[] | null;
+  /** Featured image from list RPC (null when no photos). */
+  MainImageUrl?: string | null;
+  MainImageAltText?: string | null;
+  /** Full gallery from detail RPC (absent on list endpoints). */
+  Images?: unknown;
 }
 
 interface RpcPropertySectionImageRow {
@@ -136,6 +141,7 @@ export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
   const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
   const price = pricing.basePrice;
   const venueName = row.Title ?? 'Untitled venue';
+  const imageFields = mapRpcImageFields(row);
 
   return {
     id: row.EstatePropertyId,
@@ -152,7 +158,9 @@ export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
     longStayMinDays: pricing.longStayMinDays,
     longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: row.Currency === 1 ? 'UYU' : 'USD',
-    images: [],
+    images: imageFields.images,
+    publicImages: imageFields.publicImages,
+    imageAltText: imageFields.imageAltText,
     bedrooms: row.Bedrooms ?? 0,
     bathrooms: row.Bathrooms ?? 0,
     maxGuests,
@@ -211,7 +219,7 @@ export async function searchEventVenues(
   const offset = (page - 1) * limit;
   const paged = venues.slice(offset, offset + limit);
   return {
-    venues: await enrichPropertiesWithImages(paged),
+    venues: paged,
     totalCount,
   };
 }
@@ -233,6 +241,5 @@ export async function getEventVenueById(id: string): Promise<EventVenue | null> 
 
   const row = ((data ?? []) as EventVenueRpcRow[])[0];
   if (!row) return null;
-  const [venue] = await enrichPropertiesWithImages([mapEventVenueFromRpc(row)]);
-  return venue;
+  return mapEventVenueFromRpc(row);
 }

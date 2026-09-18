@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { PublicAmenity } from '../../models/properties/publicAmenity';
 import type { PublicContentSection } from '../../models/properties/propertyContentSections';
 import type { PublicPropertyPolicy } from '../../models/properties/propertyPolicies';
+import type { PublicPropertyImage } from '../../types/guestReviewContract';
 
 // Common UI component props
 export interface BaseComponentProps {
@@ -110,7 +111,12 @@ export interface Property {
   longStayDiscountEnabled?: boolean;
   longStayMinDays?: number | null;
   longStayDiscountPercentage?: number | null;
+  /** URL list for cards / legacy gallery binding (from MainImageUrl or Images). */
   images: string[] | never[];
+  /** Full gallery from detail RPC `Images` jsonb (ordered: isMain, then displayOrder). */
+  publicImages?: PublicPropertyImage[];
+  /** Alt text for the featured / main image when available. */
+  imageAltText?: string | null;
   bedrooms: number;
   bathrooms: number;
   maxGuests: number;

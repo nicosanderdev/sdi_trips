@@ -319,7 +319,7 @@ export default function AltSearchProperties() {
                 <Link to={`/venue/${venue.id}`} className="block relative aspect-4/3 overflow-hidden bg-navy/10">
                   <img
                     src={venue.images?.[0] || '/alt-explore.jpg'}
-                    alt={venue.name}
+                    alt={venue.imageAltText || venue.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                   <div className="absolute top-3 left-3 flex flex-wrap gap-2">

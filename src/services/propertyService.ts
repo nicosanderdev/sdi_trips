@@ -3,9 +3,9 @@ import type { RpcSummerRentPropertyRow } from '../models/summerRentProperty';
 import { parseAmenities } from '../models/properties/publicAmenity';
 import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
 import { parsePolicies } from '../models/properties/propertyPolicies';
+import { mapRpcImageFields } from '../models/properties/publicPropertyImages';
 import type { Property } from '../types';
 import { mapRpcPricingFields } from './pricing/listingPricing';
-import { enrichPropertiesWithImages } from './propertyImageService';
 import { getRatingsForProperties } from './reviewService';
 
 export interface PropertyFilters {
@@ -59,6 +59,7 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
     row.SectionData,
   );
   const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
+  const imageFields = mapRpcImageFields(row);
 
   return {
     id: row.EstatePropertyId,
@@ -73,7 +74,9 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
     longStayMinDays: pricing.longStayMinDays,
     longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: getCurrencyCode(row.Currency),
-    images: [],
+    images: imageFields.images,
+    publicImages: imageFields.publicImages,
+    imageAltText: imageFields.imageAltText,
     bedrooms: row.Bedrooms,
     bathrooms: row.Bathrooms,
     maxGuests,
@@ -133,7 +136,7 @@ export async function getFeaturedProperties(
   }
 
   const rows = (data ?? []).slice(0, limit);
-  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
+  return rows.map(transformSummerRentProperty);
 }
 
 /**
@@ -158,7 +161,7 @@ export async function getProperties(limit?: number): Promise<Property[]> {
   }
 
   const rows = limit ? (data ?? []).slice(0, limit) : data ?? [];
-  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
+  return rows.map(transformSummerRentProperty);
 }
 
 /**
@@ -232,7 +235,7 @@ export async function getTopRatedPropertiesForHero(
     return 0;
   });
 
-  return enrichPropertiesWithImages(enriched.slice(0, limit));
+  return enriched.slice(0, limit);
 }
 
 /**
@@ -255,8 +258,7 @@ export async function getPropertyById(id: string): Promise<Property | null> {
     return null;
   }
 
-  const [property] = await enrichPropertiesWithImages([transformSummerRentProperty(row)]);
-  return property;
+  return transformSummerRentProperty(row);
 }
 
 /**
@@ -320,7 +322,7 @@ export async function searchProperties(
   const paged = properties.slice(offset, offset + limit);
 
   return {
-    properties: await enrichPropertiesWithImages(paged),
+    properties: paged,
     totalCount,
   };
 }
@@ -377,5 +379,5 @@ export async function getFavoriteProperties(
     }
   }
 
-  return enrichPropertiesWithImages(favorites);
+  return favorites;
 }
