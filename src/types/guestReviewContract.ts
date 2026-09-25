@@ -16,6 +16,134 @@ export interface PublicPropertyImage {
   displayOrder?: number;
 }
 
+/** Params for get_public_featured_*_properties RPCs. Omit or null → server default 6 (clamped 1–20). */
+export interface GetPublicFeaturedPropertiesParams {
+  p_limit?: number | null;
+}
+
+/**
+ * PascalCase row from get_public_summer_rent_properties /
+ * get_public_featured_summer_rent_properties (and detail-by-id with optional gallery fields).
+ */
+export interface PublicSummerRentListRow {
+  EstatePropertyId: string;
+  StreetName: string | null;
+  HouseNumber: string | null;
+  Neighborhood: string | null;
+  City: string | null;
+  State: string | null;
+  ZipCode: string | null;
+  Country: string | null;
+  LocationLatitude: number;
+  LocationLongitude: number;
+  AreaValue: number | null;
+  AreaUnit: number | null;
+  Bedrooms: number;
+  Bathrooms: number;
+  HasGarage: boolean;
+  GarageSpaces: number;
+  OwnerId: string | null;
+  IsDeleted: boolean;
+  HasLaundryRoom: boolean;
+  HasPool: boolean;
+  HasBalcony: boolean;
+  IsFurnished: boolean;
+  Capacity: number | null;
+  LocationCategory: 'rural' | 'city' | 'near_shore' | null;
+  ViewType: 'city' | 'mountain' | 'rural' | 'sea' | null;
+
+  ListingId: string;
+  ListingType: string;
+  ListingDescription: string | null;
+  AvailableFrom: string;
+  ListingCapacity: number | null;
+  Currency: number;
+  SalePrice: number | null;
+  RentPrice: number | null;
+  BasePrice?: number | null;
+  MinPrice?: number | null;
+  MaxPrice?: number | null;
+  LongStayDiscountEnabled?: boolean | null;
+  LongStayMinDays?: number | null;
+  LongStayDiscountPercentage?: number | null;
+  HasCommonExpenses: boolean;
+  CommonExpensesValue: number | null;
+  IsElectricityIncluded: boolean | null;
+  IsWaterIncluded: boolean | null;
+  IsPriceVisible: boolean;
+  Status: number;
+  IsActive: boolean;
+  IsPropertyVisible: boolean;
+  IsFeatured: boolean;
+  BlockedForBooking: boolean;
+  Title: string | null;
+
+  MinStayDays: number | null;
+  MaxStayDays: number | null;
+  LeadTimeDays: number | null;
+  BufferDays: number | null;
+
+  AmenityNames: string[] | null;
+  Amenities?: unknown;
+  Policies?: unknown;
+  ContentSections?: unknown;
+  SectionData?: unknown;
+  /** Featured image from list/featured RPC (null when no photos). */
+  MainImageUrl?: string | null;
+  MainImageAltText?: string | null;
+  /** Full gallery from detail RPC (absent on list/featured endpoints). */
+  Images?: unknown;
+}
+
+/**
+ * PascalCase row from get_public_event_venue_properties /
+ * get_public_featured_event_venue_properties (and detail-by-id with optional gallery fields).
+ */
+export interface PublicEventVenueListRow {
+  EstatePropertyId: string;
+  ListingId?: string;
+  OwnerId: string | null;
+  Neighborhood: string | null;
+  City: string | null;
+  State: string | null;
+  Country: string | null;
+  LocationLatitude: number;
+  LocationLongitude: number;
+  Bedrooms: number;
+  Bathrooms: number;
+  Capacity: number | null;
+  ListingCapacity: number | null;
+  Title: string | null;
+  ListingDescription: string | null;
+  Currency: number;
+  RentPrice: number | null;
+  SalePrice: number | null;
+  BasePrice?: number | null;
+  MinPrice?: number | null;
+  MaxPrice?: number | null;
+  LongStayDiscountEnabled?: boolean | null;
+  LongStayMinDays?: number | null;
+  LongStayDiscountPercentage?: number | null;
+  IsActive: boolean;
+  IsPropertyVisible: boolean;
+  BlockedForBooking: boolean;
+  AmenityNames: string[] | null;
+  Amenities?: unknown;
+  Policies?: unknown;
+  MaxGuests: number | null;
+  HasCatering: boolean | null;
+  HasSoundSystem: boolean | null;
+  ClosingHour: string | null;
+  AllowedEventsDescription: string | null;
+  ContentSections?: unknown;
+  SectionData?: unknown;
+  /** Featured image from list/featured RPC (null when no photos). */
+  MainImageUrl?: string | null;
+  MainImageAltText?: string | null;
+  /** Full gallery from detail RPC (absent on list/featured endpoints). */
+  Images?: unknown;
+}
+
 export interface GuestExistingReview {
   reviewId: string;
   rating: number;

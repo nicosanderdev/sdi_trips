@@ -1,7 +1,10 @@
 import type { Database } from '../types/supabase';
+import type { PublicSummerRentListRow } from '../types/guestReviewContract';
 
 type DbProperty = Database['public']['Tables']['EstateProperties']['Row'];
 type DbListing = Database['public']['Tables']['Listings']['Row'];
+
+export type { PublicSummerRentListRow };
 
 export interface EstateProperty {
   Id: string;
@@ -73,78 +76,11 @@ export interface SummerRentExtension {
 }
 
 /**
- * Shape returned by get_public_summer_rent_properties / get_public_summer_rent_property_by_id.
- * Ordered by EstateProperties -> Listings -> SummerRentExtension.
+ * Shape returned by get_public_summer_rent_properties /
+ * get_public_featured_summer_rent_properties / get_public_summer_rent_property_by_id.
+ * Alias of the shared guest contract list row.
  */
-export interface RpcSummerRentPropertyRow {
-  EstatePropertyId: EstateProperty['Id'];
-  StreetName: EstateProperty['StreetName'] | null;
-  HouseNumber: EstateProperty['HouseNumber'] | null;
-  Neighborhood: EstateProperty['Neighborhood'] | null;
-  City: EstateProperty['City'] | null;
-  State: EstateProperty['State'] | null;
-  ZipCode: EstateProperty['ZipCode'] | null;
-  Country: EstateProperty['Country'] | null;
-  LocationLatitude: EstateProperty['LocationLatitude'];
-  LocationLongitude: EstateProperty['LocationLongitude'];
-  AreaValue: EstateProperty['AreaValue'] | null;
-  AreaUnit: EstateProperty['AreaUnit'] | null;
-  Bedrooms: EstateProperty['Bedrooms'];
-  Bathrooms: EstateProperty['Bathrooms'];
-  HasGarage: EstateProperty['HasGarage'];
-  GarageSpaces: EstateProperty['GarageSpaces'];
-  OwnerId: EstateProperty['OwnerId'] | null;
-  IsDeleted: EstateProperty['IsDeleted'];
-  HasLaundryRoom: EstateProperty['HasLaundryRoom'];
-  HasPool: EstateProperty['HasPool'];
-  HasBalcony: EstateProperty['HasBalcony'];
-  IsFurnished: EstateProperty['IsFurnished'];
-  Capacity: EstateProperty['Capacity'] | null;
-  LocationCategory: EstateProperty['LocationCategory'];
-  ViewType: EstateProperty['ViewType'];
-
-  ListingId: Listing['Id'];
-  ListingType: Listing['ListingType'];
-  ListingDescription: Listing['Description'];
-  AvailableFrom: Listing['AvailableFrom'];
-  ListingCapacity: Listing['Capacity'];
-  Currency: Listing['Currency'];
-  SalePrice: Listing['SalePrice'];
-  RentPrice: Listing['RentPrice'];
-  BasePrice?: number | null;
-  MinPrice?: number | null;
-  MaxPrice?: number | null;
-  LongStayDiscountEnabled?: boolean | null;
-  LongStayMinDays?: number | null;
-  LongStayDiscountPercentage?: number | null;
-  HasCommonExpenses: Listing['HasCommonExpenses'];
-  CommonExpensesValue: Listing['CommonExpensesValue'];
-  IsElectricityIncluded: Listing['IsElectricityIncluded'];
-  IsWaterIncluded: Listing['IsWaterIncluded'];
-  IsPriceVisible: Listing['IsPriceVisible'];
-  Status: Listing['Status'];
-  IsActive: Listing['IsActive'];
-  IsPropertyVisible: Listing['IsPropertyVisible'];
-  IsFeatured: Listing['IsFeatured'];
-  BlockedForBooking: Listing['BlockedForBooking'];
-  Title: Listing['Title'];
-
-  MinStayDays: SummerRentExtension['MinStayDays'];
-  MaxStayDays: SummerRentExtension['MaxStayDays'];
-  LeadTimeDays: SummerRentExtension['LeadTimeDays'];
-  BufferDays: SummerRentExtension['BufferDays'];
-
-  AmenityNames: string[] | null;
-  Amenities?: unknown;
-  Policies?: unknown;
-  ContentSections?: unknown;
-  SectionData?: RpcPropertySectionRow[] | null;
-  /** Featured image from list RPC (null when no photos). */
-  MainImageUrl?: string | null;
-  MainImageAltText?: string | null;
-  /** Full gallery from detail RPC (absent on list endpoints). */
-  Images?: unknown;
-}
+export type RpcSummerRentPropertyRow = PublicSummerRentListRow;
 
 export interface RpcPropertySectionImageRow {
   Id: string;

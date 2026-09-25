@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import '../alt-theme.css';
+import { GuestVisitTracker } from '../../components/analytics/GuestVisitTracker';
 import { AuthProvider } from '../../core/auth/AuthProvider';
 import { AltLayout } from '../components/layout/AltLayout';
 import AltContact from '../pages/AltContact';
@@ -17,6 +18,7 @@ export function AppAltRouter() {
   return (
     <AuthProvider>
       <Router>
+        <GuestVisitTracker />
         <Routes>
           <Route element={<AltLayout />}>
             <Route path="/" element={<AltLanding />} />

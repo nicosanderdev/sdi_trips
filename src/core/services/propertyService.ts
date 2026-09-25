@@ -178,21 +178,18 @@ function getCurrencyCode(): string {
 }
 
 /**
- * Get featured properties for landing page
+ * Homepage featured strip. Uses get_public_featured_summer_rent_properties
+ * (scored sample) — not the list RPC with p_only_featured.
+ * Omit limit (or pass 6) so the client does not send p_limit (server default 6).
  */
 export async function getFeaturedProperties(
   limit: number = 6,
 ): Promise<Property[]> {
+  const params = limit === 6 ? {} : { p_limit: limit };
+
   const { data, error } = await supabase.rpc(
-    'get_public_summer_rent_properties',
-    {
-      p_min_price: null,
-      p_max_price: null,
-      p_min_bedrooms: null,
-      p_min_guests: null,
-      p_location: null,
-      p_only_featured: true,
-    },
+    'get_public_featured_summer_rent_properties',
+    params,
   );
 
   if (error) {
@@ -200,8 +197,7 @@ export async function getFeaturedProperties(
     throw error;
   }
 
-  const rows = ((data ?? []) as RpcSummerRentPropertyRow[]).slice(0, limit);
-  return rows.map(transformSummerRentProperty);
+  return ((data ?? []) as RpcSummerRentPropertyRow[]).map(transformSummerRentProperty);
 }
 
 /**
