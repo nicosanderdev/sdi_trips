@@ -11,8 +11,7 @@ import PropertyAmenitySections from '../../components/amenities/PropertyAmenityS
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import { getPropertyById } from '../../services/propertyService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
-import { getUtmSourceAndMedium, trackEvent } from '../../lib/analytics';
-import { logPropertyVisit } from '../../services/propertyVisitService';
+import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import type { Property } from '../../types';
@@ -132,20 +131,10 @@ const PropertyDetail: React.FC = () => {
         fetchProperty();
     }, [id, t]);
 
-    // Property view tracking: first-party analytics + Supabase PropertyVisitLogs (throttled)
     useEffect(() => {
-        if (!property?.id) return;
-        const { source } = getUtmSourceAndMedium();
-        trackEvent('property_view', {
-            property_id: property.id,
-            metadata: {
-                property_slug: id ?? undefined,
-                company_id: property.ownerId,
-                listing_type: property.listingType,
-            },
-        });
-        logPropertyVisit(property.id, source ?? 'unknown');
-    }, [property?.id, id, property?.ownerId, property?.listingType]);
+        if (error || !property?.id) return;
+        recordGuestPropertyVisit(property.id);
+    }, [property?.id, error]);
 
     // Initialize map
     useEffect(() => {

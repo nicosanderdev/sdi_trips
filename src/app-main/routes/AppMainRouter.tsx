@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from '../../core/auth/AuthProvider';
+import { GuestVisitTracker } from '../../components/analytics/GuestVisitTracker';
 import { initAnalytics, sendPageView } from '../../core/services/analyticsService';
 import { initAnalyticsSession } from '../../lib/analytics';
 
@@ -48,6 +49,7 @@ export function AppMainRouter() {
     <AuthProvider>
       <Router>
         <PageViewTracker />
+        <GuestVisitTracker />
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/terms" element={<Terms />} />

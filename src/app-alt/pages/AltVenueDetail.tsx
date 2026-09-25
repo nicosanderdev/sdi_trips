@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
+import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
@@ -102,6 +103,11 @@ export default function AltVenueDetail() {
 
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (error || !venue?.id) return;
+    recordGuestPropertyVisit(venue.id);
+  }, [venue?.id, error]);
 
   useEffect(() => {
     if (!mapboxToken || !venue || !hasUsableCoordinates(venue.coordinates)) return;
