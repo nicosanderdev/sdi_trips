@@ -8,6 +8,7 @@ import PropertyReviewsSection from '../../components/sections/PropertyReviewsSec
 import PropertyContentSections from '../../components/sections/PropertyContentSections';
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
+import CancellationPolicySummary from '../../components/policies/CancellationPolicySummary';
 import {
   MapPin,
   Users,
@@ -19,8 +20,10 @@ import {
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
+import { getPublicPropertyContent } from '../../services/bookingService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
+import type { PublicCancellationPolicy } from '../../types';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 function hasUsableCoordinates(coords: { lat: number; lng: number } | undefined): boolean {
@@ -35,6 +38,7 @@ export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
   const [venue, setVenue] = useState<EventVenue | null>(null);
+  const [cancellationPolicy, setCancellationPolicy] = useState<PublicCancellationPolicy | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,8 +95,12 @@ export default function AltVenueDetail() {
         if (data) {
           const host = await fetchHostForProperty(data.id, data.ownerId);
           setVenue({ ...data, host });
+          void getPublicPropertyContent(data.id, 'EventVenue').then((content) => {
+            setCancellationPolicy(content?.cancellationPolicy ?? null);
+          });
         } else {
           setVenue(null);
+          setCancellationPolicy(null);
         }
       } catch (_error) {
         setError('Failed to load venue details.');
@@ -421,6 +429,7 @@ export default function AltVenueDetail() {
           locale={i18n.language}
           className="mt-0"
         />
+        <CancellationPolicySummary policy={cancellationPolicy} className="mt-6" />
       </div>
 
       <section className="flex items-center justify-center bg-white py-16">

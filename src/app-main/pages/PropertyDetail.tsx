@@ -9,12 +9,14 @@ import PropertyReviewsSection from '../../components/sections/PropertyReviewsSec
 import PropertyContentSections from '../../components/sections/PropertyContentSections';
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
+import CancellationPolicySummary from '../../components/policies/CancellationPolicySummary';
 import { getPropertyById } from '../../services/propertyService';
+import { getPublicPropertyContent } from '../../services/bookingService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
-import type { Property } from '../../types';
+import type { Property, PublicCancellationPolicy } from '../../types';
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import {
   formatPriceAmount,
@@ -50,6 +52,7 @@ const PropertyDetail: React.FC = () => {
     const hasDateSearchContext = dateSearchContext !== null;
 
     const [property, setProperty] = useState<Property | null>(null);
+    const [cancellationPolicy, setCancellationPolicy] = useState<PublicCancellationPolicy | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -117,8 +120,12 @@ const PropertyDetail: React.FC = () => {
                 if (propertyData) {
                     const host = await fetchHostForProperty(propertyData.id, propertyData.ownerId);
                     setProperty({ ...propertyData, host });
+                    void getPublicPropertyContent(propertyData.id, 'SummerRent').then((content) => {
+                        setCancellationPolicy(content?.cancellationPolicy ?? null);
+                    });
                 } else {
                     setError(t('propertyDetail.errors.propertyNotFound'));
+                    setCancellationPolicy(null);
                 }
             } catch (err) {
                 console.error('Error fetching property:', err);
@@ -559,6 +566,7 @@ const PropertyDetail: React.FC = () => {
                         heading={t('propertyDetail.policies.heading')}
                         locale={i18n.language}
                     />
+                    <CancellationPolicySummary policy={cancellationPolicy} />
                 </div>
 
                 {/* Trust Footer */}

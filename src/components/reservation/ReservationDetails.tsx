@@ -3,9 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { enUS, es, ptBR } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
-import { Button, Card, Modal } from '../ui';
-import type { GuestExistingReview } from '../../types/guestReviewContract';
-import type { ReservationLookupData } from '../../services/bookingService';
+import { Button, Card } from '../ui';
+import type {
+  CancellationPreview,
+  CancellationPreviewResponse,
+  GuestExistingReview,
+} from '../../types/guestReviewContract';
+import type { CancelBookingResponse, ReservationLookupData } from '../../services/bookingService';
 import { getGuestReviewLookupState } from '../../core/services/guestReviewEligibility';
 import { getGuestReviewWindow } from '../../core/services/guestReviewWindow';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
@@ -13,6 +17,8 @@ import GuestReservationReviewForm from './GuestReservationReviewForm';
 import GuestReviewReadOnlyCard from './GuestReviewReadOnlyCard';
 import HostContactSection from './HostContactSection';
 import MercadoPagoPaySection from './MercadoPagoPaySection';
+import RefundStatusNotice from './RefundStatusNotice';
+import CancelBookingModal from './CancelBookingModal';
 import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
 import { getLiveManageToken } from '../../utils/mercadoPagoPayHandoff';
 
@@ -28,8 +34,10 @@ function formatReviewDate(date: Date, language: string): string {
 interface ReservationDetailsProps {
   reservation: ReservationLookupData;
   cancelMessage: string | null;
-  onCancel: () => void;
   isCancelling: boolean;
+  onCancelConfirm: (previewHash: string) => Promise<CancelBookingResponse>;
+  onLoadCancelPreview: () => Promise<CancellationPreviewResponse>;
+  onCancelSuccess?: (preview: CancellationPreview) => void;
   /** Build destination URL for "View property" (default: `/property/:id`). */
   propertyPath?: (propertyId: string) => string;
   cardVariant?: 'default' | 'elevated' | 'glass' | 'surface';
@@ -38,13 +46,15 @@ interface ReservationDetailsProps {
 const ReservationDetails: React.FC<ReservationDetailsProps> = ({
   reservation: reservationProp,
   cancelMessage,
-  onCancel,
   isCancelling,
+  onCancelConfirm,
+  onLoadCancelPreview,
+  onCancelSuccess,
   propertyPath = defaultPropertyPath,
   cardVariant = 'default',
 }) => {
   const { t, i18n } = useTranslation();
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [localReservation, setLocalReservation] = useState(reservationProp);
 
   useEffect(() => {
@@ -90,11 +100,6 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
     cancelMessage?.toLowerCase().includes(localizedSuccessMessage) ||
     cancelMessage?.toLowerCase().includes('success') ||
     false;
-
-  const handleConfirmCancel = () => {
-    setShowCancelConfirm(false);
-    onCancel();
-  };
 
   const renderReviewBanner = () => {
     if (reviewState.kind === 'not_yet_open') {
@@ -184,6 +189,14 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
           hostContact={localReservation.hostContact}
         />
 
+        <RefundStatusNotice
+          status={localReservation.refundStatus}
+          amountPaid={localReservation.amountPaid}
+          refundDueAt={localReservation.refundDueAt}
+          currencyCode={localReservation.currencyCode}
+          bookingStatus={localReservation.status}
+        />
+
         {shouldShowMercadoPagoPay({
           canPayOnline: localReservation.canPayOnline,
           mercadoPagoApproved: localReservation.mercadoPagoApproved,
@@ -193,6 +206,11 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
             canPayOnline={localReservation.canPayOnline}
             mercadoPagoApproved={localReservation.mercadoPagoApproved}
             totalAmount={localReservation.totalAmount}
+            amountDue={localReservation.amountDue}
+            amountPaid={localReservation.amountPaid}
+            depositAmount={localReservation.depositAmount}
+            paymentStatus={localReservation.paymentStatus}
+            dueAt={localReservation.balanceDueAt ?? localReservation.depositDeadlineAt}
             currencyCode={localReservation.currencyCode}
             manageToken={getLiveManageToken(localReservation.bookingId) ?? undefined}
             reservationCode={localReservation.reservationCode}
@@ -210,7 +228,7 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
               variant="primary"
               className="bg-red-600 hover:bg-red-700 text-white"
               disabled={isCancelling}
-              onClick={() => setShowCancelConfirm(true)}
+              onClick={() => setShowCancelModal(true)}
             >
               {isCancelling ? t('reservationLookup.actions.cancelling') : t('reservationLookup.actions.cancelReservation')}
             </Button>
@@ -226,40 +244,14 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
 
       {renderReviewSection()}
 
-      <Modal
-        isOpen={showCancelConfirm}
-        onClose={() => {
-          if (isCancelling) return;
-          setShowCancelConfirm(false);
-        }}
-        title={t('reservationLookup.confirmCancel.title')}
-      >
-        <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-900">
-            {t('reservationLookup.confirmCancel.message')}
-          </div>
-
-          <div className="flex justify-center gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowCancelConfirm(false)}
-              disabled={isCancelling}
-            >
-              {t('reservationLookup.confirmCancel.dismiss')}
-            </Button>
-            <Button
-              variant="primary"
-              className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={handleConfirmCancel}
-              disabled={isCancelling}
-            >
-              {isCancelling
-                ? t('reservationLookup.actions.cancelling')
-                : t('reservationLookup.confirmCancel.confirm')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      <CancelBookingModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        loadPreview={onLoadCancelPreview}
+        confirm={onCancelConfirm}
+        currencyCode={localReservation.currencyCode}
+        onSuccess={onCancelSuccess}
+      />
     </>
   );
 };

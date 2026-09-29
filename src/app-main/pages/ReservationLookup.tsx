@@ -8,13 +8,16 @@ import ReservationDetails from '../../components/reservation/ReservationDetails'
 import ReservationManageDetails from '../../components/reservation/ReservationManageDetails';
 import { Button, Card } from '../../components/ui';
 import { parseListingTypeParam } from '../../core/config/guestBookingManageUrl';
-import type { ManageBookingView } from '../../types';
+import { getGuestSiteListingType } from '../../core/config/guestSiteListingType';
+import type { CancellationPreview, ManageBookingView } from '../../types';
 import {
+  cancelBookingByCode,
   cancelBookingByManageToken,
-  cancelReservation,
   getBookingByManageToken,
   getReservationByCode,
   normalizeReservationCode,
+  previewBookingCancellationByCode,
+  previewBookingCancellationByManageToken,
   type ReservationLookupData,
 } from '../../services/bookingService';
 
@@ -52,12 +55,15 @@ const ReservationLookup: React.FC = () => {
   const [tokenError, setTokenError] = useState<string | null>(null);
 
   const hasLookupResult = useMemo(() => view.mode === 'lookup', [view.mode]);
+  const siteListingType = listingTypeFromUrl ?? getGuestSiteListingType();
 
   const refreshManageBooking = useCallback(async (manageToken: string) => {
     const result = await getBookingByManageToken(manageToken);
     if (result.success && result.booking) {
       setView({ mode: 'manage', token: manageToken, booking: result.booking });
+      return true;
     }
+    return false;
   }, []);
 
   useEffect(() => {
@@ -161,42 +167,81 @@ const ReservationLookup: React.FC = () => {
     setView({ mode: 'lookup', reservation: result.reservation });
   };
 
-  const handleCancelLookup = async () => {
-    if (view.mode !== 'lookup' || !view.reservation.canCancel || loadingCancel) return;
+  const handleCancelLookup = async (previewHash: string) => {
+    if (view.mode !== 'lookup' || !view.reservation.canCancel || loadingCancel) {
+      return { success: false, error: t('reservationLookup.errors.cancelFailed') };
+    }
 
     setLoadingCancel(true);
     setCancelMessage(null);
-    const result = await cancelReservation(view.reservation.bookingId);
+    const result = await cancelBookingByCode(
+      view.reservation.reservationCode,
+      view.reservation.listingType ?? siteListingType,
+      'Cancelled by guest from reservation lookup',
+      previewHash,
+    );
     setLoadingCancel(false);
+    return result;
+  };
 
-    if (!result.success) {
-      setCancelMessage(result.error ?? t('reservationLookup.errors.cancelFailed'));
+  const handleCancelManage = async (previewHash: string) => {
+    if (view.mode !== 'manage' || !view.booking.canCancel || loadingCancel) {
+      return { success: false, error: t('reservationLookup.errors.cancelFailed') };
+    }
+    setLoadingCancel(true);
+    setCancelMessage(null);
+    const result = await cancelBookingByManageToken(
+      view.token,
+      'Cancelled by guest from management link',
+      previewHash,
+    );
+    setLoadingCancel(false);
+    return result;
+  };
+
+  const handleCancelLookupSuccess = async (_preview: CancellationPreview) => {
+    setCancelMessage(t('reservationLookup.messages.cancelSuccess'));
+    if (view.mode !== 'lookup') return;
+    const refreshed = await getReservationByCode(
+      view.reservation.reservationCode,
+      view.reservation.listingType ?? siteListingType,
+    );
+    if (refreshed.success && refreshed.reservation) {
+      setView({ mode: 'lookup', reservation: refreshed.reservation });
       return;
     }
-
     setView({
       mode: 'lookup',
       reservation: {
         ...view.reservation,
         status: 'cancelled',
         canCancel: false,
+        canPayOnline: false,
+        refundStatus: _preview.refundAmount > 0.009 ? 1 : 0,
+        refundDueAt: _preview.refundDueAt,
+        amountPaid: _preview.amountPaid,
       },
     });
-    setCancelMessage(t('reservationLookup.messages.cancelSuccess'));
   };
 
-  const handleCancelManage = async () => {
-    if (view.mode !== 'manage' || !view.booking.canCancel || loadingCancel) return;
-    setLoadingCancel(true);
-    setCancelMessage(null);
-    const result = await cancelBookingByManageToken(view.token, 'Cancelled by guest from management link');
-    setLoadingCancel(false);
-    if (!result.success) {
-      setCancelMessage(result.error ?? t('reservationLookup.errors.cancelFailed'));
-      return;
-    }
+  const handleCancelManageSuccess = async (_preview: CancellationPreview) => {
     setCancelMessage(t('reservationLookup.messages.cancelSuccess'));
-    await refreshManageBooking(view.token);
+    if (view.mode !== 'manage') return;
+    const refreshed = await refreshManageBooking(view.token);
+    if (refreshed) return;
+    setView({
+      mode: 'manage',
+      token: view.token,
+      booking: {
+        ...view.booking,
+        status: 'cancelled',
+        canCancel: false,
+        canPayOnline: false,
+        refundStatus: _preview.refundAmount > 0.009 ? 1 : 0,
+        refundDueAt: _preview.refundDueAt,
+        amountPaid: _preview.amountPaid,
+      },
+    });
   };
 
   const handleSearchAgain = async () => {
@@ -261,7 +306,9 @@ const ReservationLookup: React.FC = () => {
               statusLabel={manageStatusLabel}
               cancelMessage={cancelMessage}
               isCancelling={loadingCancel}
-              onCancel={handleCancelManage}
+              onCancelConfirm={handleCancelManage}
+              onLoadCancelPreview={() => previewBookingCancellationByManageToken(view.token)}
+              onCancelSuccess={(preview) => void handleCancelManageSuccess(preview)}
               manageToken={view.token}
             />
           )}
@@ -282,8 +329,15 @@ const ReservationLookup: React.FC = () => {
               <ReservationDetails
                 reservation={view.reservation}
                 cancelMessage={cancelMessage}
-                onCancel={handleCancelLookup}
                 isCancelling={loadingCancel}
+                onCancelConfirm={handleCancelLookup}
+                onLoadCancelPreview={() =>
+                  previewBookingCancellationByCode(
+                    view.reservation.reservationCode,
+                    view.reservation.listingType ?? siteListingType,
+                  )
+                }
+                onCancelSuccess={(preview) => void handleCancelLookupSuccess(preview)}
               />
               <button
                 type="button"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Modal } from '../ui';
 import type { GuestSiteListingType } from '../../types';
@@ -9,12 +9,18 @@ import {
 import { formatPriceAmount } from '../../services/pricing/formatPrice';
 import { isMercadoPagoPreferenceErrorCode } from '../../types/guestReviewContract';
 import { clearMercadoPagoPayHandoff, saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
+import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
 
 export interface MercadoPagoPaySectionProps {
   bookingId: string;
   canPayOnline?: boolean;
   mercadoPagoApproved?: boolean;
   totalAmount?: number | null;
+  amountDue?: number | null;
+  amountPaid?: number | null;
+  depositAmount?: number | null;
+  paymentStatus?: number | null;
+  dueAt?: string | null;
   currencyCode?: string | null;
   /** Required to start Checkout Pro. Without it, only paid/payable state is shown. */
   manageToken?: string;
@@ -46,6 +52,11 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
   canPayOnline,
   mercadoPagoApproved,
   totalAmount,
+  amountDue,
+  amountPaid,
+  depositAmount,
+  paymentStatus,
+  dueAt,
   currencyCode,
   manageToken,
   reservationCode,
@@ -54,15 +65,38 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
   onPayLater,
   className = '',
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [markedApproved, setMarkedApproved] = useState(false);
 
-  const isApproved = Boolean(mercadoPagoApproved || markedApproved);
+  const isApproved = Boolean(mercadoPagoApproved || markedApproved || paymentStatus === 1);
   const checkoutToken = manageToken?.trim() ?? '';
   const canStartCheckout = Boolean(canPayOnline && checkoutToken && !isApproved);
+
+  const chargeAmount = useMemo(() => {
+    if (amountDue != null && Number.isFinite(amountDue)) return amountDue;
+    if (totalAmount != null && Number.isFinite(totalAmount)) return totalAmount;
+    return null;
+  }, [amountDue, totalAmount]);
+
+  const isDepositPhase = useMemo(() => {
+    if (depositAmount == null || !Number.isFinite(depositAmount)) return false;
+    if (totalAmount != null && Number.isFinite(totalAmount) && depositAmount >= totalAmount - 0.009) {
+      return false;
+    }
+    const paid = amountPaid ?? 0;
+    return paid + 0.009 < depositAmount;
+  }, [amountPaid, depositAmount, totalAmount]);
+
+  const amountLabelKey = isDepositPhase
+    ? 'mercadoPago.depositAmountLabel'
+    : amountDue != null &&
+        totalAmount != null &&
+        amountDue + 0.009 < totalAmount
+      ? 'mercadoPago.balanceAmountLabel'
+      : 'mercadoPago.amountLabel';
 
   if (isApproved) {
     return (
@@ -77,9 +111,19 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
   }
 
   const amountLabel =
+    chargeAmount != null
+      ? formatPriceAmount(chargeAmount, currencyCode ?? 'USD')
+      : null;
+  const paidLabel =
+    amountPaid != null && Number.isFinite(amountPaid)
+      ? formatPriceAmount(amountPaid, currencyCode ?? 'USD')
+      : null;
+  const totalLabel =
     totalAmount != null && Number.isFinite(totalAmount)
       ? formatPriceAmount(totalAmount, currencyCode ?? 'USD')
       : null;
+  const dueLabel =
+    dueAt != null ? formatReservationStayDate(dueAt, i18n.language) : null;
 
   const handleConfirmPay = async () => {
     if (!checkoutToken) {
@@ -132,7 +176,16 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
 
       {amountLabel && (
         <p className="text-sm text-charcoal">
-          <span className="font-semibold">{t('mercadoPago.amountLabel')}</span> {amountLabel}
+          <span className="font-semibold">{t(amountLabelKey)}</span> {amountLabel}
+          {!isDepositPhase && dueLabel ? (
+            <> ({t('mercadoPago.balanceDueBy', { date: dueLabel })})</>
+          ) : null}
+        </p>
+      )}
+
+      {paidLabel && totalLabel && (
+        <p className="text-sm text-charcoal/80">
+          {t('mercadoPago.paidOfTotal', { paid: paidLabel, total: totalLabel })}
         </p>
       )}
 
