@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 import { getMemberProfile } from '../../services/memberService';
+import { browseFallbackPath } from '../../core/config/searchPageVisibility';
 
 interface GuestRouteProps {
   children: React.ReactNode;
@@ -26,11 +27,11 @@ const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
         if (member && member.needsOnboarding) {
           setRedirectPath('/profile');
         } else {
-          setRedirectPath('/search');
+          setRedirectPath(browseFallbackPath);
         }
       } catch (error) {
         console.error('Error checking onboarding status:', error);
-        setRedirectPath('/search');
+        setRedirectPath(browseFallbackPath);
       } finally {
         setCheckingMember(false);
       }
@@ -49,7 +50,7 @@ const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
   }
 
   if (user) {
-    return <Navigate to={redirectPath || '/search'} replace />;
+    return <Navigate to={redirectPath || browseFallbackPath} replace />;
   }
 
   // Render the requested page for non-authenticated users

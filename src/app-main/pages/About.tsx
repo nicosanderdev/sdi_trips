@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import { Card } from '../../components/ui';
@@ -135,12 +136,14 @@ export function AboutContent({ variant = 'main' }: AboutProps) {
           </h2>
           <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">{t(`${prefix}.cta.description`)}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/search"
-              className="inline-flex items-center justify-center px-8 py-4 bg-gold text-navy font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"
-            >
-              {t(`${prefix}.cta.browseProperties`)}
-            </Link>
+            {isSearchPageEnabled && (
+              <Link
+                to="/search"
+                className="inline-flex items-center justify-center px-8 py-4 bg-gold text-navy font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"
+              >
+                {t(`${prefix}.cta.browseProperties`)}
+              </Link>
+            )}
             <Link
               to="/contact"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import { Card, Button, Badge } from '../../components/ui';
@@ -274,9 +275,9 @@ const Wishlist: React.FC = () => {
               <p className="text-charcoal mb-6">
                 {t('wishlist.emptyDescription')}
               </p>
-              <Link to="/search">
+              <Link to={browseFallbackPath}>
                 <Button variant="primary">
-                  {t('wishlist.exploreProperties')}
+                  {isSearchPageEnabled ? t('wishlist.exploreProperties') : t('auth.backToHome')}
                 </Button>
               </Link>
             </Card>

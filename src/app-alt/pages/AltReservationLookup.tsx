@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 import ReservationLookupForm from '../../components/reservation/ReservationLookupForm';
@@ -297,8 +298,10 @@ export default function AltReservationLookup() {
             <Card className="w-full max-w-2xl rounded-2xl border border-red-200 p-5 bg-red-50/90">
               <p className="text-red-700 m-0">{displayTokenError}</p>
               <div className="mt-4 flex flex-wrap gap-3">
-                <Link to="/search">
-                  <Button variant="outline">{t('alt.reservations.browseVenues')}</Button>
+                <Link to={browseFallbackPath}>
+                  <Button variant="outline">
+                    {isSearchPageEnabled ? t('alt.reservations.browseVenues') : t('auth.backToHome')}
+                  </Button>
                 </Link>
               </div>
             </Card>
@@ -357,14 +360,16 @@ export default function AltReservationLookup() {
             </>
           )}
 
-          <div className="pt-6 text-center w-full">
-            <p className="text-charcoal/80 mb-4">{t('alt.reservations.ctaQuestion')}</p>
-            <Link to="/search">
-              <Button variant="primary" size="lg">
-                {t('alt.reservations.ctaBrowse')}
-              </Button>
-            </Link>
-          </div>
+          {isSearchPageEnabled && (
+            <div className="pt-6 text-center w-full">
+              <p className="text-charcoal/80 mb-4">{t('alt.reservations.ctaQuestion')}</p>
+              <Link to="/search">
+                <Button variant="primary" size="lg">
+                  {t('alt.reservations.ctaBrowse')}
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>

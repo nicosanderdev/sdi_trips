@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Input, Textarea } from '../../components/ui';
 import { Mail, MessageSquare, Building2, HelpCircle } from 'lucide-react';
@@ -135,17 +136,19 @@ export default function AltContact() {
         </div>
       </section>
 
-      <section className="py-20 bg-navy text-white">
-        <div className="max-w-4xl mx-auto px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-thin mb-6">{t('alt.contact.searchCtaHeading')}</h2>
-          <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">{t('alt.contact.searchCtaSub')}</p>
-          <Link to="/search">
-            <Button variant="primary" size="lg">
-              {t('alt.contact.searchCtaButton')}
-            </Button>
-          </Link>
-        </div>
-      </section>
+      {isSearchPageEnabled && (
+        <section className="py-20 bg-navy text-white">
+          <div className="max-w-4xl mx-auto px-8 text-center">
+            <h2 className="text-4xl md:text-5xl font-thin mb-6">{t('alt.contact.searchCtaHeading')}</h2>
+            <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">{t('alt.contact.searchCtaSub')}</p>
+            <Link to="/search">
+              <Button variant="primary" size="lg">
+                {t('alt.contact.searchCtaButton')}
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
     </>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
@@ -212,8 +213,8 @@ const PropertyDetail: React.FC = () => {
                 <div className="min-h-screen flex items-center justify-center">
                     <div className="text-center">
                         <ErrorMessage message={error} />
-                        <Link to="/search" className="mt-4 inline-block">
-                            <Button>{t('propertyDetail.buttons.backToSearch')}</Button>
+                        <Link to={browseFallbackPath} className="mt-4 inline-block">
+                            <Button>{isSearchPageEnabled ? t('propertyDetail.buttons.backToSearch') : t('auth.backToHome')}</Button>
                         </Link>
                     </div>
                 </div>
@@ -227,8 +228,8 @@ const PropertyDetail: React.FC = () => {
                 <div className="min-h-screen flex items-center justify-center">
                     <div className="text-center">
                         <h1 className="text-2xl font-bold text-navy mb-4">{t('propertyDetail.errors.propertyNotFound')}</h1>
-                        <Link to="/search">
-                            <Button>{t('propertyDetail.buttons.backToSearch')}</Button>
+                        <Link to={browseFallbackPath}>
+                            <Button>{isSearchPageEnabled ? t('propertyDetail.buttons.backToSearch') : t('auth.backToHome')}</Button>
                         </Link>
                     </div>
                 </div>
@@ -298,11 +299,11 @@ const PropertyDetail: React.FC = () => {
                     {/* Navigation */}
                     <div className="flex items-center justify-between text-sm text-charcoal">
                         <Link
-                            to="/search"
+                            to={browseFallbackPath}
                             className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors"
                         >
                             <ChevronLeft className="h-4 w-4" />
-                            <span>{t('propertyDetail.nav.backToSearch')}</span>
+                            <span>{isSearchPageEnabled ? t('propertyDetail.nav.backToSearch') : t('auth.backToHome')}</span>
                         </Link>
                         <div className="flex items-center gap-2 text-sm text-charcoal/80">
                             <MapPin className="h-4 w-4 text-gold" />

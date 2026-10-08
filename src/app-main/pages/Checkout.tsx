@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { Layout } from '../../components/layout';
 import { Card, Button, Input, Badge } from '../../components/ui';
 import { ArrowLeft, Calendar, Users, Shield, CheckCircle, MapPin, Star } from 'lucide-react';
@@ -33,8 +34,8 @@ const Checkout: React.FC = () => {
         <div className="py-12 px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-2xl font-semibold text-navy mb-4">Property not found</h1>
-            <Link to="/search">
-              <Button variant="primary">Browse Properties</Button>
+            <Link to={browseFallbackPath}>
+              <Button variant="primary">{isSearchPageEnabled ? 'Browse Properties' : 'Back to Home'}</Button>
             </Link>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Button, Card } from '../../components/ui';
@@ -180,8 +181,8 @@ export default function AltVenueDetail() {
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
         <h1 className="text-2xl font-bold text-navy mb-4">{t('alt.venueDetail.notFoundTitle')}</h1>
         <p className="text-charcoal mb-6 text-center max-w-md">{error ?? t('alt.venueDetail.notFoundBody')}</p>
-        <Link to="/search">
-          <Button variant="primary">{t('alt.venueDetail.backToVenues')}</Button>
+        <Link to={browseFallbackPath}>
+          <Button variant="primary">{isSearchPageEnabled ? t('alt.venueDetail.backToVenues') : t('auth.backToHome')}</Button>
         </Link>
       </div>
     );
@@ -191,9 +192,9 @@ export default function AltVenueDetail() {
     <div className="bg-warm-gray min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-charcoal">
-          <Link to="/search" className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
+          <Link to={browseFallbackPath} className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
             <ChevronLeft className="h-4 w-4" />
-            <span>{t('alt.venueDetail.backToVenues')}</span>
+            <span>{isSearchPageEnabled ? t('alt.venueDetail.backToVenues') : t('auth.backToHome')}</span>
           </Link>
           <div className="flex items-center gap-2 text-sm text-charcoal/80">
             <MapPin className="h-4 w-4 text-gold" />

@@ -6,6 +6,7 @@ import { Button } from '../ui';
 import type { Property } from '../../types';
 import { getTopRatedPropertiesForHero } from '../../services/propertyService';
 import uyCitiesData from '../../data/uy-cities.json';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 
 const UY_CITIES_MAX_SUGGESTIONS = 10;
 
@@ -86,6 +87,8 @@ const HeroSplit: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
+    if (!isSearchPageEnabled) return;
+
     let isMounted = true;
 
     const loadHeroProperties = async () => {
@@ -192,6 +195,7 @@ const HeroSplit: React.FC = () => {
           ) : null}
           <p className="mt-3 text-white/85 text-base font-medium">{t('landing.hero.support')}</p>
 
+          {isSearchPageEnabled && (
           <form
             className="mt-5 grid grid-cols-1 gap-2 w-full max-w-[900px] p-3 rounded-2xl border border-gold/40 bg-white/95 backdrop-blur-sm"
             onSubmit={(event) => {
@@ -285,6 +289,7 @@ const HeroSplit: React.FC = () => {
               </button>
             </div>
           </form>
+          )}
 
           <div className="mt-4">
             <div className="flex flex-wrap gap-4">
@@ -300,11 +305,13 @@ const HeroSplit: React.FC = () => {
             </div>
 
             <div className="mt-4 flex flex-wrap gap-3 items-start">
-              <Link to="/search">
-                <Button variant="primary" size="lg">
-                  {t('landing.hero.cta.search')}
-                </Button>
-              </Link>
+              {isSearchPageEnabled && (
+                <Link to="/search">
+                  <Button variant="primary" size="lg">
+                    {t('landing.hero.cta.search')}
+                  </Button>
+                </Link>
+              )}
               <div className="flex flex-col items-start gap-2">
                 <Link to="/reservation-lookup">
                   <Button variant="outline" size="lg" className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold">

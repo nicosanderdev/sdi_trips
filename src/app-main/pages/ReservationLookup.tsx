@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
@@ -294,8 +295,10 @@ const ReservationLookup: React.FC = () => {
           {showTokenErrorCard && displayTokenError && (
             <Card className="w-full max-w-2xl rounded-2xl border border-red-200 p-5 bg-red-50">
               <p className="text-red-700 m-0">{displayTokenError}</p>
-              <Link to="/search" className="inline-block mt-4">
-                <Button variant="outline">{t('notFound.searchProperties')}</Button>
+              <Link to={browseFallbackPath} className="inline-block mt-4">
+                <Button variant="outline">
+                  {isSearchPageEnabled ? t('notFound.searchProperties') : t('auth.backToHome')}
+                </Button>
               </Link>
             </Card>
           )}
