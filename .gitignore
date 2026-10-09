@@ -37,3 +37,7 @@ migrations/
 docs/backend-handoff-host-contact-for-guests.md
 
 docs/handoffs/
+
+.agents/
+
+.aider-desk/

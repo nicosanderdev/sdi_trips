@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/config';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 
 type NavItem = {
   path: string;
@@ -15,7 +16,7 @@ const Navbar: React.FC = () => {
   const { t, i18n: i18nInstance } = useTranslation();
 
   const navItems: NavItem[] = [
-    { path: '/search', labelKey: 'nav.explore' },
+    ...(isSearchPageEnabled ? [{ path: '/search', labelKey: 'nav.explore' }] : []),
     { path: '/about', labelKey: 'nav.aboutUs' },
     { path: '/contact', labelKey: 'nav.contact' },
   ];

@@ -23,6 +23,19 @@
     "confirm": "Confirm",
     "close": "Close"
   },
+  "cancellationPolicy": {
+    "heading": "Cancellation and payments",
+    "title": "Cancellation policy",
+    "summary": {
+      "freeUntil": "Cancellation with a {{percentBefore}}% refund until {{days}} days before check-in.",
+      "afterCutoff": "After that, a {{percent}}% refund.",
+      "noFreeWindow": "{{percent}}% refund if you cancel.",
+      "flatRefund": "{{percent}}% refund if you cancel (reference: {{days}} days before check-in).",
+      "fullUpfront": "Full payment upfront.",
+      "depositWithBalance": "{{depositPercent}}% deposit; balance due {{balanceDays}} days before.",
+      "depositOnly": "{{depositPercent}}% deposit."
+    }
+  },
   "nav": {
     "home": "Home",
     "explore": "Explore Homes",
@@ -688,6 +701,34 @@
       "message": "Cancellation may affect your refund depending on the property's policy. This action cannot be undone.",
       "dismiss": "No, go back",
       "confirm": "Yes, cancel reservation"
+    },
+    "cancelPreview": {
+      "title": "Confirm cancellation",
+      "cannotUndo": "This action cannot be undone. Review the estimated refund based on the property policy.",
+      "loading": "Calculating refund…",
+      "loadFailed": "Could not calculate the refund. Please try again.",
+      "previewChanged": "The calculation changed. Review the updated amounts and confirm again.",
+      "tierLabel": "Policy tier:",
+      "tier": {
+        "before": "Within the higher-refund window",
+        "after": "Outside the higher-refund window",
+        "n/a": "Not applicable",
+        "host_full": "Full refund"
+      },
+      "amountPaid": "Amount paid:",
+      "refundPercent": "Refund percent:",
+      "refundAmount": "Estimated refund:",
+      "refundDueAt": "Refund due by:",
+      "dismiss": "No, go back",
+      "confirm": "Yes, cancel reservation"
+    },
+    "refund": {
+      "notRequired": "No refund due.",
+      "owed": "Refund owed: {{amount}}.",
+      "owedWithDue": "Refund owed: {{amount}}, due by {{due}}.",
+      "partial": "Partial refund recorded.",
+      "refunded": "Refund completed.",
+      "overdue": "Refund is overdue. The host still needs to complete the refund."
     },
     "messages": {
       "cancelSuccess": "Reservation cancelled successfully."
@@ -1360,6 +1401,10 @@
   },
   "mercadoPago": {
     "amountLabel": "Amount due:",
+    "depositAmountLabel": "Deposit due:",
+    "balanceAmountLabel": "Balance due:",
+    "balanceDueBy": "due {{date}}",
+    "paidOfTotal": "Paid: {{paid}} of {{total}}",
     "payNow": "Pay now",
     "payLater": "Pay later",
     "paying": "Redirecting…",
@@ -1379,7 +1424,9 @@
       "NO_DESIGNATED_SELLER": "Online payment is not available for this property yet.",
       "ALREADY_APPROVED": "A payment was already registered for this booking.",
       "CANNOT_PAY": "Online payment is not available for this booking.",
-      "INVALID_AMOUNT": "This booking has an invalid payment amount."
+      "INVALID_AMOUNT": "This booking has an invalid payment amount.",
+      "BOOKING_CANCELLED": "This booking is cancelled and cannot be paid.",
+      "PAYMENT_DEADLINE_PASSED": "The payment deadline has passed. A new payment cannot be started."
     },
     "return": {
       "pageLabel": "Payment result",

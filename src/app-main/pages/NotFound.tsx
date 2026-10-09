@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import { Button } from '../../components/ui';
@@ -27,11 +28,13 @@ const NotFound: React.FC = () => {
                 {t('notFound.backToHome')}
               </Button>
             </Link>
-            <Link to="/search">
-              <Button variant="outline" size="lg">
-                {t('notFound.searchProperties')}
-              </Button>
-            </Link>
+            {isSearchPageEnabled && (
+              <Link to="/search">
+                <Button variant="outline" size="lg">
+                  {t('notFound.searchProperties')}
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </section>

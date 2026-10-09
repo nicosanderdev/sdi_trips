@@ -23,6 +23,19 @@
     "confirm": "Confirmar",
     "close": "Cerrar"
   },
+  "cancellationPolicy": {
+    "heading": "Cancelación y pagos",
+    "title": "Política de cancelación",
+    "summary": {
+      "freeUntil": "Cancelación con reembolso del {{percentBefore}}% hasta {{days}} días antes del check-in.",
+      "afterCutoff": "Después, reembolso del {{percent}}%.",
+      "noFreeWindow": "Reembolso del {{percent}}% en caso de cancelación.",
+      "flatRefund": "Reembolso del {{percent}}% si cancelás (referencia: {{days}} días antes del check-in).",
+      "fullUpfront": "Pago total por adelantado.",
+      "depositWithBalance": "Seña del {{depositPercent}}%; saldo {{balanceDays}} días antes.",
+      "depositOnly": "Seña del {{depositPercent}}%."
+    }
+  },
   "nav": {
     "home": "Inicio",
     "explore": "Explorar casas",
@@ -661,6 +674,34 @@
       "message": "La cancelación puede afectar tu reembolso según la política de la propiedad. Esta acción no se puede deshacer.",
       "dismiss": "No, volver",
       "confirm": "Sí, cancelar reserva"
+    },
+    "cancelPreview": {
+      "title": "Confirmar cancelación",
+      "cannotUndo": "Esta acción no se puede deshacer. Revisá el reembolso estimado según la política de la propiedad.",
+      "loading": "Calculando reembolso…",
+      "loadFailed": "No se pudo calcular el reembolso. Intentá de nuevo.",
+      "previewChanged": "El cálculo cambió. Revisá los montos actualizados y confirmá de nuevo.",
+      "tierLabel": "Tramo de política:",
+      "tier": {
+        "before": "Dentro del plazo de mayor reembolso",
+        "after": "Fuera del plazo de mayor reembolso",
+        "n/a": "No aplica",
+        "host_full": "Reembolso completo"
+      },
+      "amountPaid": "Monto pagado:",
+      "refundPercent": "Porcentaje de reembolso:",
+      "refundAmount": "Reembolso estimado:",
+      "refundDueAt": "Fecha límite del reembolso:",
+      "dismiss": "No, volver",
+      "confirm": "Sí, cancelar reserva"
+    },
+    "refund": {
+      "notRequired": "Sin reembolso pendiente.",
+      "owed": "Reembolso pendiente: {{amount}}.",
+      "owedWithDue": "Reembolso pendiente: {{amount}}, a más tardar el {{due}}.",
+      "partial": "Reembolso parcial registrado.",
+      "refunded": "Reembolso completado.",
+      "overdue": "El reembolso está demorado. El anfitrión debe completar el reembolso."
     },
     "messages": {
       "cancelSuccess": "Reserva cancelada correctamente."
@@ -1333,6 +1374,10 @@
   },
   "mercadoPago": {
     "amountLabel": "Monto a pagar:",
+    "depositAmountLabel": "Seña a pagar:",
+    "balanceAmountLabel": "Saldo pendiente:",
+    "balanceDueBy": "vence el {{date}}",
+    "paidOfTotal": "Pagado: {{paid}} de {{total}}",
     "payNow": "Pagar ahora",
     "payLater": "Pagar después",
     "paying": "Redirigiendo…",
@@ -1352,7 +1397,9 @@
       "NO_DESIGNATED_SELLER": "El pago en línea aún no está disponible para esta propiedad.",
       "ALREADY_APPROVED": "Ya se registró un pago para esta reserva.",
       "CANNOT_PAY": "El pago en línea no está disponible para esta reserva.",
-      "INVALID_AMOUNT": "Esta reserva tiene un monto de pago inválido."
+      "INVALID_AMOUNT": "Esta reserva tiene un monto de pago inválido.",
+      "BOOKING_CANCELLED": "Esta reserva está cancelada y no se puede pagar.",
+      "PAYMENT_DEADLINE_PASSED": "El plazo de pago venció. No se puede iniciar un pago nuevo."
     },
     "return": {
       "pageLabel": "Resultado del pago",

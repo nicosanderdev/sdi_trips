@@ -60,6 +60,11 @@ VITE_SEND_EMAILS_ENABLED=false
 # Alt example:  https://your-alt-domain.com/reservation-lookup
 # Local: use .env.main.local / .env.alt.local with npm run dev:main / npm run dev:alt
 VITE_GUEST_BOOKING_MANAGE_BASE_URL=
+
+# Guest search/catalog switch (Optional — per main/alt deploy; default: shown)
+# Set to `false` to hide /search (redirects home), homepage featured listings,
+# hero search, and browse links. Property/venue detail and booking links keep working.
+VITE_SHOW_SEARCH_PAGE=
 ```
 
 **Property images:** The portal reads full image URLs from the database (Cloudflare R2 in production, Supabase Storage when developing against local Supabase). The portal does **not** upload listing images and does **not** need `VITE_STORAGE_BACKEND` — that setting applies to the host dashboard at upload time.

@@ -15,6 +15,7 @@ import { useAuth } from '../../hooks/useAuth';
 import type { Property } from '../../types';
 import { getMemberProfile } from '../../services/memberService';
 import { supabase } from '../../lib/supabase';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 
 const Landing: React.FC = () => {
   const { t } = useTranslation();
@@ -27,6 +28,8 @@ const Landing: React.FC = () => {
   const [memberId, setMemberId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isSearchPageEnabled) return;
+
     const fetchFeaturedPropertiesAndFavorites = async () => {
       try {
         setLoading(true);
@@ -121,6 +124,7 @@ const Landing: React.FC = () => {
       <HeroSplit />
 
       {/* Featured Properties Section */}
+      {isSearchPageEnabled && (
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
@@ -185,6 +189,7 @@ const Landing: React.FC = () => {
           </div>
         </div>
       </section>
+      )}
 
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">

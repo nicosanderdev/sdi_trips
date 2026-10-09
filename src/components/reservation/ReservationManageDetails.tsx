@@ -1,10 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from '../ui';
-import type { ManageBookingView } from '../../types';
+import type {
+  CancellationPreview,
+  CancellationPreviewResponse,
+  ManageBookingView,
+} from '../../types';
+import type { CancelBookingResponse } from '../../services/bookingService';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
 import HostContactSection from './HostContactSection';
 import MercadoPagoPaySection from './MercadoPagoPaySection';
+import RefundStatusNotice from './RefundStatusNotice';
+import CancelBookingModal from './CancelBookingModal';
 import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
 import { saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
 
@@ -13,7 +20,9 @@ interface ReservationManageDetailsProps {
   statusLabel: string;
   cancelMessage: string | null;
   isCancelling: boolean;
-  onCancel: () => void;
+  onCancelConfirm: (previewHash: string) => Promise<CancelBookingResponse>;
+  onLoadCancelPreview: () => Promise<CancellationPreviewResponse>;
+  onCancelSuccess?: (preview: CancellationPreview) => void;
   /** Manage token for Mercado Pago preference creation when available. */
   manageToken?: string;
   cardVariant?: 'default' | 'elevated' | 'glass' | 'surface';
@@ -24,11 +33,14 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
   statusLabel,
   cancelMessage,
   isCancelling,
-  onCancel,
+  onCancelConfirm,
+  onLoadCancelPreview,
+  onCancelSuccess,
   manageToken,
   cardVariant = 'default',
 }) => {
   const { t, i18n } = useTranslation();
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const localizedSuccessMessage = t('reservationLookup.messages.cancelSuccess').toLowerCase();
   const isSuccessMessage =
@@ -82,6 +94,14 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
 
       <HostContactSection status={booking.status} hostContact={booking.hostContact} />
 
+      <RefundStatusNotice
+        status={booking.refundStatus}
+        amountPaid={booking.amountPaid}
+        refundDueAt={booking.refundDueAt}
+        currencyCode={booking.currencyCode}
+        bookingStatus={booking.status}
+      />
+
       {shouldShowMercadoPagoPay({
         canPayOnline: booking.canPayOnline,
         mercadoPagoApproved: booking.mercadoPagoApproved,
@@ -91,6 +111,11 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
           canPayOnline={booking.canPayOnline}
           mercadoPagoApproved={booking.mercadoPagoApproved}
           totalAmount={booking.totalAmount}
+          amountDue={booking.amountDue}
+          amountPaid={booking.amountPaid}
+          depositAmount={booking.depositAmount}
+          paymentStatus={booking.paymentStatus}
+          dueAt={booking.balanceDueAt ?? booking.depositDeadlineAt}
           currencyCode={booking.currencyCode}
           manageToken={manageToken}
           reservationCode={booking.reservationCode}
@@ -104,7 +129,7 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
             variant="primary"
             className="bg-red-600 hover:bg-red-700 text-white"
             disabled={isCancelling}
-            onClick={onCancel}
+            onClick={() => setShowCancelModal(true)}
           >
             {isCancelling
               ? t('reservationLookup.actions.cancelling')
@@ -118,6 +143,15 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
           {cancelMessage}
         </p>
       )}
+
+      <CancelBookingModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        loadPreview={onLoadCancelPreview}
+        confirm={onCancelConfirm}
+        currencyCode={booking.currencyCode}
+        onSuccess={onCancelSuccess}
+      />
     </Card>
   );
 };

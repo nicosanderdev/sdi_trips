@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../../i18n/config';
+import { isSearchPageEnabled } from '../../../core/config/searchPageVisibility';
 
 const LANG_CODES = ['en', 'es', 'pt'] as const;
 
@@ -17,7 +18,7 @@ export function AltNavbar() {
   const { t, i18n: i18nInstance } = useTranslation();
 
   const navItems: NavItem[] = [
-    { path: '/search', labelKey: 'alt.nav.exploreVenues' },
+    ...(isSearchPageEnabled ? [{ path: '/search', labelKey: 'alt.nav.exploreVenues' }] : []),
     { path: '/about', labelKey: 'alt.nav.aboutUs' },
     { path: '/contact', labelKey: 'common.contact' },
   ];

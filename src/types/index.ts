@@ -1,9 +1,12 @@
 export * from '../core/models';
 export * from './guestReviewContract';
 import type {
+  BookingPaymentStatus,
+  BookingRefundStatus,
   GuestBookingErrorCode,
   GuestSiteListingType,
   MercadoPagoBookingEligibility,
+  PublicCancellationPolicy,
 } from './guestReviewContract';
 
 export interface BookingSelectionValidation {
@@ -55,6 +58,9 @@ export interface GuestBookingConfirmation {
   totalAmount?: number;
   currency?: number;
   currencyCode?: string;
+  amountDue?: number;
+  depositAmount?: number;
+  cancellationPolicy?: PublicCancellationPolicy | null;
   mercadoPago?: MercadoPagoBookingEligibility;
   errorCode?: GuestBookingErrorCode;
   error?: string;
@@ -91,6 +97,16 @@ export interface ManageBookingView {
   totalAmount?: number | null;
   currency?: number | null;
   currencyCode?: string | null;
+  amountPaid?: number | null;
+  amountDue?: number | null;
+  depositAmount?: number | null;
+  paymentStatus?: BookingPaymentStatus | null;
+  refundStatus?: BookingRefundStatus | null;
+  refundDueAt?: string | null;
+  cancellationPolicy?: PublicCancellationPolicy | null;
+  depositDeadlineAt?: string | null;
+  balanceDueAt?: string | null;
+  cancellationInitiator?: string | null;
   mercadoPagoApproved?: boolean;
   mercadoPagoApprovedAt?: string | null;
   canPayOnline?: boolean;

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Button, Card } from '../../components/ui';
@@ -8,6 +9,7 @@ import PropertyReviewsSection from '../../components/sections/PropertyReviewsSec
 import PropertyContentSections from '../../components/sections/PropertyContentSections';
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
+import CancellationPolicySummary from '../../components/policies/CancellationPolicySummary';
 import {
   MapPin,
   Users,
@@ -19,8 +21,10 @@ import {
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
+import { getPublicPropertyContent } from '../../services/bookingService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
+import type { PublicCancellationPolicy } from '../../types';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 function hasUsableCoordinates(coords: { lat: number; lng: number } | undefined): boolean {
@@ -35,6 +39,7 @@ export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
   const [venue, setVenue] = useState<EventVenue | null>(null);
+  const [cancellationPolicy, setCancellationPolicy] = useState<PublicCancellationPolicy | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,8 +96,12 @@ export default function AltVenueDetail() {
         if (data) {
           const host = await fetchHostForProperty(data.id, data.ownerId);
           setVenue({ ...data, host });
+          void getPublicPropertyContent(data.id, 'EventVenue').then((content) => {
+            setCancellationPolicy(content?.cancellationPolicy ?? null);
+          });
         } else {
           setVenue(null);
+          setCancellationPolicy(null);
         }
       } catch (_error) {
         setError('Failed to load venue details.');
@@ -172,8 +181,8 @@ export default function AltVenueDetail() {
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
         <h1 className="text-2xl font-bold text-navy mb-4">{t('alt.venueDetail.notFoundTitle')}</h1>
         <p className="text-charcoal mb-6 text-center max-w-md">{error ?? t('alt.venueDetail.notFoundBody')}</p>
-        <Link to="/search">
-          <Button variant="primary">{t('alt.venueDetail.backToVenues')}</Button>
+        <Link to={browseFallbackPath}>
+          <Button variant="primary">{isSearchPageEnabled ? t('alt.venueDetail.backToVenues') : t('auth.backToHome')}</Button>
         </Link>
       </div>
     );
@@ -183,9 +192,9 @@ export default function AltVenueDetail() {
     <div className="bg-warm-gray min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-charcoal">
-          <Link to="/search" className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
+          <Link to={browseFallbackPath} className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
             <ChevronLeft className="h-4 w-4" />
-            <span>{t('alt.venueDetail.backToVenues')}</span>
+            <span>{isSearchPageEnabled ? t('alt.venueDetail.backToVenues') : t('auth.backToHome')}</span>
           </Link>
           <div className="flex items-center gap-2 text-sm text-charcoal/80">
             <MapPin className="h-4 w-4 text-gold" />
@@ -421,6 +430,7 @@ export default function AltVenueDetail() {
           locale={i18n.language}
           className="mt-0"
         />
+        <CancellationPolicySummary policy={cancellationPolicy} className="mt-6" />
       </div>
 
       <section className="flex items-center justify-center bg-white py-16">

@@ -39,6 +39,10 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
   const [liveToken, setLiveToken] = useState<string | null>(null);
   const [canPayOnline, setCanPayOnline] = useState(false);
   const [payAmount, setPayAmount] = useState<number | null>(null);
+  const [payTotalAmount, setPayTotalAmount] = useState<number | null>(null);
+  const [payAmountPaid, setPayAmountPaid] = useState<number | null>(null);
+  const [payDepositAmount, setPayDepositAmount] = useState<number | null>(null);
+  const [payDueAt, setPayDueAt] = useState<string | null>(null);
   const [payCurrencyCode, setPayCurrencyCode] = useState<string | null>(null);
 
   const lookupHref = useMemo(() => {
@@ -82,7 +86,11 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
       }
 
       if (result.reservation_code) setReservationCode(result.reservation_code);
-      setPayAmount(result.amount);
+      setPayAmount(result.amount_due ?? result.amount);
+      setPayTotalAmount(result.total_amount ?? null);
+      setPayAmountPaid(result.amount_paid ?? null);
+      setPayDepositAmount(result.deposit_amount ?? null);
+      setPayDueAt(result.balance_due_at ?? result.deposit_deadline_at ?? null);
       setPayCurrencyCode(result.currency_code);
       setCanPayOnline(result.can_pay_online);
 
@@ -172,7 +180,11 @@ const MercadoPagoPaymentReturn: React.FC<MercadoPagoPaymentReturnProps> = ({
             className="text-left"
             bookingId={bookingId}
             canPayOnline={canPayOnline}
-            totalAmount={payAmount}
+            totalAmount={payTotalAmount}
+            amountDue={payAmount}
+            amountPaid={payAmountPaid}
+            depositAmount={payDepositAmount}
+            dueAt={payDueAt}
             currencyCode={payCurrencyCode}
             manageToken={liveToken}
             reservationCode={reservationCode ?? undefined}

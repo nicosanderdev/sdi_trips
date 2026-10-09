@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
+import { isSearchPageEnabled } from '../../../core/config/searchPageVisibility';
 
 export function AltFooter() {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const exploreLinks = [
-    { labelKey: 'alt.footer.browseVenues' as const, path: '/search' },
+    ...(isSearchPageEnabled ? [{ labelKey: 'alt.footer.browseVenues' as const, path: '/search' }] : []),
     { labelKey: 'alt.footer.howItWorks' as const, path: '/#how-it-works' },
   ];
 

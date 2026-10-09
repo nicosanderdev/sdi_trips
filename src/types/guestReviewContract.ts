@@ -157,7 +157,72 @@ export interface GuestReservationHostContact {
   phone?: string | null;
 }
 
-export interface GuestReservationLookupReservation {
+/** Property-level cancellation policy (live or frozen snapshot). */
+export interface PublicCancellationPolicy {
+  freeCancellationDays: number;
+  refundPercentBefore: number;
+  refundPercentAfter: number;
+  depositPercent: number;
+  balanceDueDays: number | null;
+}
+
+/** Subset of get_public_property_content used by guest sites. */
+export interface PublicPropertyContent {
+  cancellationPolicy: PublicCancellationPolicy | null;
+}
+
+/** Bookings.PaymentStatus codes. */
+export type BookingPaymentStatus = 0 | 1 | 2 | 3 | 4;
+
+/** Bookings.RefundStatus codes. */
+export type BookingRefundStatus = 0 | 1 | 2 | 3 | 4;
+
+export type CancellationPolicyTier = 'before' | 'after' | 'n/a' | 'host_full';
+
+export interface CancellationPreview {
+  success: true;
+  initiator: 'guest' | 'host' | 'admin' | 'system';
+  canCancel: boolean;
+  policyTier: CancellationPolicyTier;
+  amountPaid: number;
+  refundPercent: number;
+  refundAmount: number;
+  refundDueAt: string | null;
+  policySnapshot: PublicCancellationPolicy;
+  previewHash: string;
+  message?: string | null;
+}
+
+export interface CancellationPreviewFailure {
+  success: false;
+  error?: string;
+  error_code?: GuestBookingErrorCode;
+}
+
+export type CancellationPreviewResponse = CancellationPreview | CancellationPreviewFailure;
+
+export interface CancelBookingResult {
+  success: boolean;
+  error?: string;
+  error_code?: GuestBookingErrorCode;
+  preview?: CancellationPreview;
+}
+
+/** Shared payment / refund fields on manage + code-lookup booking views. */
+export interface GuestBookingPaymentFields {
+  amountPaid?: number | null;
+  amountDue?: number | null;
+  depositAmount?: number | null;
+  paymentStatus?: BookingPaymentStatus | null;
+  refundStatus?: BookingRefundStatus | null;
+  refundDueAt?: string | null;
+  cancellationPolicy?: PublicCancellationPolicy | null;
+  depositDeadlineAt?: string | null;
+  balanceDueAt?: string | null;
+  cancellationInitiator?: string | null;
+}
+
+export interface GuestReservationLookupReservation extends GuestBookingPaymentFields {
   bookingId: string;
   guestId: string | null;
   reservationCode: string;
@@ -217,7 +282,10 @@ export type GuestBookingErrorCode =
   | 'CANNOT_PAY'
   | 'INVALID_AMOUNT'
   | 'AMOUNT_MISMATCH'
-  | 'CURRENCY_MISMATCH';
+  | 'CURRENCY_MISMATCH'
+  | 'BOOKING_CANCELLED'
+  | 'PAYMENT_DEADLINE_PASSED'
+  | 'PREVIEW_MISMATCH';
 
 export interface ValidateGuestBookingOverlapParams {
   email: string;
@@ -252,6 +320,9 @@ export interface ConfirmBookingFromHoldResponse {
   total_amount?: number;
   currency?: number;
   currency_code?: string;
+  amount_due?: number;
+  deposit_amount?: number;
+  cancellation_policy?: PublicCancellationPolicy;
   mercado_pago?: MercadoPagoBookingEligibility;
 }
 
@@ -288,8 +359,20 @@ export interface BookingPaymentStatusSuccess {
   booking_id: string;
   reservation_code: string | null;
   amount: number | null;
+  total_amount?: number | null;
+  amount_paid?: number | null;
+  amount_due?: number | null;
+  deposit_amount?: number | null;
   currency: number | null;
   currency_code: string;
+  payment_status?: BookingPaymentStatus | null;
+  refund_status?: BookingRefundStatus | null;
+  refund_due_at?: string | null;
+  cancellation_policy?: PublicCancellationPolicy | null;
+  deposit_deadline_at?: string | null;
+  balance_due_at?: string | null;
+  cancellation_initiator?: string | null;
+  pay_block_code?: string | null;
   mercado_pago_approved: boolean;
   mercado_pago_approved_at: string | null;
   can_pay_online: boolean;
@@ -345,12 +428,58 @@ export function isMercadoPagoPreferenceErrorCode(
   | 'ALREADY_APPROVED'
   | 'CANNOT_PAY'
   | 'INVALID_AMOUNT'
+  | 'BOOKING_CANCELLED'
+  | 'PAYMENT_DEADLINE_PASSED'
 > {
   return (
     code === 'SELLER_NOT_CONNECTED' ||
     code === 'NO_DESIGNATED_SELLER' ||
     code === 'ALREADY_APPROVED' ||
     code === 'CANNOT_PAY' ||
-    code === 'INVALID_AMOUNT'
+    code === 'INVALID_AMOUNT' ||
+    code === 'BOOKING_CANCELLED' ||
+    code === 'PAYMENT_DEADLINE_PASSED'
   );
+}
+
+export function parseCancellationPolicy(raw: unknown): PublicCancellationPolicy | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  const freeCancellationDays = Number(obj.freeCancellationDays ?? obj.free_cancellation_days);
+  const refundPercentBefore = Number(obj.refundPercentBefore ?? obj.refund_percent_before);
+  const refundPercentAfter = Number(obj.refundPercentAfter ?? obj.refund_percent_after);
+  const depositPercent = Number(obj.depositPercent ?? obj.deposit_percent);
+  if (
+    ![freeCancellationDays, refundPercentBefore, refundPercentAfter, depositPercent].every(
+      Number.isFinite,
+    )
+  ) {
+    return null;
+  }
+  const balanceRaw = obj.balanceDueDays ?? obj.balance_due_days;
+  const balanceDueDays =
+    balanceRaw == null || balanceRaw === ''
+      ? null
+      : Number.isFinite(Number(balanceRaw))
+        ? Number(balanceRaw)
+        : null;
+  return {
+    freeCancellationDays,
+    refundPercentBefore,
+    refundPercentAfter,
+    depositPercent,
+    balanceDueDays,
+  };
+}
+
+export function parsePaymentStatus(value: unknown): BookingPaymentStatus | null {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 0 || n > 4) return null;
+  return n as BookingPaymentStatus;
+}
+
+export function parseRefundStatus(value: unknown): BookingRefundStatus | null {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 0 || n > 4) return null;
+  return n as BookingRefundStatus;
 }
