@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
+import mapboxgl from 'mapbox-gl';
 import { Button, Card } from '../../components/ui';
 import GuestBookingFlow from '../../components/sections/GuestBookingFlow';
 import PropertyReviewsSection from '../../components/sections/PropertyReviewsSection';
 import PropertyContentSections from '../../components/sections/PropertyContentSections';
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
+import CancellationPolicySummary from '../../components/policies/CancellationPolicySummary';
 import {
   MapPin,
   Users,
@@ -16,20 +19,34 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
+import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
 import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
+import { getPublicPropertyContent } from '../../services/bookingService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
+import type { PublicCancellationPolicy } from '../../types';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+function hasUsableCoordinates(coords: { lat: number; lng: number } | undefined): boolean {
+  if (!coords) return false;
+  const { lat, lng } = coords;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (lat === 0 && lng === 0) return false;
+  return true;
+}
 
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
   const [venue, setVenue] = useState<EventVenue | null>(null);
+  const [cancellationPolicy, setCancellationPolicy] = useState<PublicCancellationPolicy | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [galleryOpacity, setGalleryOpacity] = useState(1);
   const [showBookingFlow, setShowBookingFlow] = useState(false);
+  const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
 
   const placeholderVenue = useMemo<EventVenue>(
     () =>
@@ -79,8 +96,12 @@ export default function AltVenueDetail() {
         if (data) {
           const host = await fetchHostForProperty(data.id, data.ownerId);
           setVenue({ ...data, host });
+          void getPublicPropertyContent(data.id, 'EventVenue').then((content) => {
+            setCancellationPolicy(content?.cancellationPolicy ?? null);
+          });
         } else {
           setVenue(null);
+          setCancellationPolicy(null);
         }
       } catch (_error) {
         setError('Failed to load venue details.');
@@ -92,11 +113,54 @@ export default function AltVenueDetail() {
     load();
   }, [id]);
 
-  const heroImages = venue?.images ?? [];
-  const heroImageCount = heroImages.length;
+  useEffect(() => {
+    if (error || !venue?.id) return;
+    recordGuestPropertyVisit(venue.id);
+  }, [venue?.id, error]);
+
+  useEffect(() => {
+    if (!mapboxToken || !venue || !hasUsableCoordinates(venue.coordinates)) return;
+
+    mapboxgl.accessToken = mapboxToken;
+
+    const map = new mapboxgl.Map({
+      container: 'alt-venue-detail-map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [venue.coordinates.lng, venue.coordinates.lat],
+      zoom: 15,
+    });
+
+    const markerElement = document.createElement('div');
+    markerElement.className =
+      'w-8 h-8 rounded-full bg-gold border-2 border-white shadow-lg flex items-center justify-center';
+    markerElement.innerHTML = '<div class="w-4 h-4 rounded-full bg-white"></div>';
+
+    new mapboxgl.Marker(markerElement)
+      .setLngLat([venue.coordinates.lng, venue.coordinates.lat])
+      .addTo(map);
+
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    return () => {
+      map.remove();
+    };
+  }, [mapboxToken, venue]);
+
+  const galleryItems =
+    venue?.publicImages?.length
+      ? venue.publicImages.map((img) => ({
+          url: img.url,
+          alt: img.altText || venue.name,
+        }))
+      : (venue?.images ?? []).map((url) => ({
+          url,
+          alt: venue?.imageAltText || venue?.name || '',
+        }));
+  const heroImageCount = galleryItems.length;
   const displayImageIndex = heroImageCount > 0 ? currentImageIndex % heroImageCount : 0;
 
   const transitionThenSetIndex = (nextIndex: number) => {
+    if (!heroImageCount) return;
     setGalleryOpacity(0);
     window.setTimeout(() => {
       setCurrentImageIndex(nextIndex);
@@ -117,20 +181,20 @@ export default function AltVenueDetail() {
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
         <h1 className="text-2xl font-bold text-navy mb-4">{t('alt.venueDetail.notFoundTitle')}</h1>
         <p className="text-charcoal mb-6 text-center max-w-md">{error ?? t('alt.venueDetail.notFoundBody')}</p>
-        <Link to="/search">
-          <Button variant="primary">{t('alt.venueDetail.backToVenues')}</Button>
+        <Link to={browseFallbackPath}>
+          <Button variant="primary">{isSearchPageEnabled ? t('alt.venueDetail.backToVenues') : t('auth.backToHome')}</Button>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="bg-warm-gray min-h-screen pb-16">
+    <div className="bg-warm-gray min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-charcoal">
-          <Link to="/search" className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
+          <Link to={browseFallbackPath} className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
             <ChevronLeft className="h-4 w-4" />
-            <span>{t('alt.venueDetail.backToVenues')}</span>
+            <span>{isSearchPageEnabled ? t('alt.venueDetail.backToVenues') : t('auth.backToHome')}</span>
           </Link>
           <div className="flex items-center gap-2 text-sm text-charcoal/80">
             <MapPin className="h-4 w-4 text-gold" />
@@ -140,13 +204,19 @@ export default function AltVenueDetail() {
 
         <section className="space-y-6">
           <div className="relative rounded-[2rem] overflow-hidden bg-white shadow-[0_25px_60px_-25px_rgba(43,43,43,0.35)] aspect-[4/3]">
-            <img
-              key={displayImageIndex}
-              src={heroImages[displayImageIndex]}
-              alt={venue.name}
-              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ease-in-out"
-              style={{ opacity: galleryOpacity }}
-            />
+            {heroImageCount > 0 ? (
+              <img
+                key={displayImageIndex}
+                src={galleryItems[displayImageIndex].url}
+                alt={galleryItems[displayImageIndex].alt}
+                className="absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ease-in-out"
+                style={{ opacity: galleryOpacity }}
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-warm-gray text-sm text-charcoal/70">
+                {venue.name}
+              </div>
+            )}
             {heroImageCount > 1 && (
               <>
                 <button
@@ -169,23 +239,25 @@ export default function AltVenueDetail() {
                 </button>
               </>
             )}
-            <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium tracking-wide text-navy shadow-md">
-              {displayImageIndex + 1} / {heroImageCount}
-            </div>
+            {heroImageCount > 0 && (
+              <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium tracking-wide text-navy shadow-md">
+                {displayImageIndex + 1} / {heroImageCount}
+              </div>
+            )}
           </div>
 
           {heroImageCount > 1 && (
             <div className="flex gap-3 overflow-x-auto py-2">
-              {heroImages.map((image, index) => (
+              {galleryItems.map((image, index) => (
                 <button
-                  key={`${image}-${index}`}
+                  key={`${image.url}-${index}`}
                   type="button"
                   onClick={() => index !== displayImageIndex && transitionThenSetIndex(index)}
                   className={`flex h-20 w-20 shrink-0 overflow-hidden rounded-2xl border transition-all ${
                     index === displayImageIndex ? 'border-gold' : 'border-transparent opacity-80 hover:opacity-100'
                   }`}
                 >
-                  <img src={image} alt="" className="h-full w-full object-cover" />
+                  <img src={image.url} alt={image.alt} className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
@@ -321,6 +393,34 @@ export default function AltVenueDetail() {
             locale={i18n.language}
           />
 
+          <div className="space-y-3 rounded-[2rem] border border-warm-gray bg-white/90 p-6">
+            <div className="flex items-center gap-2 text-xl font-semibold text-navy">
+              <MapPin className="h-5 w-5 text-gold" />
+              {t('alt.venueDetail.location.heading')}
+            </div>
+            <p className="text-sm leading-relaxed text-charcoal">{venue.location}</p>
+            <p className="text-sm leading-relaxed text-charcoal/80">
+              {t('alt.venueDetail.location.exactPinNote')}
+            </p>
+            <div className="relative mt-4 overflow-hidden rounded-[1.5rem] border border-warm-gray bg-white">
+              <div id="alt-venue-detail-map" className="h-64 w-full" />
+              {(!mapboxToken || !hasUsableCoordinates(venue.coordinates)) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-[1.5rem] bg-white/80">
+                  <MapPin className="h-10 w-10 text-gray-400" />
+                  <p className="text-sm text-charcoal">
+                    {t('alt.venueDetail.location.mapFallback')}
+                  </p>
+                  <p className="text-xs text-charcoal/70">{venue.location}</p>
+                  {!mapboxToken && (
+                    <p className="text-xs text-charcoal/60">
+                      {t('alt.venueDetail.location.mapboxTokenNote')}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
           <PropertyReviewsSection propertyId={venue.id} propertyTitle={venue.name} />
         </section>
 
@@ -330,9 +430,10 @@ export default function AltVenueDetail() {
           locale={i18n.language}
           className="mt-0"
         />
+        <CancellationPolicySummary policy={cancellationPolicy} className="mt-6" />
       </div>
 
-      <section className="bg-white pb-16">
+      <section className="flex items-center justify-center bg-white py-16">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 rounded-[2rem] border border-warm-gray px-6 py-10 text-center">
           <CheckCircle className="h-10 w-10 text-gold" />
           <h3 className="text-2xl font-semibold text-navy">{t('alt.venueDetail.trustFooter.heading')}</h3>

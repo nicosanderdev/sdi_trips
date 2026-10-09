@@ -118,6 +118,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
     bookingId: string;
     manageToken: string;
     totalAmount?: number;
+    amountDue?: number;
+    amountPaid?: number;
+    depositAmount?: number;
     currencyCode?: string;
     mercadoPago: MercadoPagoBookingEligibility;
   } | null>(null);
@@ -475,6 +478,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         bookingId,
         manageToken,
         totalAmount: confirmResult.totalAmount,
+        amountDue: confirmResult.amountDue,
+        depositAmount: confirmResult.depositAmount,
+        amountPaid: 0,
         currencyCode: confirmResult.currencyCode,
         mercadoPago: confirmResult.mercadoPago ?? {
           can_pay_online: false,
@@ -825,6 +831,9 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
                 canPayOnline={confirmedPayment.mercadoPago.can_pay_online}
                 mercadoPagoApproved={confirmedPayment.mercadoPago.mercado_pago_approved}
                 totalAmount={confirmedPayment.totalAmount}
+                amountDue={confirmedPayment.amountDue}
+                amountPaid={confirmedPayment.amountPaid}
+                depositAmount={confirmedPayment.depositAmount}
                 currencyCode={confirmedPayment.currencyCode}
                 manageToken={confirmedPayment.manageToken}
                 reservationCode={reservationCode ?? undefined}

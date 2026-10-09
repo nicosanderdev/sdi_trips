@@ -4,6 +4,8 @@ import type {
   Booking,
   BookingHold,
   BookingPaymentStatusResponse,
+  CancellationPreview,
+  CancellationPreviewResponse,
   ConfirmBookingFromHoldResponse,
   CreateMercadoPagoPreferenceRequest,
   CreateMercadoPagoPreferenceResponse,
@@ -19,11 +21,18 @@ import type {
   OtpSendResponse,
   OtpVerifyResponse,
   Property,
+  PublicCancellationPolicy,
+  PublicPropertyContent,
   User,
   ValidateGuestBookingOverlapParams,
   ValidateGuestBookingOverlapResponse,
 } from '../types';
-import { isGuestBookingOverlapError } from '../types/guestReviewContract';
+import {
+  isGuestBookingOverlapError,
+  parseCancellationPolicy,
+  parsePaymentStatus,
+  parseRefundStatus,
+} from '../types/guestReviewContract';
 import { getPropertyById } from './propertyService';
 import { isGuestSiteListingType } from '../core/config/guestSiteListingType';
 
@@ -53,6 +62,8 @@ export interface CancelBookingParams {
 export interface CancelBookingResponse {
   success: boolean;
   error?: string;
+  error_code?: GuestBookingErrorCode;
+  preview?: CancellationPreview;
 }
 
 export interface CreateBookingHoldParams {
@@ -127,6 +138,16 @@ export interface ReservationLookupData {
   totalAmount?: number | null;
   currency?: number | null;
   currencyCode?: string | null;
+  amountPaid?: number | null;
+  amountDue?: number | null;
+  depositAmount?: number | null;
+  paymentStatus?: number | null;
+  refundStatus?: number | null;
+  refundDueAt?: string | null;
+  cancellationPolicy?: PublicCancellationPolicy | null;
+  depositDeadlineAt?: string | null;
+  balanceDueAt?: string | null;
+  cancellationInitiator?: string | null;
   mercadoPagoApproved?: boolean;
   mercadoPagoApprovedAt?: string | null;
   canPayOnline?: boolean;
@@ -200,6 +221,77 @@ function mapMercadoPagoEligibility(raw: unknown): MercadoPagoBookingEligibility 
   };
 }
 
+function optionalIsoString(value: unknown): string | null | undefined {
+  if (value == null) return value === null ? null : undefined;
+  return String(value);
+}
+
+function mapPaymentFieldsFromPayload(raw: Record<string, unknown>) {
+  return {
+    amountPaid: optionalNumber(raw.amountPaid ?? raw.amount_paid),
+    amountDue: optionalNumber(raw.amountDue ?? raw.amount_due),
+    depositAmount: optionalNumber(raw.depositAmount ?? raw.deposit_amount),
+    paymentStatus: parsePaymentStatus(raw.paymentStatus ?? raw.payment_status),
+    refundStatus: parseRefundStatus(raw.refundStatus ?? raw.refund_status),
+    refundDueAt: optionalIsoString(raw.refundDueAt ?? raw.refund_due_at) ?? null,
+    cancellationPolicy: parseCancellationPolicy(
+      raw.cancellationPolicy ?? raw.cancellation_policy,
+    ),
+    depositDeadlineAt: optionalIsoString(raw.depositDeadlineAt ?? raw.deposit_deadline_at) ?? null,
+    balanceDueAt: optionalIsoString(raw.balanceDueAt ?? raw.balance_due_at) ?? null,
+    cancellationInitiator:
+      raw.cancellationInitiator != null
+        ? String(raw.cancellationInitiator)
+        : raw.cancellation_initiator != null
+          ? String(raw.cancellation_initiator)
+          : null,
+  };
+}
+
+function mapCancellationPreviewFromPayload(
+  raw: Record<string, unknown>,
+): CancellationPreview | null {
+  if (raw.success === false) return null;
+  const policySnapshot =
+    parseCancellationPolicy(raw.policySnapshot ?? raw.policy_snapshot) ?? {
+      freeCancellationDays: 0,
+      refundPercentBefore: 0,
+      refundPercentAfter: 0,
+      depositPercent: 100,
+      balanceDueDays: null,
+    };
+  const tierRaw = String(raw.policyTier ?? raw.policy_tier ?? 'n/a');
+  const policyTier =
+    tierRaw === 'before' || tierRaw === 'after' || tierRaw === 'host_full' || tierRaw === 'n/a'
+      ? tierRaw
+      : 'n/a';
+  const initiatorRaw = String(raw.initiator ?? 'guest');
+  const initiator =
+    initiatorRaw === 'host' ||
+    initiatorRaw === 'admin' ||
+    initiatorRaw === 'system' ||
+    initiatorRaw === 'guest'
+      ? initiatorRaw
+      : 'guest';
+
+  return {
+    success: true,
+    initiator,
+    canCancel: Boolean(raw.canCancel ?? raw.can_cancel),
+    policyTier,
+    amountPaid: optionalNumber(raw.amountPaid ?? raw.amount_paid) ?? 0,
+    refundPercent: optionalNumber(raw.refundPercent ?? raw.refund_percent) ?? 0,
+    refundAmount: optionalNumber(raw.refundAmount ?? raw.refund_amount) ?? 0,
+    refundDueAt: optionalIsoString(raw.refundDueAt ?? raw.refund_due_at) ?? null,
+    policySnapshot,
+    previewHash: String(raw.previewHash ?? raw.preview_hash ?? ''),
+    message:
+      raw.message != null
+        ? String(raw.message)
+        : null,
+  };
+}
+
 export function mapReservationFromLookupPayload(raw: Record<string, unknown>): ReservationLookupData {
   const listingTypeRaw =
     (raw.listingType as string | undefined) ?? (raw.listing_type as string | undefined);
@@ -249,6 +341,7 @@ export function mapReservationFromLookupPayload(raw: Record<string, unknown>): R
         : raw.currency_code != null
           ? String(raw.currency_code)
           : null,
+    ...mapPaymentFieldsFromPayload(raw),
     mercadoPagoApproved: optionalBoolean(raw.mercadoPagoApproved ?? raw.mercado_pago_approved),
     mercadoPagoApprovedAt:
       raw.mercadoPagoApprovedAt != null
@@ -598,6 +691,11 @@ export async function confirmGuestBooking(params: ConfirmGuestBookingParams): Pr
           : raw.currencyCode != null
             ? String(raw.currencyCode)
             : undefined,
+      amountDue: optionalNumber(raw.amount_due ?? raw.amountDue) ?? undefined,
+      depositAmount: optionalNumber(raw.deposit_amount ?? raw.depositAmount) ?? undefined,
+      cancellationPolicy: parseCancellationPolicy(
+        raw.cancellation_policy ?? raw.cancellationPolicy,
+      ),
       mercadoPago,
     };
   } catch (error) {
@@ -640,6 +738,7 @@ export async function getBookingByManageToken(token: string): Promise<{ success:
           : bookingRaw.currency_code != null
             ? String(bookingRaw.currency_code)
             : null,
+      ...mapPaymentFieldsFromPayload(bookingRaw),
       mercadoPagoApproved: optionalBoolean(
         bookingRaw.mercadoPagoApproved ?? bookingRaw.mercado_pago_approved,
       ),
@@ -778,8 +877,35 @@ export async function getBookingPaymentStatusByManageToken(
             ? String(payload.reservationCode)
             : null,
       amount: optionalNumber(payload.amount) ?? null,
+      total_amount: optionalNumber(payload.total_amount ?? payload.totalAmount) ?? null,
+      amount_paid: optionalNumber(payload.amount_paid ?? payload.amountPaid) ?? null,
+      amount_due: optionalNumber(payload.amount_due ?? payload.amountDue) ?? null,
+      deposit_amount: optionalNumber(payload.deposit_amount ?? payload.depositAmount) ?? null,
       currency: optionalNumber(payload.currency) ?? null,
       currency_code: String(payload.currency_code ?? payload.currencyCode ?? 'USD'),
+      payment_status: parsePaymentStatus(payload.payment_status ?? payload.paymentStatus),
+      refund_status: parseRefundStatus(payload.refund_status ?? payload.refundStatus),
+      refund_due_at:
+        optionalIsoString(payload.refund_due_at ?? payload.refundDueAt) ?? null,
+      cancellation_policy: parseCancellationPolicy(
+        payload.cancellation_policy ?? payload.cancellationPolicy,
+      ),
+      deposit_deadline_at:
+        optionalIsoString(payload.deposit_deadline_at ?? payload.depositDeadlineAt) ?? null,
+      balance_due_at:
+        optionalIsoString(payload.balance_due_at ?? payload.balanceDueAt) ?? null,
+      cancellation_initiator:
+        payload.cancellation_initiator != null
+          ? String(payload.cancellation_initiator)
+          : payload.cancellationInitiator != null
+            ? String(payload.cancellationInitiator)
+            : null,
+      pay_block_code:
+        payload.pay_block_code != null
+          ? String(payload.pay_block_code)
+          : payload.payBlockCode != null
+            ? String(payload.payBlockCode)
+            : null,
       mercado_pago_approved: Boolean(
         payload.mercado_pago_approved ?? payload.mercadoPagoApproved,
       ),
@@ -802,23 +928,165 @@ export async function getBookingPaymentStatusByManageToken(
   }
 }
 
-export async function cancelBookingByManageToken(token: string, reason?: string): Promise<CancelBookingResponse> {
+export async function getPublicPropertyContent(
+  propertyId: string,
+  listingType?: GuestSiteListingType,
+): Promise<PublicPropertyContent | null> {
+  if (!propertyId) return null;
+  try {
+    const { data, error } = await supabase.rpc('get_public_property_content', {
+      p_property_id: propertyId,
+      p_listing_type: listingType ?? getGuestSiteListingType(),
+    });
+    if (error || !data || typeof data !== 'object') {
+      return null;
+    }
+    const payload = data as Record<string, unknown>;
+    return {
+      cancellationPolicy: parseCancellationPolicy(
+        payload.cancellationPolicy ?? payload.cancellation_policy,
+      ),
+    };
+  } catch (err) {
+    console.error('Failed to load public property content:', err);
+    return null;
+  }
+}
+
+export async function previewBookingCancellationByManageToken(
+  token: string,
+): Promise<CancellationPreviewResponse> {
+  try {
+    const { data, error } = await supabase.rpc('preview_booking_cancellation_by_manage_token', {
+      p_token: token,
+    });
+    if (error) {
+      return { success: false, error: 'Failed to load cancellation preview.' };
+    }
+    const payload = data as Record<string, unknown> | null;
+    if (!payload?.success) {
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'Failed to load cancellation preview.',
+        error_code: payload?.error_code as GuestBookingErrorCode | undefined,
+      };
+    }
+    const preview = mapCancellationPreviewFromPayload(payload);
+    if (!preview) {
+      return { success: false, error: 'Failed to load cancellation preview.' };
+    }
+    return preview;
+  } catch (err) {
+    console.error('Failed to preview cancellation by token:', err);
+    return { success: false, error: 'Failed to load cancellation preview.' };
+  }
+}
+
+export async function previewBookingCancellationByCode(
+  reservationCode: string,
+  listingType?: GuestSiteListingType,
+): Promise<CancellationPreviewResponse> {
+  const normalizedCode = normalizeReservationCode(reservationCode);
+  if (!normalizedCode) {
+    return { success: false, error: 'Invalid reservation code format.' };
+  }
+  try {
+    const { data, error } = await supabase.rpc('preview_booking_cancellation_by_code', {
+      p_reservation_code: normalizedCode,
+      p_listing_type: listingType ?? getGuestSiteListingType(),
+    });
+    if (error) {
+      return { success: false, error: 'Failed to load cancellation preview.' };
+    }
+    const payload = data as Record<string, unknown> | null;
+    if (!payload?.success) {
+      return {
+        success: false,
+        error: (payload?.error as string | undefined) ?? 'Failed to load cancellation preview.',
+        error_code: payload?.error_code as GuestBookingErrorCode | undefined,
+      };
+    }
+    const preview = mapCancellationPreviewFromPayload(payload);
+    if (!preview) {
+      return { success: false, error: 'Failed to load cancellation preview.' };
+    }
+    return preview;
+  } catch (err) {
+    console.error('Failed to preview cancellation by code:', err);
+    return { success: false, error: 'Failed to load cancellation preview.' };
+  }
+}
+
+export async function cancelBookingByManageToken(
+  token: string,
+  reason?: string,
+  previewHash?: string,
+): Promise<CancelBookingResponse> {
   try {
     const { data, error } = await supabase.rpc('cancel_booking_by_manage_token', {
       p_token: token,
       p_reason: reason ?? null,
+      p_preview_hash: previewHash ?? null,
     });
     if (error) {
       return { success: false, error: 'Failed to cancel reservation.' };
     }
 
     const payload = data as Record<string, unknown> | null;
+    const previewRaw =
+      payload?.preview && typeof payload.preview === 'object'
+        ? (payload.preview as Record<string, unknown>)
+        : null;
     return {
       success: Boolean(payload?.success),
-      error: payload?.success ? undefined : (payload?.error as string | undefined) ?? 'Could not cancel reservation.',
+      error: payload?.success
+        ? undefined
+        : (payload?.error as string | undefined) ?? 'Could not cancel reservation.',
+      error_code: payload?.error_code as GuestBookingErrorCode | undefined,
+      preview: previewRaw ? mapCancellationPreviewFromPayload(previewRaw) ?? undefined : undefined,
     };
   } catch (error) {
     console.error('Failed to cancel booking by token:', error);
+    return { success: false, error: 'Failed to cancel reservation.' };
+  }
+}
+
+export async function cancelBookingByCode(
+  reservationCode: string,
+  listingType?: GuestSiteListingType,
+  reason?: string,
+  previewHash?: string,
+): Promise<CancelBookingResponse> {
+  const normalizedCode = normalizeReservationCode(reservationCode);
+  if (!normalizedCode) {
+    return { success: false, error: 'Invalid reservation code format.' };
+  }
+  try {
+    const { data, error } = await supabase.rpc('cancel_booking_by_code', {
+      p_reservation_code: normalizedCode,
+      p_listing_type: listingType ?? getGuestSiteListingType(),
+      p_reason: reason ?? null,
+      p_preview_hash: previewHash ?? null,
+    });
+    if (error) {
+      return { success: false, error: 'Failed to cancel reservation.' };
+    }
+
+    const payload = data as Record<string, unknown> | null;
+    const previewRaw =
+      payload?.preview && typeof payload.preview === 'object'
+        ? (payload.preview as Record<string, unknown>)
+        : null;
+    return {
+      success: Boolean(payload?.success),
+      error: payload?.success
+        ? undefined
+        : (payload?.error as string | undefined) ?? 'Could not cancel reservation.',
+      error_code: payload?.error_code as GuestBookingErrorCode | undefined,
+      preview: previewRaw ? mapCancellationPreviewFromPayload(previewRaw) ?? undefined : undefined,
+    };
+  } catch (err) {
+    console.error('Failed to cancel booking by code:', err);
     return { success: false, error: 'Failed to cancel reservation.' };
   }
 }

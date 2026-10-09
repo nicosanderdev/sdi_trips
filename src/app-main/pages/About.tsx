@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import { Card } from '../../components/ui';
@@ -111,7 +112,7 @@ export function AboutContent({ variant = 'main' }: AboutProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {values.map((value, index) => (
-              <Card key={index} variant="default" className="p-8">
+              <Card key={index} variant={variant === 'alt' ? 'surface' : 'default'} className="p-8">
                 <div className="flex items-start space-x-4">
                   <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center flex-shrink-0">
                     <value.icon className="h-6 w-6 text-navy" />
@@ -135,12 +136,14 @@ export function AboutContent({ variant = 'main' }: AboutProps) {
           </h2>
           <p className="text-xl text-warm-gray-light mb-8 leading-relaxed">{t(`${prefix}.cta.description`)}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/search"
-              className="inline-flex items-center justify-center px-8 py-4 bg-gold text-navy font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"
-            >
-              {t(`${prefix}.cta.browseProperties`)}
-            </Link>
+            {isSearchPageEnabled && (
+              <Link
+                to="/search"
+                className="inline-flex items-center justify-center px-8 py-4 bg-gold text-navy font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"
+              >
+                {t(`${prefix}.cta.browseProperties`)}
+              </Link>
+            )}
             <Link
               to="/contact"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-navy transition-all duration-200"

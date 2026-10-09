@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from '../../core/auth/AuthProvider';
+import { GuestVisitTracker } from '../../components/analytics/GuestVisitTracker';
 import { initAnalytics, sendPageView } from '../../core/services/analyticsService';
 import { initAnalyticsSession } from '../../lib/analytics';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 
 import Landing from '../pages/Landing';
 import About from '../pages/About';
@@ -48,11 +50,12 @@ export function AppMainRouter() {
     <AuthProvider>
       <Router>
         <PageViewTracker />
+        <GuestVisitTracker />
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/search" element={<Search />} />
+          <Route path="/search" element={isSearchPageEnabled ? <Search /> : <Navigate to="/" replace />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/booking/manage" element={<BookingManageRedirect />} />
           <Route path="/reservation-lookup" element={<ReservationLookup />} />

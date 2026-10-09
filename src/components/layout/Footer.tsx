@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
@@ -16,8 +17,7 @@ const Footer: React.FC = () => {
   }) as { email: string; phone: string; address: string };
 
   const exploreLinks = [
-    { labelKey: 'footer.vacationHomes', path: '/search' },
-    { labelKey: 'footer.popularAreas', path: '/search?q=Rivera' },
+    ...(isSearchPageEnabled ? [{ labelKey: 'footer.vacationHomes', path: '/search' }] : []),
     { labelKey: 'footer.howItWorks', path: '/#how-it-works' },
   ];
 

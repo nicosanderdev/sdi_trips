@@ -38,6 +38,9 @@ export interface PortalSearchResultItem {
   areaValue?: number;
   areaUnit?: string;
   blockedForBooking?: boolean;
+  /** Featured image from portal_search_properties (null/missing when no photos). */
+  imageUrl?: string | null;
+  imageAltText?: string | null;
   scores: PropertySearchScores;
   offlineBaseScore?: number;
   onlineBoosts: PropertySearchOnlineBoosts;

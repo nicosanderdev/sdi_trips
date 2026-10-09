@@ -3,9 +3,9 @@ import type { RpcSummerRentPropertyRow } from '../models/summerRentProperty';
 import { parseAmenities } from '../models/properties/publicAmenity';
 import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
 import { parsePolicies } from '../models/properties/propertyPolicies';
-import type { Property } from '../types';
+import { mapRpcImageFields } from '../models/properties/publicPropertyImages';
+import type { GetPublicFeaturedPropertiesParams, Property } from '../types';
 import { mapRpcPricingFields } from './pricing/listingPricing';
-import { enrichPropertiesWithImages } from './propertyImageService';
 import { getRatingsForProperties } from './reviewService';
 
 export interface PropertyFilters {
@@ -56,9 +56,10 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
   const publicPolicies = parsePolicies(row.Policies);
   const publicContentSections = resolvePublicContentSectionsFromRow(
     row.ContentSections,
-    row.SectionData,
+    row.SectionData as Parameters<typeof resolvePublicContentSectionsFromRow>[1],
   );
   const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
+  const imageFields = mapRpcImageFields(row);
 
   return {
     id: row.EstatePropertyId,
@@ -73,7 +74,9 @@ export function transformSummerRentProperty(row: RpcSummerRentPropertyRow): Prop
     longStayMinDays: pricing.longStayMinDays,
     longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: getCurrencyCode(row.Currency),
-    images: [],
+    images: imageFields.images,
+    publicImages: imageFields.publicImages,
+    imageAltText: imageFields.imageAltText,
     bedrooms: row.Bedrooms,
     bathrooms: row.Bathrooms,
     maxGuests,
@@ -110,21 +113,19 @@ function getCurrencyCode(_currencyNumber: number): string {
 }
 
 /**
- * Get featured properties for landing page
+ * Homepage featured strip. Uses get_public_featured_summer_rent_properties
+ * (scored sample) — not the list RPC with p_only_featured.
+ * Omit limit (or pass 6) so the client does not send p_limit (server default 6).
  */
 export async function getFeaturedProperties(
   limit: number = 6,
 ): Promise<Property[]> {
+  const params: GetPublicFeaturedPropertiesParams =
+    limit === 6 ? {} : { p_limit: limit };
+
   const { data, error } = await supabase.rpc(
-    'get_public_summer_rent_properties',
-    {
-      p_min_price: null,
-      p_max_price: null,
-      p_min_bedrooms: null,
-      p_min_guests: null,
-      p_location: null,
-      p_only_featured: true,
-    },
+    'get_public_featured_summer_rent_properties',
+    params,
   );
 
   if (error) {
@@ -132,8 +133,7 @@ export async function getFeaturedProperties(
     throw error;
   }
 
-  const rows = (data ?? []).slice(0, limit);
-  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
+  return ((data ?? []) as RpcSummerRentPropertyRow[]).map(transformSummerRentProperty);
 }
 
 /**
@@ -158,7 +158,7 @@ export async function getProperties(limit?: number): Promise<Property[]> {
   }
 
   const rows = limit ? (data ?? []).slice(0, limit) : data ?? [];
-  return enrichPropertiesWithImages(rows.map(transformSummerRentProperty));
+  return rows.map(transformSummerRentProperty);
 }
 
 /**
@@ -232,7 +232,7 @@ export async function getTopRatedPropertiesForHero(
     return 0;
   });
 
-  return enrichPropertiesWithImages(enriched.slice(0, limit));
+  return enriched.slice(0, limit);
 }
 
 /**
@@ -255,8 +255,7 @@ export async function getPropertyById(id: string): Promise<Property | null> {
     return null;
   }
 
-  const [property] = await enrichPropertiesWithImages([transformSummerRentProperty(row)]);
-  return property;
+  return transformSummerRentProperty(row);
 }
 
 /**
@@ -320,7 +319,7 @@ export async function searchProperties(
   const paged = properties.slice(offset, offset + limit);
 
   return {
-    properties: await enrichPropertiesWithImages(paged),
+    properties: paged,
     totalCount,
   };
 }
@@ -377,5 +376,5 @@ export async function getFavoriteProperties(
     }
   }
 
-  return enrichPropertiesWithImages(favorites);
+  return favorites;
 }

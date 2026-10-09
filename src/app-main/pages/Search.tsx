@@ -479,14 +479,15 @@ const Search: React.FC = () => {
       const priced = priceByPropertyId.get(property.id);
       const markerPrice = priced?.amount ?? property.price;
       const offsetCoordinates = getOffsetCoordinates(property);
+      const isHovered = hoveredProperty === property.id;
       const markerElement = document.createElement('div');
-      markerElement.className = `w-10 h-10 rounded-full shadow-lg cursor-pointer transition-all ${
-        hoveredProperty === property.id
-          ? 'bg-gold scale-110'
-          : 'bg-[#1F4D8B]'
-      }`;
+      // Mapbox positions this element with `transform: translate(...)`.
+      // Tailwind's `scale-*` must live on a child so it does not scale that translation.
+      markerElement.className = `w-10 h-10 cursor-pointer${isHovered ? ' z-10' : ''}`;
       markerElement.innerHTML = `
-        <div class="w-full h-full rounded-full flex items-center justify-center">
+        <div class="w-full h-full rounded-full shadow-lg flex items-center justify-center transition-all ${
+          isHovered ? 'bg-gold scale-110' : 'bg-[#1F4D8B]'
+        }">
           <span class="text-xs font-bold text-white">$${markerPrice}</span>
         </div>
       `;

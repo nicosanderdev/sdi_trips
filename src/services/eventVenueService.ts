@@ -1,9 +1,9 @@
-import type { Property } from '../types';
+import type { Property, PublicEventVenueListRow, GetPublicFeaturedPropertiesParams } from '../types';
 import { supabase } from '../lib/supabase';
 import { parseAmenities } from '../models/properties/publicAmenity';
 import { resolvePublicContentSectionsFromRow } from '../models/properties/propertyContentSections';
 import { parsePolicies } from '../models/properties/propertyPolicies';
-import { enrichPropertiesWithImages } from './propertyImageService';
+import { mapRpcImageFields } from '../models/properties/publicPropertyImages';
 import { mapRpcPricingFields } from './pricing/listingPricing';
 
 export type VenueEventTag = 'wedding' | 'corporate' | 'party' | 'workshop';
@@ -29,65 +29,6 @@ export interface EventVenueFilters {
   location?: string;
   onlyFeatured?: boolean;
   eventType?: VenueEventTag;
-}
-
-interface EventVenueRpcRow {
-  EstatePropertyId: string;
-  ListingId?: string;
-  OwnerId: string | null;
-  Neighborhood: string | null;
-  City: string | null;
-  State: string | null;
-  Country: string | null;
-  LocationLatitude: number;
-  LocationLongitude: number;
-  Bedrooms: number;
-  Bathrooms: number;
-  Capacity: number | null;
-  ListingCapacity: number | null;
-  Title: string | null;
-  ListingDescription: string | null;
-  Currency: number;
-  RentPrice: number | null;
-  SalePrice: number | null;
-  BasePrice?: number | null;
-  MinPrice?: number | null;
-  MaxPrice?: number | null;
-  LongStayDiscountEnabled?: boolean | null;
-  LongStayMinDays?: number | null;
-  LongStayDiscountPercentage?: number | null;
-  IsActive: boolean;
-  IsPropertyVisible: boolean;
-  BlockedForBooking: boolean;
-  AmenityNames: string[] | null;
-  Amenities?: unknown;
-  Policies?: unknown;
-  MaxGuests: number | null;
-  HasCatering: boolean | null;
-  HasSoundSystem: boolean | null;
-  ClosingHour: string | null;
-  AllowedEventsDescription: string | null;
-  ContentSections?: unknown;
-  SectionData?: RpcPropertySectionRow[] | null;
-}
-
-interface RpcPropertySectionImageRow {
-  Id: string;
-  PropertyImageId: string | null;
-  R2Url: string;
-  Title: string | null;
-  Metadata: Record<string, unknown> | null;
-  DisplayOrder: number | null;
-}
-
-interface RpcPropertySectionRow {
-  Id: string;
-  Name: string;
-  Description: string | null;
-  LayoutType: 'split' | 'carousel' | 'stacked' | null;
-  LayoutConfig: Record<string, unknown> | null;
-  DisplayOrder: number | null;
-  Images: RpcPropertySectionImageRow[] | null;
 }
 
 function inferEventTypes(allowed: string | null | undefined): string[] {
@@ -122,7 +63,7 @@ function mapPublicVenueHost(ownerId: string | null | undefined): Property['host'
   };
 }
 
-export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
+export function mapEventVenueFromRpc(row: PublicEventVenueListRow): EventVenue {
   const location = [row.Neighborhood, row.City, row.State].filter(Boolean).join(', ') || 'Location not specified';
   const maxGuests = row.MaxGuests ?? row.ListingCapacity ?? row.Capacity ?? 0;
   const amenities = row.AmenityNames ?? [];
@@ -130,12 +71,13 @@ export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
   const publicPolicies = parsePolicies(row.Policies);
   const publicContentSections = resolvePublicContentSectionsFromRow(
     row.ContentSections,
-    row.SectionData,
+    row.SectionData as Parameters<typeof resolvePublicContentSectionsFromRow>[1],
   );
   const eventTypes = inferEventTypes(row.AllowedEventsDescription);
   const pricing = mapRpcPricingFields(row as unknown as Record<string, unknown>);
   const price = pricing.basePrice;
   const venueName = row.Title ?? 'Untitled venue';
+  const imageFields = mapRpcImageFields(row);
 
   return {
     id: row.EstatePropertyId,
@@ -152,7 +94,9 @@ export function mapEventVenueFromRpc(row: EventVenueRpcRow): EventVenue {
     longStayMinDays: pricing.longStayMinDays,
     longStayDiscountPercentage: pricing.longStayDiscountPercentage,
     currency: row.Currency === 1 ? 'UYU' : 'USD',
-    images: [],
+    images: imageFields.images,
+    publicImages: imageFields.publicImages,
+    imageAltText: imageFields.imageAltText,
     bedrooms: row.Bedrooms ?? 0,
     bathrooms: row.Bathrooms ?? 0,
     maxGuests,
@@ -202,7 +146,7 @@ export async function searchEventVenues(
     throw error;
   }
 
-  let venues = ((data ?? []) as EventVenueRpcRow[]).map(mapEventVenueFromRpc);
+  let venues = ((data ?? []) as PublicEventVenueListRow[]).map(mapEventVenueFromRpc);
   if (filters.eventType) {
     venues = venues.filter((venue) => venue.eventTypeTags.includes(filters.eventType as VenueEventTag));
   }
@@ -211,14 +155,31 @@ export async function searchEventVenues(
   const offset = (page - 1) * limit;
   const paged = venues.slice(offset, offset + limit);
   return {
-    venues: await enrichPropertiesWithImages(paged),
+    venues: paged,
     totalCount,
   };
 }
 
+/**
+ * Homepage featured strip. Uses get_public_featured_event_venue_properties
+ * (scored sample) — not the list RPC with p_only_featured.
+ * Omit limit (or pass 6) so the client does not send p_limit (server default 6).
+ */
 export async function getFeaturedEventVenues(limit: number = 6): Promise<EventVenue[]> {
-  const { venues } = await searchEventVenues({ onlyFeatured: true }, 1, limit);
-  return venues;
+  const params: GetPublicFeaturedPropertiesParams =
+    limit === 6 ? {} : { p_limit: limit };
+
+  const { data, error } = await supabase.rpc(
+    'get_public_featured_event_venue_properties',
+    params,
+  );
+
+  if (error) {
+    console.error('Error fetching featured event venues:', error);
+    throw error;
+  }
+
+  return ((data ?? []) as PublicEventVenueListRow[]).map(mapEventVenueFromRpc);
 }
 
 export async function getEventVenueById(id: string): Promise<EventVenue | null> {
@@ -231,8 +192,7 @@ export async function getEventVenueById(id: string): Promise<EventVenue | null> 
     throw error;
   }
 
-  const row = ((data ?? []) as EventVenueRpcRow[])[0];
+  const row = ((data ?? []) as PublicEventVenueListRow[])[0];
   if (!row) return null;
-  const [venue] = await enrichPropertiesWithImages([mapEventVenueFromRpc(row)]);
-  return venue;
+  return mapEventVenueFromRpc(row);
 }

@@ -9,6 +9,7 @@ import { getFeaturedEventVenues, type EventVenue } from '../../services/eventVen
 import { buildVenuePriceHint } from '../../services/pricing';
 import { getUyCities, type UyCity } from '../../data/uyCityUtils';
 import HumanTouchSection from '../../components/sections/HumanTouchSection';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 // Temporarily hidden on landing — re-enable when ready:
 // import Testimonials from '../../components/sections/Testimonials';
 
@@ -41,7 +42,7 @@ function mapFeaturedVenueToCard(venue: EventVenue): LandingVenueCard {
     location: venue.location,
     capacity,
     priceHint: venue.priceHint || fallbackPriceHint,
-    images: venue.images?.length ? venue.images : [...HERO_IMAGES],
+    images: venue.images?.length ? venue.images : ['/alt-explore.jpg'],
   };
 }
 
@@ -109,6 +110,8 @@ export default function AltLanding() {
   }, []);
 
   useEffect(() => {
+    if (!isSearchPageEnabled) return;
+
     let isMounted = true;
 
     const loadFeaturedVenues = async () => {
@@ -116,7 +119,7 @@ export default function AltLanding() {
       setPopularVenuesFetchFailed(false);
 
       try {
-        const featuredVenues = await getFeaturedEventVenues(6);
+        const featuredVenues = await getFeaturedEventVenues();
         if (!isMounted) return;
         setPopularVenuesRaw(featuredVenues);
       } catch (error) {
@@ -184,6 +187,7 @@ export default function AltLanding() {
             </h1>
             <p className="mt-4 text-white/95 text-[clamp(1rem,1.8vw,1.25rem)] max-w-[36ch]">{t('alt.landing.hero.subtitle')}</p>
 
+            {isSearchPageEnabled && (
             <form
               className="mt-5 grid grid-cols-1 gap-2 w-full max-w-[900px] p-3 rounded-2xl border border-gold/35 bg-white/95 backdrop-blur-sm"
               onSubmit={(event) => {
@@ -281,6 +285,7 @@ export default function AltLanding() {
                 </Button>
               </div>
             </form>
+            )}
 
             <div className="mt-4">
               <div className="flex flex-wrap gap-4">
@@ -296,11 +301,13 @@ export default function AltLanding() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-3 items-start">
-                <Link to="/search">
-                  <Button variant="primary" size="lg">
-                    {t('alt.landing.hero.exploreCta')}
-                  </Button>
-                </Link>
+                {isSearchPageEnabled && (
+                  <Link to="/search">
+                    <Button variant="primary" size="lg">
+                      {t('alt.landing.hero.exploreCta')}
+                    </Button>
+                  </Link>
+                )}
                 <Link to="/reservation-lookup">
                   <Button
                     variant="outline"
@@ -361,6 +368,7 @@ export default function AltLanding() {
         </div>
       </section>
 
+      {isSearchPageEnabled && (
       <section className="py-24 bg-warm-gray">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-10">
@@ -380,7 +388,7 @@ export default function AltLanding() {
 
             {!loadingPopularVenues &&
               popularCards.map((venue, index) => {
-                const image = venue.images[0] ?? HERO_IMAGES[0];
+                const image = venue.images[0] ?? '/alt-explore.jpg';
                 return (
                   <article key={venue.id} className="relative min-h-[220px] border border-navy/15 rounded-3xl overflow-hidden bg-navy group">
                     <Link to={`/venue/${venue.id}`} className="absolute inset-0 z-10" aria-label={venue.name} />
@@ -425,6 +433,7 @@ export default function AltLanding() {
           </div>
         </div>
       </section>
+      )}
 
       <section id="how-it-works" className="py-24 bg-white scroll-mt-28">
         <div className="max-w-7xl mx-auto px-8">
@@ -445,20 +454,22 @@ export default function AltLanding() {
         </div>
       </section>
 
-      <section className="py-24 bg-navy text-white">
-        <div className="max-w-4xl mx-auto px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-thin mb-8">
-            {t('alt.landing.ctaBand.titleBefore')}
-            <span className="font-bold text-gold">{t('alt.landing.ctaBand.titleHighlight')}</span>
-            {t('alt.landing.ctaBand.titleAfter')}
-          </h2>
-          <Link to="/search">
-            <Button variant="primary" size="lg">
-              {t('alt.landing.ctaBand.button')}
-            </Button>
-          </Link>
-        </div>
-      </section>
+      {isSearchPageEnabled && (
+        <section className="py-24 bg-navy text-white">
+          <div className="max-w-4xl mx-auto px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-thin mb-8">
+              {t('alt.landing.ctaBand.titleBefore')}
+              <span className="font-bold text-gold">{t('alt.landing.ctaBand.titleHighlight')}</span>
+              {t('alt.landing.ctaBand.titleAfter')}
+            </h2>
+            <Link to="/search">
+              <Button variant="primary" size="lg">
+                {t('alt.landing.ctaBand.button')}
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
 
       <HumanTouchSection variant="alt" />
       {/* Temporarily hidden — site reviews / testimonials

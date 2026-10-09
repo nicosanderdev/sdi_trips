@@ -1,5 +1,7 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import '../alt-theme.css';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
+import { GuestVisitTracker } from '../../components/analytics/GuestVisitTracker';
 import { AuthProvider } from '../../core/auth/AuthProvider';
 import { AltLayout } from '../components/layout/AltLayout';
 import AltContact from '../pages/AltContact';
@@ -17,10 +19,11 @@ export function AppAltRouter() {
   return (
     <AuthProvider>
       <Router>
+        <GuestVisitTracker />
         <Routes>
           <Route element={<AltLayout />}>
             <Route path="/" element={<AltLanding />} />
-            <Route path="/search" element={<AltSearchProperties />} />
+            <Route path="/search" element={isSearchPageEnabled ? <AltSearchProperties /> : <Navigate to="/" replace />} />
             <Route path="/contact" element={<AltContact />} />
             <Route path="/about" element={<About variant="alt" />} />
             <Route path="/reservation-lookup" element={<AltReservationLookup />} />

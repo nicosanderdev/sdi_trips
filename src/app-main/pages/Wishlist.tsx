@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '../../components/layout';
 import { Card, Button, Badge } from '../../components/ui';
@@ -90,8 +91,11 @@ const Wishlist: React.FC = () => {
       <div className="relative overflow-hidden">
         <Link to={`/property/${property.id}`}>
           <img
-            src={property.images[0]}
-            alt={property.title}
+            src={
+              property.images?.[0] ||
+              'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80'
+            }
+            alt={property.imageAltText || property.title}
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </Link>
@@ -271,9 +275,9 @@ const Wishlist: React.FC = () => {
               <p className="text-charcoal mb-6">
                 {t('wishlist.emptyDescription')}
               </p>
-              <Link to="/search">
+              <Link to={browseFallbackPath}>
                 <Button variant="primary">
-                  {t('wishlist.exploreProperties')}
+                  {isSearchPageEnabled ? t('wishlist.exploreProperties') : t('auth.backToHome')}
                 </Button>
               </Link>
             </Card>

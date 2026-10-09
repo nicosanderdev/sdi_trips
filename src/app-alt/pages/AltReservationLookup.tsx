@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 import ReservationLookupForm from '../../components/reservation/ReservationLookupForm';
@@ -7,13 +8,16 @@ import ReservationDetails from '../../components/reservation/ReservationDetails'
 import ReservationManageDetails from '../../components/reservation/ReservationManageDetails';
 import { Button, Card } from '../../components/ui';
 import { parseListingTypeParam } from '../../core/config/guestBookingManageUrl';
-import type { ManageBookingView } from '../../types';
+import { getGuestSiteListingType } from '../../core/config/guestSiteListingType';
+import type { CancellationPreview, ManageBookingView } from '../../types';
 import {
+  cancelBookingByCode,
   cancelBookingByManageToken,
-  cancelReservation,
   getBookingByManageToken,
   getReservationByCode,
   normalizeReservationCode,
+  previewBookingCancellationByCode,
+  previewBookingCancellationByManageToken,
   type ReservationLookupData,
 } from '../../services/bookingService';
 
@@ -51,12 +55,15 @@ export default function AltReservationLookup() {
   const [tokenError, setTokenError] = useState<string | null>(null);
 
   const hasLookupResult = useMemo(() => view.mode === 'lookup', [view.mode]);
+  const siteListingType = listingTypeFromUrl ?? getGuestSiteListingType();
 
   const refreshManageBooking = useCallback(async (manageToken: string) => {
     const result = await getBookingByManageToken(manageToken);
     if (result.success && result.booking) {
       setView({ mode: 'manage', token: manageToken, booking: result.booking });
+      return true;
     }
+    return false;
   }, []);
 
   useEffect(() => {
@@ -67,7 +74,7 @@ export default function AltReservationLookup() {
       return;
     }
     if (!token) {
-      setTokenError(t('alt.reservations.errors.missingToken'));
+      setTokenError(t('reservationLookup.manageToken.missingToken'));
       setTokenLoading(false);
       setView((v) => (v.mode === 'manage' ? { mode: 'none' } : v));
       return;
@@ -83,7 +90,7 @@ export default function AltReservationLookup() {
       if (!mounted) return;
       setTokenLoading(false);
       if (!result.success || !result.booking) {
-        setTokenError(result.error ?? t('alt.reservations.errors.invalidOrExpiredToken'));
+        setTokenError(result.error ?? t('reservationLookup.manageToken.invalidOrExpired'));
         setView((v) => (v.mode === 'lookup' ? v : { mode: 'none' }));
         return;
       }
@@ -160,42 +167,81 @@ export default function AltReservationLookup() {
     setView({ mode: 'lookup', reservation: result.reservation });
   };
 
-  const handleCancelLookup = async () => {
-    if (view.mode !== 'lookup' || !view.reservation.canCancel || loadingCancel) return;
+  const handleCancelLookup = async (previewHash: string) => {
+    if (view.mode !== 'lookup' || !view.reservation.canCancel || loadingCancel) {
+      return { success: false, error: t('reservationLookup.errors.cancelFailed') };
+    }
 
     setLoadingCancel(true);
     setCancelMessage(null);
-    const result = await cancelReservation(view.reservation.bookingId);
+    const result = await cancelBookingByCode(
+      view.reservation.reservationCode,
+      view.reservation.listingType ?? siteListingType,
+      'Cancelled by guest from reservation lookup',
+      previewHash,
+    );
     setLoadingCancel(false);
+    return result;
+  };
 
-    if (!result.success) {
-      setCancelMessage(result.error ?? t('reservationLookup.errors.cancelFailed'));
+  const handleCancelManage = async (previewHash: string) => {
+    if (view.mode !== 'manage' || !view.booking.canCancel || loadingCancel) {
+      return { success: false, error: t('reservationLookup.errors.cancelFailed') };
+    }
+    setLoadingCancel(true);
+    setCancelMessage(null);
+    const result = await cancelBookingByManageToken(
+      view.token,
+      'Cancelled by guest from management link',
+      previewHash,
+    );
+    setLoadingCancel(false);
+    return result;
+  };
+
+  const handleCancelLookupSuccess = async (_preview: CancellationPreview) => {
+    setCancelMessage(t('reservationLookup.messages.cancelSuccess'));
+    if (view.mode !== 'lookup') return;
+    const refreshed = await getReservationByCode(
+      view.reservation.reservationCode,
+      view.reservation.listingType ?? siteListingType,
+    );
+    if (refreshed.success && refreshed.reservation) {
+      setView({ mode: 'lookup', reservation: refreshed.reservation });
       return;
     }
-
     setView({
       mode: 'lookup',
       reservation: {
         ...view.reservation,
         status: 'cancelled',
         canCancel: false,
+        canPayOnline: false,
+        refundStatus: _preview.refundAmount > 0.009 ? 1 : 0,
+        refundDueAt: _preview.refundDueAt,
+        amountPaid: _preview.amountPaid,
       },
     });
-    setCancelMessage(t('reservationLookup.messages.cancelSuccess'));
   };
 
-  const handleCancelManage = async () => {
-    if (view.mode !== 'manage' || !view.booking.canCancel || loadingCancel) return;
-    setLoadingCancel(true);
-    setCancelMessage(null);
-    const result = await cancelBookingByManageToken(view.token, 'Cancelled by guest from management link');
-    setLoadingCancel(false);
-    if (!result.success) {
-      setCancelMessage(result.error ?? t('reservationLookup.errors.cancelFailed'));
-      return;
-    }
+  const handleCancelManageSuccess = async (_preview: CancellationPreview) => {
     setCancelMessage(t('reservationLookup.messages.cancelSuccess'));
-    await refreshManageBooking(view.token);
+    if (view.mode !== 'manage') return;
+    const refreshed = await refreshManageBooking(view.token);
+    if (refreshed) return;
+    setView({
+      mode: 'manage',
+      token: view.token,
+      booking: {
+        ...view.booking,
+        status: 'cancelled',
+        canCancel: false,
+        canPayOnline: false,
+        refundStatus: _preview.refundAmount > 0.009 ? 1 : 0,
+        refundDueAt: _preview.refundDueAt,
+        amountPaid: _preview.amountPaid,
+      },
+    });
   };
 
   const handleSearchAgain = async () => {
@@ -214,7 +260,7 @@ export default function AltReservationLookup() {
     }
   };
 
-  const missingTokenMessage = hasTokenParam && !token ? t('alt.reservations.errors.missingToken') : null;
+  const missingTokenMessage = hasTokenParam && !token ? t('reservationLookup.manageToken.missingToken') : null;
   const displayTokenError = missingTokenMessage ?? tokenError;
   const showTokenErrorCard = Boolean(displayTokenError) && !tokenLoading;
   const showTokenLoading = hasTokenParam && Boolean(token) && tokenLoading;
@@ -252,8 +298,10 @@ export default function AltReservationLookup() {
             <Card className="w-full max-w-2xl rounded-2xl border border-red-200 p-5 bg-red-50/90">
               <p className="text-red-700 m-0">{displayTokenError}</p>
               <div className="mt-4 flex flex-wrap gap-3">
-                <Link to="/search">
-                  <Button variant="outline">{t('alt.reservations.browseVenues')}</Button>
+                <Link to={browseFallbackPath}>
+                  <Button variant="outline">
+                    {isSearchPageEnabled ? t('alt.reservations.browseVenues') : t('auth.backToHome')}
+                  </Button>
                 </Link>
               </div>
             </Card>
@@ -265,7 +313,9 @@ export default function AltReservationLookup() {
               statusLabel={manageStatusLabel}
               cancelMessage={cancelMessage}
               isCancelling={loadingCancel}
-              onCancel={handleCancelManage}
+              onCancelConfirm={handleCancelManage}
+              onLoadCancelPreview={() => previewBookingCancellationByManageToken(view.token)}
+              onCancelSuccess={(preview) => void handleCancelManageSuccess(preview)}
               manageToken={view.token}
               cardVariant="surface"
             />
@@ -289,8 +339,15 @@ export default function AltReservationLookup() {
                 cardVariant="surface"
                 reservation={view.reservation}
                 cancelMessage={cancelMessage}
-                onCancel={handleCancelLookup}
                 isCancelling={loadingCancel}
+                onCancelConfirm={handleCancelLookup}
+                onLoadCancelPreview={() =>
+                  previewBookingCancellationByCode(
+                    view.reservation.reservationCode,
+                    view.reservation.listingType ?? siteListingType,
+                  )
+                }
+                onCancelSuccess={(preview) => void handleCancelLookupSuccess(preview)}
                 propertyPath={venuePath}
               />
               <button
@@ -303,14 +360,16 @@ export default function AltReservationLookup() {
             </>
           )}
 
-          <div className="pt-6 text-center w-full">
-            <p className="text-charcoal/80 mb-4">{t('alt.reservations.ctaQuestion')}</p>
-            <Link to="/search">
-              <Button variant="primary" size="lg">
-                {t('alt.reservations.ctaBrowse')}
-              </Button>
-            </Link>
-          </div>
+          {isSearchPageEnabled && (
+            <div className="pt-6 text-center w-full">
+              <p className="text-charcoal/80 mb-4">{t('alt.reservations.ctaQuestion')}</p>
+              <Link to="/search">
+                <Button variant="primary" size="lg">
+                  {t('alt.reservations.ctaBrowse')}
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getGuestSiteListingType } from '../core/config/guestSiteListingType';
+import type { GuestSiteListingType } from '../types/guestReviewContract';
 import type { Property } from '../types';
 import type { EventVenue, VenueEventTag } from '../services/eventVenueService';
 import { getRatingsForProperties } from '../services/reviewService';
@@ -57,6 +58,8 @@ export interface UsePortalPropertySearchOptions {
   /** Cap ranked candidates before hydration (default 50). */
   hydrateLimit?: number;
   enabled?: boolean;
+  /** Defaults to the listing type of the running guest site. */
+  listingType?: GuestSiteListingType;
 }
 
 export type PortalSearchProperty = Property | EventVenue;
@@ -66,8 +69,9 @@ export function usePortalPropertySearch({
   postFilters,
   hydrateLimit = 50,
   enabled = true,
+  listingType: listingTypeOverride,
 }: UsePortalPropertySearchOptions) {
-  const listingType = getGuestSiteListingType();
+  const listingType = listingTypeOverride ?? getGuestSiteListingType();
   const [properties, setProperties] = useState<PortalSearchProperty[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -133,7 +137,7 @@ export function usePortalPropertySearch({
 
       if (postFilters?.eventType && listingType === 'EventVenue') {
         hydrated = (hydrated as EventVenue[]).filter((venue) =>
-          venue.eventTypeTags.includes(postFilters.eventType!),
+          (venue.eventTypeTags ?? []).includes(postFilters.eventType!),
         );
       }
 
