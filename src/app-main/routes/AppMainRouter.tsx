@@ -71,7 +71,14 @@ export function AppMainRouter() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-      <Analytics />
+      <Analytics
+        beforeSend={(event) => {
+          if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('preview')) {
+            return null;
+          }
+          return event;
+        }}
+      />
     </AuthProvider>
   );
 }

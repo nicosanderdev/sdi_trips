@@ -57,6 +57,7 @@ export function initAnalytics(): void {
  * Send a GA page_view for the current path.
  */
 export function sendPageView(path: string, title?: string): void {
+  if (path.includes('preview=')) return;
   if (!MEASUREMENT_ID || !ensureGtag()) return;
   const payload = {
     page_path: path,

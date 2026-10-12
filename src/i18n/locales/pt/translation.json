@@ -323,6 +323,12 @@
       "propertyNotFound": "Propriedade não encontrada",
       "failedToLoad": "Falha ao carregar detalhes da propriedade. Por favor, tente novamente."
     },
+    "preview": {
+      "banner": "Pré-visualização. As ações desta página estão desativadas.",
+      "hidden": "Os hóspedes ainda não veem este anúncio.",
+      "expiredTitle": "Esta pré-visualização expirou",
+      "expiredBody": "Abra novamente pelo painel."
+    },
     "buttons": {
       "backToSearch": "Voltar à Busca",
       "contactHost": "Contatar Anfitrião",

@@ -373,6 +373,12 @@
       "propertyNotFound": "Property not found",
       "failedToLoad": "Failed to load property details. Please try again."
     },
+    "preview": {
+      "banner": "Preview. Actions on this page are turned off.",
+      "hidden": "Guests cannot see this listing yet.",
+      "expiredTitle": "This preview has expired",
+      "expiredBody": "Open it again from the panel."
+    },
     "buttons": {
       "backToSearch": "Back to Search",
       "contactHost": "Contact Host",

@@ -11,7 +11,13 @@ import PropertyContentSections from '../../components/sections/PropertyContentSe
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import CancellationPolicySummary from '../../components/policies/CancellationPolicySummary';
-import { getPropertyById } from '../../services/propertyService';
+import { getPropertyById, getSummerRentPropertyPreview } from '../../services/propertyService';
+import {
+    PreviewBanner,
+    PreviewExpired,
+    resolvePropertyPreview,
+    usePreviewGuards,
+} from '../../core/preview/propertyPreview';
 import { getPublicPropertyContent } from '../../services/bookingService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
@@ -39,6 +45,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
+    const previewToken = searchParams.get('preview')?.trim() || null;
+    usePreviewGuards(Boolean(previewToken));
 
     const dateSearchContext = useMemo(() => {
         const checkInParam = searchParams.get('checkIn');
@@ -53,6 +61,8 @@ const PropertyDetail: React.FC = () => {
     const hasDateSearchContext = dateSearchContext !== null;
 
     const [property, setProperty] = useState<Property | null>(null);
+    const [previewHidden, setPreviewHidden] = useState(false);
+    const [previewExpired, setPreviewExpired] = useState(false);
     const [cancellationPolicy, setCancellationPolicy] = useState<PublicCancellationPolicy | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -117,7 +127,35 @@ const PropertyDetail: React.FC = () => {
             try {
                 setLoading(true);
                 setError(null);
-                const propertyData = await getPropertyById(id);
+                setPreviewExpired(false);
+                setPreviewHidden(false);
+
+                let propertyData: Property | null = null;
+                if (previewToken) {
+                    const resolved = await resolvePropertyPreview(previewToken);
+                    const tokenMatchesProperty =
+                        resolved.status === 'ok' &&
+                        resolved.listingType === 'SummerRent' &&
+                        resolved.estatePropertyId === id;
+                    if (!tokenMatchesProperty) {
+                        setPreviewExpired(true);
+                        setProperty(null);
+                        setCancellationPolicy(null);
+                        return;
+                    }
+                    const preview = await getSummerRentPropertyPreview(previewToken);
+                    if (!preview) {
+                        setPreviewExpired(true);
+                        setProperty(null);
+                        setCancellationPolicy(null);
+                        return;
+                    }
+                    propertyData = preview.property;
+                    setPreviewHidden(preview.hiddenFromGuests);
+                } else {
+                    propertyData = await getPropertyById(id);
+                }
+
                 if (propertyData) {
                     const host = await fetchHostForProperty(propertyData.id, propertyData.ownerId);
                     setProperty({ ...propertyData, host });
@@ -137,12 +175,12 @@ const PropertyDetail: React.FC = () => {
         };
 
         fetchProperty();
-    }, [id, t]);
+    }, [id, previewToken, t]);
 
     useEffect(() => {
-        if (error || !property?.id) return;
+        if (previewToken || error || !property?.id) return;
         recordGuestPropertyVisit(property.id);
-    }, [property?.id, error]);
+    }, [previewToken, property?.id, error]);
 
     // Initialize map
     useEffect(() => {
@@ -196,6 +234,14 @@ const PropertyDetail: React.FC = () => {
         setCurrentImageIndex((prev) => prev % heroImageCount);
         setLightboxIndex((prev) => prev % heroImageCount);
     }, [heroImageCount]);
+
+    if (previewExpired) {
+        return (
+            <Layout>
+                <PreviewExpired />
+            </Layout>
+        );
+    }
 
     if (loading) {
         return (
@@ -295,6 +341,7 @@ const PropertyDetail: React.FC = () => {
         <Layout>
             <div className="bg-warm-gray min-h-screen">
                 <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
+                    {previewToken && <PreviewBanner hiddenFromGuests={previewHidden} />}
 
                     {/* Navigation */}
                     <div className="flex items-center justify-between text-sm text-charcoal">
@@ -494,6 +541,7 @@ const PropertyDetail: React.FC = () => {
                                                 property={property}
                                                 initialCheckIn={dateSearchContext?.checkIn}
                                                 initialCheckOut={dateSearchContext?.checkOut}
+                                                previewMode={Boolean(previewToken)}
                                             />
                                         </div>
                                     )}
@@ -558,6 +606,7 @@ const PropertyDetail: React.FC = () => {
                                 propertyTitle={property.title}
                                 fallbackRating={property.rating}
                                 fallbackReviewCount={property.reviewCount}
+                                previewMode={Boolean(previewToken)}
                             />
                         )}
                     </section>

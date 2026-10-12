@@ -346,6 +346,12 @@
       "propertyNotFound": "Propiedad no encontrada",
       "failedToLoad": "Error al cargar los detalles de la propiedad. Por favor, intenta nuevamente."
     },
+    "preview": {
+      "banner": "Vista previa. Las acciones de esta página están desactivadas.",
+      "hidden": "Los huéspedes todavía no ven esta publicación.",
+      "expiredTitle": "Esta vista previa venció",
+      "expiredBody": "Abrila de nuevo desde el panel."
+    },
     "buttons": {
       "backToSearch": "Volver a Buscar",
       "contactHost": "Contactar al Anfitrión",
