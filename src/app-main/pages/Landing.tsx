@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, Heart, MapPin, Sparkles } from 'lucide-react';
 import { Layout } from '../../components/layout';
-import { Button } from '../../components/ui';
-import HeroSplit from '../../components/sections/HeroSplit';
 import HumanTouchSection from '../../components/sections/HumanTouchSection';
-// Temporarily hidden on landing — re-enable when ready:
-// import Testimonials from '../../components/sections/Testimonials';
+import {
+  LandingHero,
+  FeaturedStays,
+  TrustEditorial,
+  ProcessTimeline,
+  type FeaturedStayCard,
+} from '../../components/sections/landing';
 import { getFeaturedProperties, getFavoriteProperties } from '../../services/propertyService';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import ErrorMessage from '../../components/common/ErrorMessage';
 import { useAuth } from '../../hooks/useAuth';
 import type { Property } from '../../types';
 import { getMemberProfile } from '../../services/memberService';
 import { supabase } from '../../lib/supabase';
 import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
+
+const FALLBACK_IMAGE = '/landing/porch-800.jpg';
 
 const Landing: React.FC = () => {
   const { t } = useTranslation();
@@ -116,137 +117,52 @@ const Landing: React.FC = () => {
     }
   };
 
-  const platformIcons = [Shield, Heart, MapPin, Sparkles];
+  const featuredCards: FeaturedStayCard[] = featuredProperties.map((property) => ({
+    id: property.id,
+    title: property.title,
+    location: property.location,
+    image: property.images?.[0] || FALLBACK_IMAGE,
+    href: `/property/${property.id}`,
+  }));
+
+  const processSteps = [1, 2, 3, 4].map((step) => ({
+    title: t(`landing.howItWorks.steps.${step}.title`),
+    description: t(`landing.howItWorks.steps.${step}.description`),
+  }));
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <HeroSplit />
+      <LandingHero variant="main" />
 
-      {/* Featured Properties Section */}
       {isSearchPageEnabled && (
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-10">
-            <h2 className="m-0 text-3xl md:text-4xl font-bold text-navy">{t('landing.featured.title')}</h2>
-            <p className="mt-3 m-0 text-charcoal/80 text-lg max-w-xl mx-auto">{t('landing.featured.subtitle')}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-            {loading ? (
-              <div className="col-span-full flex justify-center py-12">
-                <LoadingSpinner size="lg" />
-              </div>
-            ) : error ? (
-              <div className="col-span-full">
-                <ErrorMessage message={t('landing.featured.errors.loadFailed')} />
-              </div>
-            ) : featuredProperties.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-charcoal text-lg">
-                {t('landing.featured.empty')}
-              </div>
-            ) : (
-              featuredProperties.slice(0, 6).map((property, index) => {
-                const image = property.images?.[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80';
-                return (
-                  <article key={property.id} className="relative min-h-[220px] border border-navy/15 rounded-3xl overflow-hidden bg-navy group">
-                    <Link to={`/property/${property.id}`} className="absolute inset-0 z-10" aria-label={property.title} />
-                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105" style={{ backgroundImage: `url("${image}")` }} />
-                    <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/35" />
-                    <div className="absolute left-4 right-4 bottom-4 z-20 flex items-end justify-between gap-3">
-                      <div>
-                        <h3 className="m-0 text-white text-lg font-semibold">{property.title}</h3>
-                        <p className="m-0 mt-1 text-white/85 text-sm">{property.location}</p>
-                      </div>
-                      {index === 0 && (
-                        <span className="rounded-full px-3 py-1 text-xs font-bold bg-gold text-navy whitespace-nowrap">
-                          {t('landing.featured.popular')}
-                        </span>
-                      )}
-                    </div>
-                    {!!user && (
-                      <button
-                        type="button"
-                        onClick={() => handleToggleWishlist(property.id)}
-                        className="absolute right-3 top-3 z-20 h-9 w-9 rounded-full bg-white/90 text-navy text-base font-bold hover:bg-white"
-                        aria-label={wishlistIds.includes(property.id) ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
-                      >
-                        {wishlistIds.includes(property.id) ? '♥' : '♡'}
-                      </button>
-                    )}
-                  </article>
-                );
-              })
-            )}
-          </div>
-
-          <div className="text-center">
-            <Link to="/search">
-              <Button variant="outline" size="lg">
-                {t('landing.featured.viewAll')}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+        <FeaturedStays
+          eyebrow={t('landing.featured.eyebrow')}
+          title={t('landing.featured.title')}
+          subtitle={t('landing.featured.subtitle')}
+          viewAllLabel={t('landing.featured.viewAll')}
+          popularBadge={t('landing.featured.popular')}
+          emptyMessage={t('landing.featured.empty')}
+          errorMessage={error ? t('landing.featured.errors.loadFailed') : null}
+          loading={loading}
+          items={featuredCards}
+          showWishlist={!!user}
+          wishlistIds={wishlistIds}
+          onToggleWishlist={handleToggleWishlist}
+        />
       )}
 
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-navy">{t('landing.platform.title')}</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((card) => {
-              const Icon = platformIcons[card - 1];
-              return (
-              <article key={`platform-${card}`} className="rounded-3xl border border-navy/15 bg-warm-gray p-5 hover:-translate-y-1 hover:shadow-lg transition-all">
-                <div className="w-10 h-10 rounded-full grid place-items-center bg-white text-navy border border-navy/15">
-                  <Icon className="h-5 w-5" aria-hidden />
-                </div>
-                <h3 className="mt-4 mb-2 text-lg font-semibold text-navy">{t(`landing.platform.cards.${card}.title`)}</h3>
-                <p className="m-0 text-sm text-charcoal/85">{t(`landing.platform.cards.${card}.description`)}</p>
-              </article>
-            );
-            })}
-          </div>
-        </div>
-      </section>
+      <TrustEditorial />
 
-      <section id="how-it-works" className="py-24 bg-warm-gray scroll-mt-28">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-10">
-            <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('landing.howItWorks.eyebrow')}</p>
-            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-navy">{t('landing.howItWorks.title')}</h2>
-            <p className="mt-3 text-charcoal/80 max-w-3xl mx-auto">{t('landing.howItWorks.subtitle')}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((step) => {
-              const subtitle = t(`landing.howItWorks.steps.${step}.subtitle`);
-              const body = t(`landing.howItWorks.steps.${step}.description`);
-              return (
-                <article key={`how-${step}`} className="rounded-3xl border border-navy/15 bg-white p-5">
-                  <div className="w-10 h-10 rounded-full grid place-items-center bg-warm-gray text-navy border border-navy/15 font-bold">
-                    {step}
-                  </div>
-                  <h3 className="mt-4 mb-1 text-lg font-semibold text-navy">{t(`landing.howItWorks.steps.${step}.title`)}</h3>
-                  {subtitle.trim() ? (
-                    <p className="m-0 mb-2 text-sm font-medium text-navy/80">{subtitle}</p>
-                  ) : null}
-                  {body.trim() ? <p className="m-0 text-sm text-charcoal/85">{body}</p> : null}
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <ProcessTimeline
+        eyebrow={t('landing.howItWorks.eyebrow')}
+        title={t('landing.howItWorks.title')}
+        subtitle={t('landing.howItWorks.subtitle')}
+        steps={processSteps}
+        ctaLabel={t('landing.hero.cta.search')}
+        ctaFallbackLabel={t('landing.hero.cta.manage')}
+      />
 
       <HumanTouchSection />
-      {/* Temporarily hidden — site reviews / testimonials
-      <Testimonials />
-      */}
-
     </Layout>
   );
 };

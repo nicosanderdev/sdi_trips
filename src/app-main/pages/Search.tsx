@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
 import { Layout } from '../../components/layout';
-import { Button, Input, RangeSlider, Card } from '../../components/ui';
+import { Button, Input, RangeSlider } from '../../components/ui';
 import PropertyCard from '../../components/sections/PropertyCard';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
 import {
@@ -13,7 +13,7 @@ import {
 import { getFavoriteProperties } from '../../services/propertyService';
 import { buildPropertyDetailPath, parseIsoDateLocal, toIsoDate } from '../../services/pricing/listingPricing';
 import type { Property } from '../../types';
-import { SlidersHorizontal, MapPin, Search as SearchIcon } from 'lucide-react';
+import { SlidersHorizontal, MapPin, Search as SearchIcon, Home } from 'lucide-react';
 import {
   findExactUyCityMatch,
   getUyCities,
@@ -485,10 +485,10 @@ const Search: React.FC = () => {
       // Tailwind's `scale-*` must live on a child so it does not scale that translation.
       markerElement.className = `w-10 h-10 cursor-pointer${isHovered ? ' z-10' : ''}`;
       markerElement.innerHTML = `
-        <div class="w-full h-full rounded-full shadow-lg flex items-center justify-center transition-all ${
-          isHovered ? 'bg-gold scale-110' : 'bg-[#1F4D8B]'
+        <div class="w-full h-full rounded-full shadow-lg ring-2 ring-white flex items-center justify-center transition-all ${
+          isHovered ? 'bg-gold scale-110' : 'bg-navy'
         }">
-          <span class="text-xs font-bold text-white">$${markerPrice}</span>
+          <span class="text-xs font-bold ${isHovered ? 'text-navy' : 'text-white'}">$${markerPrice}</span>
         </div>
       `;
 
@@ -515,7 +515,7 @@ const Search: React.FC = () => {
         .setLngLat([selectedOffsetCoordinates.lng, selectedOffsetCoordinates.lat])
         .setHTML(`
           <div class="sdi-map-popup-card flex flex-col gap-2">
-            <h3 class="font-semibold text-navy text-sm leading-5 line-clamp-2 pr-6">${selectedProperty.title}</h3>
+            <h3 class="font-bold text-navy text-sm leading-5 line-clamp-2 pr-6">${selectedProperty.title}</h3>
             <p class="text-xs text-charcoal truncate">${selectedProperty.location}</p>
             <div class="sdi-map-popup-meta flex items-center gap-3 text-xs text-charcoal">
               <span class="inline-flex items-center gap-1" title="${t('propertyDetail.propertyIdentity.guests', { count: selectedProperty.maxGuests })}">
@@ -536,7 +536,7 @@ const Search: React.FC = () => {
               <span class="text-xs text-charcoal shrink-0">★ ${selectedProperty.rating}</span>
             </div>
             <a href="${propertyDetailPath(selectedProperty.id)}" class="block">
-              <button class="w-full bg-gold text-navy px-3 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 active:bg-navy active:text-white cursor-pointer">
+              <button class="w-full bg-gold text-navy border-2 border-gold px-3 py-2 rounded-full text-sm font-semibold hover:bg-navy hover:text-gold cursor-pointer transition-colors">
                 ${t('search.map.viewDetails')}
               </button>
             </a>
@@ -597,8 +597,8 @@ const Search: React.FC = () => {
         type: 'fill',
         source: APPROX_ZONE_SOURCE_ID,
         paint: {
-          'fill-color': '#7DC7F2',
-          'fill-opacity': 0.22,
+          'fill-color': '#0A1A2F',
+          'fill-opacity': 0.12,
         },
       });
 
@@ -607,9 +607,9 @@ const Search: React.FC = () => {
         type: 'line',
         source: APPROX_ZONE_SOURCE_ID,
         paint: {
-          'line-color': '#5AAEDC',
+          'line-color': '#E5C469',
           'line-width': 2,
-          'line-opacity': 0.65,
+          'line-opacity': 0.75,
         },
       });
     };
@@ -693,23 +693,30 @@ const Search: React.FC = () => {
     <Layout>
       <div className="bg-white">
         {/* Header */}
-        <div className="bg-navy text-white py-6">
+        <div className="bg-warm-gray border-b border-navy/10 py-6">
           <div className="max-w-7xl mx-auto px-8">
-            <h1 className="text-3xl md:text-4xl font-thin mb-2">
-              {t('search.header.titlePrefix')} <span className="font-bold text-gold">{t('search.header.titleHighlight')}</span>
+            <p className="m-0 mb-3 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.14em] text-navy/70">
+              <span className="inline-block h-px w-8 bg-gold" aria-hidden />
+              {t('landing.hero.eyebrow')}
+            </p>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-navy mb-2">
+              {t('search.header.titlePrefix')}{' '}
+              <span className="text-navy underline decoration-gold decoration-2 underline-offset-8">
+                {t('search.header.titleHighlight')}
+              </span>
             </h1>
-            <p className="text-warm-gray-light">{t('search.header.subtitle')}</p>
+            <p className="text-charcoal/75">{t('search.header.subtitle')}</p>
           </div>
         </div>
 
         <div className="flex h-[calc(100vh-200px)]">
           {/* Left Panel - Filters & Properties */}
-          <div className="w-2/5 flex flex-col border-r border-gray-200">
+          <div className="w-2/5 flex flex-col border-r border-navy/10">
             {/* Search & Filter Bar */}
-            <div className="p-6 border-b border-gray-200 bg-white">
+            <div className="p-6 border-b border-navy/10 bg-white">
               <div className="flex items-center space-x-4 mb-4">
                 <div ref={searchContainerRef} className="flex-1 relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-navy/40 z-10 pointer-events-none">
                     <SearchIcon className="h-full w-full" />
                   </div>
                   <Input
@@ -717,18 +724,18 @@ const Search: React.FC = () => {
                     value={searchQuery}
                     onChange={(value) => setSearchQuery(value)}
                     onFocus={() => setShowSuggestions(true)}
-                    className="pl-10"
+                    inputClassName="!pl-10 !border !border-navy/20 focus:!ring-2 focus:!ring-gold/40 focus:!border-gold"
                   />
                   {showSuggestions && searchQuery.length >= 1 && filteredCities.length > 0 && (
                     <ul
-                      className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                      className="absolute z-50 left-0 right-0 mt-1 bg-white border border-navy/15 rounded-xl shadow-lg max-h-60 overflow-y-auto"
                       role="listbox"
                     >
                       {filteredCities.map((city) => (
                         <li
                           key={city.name}
                           role="option"
-                          className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-gray-100 border-b border-gray-100 last:border-0"
+                          className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-warm-gray border-b border-navy/10 last:border-0"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             handleSelectCity(city);
@@ -752,9 +759,12 @@ const Search: React.FC = () => {
 
               {/* Filters Panel */}
               {showFilters && (
-                <Card variant="glass" className="p-6 space-y-6">
+                <div className="rounded-2xl border border-navy/10 bg-warm-gray/60 p-6 space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-navy">{t('search.filters.title')}</h3>
+                    <h3 className="m-0 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.14em] text-navy/70">
+                      <span className="inline-block h-px w-8 bg-gold" aria-hidden />
+                      {t('search.filters.title')}
+                    </h3>
                     <Button variant="outline" size="sm" onClick={clearFilters}>
                       {t('search.filters.clearAll')}
                     </Button>
@@ -778,7 +788,7 @@ const Search: React.FC = () => {
                       <select
                         value={filters.bedrooms}
                         onChange={(e) => handleFilterChange('bedrooms', parseInt(e.target.value))}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                        className="w-full p-2.5 border border-navy/20 rounded-xl bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
                       >
                         <option value={0}>{t('search.filters.options.any')}</option>
                         <option value={1}>{t('search.filters.options.bedrooms.1')}</option>
@@ -795,7 +805,7 @@ const Search: React.FC = () => {
                       <select
                         value={filters.guests}
                         onChange={(e) => handleFilterChange('guests', parseInt(e.target.value))}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                        className="w-full p-2.5 border border-navy/20 rounded-xl bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
                       >
                         <option value={1}>{t('search.filters.options.guests.1')}</option>
                         <option value={2}>{t('search.filters.options.guests.2')}</option>
@@ -816,10 +826,10 @@ const Search: React.FC = () => {
                           key={amenity}
                           type="button"
                           onClick={() => toggleAmenity(amenity)}
-                          className={`px-3 py-2 text-left rounded-lg border text-sm ${
+                          className={`px-3 py-2 text-left rounded-full border text-sm ${
                             filters.amenities.includes(amenity)
-                              ? 'bg-gold text-navy border-gold'
-                              : 'bg-white text-charcoal border-gray-300 hover:border-gold'
+                              ? 'bg-navy text-white border-navy'
+                              : 'bg-white text-charcoal border-navy/15 hover:border-gold'
                           } transition-colors`}
                         >
                           {t(`search.filters.options.amenities.${amenity}`)}
@@ -827,7 +837,7 @@ const Search: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                </Card>
+                </div>
               )}
             </div>
 
@@ -848,9 +858,9 @@ const Search: React.FC = () => {
                       onMouseLeave={() => setHoveredProperty(null)}
                       className={`transition-all duration-200 cursor-pointer rounded-2xl ${
                         isSelected
-                          ? 'ring-2 ring-gold ring-offset-2 ring-offset-white scale-[1.02] shadow-gold-lg'
+                          ? 'ring-2 ring-gold ring-offset-2 ring-offset-white -translate-y-0.5'
                           : isHovered
-                          ? 'scale-[1.02]'
+                          ? '-translate-y-0.5'
                           : ''
                       }`}
                       onClick={() => focusOnProperty(property)}
@@ -870,16 +880,26 @@ const Search: React.FC = () => {
                 })}
 
                 {searchLoading && (
-                  <p className="text-center py-8 text-charcoal">{t('search.results.loading', { defaultValue: 'Loading properties…' })}</p>
+                  <div className="text-center py-12">
+                    <Home className="h-10 w-10 text-gold mx-auto mb-4" aria-hidden />
+                    <p className="text-charcoal/75 m-0">
+                      {t('search.results.loading', { defaultValue: 'Loading properties…' })}
+                    </p>
+                  </div>
                 )}
                 {searchError && !searchLoading && (
-                  <p className="text-center py-8 text-red-600">{searchError}</p>
+                  <div className="text-center py-12">
+                    <Home className="h-10 w-10 text-gold mx-auto mb-4" aria-hidden />
+                    <p className="text-red-600 m-0">{searchError}</p>
+                  </div>
                 )}
                 {!searchLoading && !searchError && delayedVisibleProperties.length === 0 && (
                   <div className="text-center py-12">
-                    <div className="text-6xl mb-4">🏠</div>
-                    <h3 className="text-xl font-semibold text-navy mb-2">{t('search.results.empty.title')}</h3>
-                    <p className="text-charcoal">{t('search.results.empty.message')}</p>
+                    <Home className="h-12 w-12 text-gold mx-auto mb-4" aria-hidden />
+                    <h3 className="text-xl font-extrabold tracking-tight text-navy mb-2">
+                      {t('search.results.empty.title')}
+                    </h3>
+                    <p className="text-charcoal/75 m-0">{t('search.results.empty.message')}</p>
                   </div>
                 )}
               </div>
@@ -890,11 +910,11 @@ const Search: React.FC = () => {
           <div className="w-3/5 relative">
             <div id="search-map" className="w-full h-full"></div>
             {!mapboxToken && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+              <div className="absolute inset-0 flex items-center justify-center bg-warm-gray">
                 <div className="text-center p-8">
-                  <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('search.map.unavailable')}</h3>
-                  <p className="text-gray-500">
+                  <MapPin className="h-16 w-16 text-navy/40 mx-auto mb-4" />
+                  <h3 className="text-xl font-extrabold tracking-tight text-navy mb-2">{t('search.map.unavailable')}</h3>
+                  <p className="text-charcoal/70 m-0">
                     {t('search.map.tokenRequired')}
                   </p>
                 </div>

@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Calendar, MapPin, Search as SearchIcon, SlidersHorizontal, Users } from 'lucide-react';
+import {
+  ArrowRight,
+  Calendar,
+  Home,
+  MapPin,
+  Search as SearchIcon,
+  SlidersHorizontal,
+  Users,
+} from 'lucide-react';
 import { RangeSlider } from '../../components/ui';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { usePortalPropertySearch } from '../../hooks/usePortalPropertySearch';
@@ -192,9 +200,13 @@ export default function AltSearchProperties() {
         backgroundImageUrl="/alt-explore.jpg"
       >
         <div>
-          <h1 className="text-4xl md:text-5xl font-thin text-white mb-4">
+          <p className="m-0 mb-4 flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-[0.14em] text-white/80">
+            <span className="inline-block h-px w-8 bg-gold" aria-hidden />
+            {t('alt.landing.hero.eyebrow')}
+          </p>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
             {t('alt.search.heroTitleBefore')}
-            <span className="font-bold text-gold">{t('alt.search.heroTitleHighlight')}</span>
+            <span className="text-gold">{t('alt.search.heroTitleHighlight')}</span>
             {t('alt.search.heroTitleAfter')}
           </h1>
           <p className="text-lg text-white/95 max-w-2xl mx-auto leading-relaxed">{t('alt.search.heroSub')}</p>
@@ -204,9 +216,12 @@ export default function AltSearchProperties() {
       <section className="py-12 bg-white border-b border-navy/10">
         <div className="max-w-7xl mx-auto px-8">
           <div className="flex flex-col lg:flex-row lg:items-end gap-6 lg:justify-between mb-8">
-            <div className="flex items-center gap-2 text-navy">
-              <SlidersHorizontal className="h-5 w-5 text-venue-accent" />
-              <h2 className="text-xl font-semibold m-0">{t('alt.search.filtersHeading')}</h2>
+            <div className="flex items-center gap-3 text-navy">
+              <SlidersHorizontal className="h-5 w-5 text-venue-accent shrink-0" />
+              <h2 className="m-0 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.14em] text-navy/70">
+                <span className="inline-block h-px w-8 bg-gold" aria-hidden />
+                {t('alt.search.filtersHeading')}
+              </h2>
             </div>
             <p className="text-sm text-charcoal/70 m-0 lg:text-right">{t('alt.search.filtersHint')}</p>
           </div>
@@ -216,25 +231,25 @@ export default function AltSearchProperties() {
               <label className="flex flex-col gap-2 text-sm font-medium text-navy md:col-span-2 lg:col-span-6">
                 {t('alt.search.location')}
                 <div ref={searchContainerRef} className="relative">
-                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/50 pointer-events-none" />
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy/40 pointer-events-none" />
                   <input
                     type="text"
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                     onFocus={() => setShowSuggestions(true)}
                     placeholder={t('alt.search.locationPlaceholder')}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
+                    className="w-full rounded-xl border border-navy/20 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
                   />
                   {showSuggestions && locationQuery.length >= 1 && filteredCities.length > 0 && (
                     <ul
-                      className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                      className="absolute z-50 left-0 right-0 mt-1 bg-white border border-navy/15 rounded-xl shadow-lg max-h-60 overflow-y-auto"
                       role="listbox"
                     >
                       {filteredCities.map((city) => (
                         <li
                           key={city.name}
                           role="option"
-                          className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-warm-gray border-b border-gray-100 last:border-0"
+                          className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-warm-gray border-b border-navy/10 last:border-0"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             handleSelectCity(city);
@@ -248,7 +263,7 @@ export default function AltSearchProperties() {
                 </div>
               </label>
 
-              <div className="flex flex-col gap-2 md:col-span-2 lg:col-span-6 rounded-xl border-2 border-gray-200 bg-white px-4 py-3">
+              <div className="flex flex-col gap-2 md:col-span-2 lg:col-span-6 rounded-xl border border-navy/20 bg-white px-4 py-3">
                 <RangeSlider
                   label={t('alt.search.guestsRange')}
                   min={GUESTS_SLIDER_MIN}
@@ -266,7 +281,7 @@ export default function AltSearchProperties() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 lg:items-end">
                 <label className="relative flex flex-col gap-1 lg:col-span-4">
                   <span className="text-xs text-charcoal/70">{t('alt.search.availableFrom')}</span>
-                  <Calendar className="absolute left-3 bottom-3 h-4 w-4 text-charcoal/50 pointer-events-none" />
+                  <Calendar className="absolute left-3 bottom-3 h-4 w-4 text-navy/40 pointer-events-none" />
                   <input
                     type="date"
                     value={availableFrom}
@@ -277,24 +292,24 @@ export default function AltSearchProperties() {
                         setAvailableTo(next);
                       }
                     }}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
+                    className="w-full rounded-xl border border-navy/20 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
                   />
                 </label>
                 <label className="relative flex flex-col gap-1 lg:col-span-4">
                   <span className="text-xs text-charcoal/70">{t('alt.search.availableTo')}</span>
-                  <Calendar className="absolute left-3 bottom-3 h-4 w-4 text-charcoal/50 pointer-events-none" />
+                  <Calendar className="absolute left-3 bottom-3 h-4 w-4 text-navy/40 pointer-events-none" />
                   <input
                     type="date"
                     value={availableTo}
                     min={availableFrom || undefined}
                     onChange={(e) => setAvailableTo(e.target.value)}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold"
+                    className="w-full rounded-xl border border-navy/20 bg-white pl-10 pr-3 py-3 text-charcoal font-normal focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
                   />
                 </label>
                 <div className="flex sm:col-span-2 lg:col-span-4 justify-end lg:items-end">
                   <button
                     type="button"
-                    className="w-full sm:w-auto shrink-0 rounded-full border-2 border-navy/20 px-5 py-3 text-sm font-semibold text-navy hover:bg-warm-gray transition-colors"
+                    className="w-full sm:w-auto shrink-0 rounded-full border border-navy/20 px-5 py-3 text-sm font-semibold text-navy hover:border-gold hover:bg-warm-gray transition-colors"
                     onClick={resetFilters}
                   >
                     {t('alt.search.resetFilters')}
@@ -309,25 +324,29 @@ export default function AltSearchProperties() {
 
       <section className="py-16 bg-warm-gray min-h-[40vh]">
         <div className="max-w-7xl mx-auto px-8">
-          <p className="text-sm text-charcoal/70 mb-6">{t('alt.search.resultsLine', { count: filtered.length })}</p>
+          <p className="m-0 mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.14em] text-navy/70">
+            <span className="inline-block h-px w-8 bg-gold" aria-hidden />
+            {t('alt.search.resultsLine', { count: filtered.length })}
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filtered.map((venue) => (
               <article
                 key={venue.id}
-                className="group rounded-2xl border border-navy/10 bg-white overflow-hidden shadow-sm hover:shadow-gold transition-shadow"
+                className="group rounded-2xl border border-navy/10 bg-white overflow-hidden hover:shadow-[0_16px_40px_-24px_rgba(10,26,47,0.35)] transition-shadow duration-300"
               >
-                <Link to={`/venue/${venue.id}`} className="block relative aspect-4/3 overflow-hidden bg-navy/10">
+                <Link to={`/venue/${venue.id}`} className="block relative aspect-4/3 overflow-hidden bg-navy/10 rounded-bl-[1.5rem]">
                   <img
                     src={venue.images?.[0] || '/alt-explore.jpg'}
                     alt={venue.imageAltText || venue.name}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                     {(venue.eventTypes ?? []).slice(0, 2).map((et) => (
                       <span
                         key={et}
-                        className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-semibold text-navy border border-navy/10"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 text-xs font-semibold text-navy shadow"
                       >
+                        <span className="h-1.5 w-1.5 rounded-full bg-venue-accent shrink-0" aria-hidden />
                         {et}
                       </span>
                     ))}
@@ -335,15 +354,18 @@ export default function AltSearchProperties() {
                 </Link>
                 <div className="p-5 space-y-3">
                   <div>
-                    <Link to={`/venue/${venue.id}`} className="text-lg font-semibold text-navy hover:text-gold transition-colors">
+                    <Link
+                      to={`/venue/${venue.id}`}
+                      className="text-lg font-bold tracking-tight text-navy hover:underline hover:decoration-gold hover:decoration-2 hover:underline-offset-4 transition-[text-decoration]"
+                    >
                       {venue.name}
                     </Link>
-                    <div className="flex items-center gap-1.5 text-sm text-charcoal/80 mt-1">
+                    <div className="flex items-center gap-1.5 text-sm text-charcoal/75 mt-1">
                       <MapPin className="h-4 w-4 text-venue-accent shrink-0" />
                       <span>{venue.location}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-charcoal">
+                  <div className="flex items-center gap-2 text-sm text-charcoal/75">
                     <Users className="h-4 w-4 text-gold" />
                     <span>{t('alt.search.guestsUpTo', { count: venue.capacity })}</span>
                   </div>
@@ -363,18 +385,32 @@ export default function AltSearchProperties() {
                   </p>
                   <Link
                     to={`/venue/${venue.id}`}
-                    className="inline-flex text-sm font-medium text-navy underline underline-offset-4 hover:text-gold"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-navy underline decoration-gold decoration-2 underline-offset-4 hover:text-navy group/link"
                   >
                     {t('alt.search.viewDetails')}
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-0.5" aria-hidden />
                   </Link>
                 </div>
               </article>
             ))}
           </div>
-          {loading && <p className="text-sm text-charcoal/70">{t('alt.search.loading')}</p>}
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {loading && (
+            <div className="text-center py-12">
+              <Home className="h-10 w-10 text-gold mx-auto mb-4" aria-hidden />
+              <p className="text-sm text-charcoal/75 m-0">{t('alt.search.loading')}</p>
+            </div>
+          )}
+          {error && (
+            <div className="text-center py-12">
+              <Home className="h-10 w-10 text-gold mx-auto mb-4" aria-hidden />
+              <p className="text-sm text-red-600 m-0">{error}</p>
+            </div>
+          )}
           {!loading && !error && filtered.length === 0 && (
-            <p className="text-sm text-charcoal/70">{t('alt.search.empty')}</p>
+            <div className="text-center py-12">
+              <Home className="h-12 w-12 text-gold mx-auto mb-4" aria-hidden />
+              <p className="text-sm text-charcoal/75 m-0">{t('alt.search.empty')}</p>
+            </div>
           )}
         </div>
       </section>
