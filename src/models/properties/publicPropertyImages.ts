@@ -1,4 +1,5 @@
 import type { PublicPropertyImage } from '../../types/guestReviewContract';
+import { resolveAssetUrl } from '../../utils/resolveAssetUrl';
 
 /**
  * Parse public detail-RPC `Images` jsonb into ordered gallery items.
@@ -83,4 +84,61 @@ export function mapRpcImageFields(row: RpcImageFields): {
   }
 
   return { images: [] };
+}
+
+/** Minimal gallery item used when splitting hero vs all-photos lists. */
+export interface GalleryPartitionImage {
+  propertyImageId?: string;
+  url: string;
+  alt?: string;
+}
+
+/** Section image ref used only for membership checks against the gallery. */
+export interface SectionImageRef {
+  propertyImageId?: string;
+  url: string;
+}
+
+function isRealPropertyImageId(id: string | undefined): id is string {
+  if (!id?.trim()) return false;
+  // Synthetics from parsers when the RPC omitted a real id
+  if (/^(img|section-img)-\d+$/i.test(id)) return false;
+  return true;
+}
+
+/**
+ * Split the property gallery so section photos are omitted from the hero carousel
+ * but remain in the full All photos list (order unchanged).
+ */
+export function partitionGalleryBySectionImages(
+  gallery: GalleryPartitionImage[],
+  sectionImages: SectionImageRef[],
+): { heroImages: GalleryPartitionImage[]; allImages: GalleryPartitionImage[] } {
+  const allImages = gallery.slice();
+  if (gallery.length === 0 || sectionImages.length === 0) {
+    return { heroImages: allImages, allImages };
+  }
+
+  const sectionIds = new Set<string>();
+  const sectionUrls = new Set<string>();
+  for (const img of sectionImages) {
+    if (isRealPropertyImageId(img.propertyImageId)) {
+      sectionIds.add(img.propertyImageId);
+    }
+    const resolved = resolveAssetUrl(img.url);
+    if (resolved) sectionUrls.add(resolved);
+  }
+
+  const heroImages = gallery.filter((img) => {
+    if (isRealPropertyImageId(img.propertyImageId) && sectionIds.has(img.propertyImageId)) {
+      return false;
+    }
+    const resolved = resolveAssetUrl(img.url);
+    if (resolved && sectionUrls.has(resolved)) {
+      return false;
+    }
+    return true;
+  });
+
+  return { heroImages, allImages };
 }
