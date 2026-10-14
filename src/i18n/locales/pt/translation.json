@@ -1109,6 +1109,8 @@
       "emailRequired": "O e-mail é obrigatório",
       "emailInvalid": "Por favor, digite um endereço de e-mail válido",
       "messageRequired": "A mensagem é obrigatória",
+      "messageTooLong": "A mensagem é muito longa. Máximo de 4000 caracteres.",
+      "rateLimited": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
       "submitFailed": "Falha ao enviar mensagem. Por favor, tente novamente."
     }
   },

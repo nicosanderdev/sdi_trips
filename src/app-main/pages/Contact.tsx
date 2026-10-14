@@ -4,7 +4,11 @@ import { Layout } from '../../components/layout';
 import { Card, Button, Input, Textarea } from '../../components/ui';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 import { Mail, MessageSquare, Bug, Handshake } from 'lucide-react';
-import { sendContactMessage } from '../../services/contactService';
+import {
+  CONTACT_MESSAGE_MAX_LENGTH,
+  ContactSendError,
+  sendContactMessage,
+} from '../../services/contactService';
 
 const Contact: React.FC = () => {
   const { t } = useTranslation();
@@ -32,12 +36,14 @@ const Contact: React.FC = () => {
 
     if (!formData.email.trim()) {
       newErrors.email = t('contact.errors.emailRequired');
-    } else if (!validateEmail(formData.email)) {
+    } else if (!validateEmail(formData.email.trim())) {
       newErrors.email = t('contact.errors.emailInvalid');
     }
 
     if (!formData.message.trim()) {
       newErrors.message = t('contact.errors.messageRequired');
+    } else if (formData.message.trim().length > CONTACT_MESSAGE_MAX_LENGTH) {
+      newErrors.message = t('contact.errors.messageTooLong');
     }
 
     setErrors(newErrors);
@@ -60,6 +66,10 @@ const Contact: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    setErrors((prev) => {
+      const { submit: _submit, ...rest } = prev;
+      return rest;
+    });
 
     try {
       await sendContactMessage({
@@ -78,8 +88,11 @@ const Contact: React.FC = () => {
 
       // Hide success message after 5 seconds
       setTimeout(() => setIsSuccess(false), 5000);
-    } catch {
-      setErrors({ submit: t('contact.errors.submitFailed') });
+    } catch (err) {
+      const rateLimited = err instanceof ContactSendError && err.reason === 'rate_limited';
+      setErrors({
+        submit: t(rateLimited ? 'contact.errors.rateLimited' : 'contact.errors.submitFailed'),
+      });
     } finally {
       setIsSubmitting(false);
     }
