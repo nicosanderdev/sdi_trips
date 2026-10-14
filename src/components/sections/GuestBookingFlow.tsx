@@ -57,6 +57,8 @@ interface GuestBookingFlowProps {
   initialCheckIn?: Date | null;
   /** Pre-selected check-out date (e.g. from search URL). */
   initialCheckOut?: Date | null;
+  /** Staff preview: dates and price stay usable; continuing a booking does not. */
+  previewMode?: boolean;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,6 +77,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   variant = 'rental',
   initialCheckIn = null,
   initialCheckOut = null,
+  previewMode = false,
 }) => {
   const { t } = useTranslation();
   const isEvent = variant === 'event';
@@ -346,7 +349,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   };
 
   const handleCreateHold = async () => {
-    if (!checkIn || !checkOut || validationError) return;
+    if (previewMode || !checkIn || !checkOut || validationError) return;
     setActionLoading(true);
     setFlowError(null);
     const response = await createBookingHold({
@@ -655,6 +658,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
           size="lg"
           className="w-full bg-gold text-navy hover:bg-gold-dark"
           disabled={
+            previewMode ||
             !checkIn ||
             !checkOut ||
             !!validationError ||

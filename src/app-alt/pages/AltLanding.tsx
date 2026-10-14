@@ -1,28 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/ui';
-import { Heart, Briefcase, PartyPopper, Search as SearchIcon } from 'lucide-react';
 import { listLocalizedVenues } from '../data/venueLocale';
 import { useSearchPricing } from '../../hooks/useSearchPricing';
 import { getFeaturedEventVenues, type EventVenue } from '../../services/eventVenueService';
 import { buildVenuePriceHint } from '../../services/pricing';
-import { getUyCities, type UyCity } from '../../data/uyCityUtils';
 import HumanTouchSection from '../../components/sections/HumanTouchSection';
+import {
+  LandingHero,
+  OccasionsEditorial,
+  FeaturedStays,
+  ProcessTimeline,
+  CtaBand,
+  type FeaturedStayCard,
+} from '../../components/sections/landing';
 import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
-// Temporarily hidden on landing — re-enable when ready:
-// import Testimonials from '../../components/sections/Testimonials';
-
-const UY_CITIES_MAX_SUGGESTIONS = 10;
-const uyCities = getUyCities();
-
-const HERO_IMAGES = ['/alt-carousel-1.jpg', '/alt-carousel-2.jpg', '/alt-carousel-3.jpg'] as const;
-
-/** Full-bleed hero background: fixed (does not follow carousel). */
-const HERO_STATIC_BACKGROUND =
-  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80';
-
-const SLIDE_COUNT = HERO_IMAGES.length;
 
 interface LandingVenueCard {
   id: string;
@@ -48,66 +39,11 @@ function mapFeaturedVenueToCard(venue: EventVenue): LandingVenueCard {
 
 export default function AltLanding() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-  const [slideIndex, setSlideIndex] = useState(0);
-  const [fade, setFade] = useState(false);
   const [popularVenuesRaw, setPopularVenuesRaw] = useState<EventVenue[]>([]);
   const [popularVenues, setPopularVenues] = useState<LandingVenueCard[]>([]);
   const [loadingPopularVenues, setLoadingPopularVenues] = useState(true);
   const [popularVenuesFetchFailed, setPopularVenuesFetchFailed] = useState(false);
-  const [eventDateFrom, setEventDateFrom] = useState('');
-  const [eventDateTo, setEventDateTo] = useState('');
-  const [locationQuery, setLocationQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const fallbackPopularVenues = listLocalizedVenues(t).slice(0, 6);
-
-  const filteredCities = useMemo(() => {
-    const q = locationQuery.trim().toLowerCase();
-    const pool = q
-      ? uyCities.filter((c) => c.name.toLowerCase().includes(q))
-      : uyCities.filter((c) => c.zoom === '9');
-    return pool.slice(0, UY_CITIES_MAX_SUGGESTIONS);
-  }, [locationQuery]);
-
-  const handleSelectCity = useCallback((city: UyCity) => {
-    setLocationQuery(city.name);
-    setShowSuggestions(false);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const featureCards = [
-    { icon: Heart, titleKey: 'alt.landing.features.weddings.title', descKey: 'alt.landing.features.weddings.description' },
-    { icon: Briefcase, titleKey: 'alt.landing.features.corporate.title', descKey: 'alt.landing.features.corporate.description' },
-    { icon: PartyPopper, titleKey: 'alt.landing.features.parties.title', descKey: 'alt.landing.features.parties.description' },
-  ] as const;
-
-  const howSteps = [
-    { titleKey: 'alt.landing.howItWorks.step1Title', descKey: 'alt.landing.howItWorks.step1Desc' },
-    { titleKey: 'alt.landing.howItWorks.step2Title', descKey: 'alt.landing.howItWorks.step2Desc' },
-    { titleKey: 'alt.landing.howItWorks.step3Title', descKey: 'alt.landing.howItWorks.step3Desc' },
-    { titleKey: 'alt.landing.howItWorks.step4Title', descKey: 'alt.landing.howItWorks.step4Desc' },
-  ] as const;
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setFade(true);
-      window.setTimeout(() => {
-        setSlideIndex((i) => (i + 1) % SLIDE_COUNT);
-        setFade(false);
-      }, 400);
-    }, 8000);
-    return () => window.clearInterval(id);
-  }, []);
 
   useEffect(() => {
     if (!isSearchPageEnabled) return;
@@ -164,317 +100,79 @@ export default function AltLanding() {
     );
   }, [popularVenuesRaw, priceByPropertyId, t]);
 
-  const heroImage = HERO_IMAGES[slideIndex];
-  const popularCards = popularVenuesFetchFailed ? fallbackPopularVenues : popularVenues;
+  const popularCards: LandingVenueCard[] = popularVenuesFetchFailed
+    ? fallbackPopularVenues.map((venue) => ({
+        id: venue.id,
+        name: venue.name,
+        location: venue.location,
+        capacity: venue.capacity,
+        priceHint: venue.priceHint,
+        images: venue.images?.length ? venue.images : ['/alt-explore.jpg'],
+      }))
+    : popularVenues;
+
+  const featuredCards: FeaturedStayCard[] = popularCards.map((venue) => ({
+    id: venue.id,
+    title: venue.name,
+    location: venue.location,
+    image: venue.images[0] ?? '/alt-explore.jpg',
+    href: `/venue/${venue.id}`,
+    meta: t('alt.landing.popular.guestsLine', {
+      count: venue.capacity,
+      priceHint: venue.priceHint,
+    }),
+  }));
+
+  const processSteps = [
+    {
+      title: t('alt.landing.howItWorks.step1Title'),
+      description: t('alt.landing.howItWorks.step1Desc'),
+    },
+    {
+      title: t('alt.landing.howItWorks.step2Title'),
+      description: t('alt.landing.howItWorks.step2Desc'),
+    },
+    {
+      title: t('alt.landing.howItWorks.step3Title'),
+      description: t('alt.landing.howItWorks.step3Desc'),
+    },
+    {
+      title: t('alt.landing.howItWorks.step4Title'),
+      description: t('alt.landing.howItWorks.step4Desc'),
+    },
+  ];
 
   return (
     <>
-      <section className="group relative min-h-screen overflow-hidden bg-navy isolate">
-        <div
-          className="absolute inset-0 bg-cover bg-center scale-100 transition-transform duration-700 will-change-transform group-hover:scale-110"
-          style={{ backgroundImage: `url("${HERO_STATIC_BACKGROUND}")` }}
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-[linear-gradient(105deg,rgba(43,43,43,0.88)_0%,rgba(43,43,43,0.72)_45%,rgba(43,43,43,0.5)_100%)]"
-          aria-hidden
-        />
+      <LandingHero variant="alt" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-16 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="flex flex-col justify-center animate-[fadeInUp_700ms_ease-out_both]">
-            <h1 className="m-0 text-white font-bold text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] max-w-[16ch]">
-              {t('alt.landing.hero.title')}
-            </h1>
-            <p className="mt-4 text-white/95 text-[clamp(1rem,1.8vw,1.25rem)] max-w-[36ch]">{t('alt.landing.hero.subtitle')}</p>
-
-            {isSearchPageEnabled && (
-            <form
-              className="mt-5 grid grid-cols-1 gap-2 w-full max-w-[900px] p-3 rounded-2xl border border-gold/35 bg-white/95 backdrop-blur-sm"
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (eventDateFrom && eventDateTo && eventDateTo < eventDateFrom) {
-                  return;
-                }
-                const params = new URLSearchParams();
-                const trimmedLocation = locationQuery.trim();
-                if (trimmedLocation) {
-                  params.set('location', trimmedLocation);
-                }
-                if (eventDateFrom) {
-                  params.set('from', eventDateFrom);
-                }
-                if (eventDateTo) {
-                  params.set('to', eventDateTo);
-                }
-                const query = params.toString();
-                navigate(query ? `/search?${query}` : '/search');
-              }}
-            >
-              <label htmlFor="hero-search-location" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-                {t('alt.landing.hero.searchLocationLabel')}
-                <div ref={searchContainerRef} className="relative">
-                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy/40 pointer-events-none" />
-                  <input
-                    id="hero-search-location"
-                    className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm pl-9 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                    name="location"
-                    type="text"
-                    value={locationQuery}
-                    onChange={(e) => setLocationQuery(e.target.value)}
-                    onFocus={() => setShowSuggestions(true)}
-                    placeholder={t('alt.landing.hero.searchLocationPlaceholder')}
-                    aria-label={t('alt.landing.hero.searchLocationAria')}
-                    autoComplete="off"
-                  />
-                  {showSuggestions && filteredCities.length > 0 && (
-                    <ul
-                      className="absolute z-50 left-0 right-0 mt-1 bg-white border border-navy/15 rounded-xl shadow-lg max-h-60 overflow-y-auto"
-                      role="listbox"
-                    >
-                      {filteredCities.map((city) => (
-                        <li
-                          key={city.name}
-                          role="option"
-                          className="px-4 py-2.5 cursor-pointer text-sm text-navy hover:bg-gray-100 border-b border-gray-100 last:border-0"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            handleSelectCity(city);
-                          }}
-                        >
-                          {city.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
-                <label htmlFor="hero-search-date-from" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-                  {t('alt.landing.hero.searchDateFromLabel')}
-                  <input
-                    id="hero-search-date-from"
-                    className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                    type="date"
-                    name="from"
-                    value={eventDateFrom}
-                    onChange={(e) => {
-                      const next = e.target.value;
-                      setEventDateFrom(next);
-                      if (!eventDateTo || next > eventDateTo) {
-                        setEventDateTo(next);
-                      }
-                    }}
-                    aria-label={t('alt.landing.hero.searchDateFromAria')}
-                  />
-                </label>
-                <label htmlFor="hero-search-date-to" className="flex flex-col gap-1.5 text-xs font-semibold text-navy m-0">
-                  {t('alt.landing.hero.searchDateToLabel')}
-                  <input
-                    id="hero-search-date-to"
-                    className="w-full border border-navy/15 rounded-xl bg-white text-navy text-sm px-3 py-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold font-normal"
-                    type="date"
-                    name="to"
-                    value={eventDateTo}
-                    min={eventDateFrom || undefined}
-                    onChange={(e) => setEventDateTo(e.target.value)}
-                    aria-label={t('alt.landing.hero.searchDateToAria')}
-                  />
-                </label>
-                <Button type="submit" variant="primary" size="md" className="w-full sm:w-auto justify-center">
-                  {t('alt.landing.hero.searchCta')}
-                </Button>
-              </div>
-            </form>
-            )}
-
-            <div className="mt-4">
-              <div className="flex flex-wrap gap-4">
-                <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-                  {t('alt.landing.hero.badgeCurated')}
-                </p>
-                <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-                  {t('alt.landing.hero.badgeCapacity')}
-                </p>
-                <p className="m-0 text-sm font-semibold text-white/90 before:content-['✓'] before:text-gold before:mr-2">
-                  {t('alt.landing.hero.badgeHoldDemo')}
-                </p>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-3 items-start">
-                {isSearchPageEnabled && (
-                  <Link to="/search">
-                    <Button variant="primary" size="lg">
-                      {t('alt.landing.hero.exploreCta')}
-                    </Button>
-                  </Link>
-                )}
-                <Link to="/reservation-lookup">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-white text-white hover:bg-navy hover:border-gold hover:text-gold"
-                  >
-                    {t('alt.landing.hero.talkCta')}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative min-h-[430px] lg:h-[46rem] rounded-3xl overflow-hidden border border-gold/25 shadow-2xl bg-white/10 backdrop-blur-sm">
-            <div
-              className={`absolute inset-0 p-8 flex flex-col justify-end bg-cover bg-center transition-opacity duration-500 ${fade ? 'opacity-80' : 'opacity-100'}`}
-              style={{ backgroundImage: `url("${heroImage}")` }}
-            >
-              <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/20" />
-              <h3 className="relative z-10 m-0 text-lg font-bold text-white">{t('alt.landing.hero.storiesHeading')}</h3>
-              <p className="relative z-10 mt-2 text-white/90 text-sm leading-relaxed">{t('alt.landing.hero.storiesDescription')}</p>
-            </div>
-            <div className="absolute left-1/2 bottom-4 -translate-x-1/2 z-20 flex gap-2">
-              {HERO_IMAGES.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setSlideIndex(index)}
-                  className={`h-2 w-2 rounded-full transition-all ${index === slideIndex ? 'bg-gold scale-125' : 'bg-white/50'}`}
-                  aria-label={t('alt.landing.hero.storyDotAria', { n: index + 1 })}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-12">
-            <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('alt.landing.occasions.eyebrow')}</p>
-            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-navy">{t('alt.landing.occasions.heading')}</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featureCards.map(({ icon: Icon, titleKey, descKey }) => (
-              <article
-                key={titleKey}
-                className="rounded-3xl border border-navy/10 bg-warm-gray p-6 hover:-translate-y-1 hover:shadow-lg transition-all"
-              >
-                <div className="w-12 h-12 rounded-full grid place-items-center bg-white text-venue-accent border border-navy/10">
-                  <Icon className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-xl font-semibold text-navy">{t(titleKey)}</h3>
-                <p className="m-0 mt-2 text-sm text-charcoal/85 leading-relaxed">{t(descKey)}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <OccasionsEditorial />
 
       {isSearchPageEnabled && (
-      <section className="py-24 bg-warm-gray">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-10">
-            <p className="m-0 text-sm uppercase tracking-[0.08em] font-bold text-navy/70">{t('alt.landing.popular.eyebrow')}</p>
-            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-navy">{t('alt.landing.popular.heading')}</h2>
-            <p className="mt-3 text-charcoal/80 max-w-3xl mx-auto">{t('alt.landing.popular.sub')}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-            {loadingPopularVenues &&
-              Array.from({ length: 6 }).map((_, index) => (
-                <article
-                  key={`popular-skeleton-${index}`}
-                  className="relative min-h-[220px] border border-navy/15 rounded-2xl overflow-hidden bg-white/70 animate-pulse"
-                />
-              ))}
-
-            {!loadingPopularVenues &&
-              popularCards.map((venue, index) => {
-                const image = venue.images[0] ?? '/alt-explore.jpg';
-                return (
-                  <article key={venue.id} className="relative min-h-[220px] border border-navy/15 rounded-3xl overflow-hidden bg-navy group">
-                    <Link to={`/venue/${venue.id}`} className="absolute inset-0 z-10" aria-label={venue.name} />
-                    <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                      style={{ backgroundImage: `url("${image}")` }}
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-navy/90 to-navy/35" />
-                    <div className="absolute left-4 right-4 bottom-4 z-20 flex items-end justify-between gap-3">
-                      <div>
-                        <h3 className="m-0 text-white text-lg font-semibold">{venue.name}</h3>
-                        <p className="m-0 mt-1 text-white/85 text-sm">{venue.location}</p>
-                        <p className="m-0 mt-1 text-white/75 text-xs">
-                          {t('alt.landing.popular.guestsLine', { count: venue.capacity, priceHint: venue.priceHint })}
-                        </p>
-                      </div>
-                      {index === 0 && (
-                        <span className="rounded-full px-3 py-1 text-xs font-bold bg-gold text-navy whitespace-nowrap">
-                          {t('alt.landing.popular.popularBadge')}
-                        </span>
-                      )}
-                    </div>
-                  </article>
-                );
-              })}
-
-            {!loadingPopularVenues && !popularVenuesFetchFailed && popularCards.length === 0 && (
-              <article className="col-span-full rounded-2xl border border-navy/15 bg-white px-6 py-10 text-center">
-                <p className="m-0 text-charcoal/85">
-                  {t('alt.landing.popular.empty', { defaultValue: 'No featured venues are available right now.' })}
-                </p>
-              </article>
-            )}
-          </div>
-
-          <div className="text-center">
-            <Link to="/search">
-              <Button variant="outline" size="lg">
-                {t('alt.landing.popular.cta')}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+        <FeaturedStays
+          eyebrow={t('alt.landing.popular.eyebrow')}
+          title={t('alt.landing.popular.heading')}
+          subtitle={t('alt.landing.popular.sub')}
+          viewAllLabel={t('alt.landing.popular.cta')}
+          popularBadge={t('alt.landing.popular.popularBadge')}
+          emptyMessage={t('alt.landing.popular.empty', {
+            defaultValue: 'No featured venues are available right now.',
+          })}
+          loading={loadingPopularVenues}
+          items={featuredCards}
+        />
       )}
 
-      <section id="how-it-works" className="py-24 bg-white scroll-mt-28">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-navy">{t('alt.landing.howItWorks.heading')}</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {howSteps.map((step, i) => (
-              <article key={step.titleKey} className="rounded-3xl border border-navy/10 bg-warm-gray p-5">
-                <div className="w-10 h-10 rounded-full grid place-items-center bg-white text-navy border border-navy/15 font-bold">
-                  {i + 1}
-                </div>
-                <h3 className="mt-4 mb-2 text-lg font-semibold text-navy">{t(step.titleKey)}</h3>
-                <p className="m-0 text-sm text-charcoal/85">{t(step.descKey)}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ProcessTimeline
+        title={t('alt.landing.howItWorks.heading')}
+        steps={processSteps}
+        ctaLabel={t('alt.landing.hero.exploreCta')}
+        ctaFallbackLabel={t('alt.landing.hero.talkCta')}
+      />
 
-      {isSearchPageEnabled && (
-        <section className="py-24 bg-navy text-white">
-          <div className="max-w-4xl mx-auto px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-thin mb-8">
-              {t('alt.landing.ctaBand.titleBefore')}
-              <span className="font-bold text-gold">{t('alt.landing.ctaBand.titleHighlight')}</span>
-              {t('alt.landing.ctaBand.titleAfter')}
-            </h2>
-            <Link to="/search">
-              <Button variant="primary" size="lg">
-                {t('alt.landing.ctaBand.button')}
-              </Button>
-            </Link>
-          </div>
-        </section>
-      )}
+      {isSearchPageEnabled && <CtaBand />}
 
       <HumanTouchSection variant="alt" />
-      {/* Temporarily hidden — site reviews / testimonials
-      <Testimonials variant="alt" />
-      */}
     </>
   );
 }

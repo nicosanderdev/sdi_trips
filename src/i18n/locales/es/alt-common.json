@@ -28,8 +28,10 @@
   },
   "landing": {
     "hero": {
+      "eyebrow": "Rivera, Uruguay",
       "title": "Una celebración de la que tus invitados van a hablar",
       "subtitle": "Explorá espacios en Rivera, consultá disponibilidad real y coordiná directo con quienes los gestionan — sin intermediarios, sin vueltas.",
+      "chipLabel": "Espacios listos para celebrar",
       "searchDateFromLabel": "Fecha más temprana",
       "searchDateFromAria": "Fecha más temprana del evento",
       "searchDateToLabel": "Fecha más tardía",
@@ -80,7 +82,7 @@
       "step2Title": "Elegí una fecha",
       "step2Desc": "Consultá disponibilidad y elegí un día que funcione para todos.",
       "step3Title": "Reservá tu evento",
-      "step3Desc": "Unos pocos pasos claros y listo — sin adivinar.",
+      "step3Desc": "Completá tus datos y confirmá con un código en tu teléfono. En algunos espacios también podés pagar en línea.",
       "step4Title": "Coordiná directo",
       "step4Desc": "Hablá con el equipo del espacio sin pasar por un call center."
     },

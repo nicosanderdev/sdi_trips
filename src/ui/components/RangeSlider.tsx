@@ -81,13 +81,14 @@ const RangeSlider: React.FC<RangeSliderProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-navy">
+        <label className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.14em] text-navy/70">
+          <span className="inline-block h-px w-8 bg-gold" aria-hidden />
           {label}
         </label>
       )}
       <div className="relative">
         {/* Value Display */}
-        <div className="flex justify-between text-sm text-charcoal mb-2">
+        <div className="flex justify-between text-sm text-charcoal/75 mb-2">
           <span>{formatValue ? formatValue(value[0], 'min') : `$${value[0]}`}</span>
           <span>{formatValue ? formatValue(value[1], 'max') : `$${value[1]}`}</span>
         </div>
@@ -95,7 +96,7 @@ const RangeSlider: React.FC<RangeSliderProps> = ({
         {/* Slider Track */}
         <div
           ref={sliderRef}
-          className="relative h-2 bg-warm-gray rounded-full cursor-pointer"
+          className="relative h-2 bg-navy/10 rounded-full cursor-pointer"
         >
           {/* Active Range */}
           <div
@@ -108,14 +109,24 @@ const RangeSlider: React.FC<RangeSliderProps> = ({
 
           {/* Min Handle */}
           <div
-            className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white border-2 border-gold rounded-full shadow-md cursor-pointer hover:scale-110 transition-transform"
+            role="slider"
+            tabIndex={0}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={value[0]}
+            className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white border-2 border-gold rounded-full shadow-md cursor-pointer hover:scale-110 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
             style={{ left: `calc(${minPercentage}% - 8px)` }}
             onMouseDown={(e) => handleMouseDown(e, 'min')}
           />
 
           {/* Max Handle */}
           <div
-            className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white border-2 border-gold rounded-full shadow-md cursor-pointer hover:scale-110 transition-transform"
+            role="slider"
+            tabIndex={0}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={value[1]}
+            className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white border-2 border-gold rounded-full shadow-md cursor-pointer hover:scale-110 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
             style={{ left: `calc(${maxPercentage}% - 8px)` }}
             onMouseDown={(e) => handleMouseDown(e, 'max')}
           />

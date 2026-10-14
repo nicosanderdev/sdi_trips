@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { MapPin, Users, Bed, Bath, Star, Heart } from 'lucide-react';
-import { Card, Badge, Button } from '../ui';
+import { MapPin, Users, Bed, Bath, Star, Heart, Check } from 'lucide-react';
+import { Badge, Button } from '../ui';
 import type { Property } from '../../types';
 
 interface PropertyCardProps {
@@ -19,6 +19,8 @@ interface PropertyCardProps {
   /** Override destination for property detail links (e.g. with date query params). */
   detailTo?: string;
 }
+
+const FALLBACK_IMAGE = '/landing/porch-800.jpg';
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
@@ -41,16 +43,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const cardContent = (
-    <Card variant="elevated" className="group cursor-pointer overflow-hidden hover:shadow-gold-lg transition-all duration-300">
+    <article className="group cursor-pointer overflow-hidden bg-white rounded-2xl border border-navy/10 hover:shadow-[0_16px_40px_-24px_rgba(10,26,47,0.35)] transition-shadow duration-300">
         {/* Image Container */}
-        <div className="relative overflow-hidden rounded-t-2xl">
+        <div className="relative overflow-hidden rounded-t-2xl rounded-bl-[1.5rem]">
           <img
-            src={
-              property.images[0] ||
-              'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80'
-            }
+            src={property.images[0] || FALLBACK_IMAGE}
             alt={property.imageAltText || property.title}
-            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
           />
 
           {/* Wishlist Button (hidden when showWishlist is false, e.g. MVP without auth) */}
@@ -58,7 +57,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             <button
               type="button"
               onClick={handleWishlistClick}
-              className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
+              className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               aria-label={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
               title={isInWishlist ? t('wishlist.removeFromWishlist') : t('wishlist.addToWishlist')}
             >
@@ -70,10 +69,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
           {/* Price Badge */}
           <div className="absolute top-4 left-4">
-            <Badge variant="default" className="bg-navy text-gold font-bold">
-              {pricePrefix}${priceAmount}
-              {!displayLabelKey && t('propertyCard.perNight')}
-            </Badge>
+            <span className="inline-flex items-center rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-navy shadow">
+              {pricePrefix}
+              <span className="underline decoration-gold decoration-2 underline-offset-2">
+                ${priceAmount}
+              </span>
+              {!displayLabelKey && (
+                <span className="ml-0.5 font-semibold">{t('propertyCard.perNight')}</span>
+              )}
+            </span>
           </div>
 
           {/* Availability Badge */}
@@ -92,28 +96,28 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-1">
               <Star className="h-4 w-4 fill-gold text-gold" />
-              <span className="text-sm font-medium text-charcoal">
+              <span className="text-sm font-medium text-charcoal/75">
                 {property.rating} ({property.reviewCount})
               </span>
             </div>
-            <div className="flex items-center space-x-1 text-sm text-charcoal">
+            <div className="flex items-center space-x-1 text-sm text-charcoal/75">
               <MapPin className="h-4 w-4" />
               <span>{property.location}</span>
             </div>
           </div>
 
           {/* Title */}
-          <h3 className="text-xl font-semibold text-navy mb-2 group-hover:text-gold transition-colors">
+          <h3 className="text-xl font-bold tracking-tight text-navy mb-2 group-hover:underline group-hover:decoration-gold group-hover:decoration-2 group-hover:underline-offset-4 transition-[text-decoration]">
             {property.title}
           </h3>
 
           {/* Description */}
-          <p className="text-charcoal text-sm mb-4 line-clamp-2">
+          <p className="text-charcoal/75 text-sm mb-4 line-clamp-2">
             {property.description}
           </p>
 
           {/* Amenities */}
-          <div className="flex items-center justify-between text-sm text-charcoal">
+          <div className="flex items-center justify-between text-sm text-charcoal/75">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-1">
                 <Users className="h-4 w-4" />
@@ -131,7 +135,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           </div>
 
           {/* Host Info + View Details (optional) */}
-          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
+          <div className="mt-4 pt-4 border-t border-navy/10 flex items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
               <img
                 src={property.host.avatar || `https://ui-avatars.com/api/?name=${property.host.name}&background=E5C469&color=0A1A2F`}
@@ -143,7 +147,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                   {t('propertyCard.hostedBy', { name: property.host.name })}
                 </p>
                 {property.host.verified && (
-                  <p className="text-xs text-green-600 font-medium">{t('propertyCard.verifiedHost')}</p>
+                  <p className="text-xs text-navy/70 font-medium flex items-center gap-1">
+                    <Check className="h-3.5 w-3.5 text-gold shrink-0" aria-hidden />
+                    {t('propertyCard.verifiedHost')}
+                  </p>
                 )}
               </div>
             </div>
@@ -162,7 +169,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             )}
           </div>
         </div>
-      </Card>
+      </article>
   );
 
   if (disableLink) {

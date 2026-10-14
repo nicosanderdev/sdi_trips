@@ -28,8 +28,10 @@
   },
   "landing": {
     "hero": {
+      "eyebrow": "Rivera, Uruguay",
       "title": "A celebration your guests will talk about",
       "subtitle": "Browse venues in Rivera, check real availability, and coordinate directly with the people who run them — no middlemen, no runaround.",
+      "chipLabel": "Spaces ready to celebrate",
       "searchDateFromLabel": "Earliest date",
       "searchDateFromAria": "Earliest event date",
       "searchDateToLabel": "Latest date",
@@ -80,7 +82,7 @@
       "step2Title": "Choose a date",
       "step2Desc": "Check availability and pick a day that works for everyone.",
       "step3Title": "Book your event",
-      "step3Desc": "A few clear steps and you're on your way — no guesswork.",
+      "step3Desc": "Enter your details and confirm with a code on your phone. Some venues also offer online payment.",
       "step4Title": "Coordinate directly",
       "step4Desc": "Talk to the venue team without going through a call center."
     },

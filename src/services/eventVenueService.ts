@@ -182,6 +182,27 @@ export async function getFeaturedEventVenues(limit: number = 6): Promise<EventVe
   return ((data ?? []) as PublicEventVenueListRow[]).map(mapEventVenueFromRpc);
 }
 
+export async function getEventVenuePreview(
+  token: string,
+): Promise<{ venue: EventVenue; hiddenFromGuests: boolean } | null> {
+  const { data, error } = await supabase.rpc('get_event_venue_property_preview', {
+    p_token: token,
+  });
+
+  if (error) {
+    console.error('Error fetching event venue preview:', error);
+    throw error;
+  }
+
+  const row = ((data ?? []) as PublicEventVenueListRow[])[0];
+  if (!row) return null;
+
+  return {
+    venue: mapEventVenueFromRpc(row),
+    hiddenFromGuests: !(row.IsActive && row.IsPropertyVisible),
+  };
+}
+
 export async function getEventVenueById(id: string): Promise<EventVenue | null> {
   const { data, error } = await supabase.rpc('get_public_event_venue_property_by_id', {
     p_property_id: id,
