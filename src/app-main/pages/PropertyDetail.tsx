@@ -11,7 +11,13 @@ import PropertyContentSections from '../../components/sections/PropertyContentSe
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import CancellationPolicySummary from '../../components/policies/CancellationPolicySummary';
-import { getPropertyById } from '../../services/propertyService';
+import { getPropertyById, getSummerRentPropertyPreview } from '../../services/propertyService';
+import {
+    PreviewBanner,
+    PreviewExpired,
+    resolvePropertyPreview,
+    usePreviewGuards,
+} from '../../core/preview/propertyPreview';
 import { getPublicPropertyContent } from '../../services/bookingService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
@@ -24,6 +30,7 @@ import {
   getPriceLabelKey,
 } from '../../services/pricing/formatPrice';
 import { parseIsoDateLocal } from '../../services/pricing/listingPricing';
+import { partitionGalleryBySectionImages } from '../../models/properties/publicPropertyImages';
 import {
     MapPin,
     Users,
@@ -39,6 +46,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
+    const previewToken = searchParams.get('preview')?.trim() || null;
+    usePreviewGuards(Boolean(previewToken));
 
     const dateSearchContext = useMemo(() => {
         const checkInParam = searchParams.get('checkIn');
@@ -53,12 +62,15 @@ const PropertyDetail: React.FC = () => {
     const hasDateSearchContext = dateSearchContext !== null;
 
     const [property, setProperty] = useState<Property | null>(null);
+    const [previewHidden, setPreviewHidden] = useState(false);
+    const [previewExpired, setPreviewExpired] = useState(false);
     const [cancellationPolicy, setCancellationPolicy] = useState<PublicCancellationPolicy | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showLightbox, setShowLightbox] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
+    const [lightboxSource, setLightboxSource] = useState<'hero' | 'all'>('hero');
     const [galleryOpacity, setGalleryOpacity] = useState(1);
     const [lightboxOpacity, setLightboxOpacity] = useState(1);
     const [showBookingCalendar, setShowBookingCalendar] = useState(false);
@@ -117,7 +129,35 @@ const PropertyDetail: React.FC = () => {
             try {
                 setLoading(true);
                 setError(null);
-                const propertyData = await getPropertyById(id);
+                setPreviewExpired(false);
+                setPreviewHidden(false);
+
+                let propertyData: Property | null = null;
+                if (previewToken) {
+                    const resolved = await resolvePropertyPreview(previewToken);
+                    const tokenMatchesProperty =
+                        resolved.status === 'ok' &&
+                        resolved.listingType === 'SummerRent' &&
+                        resolved.estatePropertyId === id;
+                    if (!tokenMatchesProperty) {
+                        setPreviewExpired(true);
+                        setProperty(null);
+                        setCancellationPolicy(null);
+                        return;
+                    }
+                    const preview = await getSummerRentPropertyPreview(previewToken);
+                    if (!preview) {
+                        setPreviewExpired(true);
+                        setProperty(null);
+                        setCancellationPolicy(null);
+                        return;
+                    }
+                    propertyData = preview.property;
+                    setPreviewHidden(preview.hiddenFromGuests);
+                } else {
+                    propertyData = await getPropertyById(id);
+                }
+
                 if (propertyData) {
                     const host = await fetchHostForProperty(propertyData.id, propertyData.ownerId);
                     setProperty({ ...propertyData, host });
@@ -137,12 +177,12 @@ const PropertyDetail: React.FC = () => {
         };
 
         fetchProperty();
-    }, [id, t]);
+    }, [id, previewToken, t]);
 
     useEffect(() => {
-        if (error || !property?.id) return;
+        if (previewToken || error || !property?.id) return;
         recordGuestPropertyVisit(property.id);
-    }, [property?.id, error]);
+    }, [previewToken, property?.id, error]);
 
     // Initialize map
     useEffect(() => {
@@ -174,28 +214,71 @@ const PropertyDetail: React.FC = () => {
         };
     }, [mapboxToken, property]);
 
-    // Sync image indices when gallery changes
-    const galleryItems =
-        property?.publicImages?.length
-            ? property.publicImages.map((img) => ({
-                  url: img.url,
-                  alt: img.altText || property.title,
-              }))
-            : (property?.images ?? []).map((url) => ({
-                  url,
-                  alt: property?.imageAltText || property?.title || '',
-              }));
-    const heroImageCount = galleryItems.length;
+    // Hero omits images assigned to content sections; All photos keeps the full gallery.
+    const sectionImageRefs = useMemo(() => {
+        const publicSections = property?.publicContentSections;
+        if (publicSections?.length) {
+            return publicSections.flatMap((section) =>
+                (section.images ?? []).map((img) => ({
+                    propertyImageId: img.propertyImageId,
+                    url: img.url,
+                })),
+            );
+        }
+        return (property?.sections ?? []).flatMap((section) =>
+            section.images.map((img) => ({
+                propertyImageId: img.imageId ?? img.id,
+                url: img.url,
+            })),
+        );
+    }, [property?.publicContentSections, property?.sections]);
+
+    const gallerySource = useMemo(() => {
+        if (property?.publicImages?.length) {
+            return property.publicImages.map((img) => ({
+                propertyImageId: img.propertyImageId,
+                url: img.url,
+                alt: img.altText || property.title,
+            }));
+        }
+        return (property?.images ?? []).map((url) => ({
+            url,
+            alt: property?.imageAltText || property?.title || '',
+        }));
+    }, [property?.publicImages, property?.images, property?.imageAltText, property?.title]);
+
+    const { heroImages, allImages } = useMemo(
+        () => partitionGalleryBySectionImages(gallerySource, sectionImageRefs),
+        [gallerySource, sectionImageRefs],
+    );
+    const heroImageCount = heroImages.length;
+    const allImageCount = allImages.length;
+    const lightboxImages = lightboxSource === 'hero' ? heroImages : allImages;
+    const lightboxImageCount = lightboxImages.length;
 
     useEffect(() => {
         if (!heroImageCount) {
             setCurrentImageIndex(0);
-            setLightboxIndex(0);
             return;
         }
         setCurrentImageIndex((prev) => prev % heroImageCount);
-        setLightboxIndex((prev) => prev % heroImageCount);
     }, [heroImageCount]);
+
+    useEffect(() => {
+        if (!lightboxImageCount) {
+            setLightboxIndex(0);
+            return;
+        }
+        setLightboxIndex((prev) => prev % lightboxImageCount);
+    }, [lightboxImageCount]);
+
+    if (previewExpired) {
+        return (
+            <Layout>
+                <PreviewExpired />
+            </Layout>
+        );
+    }
 
     if (loading) {
         return (
@@ -237,7 +320,7 @@ const PropertyDetail: React.FC = () => {
         );
     }
 
-    // Prepare data (galleryItems and heroImageCount computed above before early returns)
+    // Prepare data (heroImages / allImages computed above before early returns)
     const heroImageIndex = heroImageCount ? currentImageIndex % heroImageCount : 0;
     const hostName = property.host?.name?.trim() || t('propertyDetail.host.defaultName');
     const hostFirstName = hostName.split(' ')[0];
@@ -246,10 +329,11 @@ const PropertyDetail: React.FC = () => {
         property.description?.trim() || t('propertyDetail.description.fallback');
     const neighborhoodCopy =
         property.neighborhoodDetails || t('propertyDetail.detailSections.neighborhood.default');
-    const secondaryGalleryImages = galleryItems.slice(0, 6);
 
-    const handleImageClick = (index: number) => {
-        if (!heroImageCount) return;
+    const openLightbox = (source: 'hero' | 'all', index: number) => {
+        const items = source === 'hero' ? heroImages : allImages;
+        if (!items.length) return;
+        setLightboxSource(source);
         setLightboxIndex(index);
         setShowLightbox(true);
     };
@@ -274,19 +358,19 @@ const PropertyDetail: React.FC = () => {
     };
 
     const nextLightboxImage = () => {
-        if (!heroImageCount) return;
+        if (!lightboxImageCount) return;
         setLightboxOpacity(0);
         window.setTimeout(() => {
-            setLightboxIndex((prev) => (prev + 1) % heroImageCount);
+            setLightboxIndex((prev) => (prev + 1) % lightboxImageCount);
             setLightboxOpacity(1);
         }, 200);
     };
 
     const prevLightboxImage = () => {
-        if (!heroImageCount) return;
+        if (!lightboxImageCount) return;
         setLightboxOpacity(0);
         window.setTimeout(() => {
-            setLightboxIndex((prev) => (prev - 1 + heroImageCount) % heroImageCount);
+            setLightboxIndex((prev) => (prev - 1 + lightboxImageCount) % lightboxImageCount);
             setLightboxOpacity(1);
         }, 200);
     };
@@ -295,6 +379,7 @@ const PropertyDetail: React.FC = () => {
         <Layout>
             <div className="bg-warm-gray min-h-screen">
                 <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
+                    {previewToken && <PreviewBanner hiddenFromGuests={previewHidden} />}
 
                     {/* Navigation */}
                     <div className="flex items-center justify-between text-sm text-charcoal">
@@ -317,11 +402,11 @@ const PropertyDetail: React.FC = () => {
                             {heroImageCount > 0 ? (
                                 <img
                                     key={heroImageIndex}
-                                    src={galleryItems[heroImageIndex].url}
-                                    alt={galleryItems[heroImageIndex].alt}
+                                    src={heroImages[heroImageIndex].url}
+                                    alt={heroImages[heroImageIndex].alt}
                                     className="absolute inset-0 h-full w-full object-cover cursor-pointer transition-opacity duration-200 ease-in-out"
                                     style={{ opacity: galleryOpacity }}
-                                    onClick={() => handleImageClick(heroImageIndex)}
+                                    onClick={() => openLightbox('hero', heroImageIndex)}
                                 />
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center bg-warm-gray text-sm text-charcoal/70">
@@ -355,7 +440,7 @@ const PropertyDetail: React.FC = () => {
                         </div>
                         {heroImageCount > 1 && (
                             <div className="flex gap-3 overflow-x-auto py-2">
-                                {galleryItems.map((image, index) => (
+                                {heroImages.map((image, index) => (
                                     <button
                                         key={`${image.url}-${index}`}
                                         onClick={() => index !== heroImageIndex && transitionThenSetIndex(index)}
@@ -494,6 +579,7 @@ const PropertyDetail: React.FC = () => {
                                                 property={property}
                                                 initialCheckIn={dateSearchContext?.checkIn}
                                                 initialCheckOut={dateSearchContext?.checkOut}
+                                                previewMode={Boolean(previewToken)}
                                             />
                                         </div>
                                     )}
@@ -533,16 +619,16 @@ const PropertyDetail: React.FC = () => {
                         </div>
 
                         {/* All photos */}
-                        {secondaryGalleryImages.length > 0 && (
+                        {allImageCount > 0 && (
                             <div className="space-y-4">
                                 <h3 className="text-xl font-semibold text-navy">
                                     {t('propertyDetail.secondaryGallery.heading')}
                                 </h3>
                                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    {secondaryGalleryImages.map((image, index) => (
+                                    {allImages.map((image, index) => (
                                         <button
                                             key={`${image.url}-${index}`}
-                                            onClick={() => handleImageClick(index)}
+                                            onClick={() => openLightbox('all', index)}
                                             className="overflow-hidden rounded-3xl border border-warm-gray bg-white/70"
                                         >
                                             <img src={image.url} alt={image.alt} className="h-52 w-full object-cover" />
@@ -558,6 +644,7 @@ const PropertyDetail: React.FC = () => {
                                 propertyTitle={property.title}
                                 fallbackRating={property.rating}
                                 fallbackReviewCount={property.reviewCount}
+                                previewMode={Boolean(previewToken)}
                             />
                         )}
                     </section>
@@ -589,7 +676,7 @@ const PropertyDetail: React.FC = () => {
             </div>
 
             {/* Lightbox */}
-            {showLightbox && heroImageCount > 0 && (
+            {showLightbox && lightboxImageCount > 0 && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4">
                     <button
                         onClick={() => setShowLightbox(false)}
@@ -606,9 +693,9 @@ const PropertyDetail: React.FC = () => {
                     </button>
 
                     <img
-                        key={lightboxIndex}
-                        src={galleryItems[lightboxIndex]?.url}
-                        alt={galleryItems[lightboxIndex]?.alt || `Gallery ${lightboxIndex + 1}`}
+                        key={`${lightboxSource}-${lightboxIndex}`}
+                        src={lightboxImages[lightboxIndex]?.url}
+                        alt={lightboxImages[lightboxIndex]?.alt || `Gallery ${lightboxIndex + 1}`}
                         className="max-h-[80vh] w-auto max-w-full rounded-3xl object-cover transition-opacity duration-200 ease-in-out"
                         style={{ opacity: lightboxOpacity }}
                     />
@@ -623,7 +710,7 @@ const PropertyDetail: React.FC = () => {
                     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-4 py-1 text-xs text-navy shadow-lg">
                         {t('propertyDetail.heroGallery.imageCounter', {
                             current: lightboxIndex + 1,
-                            total: heroImageCount
+                            total: lightboxImageCount
                         })}
                     </div>
                 </div>

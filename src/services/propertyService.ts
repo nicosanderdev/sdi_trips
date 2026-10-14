@@ -238,6 +238,27 @@ export async function getTopRatedPropertiesForHero(
 /**
  * Get property by ID
  */
+export async function getSummerRentPropertyPreview(
+  token: string,
+): Promise<{ property: Property; hiddenFromGuests: boolean } | null> {
+  const { data, error } = await supabase.rpc('get_summer_rent_property_preview', {
+    p_token: token,
+  });
+
+  if (error) {
+    console.error('Error fetching summer rent preview:', error);
+    throw error;
+  }
+
+  const row = ((data ?? []) as RpcSummerRentPropertyRow[])[0];
+  if (!row) return null;
+
+  return {
+    property: transformSummerRentProperty(row),
+    hiddenFromGuests: !(row.IsActive && row.IsPropertyVisible),
+  };
+}
+
 export async function getPropertyById(id: string): Promise<Property | null> {
   const { data, error } = await supabase.rpc(
     'get_public_summer_rent_property_by_id',

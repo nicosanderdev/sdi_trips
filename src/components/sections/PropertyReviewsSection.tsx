@@ -16,6 +16,8 @@ export interface PropertyReviewsSectionProps {
   fallbackRating?: number;
   fallbackReviewCount?: number;
   className?: string;
+  /** Staff preview keeps the reviews list and disables writing one. */
+  previewMode?: boolean;
 }
 
 export default function PropertyReviewsSection({
@@ -24,6 +26,7 @@ export default function PropertyReviewsSection({
   fallbackRating,
   fallbackReviewCount,
   className = '',
+  previewMode = false,
 }: PropertyReviewsSectionProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -110,7 +113,13 @@ export default function PropertyReviewsSection({
           </div>
         </div>
 
-        {user &&
+        {previewMode && user && reviewEligibility?.canReview && reviewEligibility.booking ? (
+          <div className="mb-4">
+            <Button variant="primary" size="sm" disabled>
+              {t('reviews.addReview')}
+            </Button>
+          </div>
+        ) : user &&
           (reviewEligibilityLoading ? null : reviewEligibility?.canReview && reviewEligibility.booking ? (
             <div className="mb-4">
               <Button variant="primary" size="sm" onClick={() => setIsReviewModalOpen(true)}>

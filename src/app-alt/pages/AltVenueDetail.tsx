@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import mapboxgl from 'mapbox-gl';
@@ -20,7 +20,13 @@ import {
 } from 'lucide-react';
 import { useDisplayPrice } from '../../hooks/useDisplayPrice';
 import { recordGuestPropertyVisit } from '../../core/services/guestVisitService';
-import { getEventVenueById, type EventVenue } from '../../services/eventVenueService';
+import { getEventVenueById, getEventVenuePreview, type EventVenue } from '../../services/eventVenueService';
+import {
+  PreviewBanner,
+  PreviewExpired,
+  resolvePropertyPreview,
+  usePreviewGuards,
+} from '../../core/preview/propertyPreview';
 import { getPublicPropertyContent } from '../../services/bookingService';
 import { fetchHostForProperty } from '../../services/propertyOwnerService';
 import { formatPriceAmount, getPriceLabelKey } from '../../services/pricing';
@@ -37,8 +43,13 @@ function hasUsableCoordinates(coords: { lat: number; lng: number } | undefined):
 
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const previewToken = searchParams.get('preview')?.trim() || null;
+  usePreviewGuards(Boolean(previewToken));
   const { t, i18n } = useTranslation();
   const [venue, setVenue] = useState<EventVenue | null>(null);
+  const [previewHidden, setPreviewHidden] = useState(false);
+  const [previewExpired, setPreviewExpired] = useState(false);
   const [cancellationPolicy, setCancellationPolicy] = useState<PublicCancellationPolicy | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,7 +103,35 @@ export default function AltVenueDetail() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getEventVenueById(id);
+        setPreviewExpired(false);
+        setPreviewHidden(false);
+
+        let data: EventVenue | null = null;
+        if (previewToken) {
+          const resolved = await resolvePropertyPreview(previewToken);
+          const tokenMatchesProperty =
+            resolved.status === 'ok' &&
+            resolved.listingType === 'EventVenue' &&
+            resolved.estatePropertyId === id;
+          if (!tokenMatchesProperty) {
+            setPreviewExpired(true);
+            setVenue(null);
+            setCancellationPolicy(null);
+            return;
+          }
+          const preview = await getEventVenuePreview(previewToken);
+          if (!preview) {
+            setPreviewExpired(true);
+            setVenue(null);
+            setCancellationPolicy(null);
+            return;
+          }
+          data = preview.venue;
+          setPreviewHidden(preview.hiddenFromGuests);
+        } else {
+          data = await getEventVenueById(id);
+        }
+
         if (data) {
           const host = await fetchHostForProperty(data.id, data.ownerId);
           setVenue({ ...data, host });
@@ -111,12 +150,12 @@ export default function AltVenueDetail() {
     };
 
     load();
-  }, [id]);
+  }, [id, previewToken]);
 
   useEffect(() => {
-    if (error || !venue?.id) return;
+    if (previewToken || error || !venue?.id) return;
     recordGuestPropertyVisit(venue.id);
-  }, [venue?.id, error]);
+  }, [previewToken, venue?.id, error]);
 
   useEffect(() => {
     if (!mapboxToken || !venue || !hasUsableCoordinates(venue.coordinates)) return;
@@ -168,6 +207,10 @@ export default function AltVenueDetail() {
     }, 200);
   };
 
+  if (previewExpired) {
+    return <PreviewExpired />;
+  }
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
@@ -191,6 +234,7 @@ export default function AltVenueDetail() {
   return (
     <div className="bg-warm-gray min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
+        {previewToken && <PreviewBanner hiddenFromGuests={previewHidden} />}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-charcoal">
           <Link to={browseFallbackPath} className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
             <ChevronLeft className="h-4 w-4" />
@@ -379,6 +423,7 @@ export default function AltVenueDetail() {
                     property={venue}
                     variant="event"
                     reservationManagePath="/reservation-lookup"
+                    previewMode={Boolean(previewToken)}
                   />
                 </div>
               )}
@@ -421,7 +466,11 @@ export default function AltVenueDetail() {
             </div>
           </div>
 
-          <PropertyReviewsSection propertyId={venue.id} propertyTitle={venue.name} />
+          <PropertyReviewsSection
+            propertyId={venue.id}
+            propertyTitle={venue.name}
+            previewMode={Boolean(previewToken)}
+          />
         </section>
 
         <PropertyPolicySections

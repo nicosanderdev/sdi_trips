@@ -161,11 +161,13 @@
   },
   "landing": {
     "hero": {
-      "title": "Your next getaway starts here.",
-      "description": "Browse homes in Rivera, pick your dates, and coordinate directly with the people who know them best.",
+      "eyebrow": "Rivera, Uruguay",
+      "title": "Your next place in Rivera starts here.",
+      "description": "Discover homes for your next stay, with clear information and close support.",
       "valueProposition": "",
       "subtitle": "Rent with peace of mind. Publish with confidence.",
       "support": "Real homes. Real hosts. No runaround.",
+      "chipLabel": "Real homes for your stay",
       "search": {
         "locationPlaceholder": "Location",
         "locationAria": "Location or area",
@@ -186,7 +188,7 @@
         "bookings": "We're here if you need us"
       },
       "cta": {
-        "search": "Explore Homes",
+        "search": "Explore stays",
         "publish": "Log in",
         "manage": "Manage my booking"
       },
@@ -210,7 +212,7 @@
       "eyebrow": "Choose your style",
       "title": "Handpicked homes our guests love",
       "subtitle": "Places worth slowing down for.",
-      "viewAll": "Explore Homes",
+      "viewAll": "Explore stays",
       "popular": "Popular",
       "empty": "No featured properties available at the moment.",
       "errors": {
@@ -218,6 +220,7 @@
       }
     },
     "platform": {
+      "eyebrow": "Local trust",
       "title": "Why guests choose us",
       "cards": {
         "1": {
@@ -225,8 +228,8 @@
           "description": "A few clear steps and you're on your way — no guesswork, no stress."
         },
         "2": {
-          "title": "Trusted homes and verified hosts",
-          "description": "Our local team checks every listing so you know what you're getting."
+          "title": "Homes and hosts we know",
+          "description": "We publish clear information about local homes and hosts so you know what to expect."
         },
         "3": {
           "title": "Homes that feel like Rivera",
@@ -256,7 +259,7 @@
         "3": {
           "title": "Book your stay",
           "subtitle": "",
-          "description": "Clear details, honest listings, and the peace of mind that comes from a local platform."
+          "description": "Enter your details and confirm with a code on your phone. Some homes also offer online payment."
         },
         "4": {
           "title": "Coordinate with your host",
@@ -372,6 +375,12 @@
     "errors": {
       "propertyNotFound": "Property not found",
       "failedToLoad": "Failed to load property details. Please try again."
+    },
+    "preview": {
+      "banner": "Preview. Actions on this page are turned off.",
+      "hidden": "Guests cannot see this listing yet.",
+      "expiredTitle": "This preview has expired",
+      "expiredBody": "Open it again from the panel."
     },
     "buttons": {
       "backToSearch": "Back to Search",

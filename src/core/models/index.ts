@@ -36,6 +36,8 @@ export interface InputProps extends BaseComponentProps {
   label?: string;
   required?: boolean;
   disabled?: boolean;
+  /** Optional classes applied only to the native `<input>` element. */
+  inputClassName?: string;
 }
 
 // Textarea component props

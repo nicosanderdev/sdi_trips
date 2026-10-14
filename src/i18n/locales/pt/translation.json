@@ -161,11 +161,13 @@
   },
   "landing": {
     "hero": {
-      "title": "Sua próxima escapada começa aqui.",
-      "description": "Explore casas em Rivera, escolha suas datas e coordene diretamente com quem as conhece de verdade.",
+      "eyebrow": "Rivera, Uruguai",
+      "title": "Seu próximo lugar em Rivera começa aqui.",
+      "description": "Descubra casas para sua próxima estadia, com informação clara e atendimento próximo.",
       "valueProposition": "",
       "subtitle": "Alugue com tranquilidade. Publique com confiança.",
       "support": "Casas reais. Anfitriões reais. Sem enrolação.",
+      "chipLabel": "Casas reais para sua estadia",
       "search": {
         "locationPlaceholder": "Localização",
         "locationAria": "Localização ou região",
@@ -186,7 +188,7 @@
         "bookings": "Estamos aqui se precisar"
       },
       "cta": {
-        "search": "Explorar casas",
+        "search": "Explorar acomodações",
         "publish": "Entrar",
         "manage": "Ver minha reserva"
       },
@@ -210,7 +212,7 @@
       "eyebrow": "Escolha seu estilo",
       "title": "Casas escolhidas que nossos hóspedes amam",
       "subtitle": "Lugares para desacelerar.",
-      "viewAll": "Explorar casas",
+      "viewAll": "Explorar acomodações",
       "popular": "Popular",
       "empty": "Não há propriedades em destaque no momento.",
       "errors": {
@@ -218,6 +220,7 @@
       }
     },
     "platform": {
+      "eyebrow": "Confiança local",
       "title": "Por que os hóspedes nos escolhem",
       "cards": {
         "1": {
@@ -225,8 +228,8 @@
           "description": "Alguns passos claros e pronto — sem adivinhação, sem estresse."
         },
         "2": {
-          "title": "Casas confiáveis e anfitriões verificados",
-          "description": "Nossa equipe local verifica cada anúncio para você saber o que esperar."
+          "title": "Casas e anfitriões que conhecemos",
+          "description": "Publicamos informação clara sobre casas e anfitriões locais para você saber o que esperar."
         },
         "3": {
           "title": "Casas que parecem Rivera",
@@ -256,7 +259,7 @@
         "3": {
           "title": "Reserve sua estadia",
           "subtitle": "",
-          "description": "Detalhes claros, anúncios honestos e a tranquilidade de uma plataforma local."
+          "description": "Preencha seus dados e confirme com um código no telefone. Em algumas casas também é possível pagar online."
         },
         "4": {
           "title": "Coordene com seu anfitrião",
@@ -322,6 +325,12 @@
     "errors": {
       "propertyNotFound": "Propriedade não encontrada",
       "failedToLoad": "Falha ao carregar detalhes da propriedade. Por favor, tente novamente."
+    },
+    "preview": {
+      "banner": "Pré-visualização. As ações desta página estão desativadas.",
+      "hidden": "Os hóspedes ainda não veem este anúncio.",
+      "expiredTitle": "Esta pré-visualização expirou",
+      "expiredBody": "Abra novamente pelo painel."
     },
     "buttons": {
       "backToSearch": "Voltar à Busca",

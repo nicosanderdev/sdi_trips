@@ -50,15 +50,14 @@ function sectionShellClass(variant: SectionDisplayVariant): string {
 }
 
 function carouselImageHeightClass(variant: SectionDisplayVariant): string {
-  if (variant === 'hero') return 'h-96 min-h-[24rem] md:h-[28rem]';
-  if (variant === 'compact') return 'h-48';
-  return 'h-72';
+  if (variant === 'hero') return 'aspect-[3/2] min-h-96';
+  if (variant === 'compact') return 'aspect-[16/9] min-h-64';
+  return 'aspect-[16/9] min-h-80';
 }
 
 function gridImageHeightClass(variant: SectionDisplayVariant): string {
-  if (variant === 'hero') return 'h-56 md:h-64';
-  if (variant === 'compact') return 'h-36';
-  return 'h-48';
+  if (variant === 'compact') return 'aspect-[16/9]';
+  return 'aspect-[4/3]';
 }
 
 function headingClass(variant: SectionDisplayVariant): string {
@@ -127,16 +126,8 @@ export default function PropertySection({ section, className }: PropertySectionP
 
   return (
     <section className={withClassName(shellClass, className)}>
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        <div>{descriptionBlock}</div>
-        {hasImages ? (
-          <SectionImageGallery
-            images={section.images}
-            mode="grid"
-            gridImageClassName={gridImageHeightClass(displayVariant)}
-          />
-        ) : null}
-      </div>
+      {descriptionBlock}
+      {hasImages ? <SectionImageGallery images={section.images} mode="strip" /> : null}
     </section>
   );
 }
