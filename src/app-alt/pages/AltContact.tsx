@@ -4,7 +4,11 @@ import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Input, Textarea } from '../../components/ui';
 import { Mail, MessageSquare, Building2, HelpCircle } from 'lucide-react';
-import { sendContactMessage } from '../../services/contactService';
+import {
+  CONTACT_MESSAGE_MAX_LENGTH,
+  ContactSendError,
+  sendContactMessage,
+} from '../../services/contactService';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 
 export default function AltContact() {
@@ -12,13 +16,48 @@ export default function AltContact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const reasons = [
     { icon: MessageSquare, titleKey: 'alt.contact.reasonPlanningTitle', descKey: 'alt.contact.reasonPlanningDesc' },
     { icon: Building2, titleKey: 'alt.contact.reasonPublishSpaceTitle', descKey: 'alt.contact.reasonPublishSpaceDesc' },
     { icon: HelpCircle, titleKey: 'alt.contact.reasonGeneralInquiriesTitle', descKey: 'alt.contact.reasonGeneralInquiriesDesc' },
   ] as const;
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = t('contact.errors.nameRequired');
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = t('contact.errors.emailRequired');
+    } else if (!validateEmail(formData.email.trim())) {
+      newErrors.email = t('contact.errors.emailInvalid');
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = t('contact.errors.messageRequired');
+    } else if (formData.message.trim().length > CONTACT_MESSAGE_MAX_LENGTH) {
+      newErrors.message = t('contact.errors.messageTooLong');
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (field: 'name' | 'email' | 'message', value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }));
+    }
+  };
 
   return (
     <>
@@ -80,8 +119,15 @@ export default function AltContact() {
                   className="space-y-6"
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    setSubmitError('');
+                    if (!validateForm()) {
+                      return;
+                    }
+
                     setIsSubmitting(true);
+                    setErrors((prev) => {
+                      const { submit: _submit, ...rest } = prev;
+                      return rest;
+                    });
 
                     try {
                       await sendContactMessage({
@@ -91,8 +137,13 @@ export default function AltContact() {
                       });
                       setSubmitted(true);
                       setFormData({ name: '', email: '', message: '' });
-                    } catch {
-                      setSubmitError(t('contact.errors.submitFailed'));
+                    } catch (err) {
+                      const rateLimited = err instanceof ContactSendError && err.reason === 'rate_limited';
+                      setErrors({
+                        submit: t(
+                          rateLimited ? 'contact.errors.rateLimited' : 'contact.errors.submitFailed',
+                        ),
+                      });
                     } finally {
                       setIsSubmitting(false);
                     }
@@ -102,7 +153,8 @@ export default function AltContact() {
                     label={t('contact.form.name')}
                     placeholder={t('contact.form.namePlaceholder')}
                     value={formData.name}
-                    onChange={(value: string) => setFormData((p) => ({ ...p, name: value }))}
+                    onChange={(value: string) => handleInputChange('name', value)}
+                    error={errors.name}
                     required
                   />
                   <Input
@@ -110,20 +162,22 @@ export default function AltContact() {
                     label={t('contact.form.email')}
                     placeholder={t('contact.form.emailPlaceholder')}
                     value={formData.email}
-                    onChange={(value) => setFormData((p) => ({ ...p, email: value }))}
+                    onChange={(value) => handleInputChange('email', value)}
+                    error={errors.email}
                     required
                   />
                   <Textarea
                     label={t('contact.form.message')}
                     placeholder={t('alt.contact.messagePlaceholder')}
                     value={formData.message}
-                    onChange={(value: string) => setFormData((p) => ({ ...p, message: value }))}
+                    onChange={(value: string) => handleInputChange('message', value)}
+                    error={errors.message}
                     rows={6}
                     required
                   />
-                  {submitError ? (
+                  {errors.submit ? (
                     <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                      <p className="text-red-600 font-medium">{submitError}</p>
+                      <p className="text-red-600 font-medium">{errors.submit}</p>
                     </div>
                   ) : null}
                   <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>

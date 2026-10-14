@@ -1159,6 +1159,8 @@
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email",
       "messageRequired": "Message is required",
+      "messageTooLong": "Message is too long. Please keep it under 4000 characters.",
+      "rateLimited": "Too many requests. Please wait a few minutes and try again.",
       "submitFailed": "Failed to send message. Please try again."
     }
   },
