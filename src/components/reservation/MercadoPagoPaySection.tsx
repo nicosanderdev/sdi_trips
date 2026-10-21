@@ -7,9 +7,33 @@ import {
   resolveMercadoPagoCheckoutUrl,
 } from '../../services/bookingService';
 import { formatPriceAmount } from '../../services/pricing/formatPrice';
+import { getAppVariant } from '../../core/config/guestSiteListingType';
 import { isMercadoPagoPreferenceErrorCode } from '../../types/guestReviewContract';
 import { clearMercadoPagoPayHandoff, saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
+
+type PaymentStateKey = 'notPaid' | 'depositPending' | 'depositPaid' | 'paid';
+
+function resolvePaymentStateKey(options: {
+  amountPaid?: number | null;
+  depositAmount?: number | null;
+  totalAmount?: number | null;
+}): PaymentStateKey {
+  const paid =
+    options.amountPaid != null && Number.isFinite(options.amountPaid) ? options.amountPaid : 0;
+  const total =
+    options.totalAmount != null && Number.isFinite(options.totalAmount) ? options.totalAmount : null;
+  const deposit =
+    options.depositAmount != null && Number.isFinite(options.depositAmount)
+      ? options.depositAmount
+      : null;
+  const hasPartialDeposit = deposit != null && (total == null || deposit + 0.009 < total);
+
+  if (total != null && paid + 0.009 >= total) return 'paid';
+  if (paid <= 0.009) return hasPartialDeposit ? 'depositPending' : 'notPaid';
+  if (hasPartialDeposit && deposit != null && paid + 0.009 < deposit) return 'depositPending';
+  return 'depositPaid';
+}
 
 export interface MercadoPagoPaySectionProps {
   bookingId: string;
@@ -67,9 +91,11 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [markedApproved, setMarkedApproved] = useState(false);
+  const legalPath = getAppVariant() === 'alt' ? '/terms-and-conditions' : '/terms';
 
   const isApproved = Boolean(mercadoPagoApproved || markedApproved || paymentStatus === 1);
   const checkoutToken = manageToken?.trim() ?? '';
@@ -114,16 +140,15 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
     chargeAmount != null
       ? formatPriceAmount(chargeAmount, currencyCode ?? 'USD')
       : null;
-  const paidLabel =
-    amountPaid != null && Number.isFinite(amountPaid)
-      ? formatPriceAmount(amountPaid, currencyCode ?? 'USD')
-      : null;
-  const totalLabel =
-    totalAmount != null && Number.isFinite(totalAmount)
-      ? formatPriceAmount(totalAmount, currencyCode ?? 'USD')
-      : null;
+  const paymentStateKey = resolvePaymentStateKey({ amountPaid, depositAmount, totalAmount });
   const dueLabel =
     dueAt != null ? formatReservationStayDate(dueAt, i18n.language) : null;
+
+  const closeDisclaimer = () => {
+    if (loading) return;
+    setShowDisclaimer(false);
+    setAgreed(false);
+  };
 
   const handleConfirmPay = async () => {
     if (!checkoutToken) {
@@ -169,9 +194,9 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
   return (
     <div className={`space-y-3 ${className}`}>
       <div className="space-y-2 text-left text-sm text-charcoal">
-        <p className="font-semibold text-navy">{t('mercadoPago.infoTitle')}</p>
+        <p className="text-center text-base font-semibold text-navy">{t('mercadoPago.infoTitle')}</p>
         <p>{t('mercadoPago.infoBody')}</p>
-        <p className="text-charcoal/80">{t('mercadoPago.infoFees')}</p>
+        <p className="text-xs text-charcoal/80">{t('mercadoPago.infoFees')}</p>
       </div>
 
       {amountLabel && (
@@ -183,11 +208,10 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
         </p>
       )}
 
-      {paidLabel && totalLabel && (
-        <p className="text-sm text-charcoal/80">
-          {t('mercadoPago.paidOfTotal', { paid: paidLabel, total: totalLabel })}
-        </p>
-      )}
+      <p className="text-sm text-charcoal">
+        <span className="font-semibold">{t('mercadoPago.paymentState.label')}</span>{' '}
+        {t(`mercadoPago.paymentState.${paymentStateKey}`)}
+      </p>
 
       {canStartCheckout ? (
         <div className={`flex flex-wrap gap-3 ${showPayLater ? 'justify-center' : ''}`}>
@@ -197,6 +221,7 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
             disabled={loading}
             onClick={() => {
               setError(null);
+              setAgreed(false);
               setShowDisclaimer(true);
             }}
           >
@@ -220,26 +245,41 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
 
       <Modal
         isOpen={showDisclaimer}
-        onClose={() => {
-          if (loading) return;
-          setShowDisclaimer(false);
-        }}
+        onClose={closeDisclaimer}
         title={t('mercadoPago.disclaimerTitle')}
       >
         <div className="space-y-4">
           <p className="text-sm text-charcoal">{t('mercadoPago.bridgeDisclaimer')}</p>
+          <a
+            href={legalPath}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-sm font-medium text-navy underline underline-offset-4 hover:text-gold"
+          >
+            {t('mercadoPago.legalLink')}
+          </a>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              disabled={loading}
+              className="mt-1 rounded border-gray-300 text-gold focus:ring-gold"
+            />
+            <span className="text-sm text-charcoal">{t('mercadoPago.agreeLabel')}</span>
+          </label>
           <div className="flex flex-wrap justify-center gap-3">
             <Button
               variant="outline"
               disabled={loading}
-              onClick={() => setShowDisclaimer(false)}
+              onClick={closeDisclaimer}
             >
               {t('mercadoPago.cancel')}
             </Button>
             <Button
               variant="primary"
               className="bg-gold text-navy hover:bg-gold-dark"
-              disabled={loading}
+              disabled={!agreed || loading}
               onClick={() => void handleConfirmPay()}
             >
               {loading ? t('mercadoPago.paying') : t('mercadoPago.continueToMercadoPago')}
