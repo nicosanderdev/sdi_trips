@@ -15,6 +15,8 @@ import type {
   GuestExistingReview,
   GuestSiteListingType,
   HostContactInfo,
+  RequestBookingManageLinkRequest,
+  RequestBookingManageLinkResult,
   ManageBookingView,
   MercadoPagoBookingEligibility,
   OtpChannel,
@@ -152,6 +154,7 @@ export interface ReservationLookupData {
   mercadoPagoApprovedAt?: string | null;
   canPayOnline?: boolean;
   sellerConnected?: boolean;
+  guests?: number;
 }
 
 export function mapHostContactFromPayload(raw: Record<string, unknown>): HostContactInfo | null {
@@ -292,6 +295,16 @@ function mapCancellationPreviewFromPayload(
   };
 }
 
+function mapGuestCount(raw: Record<string, unknown>): number | undefined {
+  const value = raw.guests ?? raw.guestCount ?? raw.guest_count;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+}
+
 export function mapReservationFromLookupPayload(raw: Record<string, unknown>): ReservationLookupData {
   const listingTypeRaw =
     (raw.listingType as string | undefined) ?? (raw.listing_type as string | undefined);
@@ -351,6 +364,7 @@ export function mapReservationFromLookupPayload(raw: Record<string, unknown>): R
           : null,
     canPayOnline: optionalBoolean(raw.canPayOnline ?? raw.can_pay_online),
     sellerConnected: optionalBoolean(raw.sellerConnected ?? raw.seller_connected),
+    guests: mapGuestCount(raw),
     hostContact: mapHostContactFromPayload(raw),
   };
 }
@@ -1127,6 +1141,58 @@ export async function getReservationByCode(
   } catch (serviceError) {
     console.error('Failed to get reservation by code:', serviceError);
     return { success: false, error: 'Failed to load reservation.' };
+  }
+}
+
+function isManageLinkRateLimited(
+  httpStatus: number | undefined,
+  errorText: string | undefined,
+): boolean {
+  if (httpStatus === 429) return true;
+  return (errorText ?? '').toLowerCase().includes('too many requests');
+}
+
+export async function requestBookingManageLink(
+  input: RequestBookingManageLinkRequest,
+): Promise<RequestBookingManageLinkResult> {
+  const reservationCode = normalizeReservationCode(input.reservationCode);
+  const email = input.email.trim();
+  if (!reservationCode || !email) {
+    return { success: false, reason: 'failed' };
+  }
+
+  try {
+    const { data, error, response } = await supabase.functions.invoke<{
+      success?: boolean;
+      error?: string;
+    }>('request-booking-manage-link', {
+      body: {
+        reservationCode,
+        email,
+        listingType: input.listingType,
+      },
+    });
+
+    const httpStatus = response?.status ?? invokeHttpStatus(error);
+    let errorText = data?.error;
+    if (!errorText && error) {
+      const body = await readFunctionsErrorBody(error);
+      if (body && typeof body === 'object' && 'error' in body && (body as { error?: unknown }).error != null) {
+        errorText = String((body as { error?: unknown }).error);
+      } else if (error instanceof Error) {
+        errorText = error.message;
+      }
+    }
+    if (isManageLinkRateLimited(httpStatus, errorText)) {
+      return { success: false, reason: 'rate_limited' };
+    }
+    if (!error) {
+      return { success: true };
+    }
+    return { success: false, reason: 'failed' };
+  } catch (err) {
+    console.error('Failed to request booking manage link:', err);
+    return { success: false, reason: 'failed' };
   }
 }
 

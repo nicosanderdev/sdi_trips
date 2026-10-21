@@ -235,6 +235,8 @@ export interface GuestReservationLookupReservation extends GuestBookingPaymentFi
   guestName: string | null;
   guestEmail: string | null;
   guestPhone: string | null;
+  guests?: number;
+  /** Code lookup ignores this. Cancel is only offered on the manage-token page. */
   canCancel: boolean;
   isExpired: boolean;
   isDeleted: boolean;
@@ -254,7 +256,7 @@ export interface GuestReservationLookupReservation extends GuestBookingPaymentFi
   /** True when a verified Mercado Pago webhook set PaymentStatus = 1. Not booking Status. */
   mercadoPagoApproved?: boolean;
   mercadoPagoApprovedAt?: string | null;
-  /** True when seller is connected, booking pending/confirmed, unpaid via MP, and amount > 0. */
+  /** Code lookup ignores this. Pay is only offered on the manage-token page. */
   canPayOnline?: boolean;
   sellerConnected?: boolean;
 }
@@ -325,6 +327,16 @@ export interface ConfirmBookingFromHoldResponse {
   cancellation_policy?: PublicCancellationPolicy;
   mercado_pago?: MercadoPagoBookingEligibility;
 }
+
+export interface RequestBookingManageLinkRequest {
+  reservationCode: string;
+  email: string;
+  listingType: GuestSiteListingType;
+}
+
+export type RequestBookingManageLinkResult =
+  | { success: true }
+  | { success: false; reason: 'rate_limited' | 'failed' };
 
 export interface CreateMercadoPagoPreferenceRequest {
   manageToken: string;

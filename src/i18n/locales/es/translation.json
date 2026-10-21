@@ -643,7 +643,7 @@
     },
     "form": {
       "title": "Encontrá tu reserva",
-      "subtitle": "Ingresa tu código de reserva para ver los detalles y las acciones disponibles.",
+      "subtitle": "Ingresá tu código de reserva para ver los detalles.",
       "codeLabel": "Código de reserva",
       "codePlaceholder": "RSV-ABC123"
     },
@@ -655,8 +655,13 @@
       "datesValue": "{{checkIn}} a {{checkOut}}",
       "statusLabel": "Estado:",
       "guestLabel": "Huésped:",
+      "emailLabel": "Correo:",
+      "phoneLabel": "Teléfono:",
       "guestsLabel": "Invitados:",
       "guestsCount": "{{count}} invitados",
+      "totalLabel": "Total:",
+      "amountPaidLabel": "Pagado:",
+      "amountDueLabel": "Saldo:",
       "notAvailable": "No disponible"
     },
     "hostContact": {
@@ -668,8 +673,23 @@
     },
     "manageToken": {
       "loading": "Cargando reserva…",
-      "missingToken": "Falta el token en este enlace de gestión. Revisá la URL completa del correo de confirmación.",
-      "invalidOrExpired": "Enlace de gestión no válido o caducado."
+      "missingToken": "Este enlace de gestión ya no es válido.",
+      "invalidOrExpired": "Este enlace de gestión ya no es válido.",
+      "noLongerValid": "Este enlace de gestión ya no es válido.",
+      "loadFailed": "No pudimos cargar la reserva. Intentá de nuevo.",
+      "lookupByCode": "Buscar con el código de reserva"
+    },
+    "manageLink": {
+      "title": "Enviar enlace de gestión",
+      "body": "Ingresá el correo de la reserva para recibir un enlace y gestionarla.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@correo.com",
+      "submit": "Enviar enlace",
+      "submitting": "Enviando…",
+      "sent": "Si el código y el correo coinciden con la reserva, enviamos un enlace para gestionarla. Cuando se envía un enlace nuevo, los enlaces anteriores dejan de funcionar.",
+      "rateLimited": "Demasiados intentos. Probá de nuevo más tarde.",
+      "failed": "No pudimos enviar el enlace. Intentá de nuevo.",
+      "invalidEmail": "Ingresá un correo electrónico válido."
     },
     "status": {
       "confirmed": "Confirmada",

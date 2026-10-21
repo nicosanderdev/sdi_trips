@@ -4,23 +4,18 @@ import { format } from 'date-fns';
 import { enUS, es, ptBR } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { Button, Card } from '../ui';
-import type {
-  CancellationPreview,
-  CancellationPreviewResponse,
-  GuestExistingReview,
-} from '../../types/guestReviewContract';
-import type { CancelBookingResponse, ReservationLookupData } from '../../services/bookingService';
+import type { GuestExistingReview } from '../../types/guestReviewContract';
+import type { ReservationLookupData } from '../../services/bookingService';
+import { getGuestSiteListingType } from '../../core/config/guestSiteListingType';
 import { getGuestReviewLookupState } from '../../core/services/guestReviewEligibility';
 import { getGuestReviewWindow } from '../../core/services/guestReviewWindow';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
+import BookingPaymentFacts from './BookingPaymentFacts';
 import GuestReservationReviewForm from './GuestReservationReviewForm';
 import GuestReviewReadOnlyCard from './GuestReviewReadOnlyCard';
 import HostContactSection from './HostContactSection';
-import MercadoPagoPaySection from './MercadoPagoPaySection';
 import RefundStatusNotice from './RefundStatusNotice';
-import CancelBookingModal from './CancelBookingModal';
-import { shouldShowMercadoPagoPay } from '../../core/services/mercadoPagoPayVisibility';
-import { getLiveManageToken } from '../../utils/mercadoPagoPayHandoff';
+import RequestManageLinkForm from './RequestManageLinkForm';
 
 const defaultPropertyPath = (propertyId: string) => `/property/${propertyId}`;
 
@@ -33,11 +28,6 @@ function formatReviewDate(date: Date, language: string): string {
 
 interface ReservationDetailsProps {
   reservation: ReservationLookupData;
-  cancelMessage: string | null;
-  isCancelling: boolean;
-  onCancelConfirm: (previewHash: string) => Promise<CancelBookingResponse>;
-  onLoadCancelPreview: () => Promise<CancellationPreviewResponse>;
-  onCancelSuccess?: (preview: CancellationPreview) => void;
   /** Build destination URL for "View property" (default: `/property/:id`). */
   propertyPath?: (propertyId: string) => string;
   cardVariant?: 'default' | 'elevated' | 'glass' | 'surface';
@@ -45,16 +35,10 @@ interface ReservationDetailsProps {
 
 const ReservationDetails: React.FC<ReservationDetailsProps> = ({
   reservation: reservationProp,
-  cancelMessage,
-  isCancelling,
-  onCancelConfirm,
-  onLoadCancelPreview,
-  onCancelSuccess,
   propertyPath = defaultPropertyPath,
   cardVariant = 'default',
 }) => {
   const { t, i18n } = useTranslation();
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [localReservation, setLocalReservation] = useState(reservationProp);
 
   useEffect(() => {
@@ -87,19 +71,12 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
     }));
   };
 
-  const guestInfo = [localReservation.guestName, localReservation.guestEmail, localReservation.guestPhone]
-    .filter(Boolean)
-    .join(' - ');
   const statusKey = `reservationLookup.status.${localReservation.status}`;
   const translatedStatus = t(statusKey);
   const statusLabel = translatedStatus === statusKey ? localReservation.status : translatedStatus;
   const formattedCheckIn = formatReservationStayDate(localReservation.checkIn, i18n.language);
   const formattedCheckOut = formatReservationStayDate(localReservation.checkOut, i18n.language);
-  const localizedSuccessMessage = t('reservationLookup.messages.cancelSuccess').toLowerCase();
-  const isSuccessMessage =
-    cancelMessage?.toLowerCase().includes(localizedSuccessMessage) ||
-    cancelMessage?.toLowerCase().includes('success') ||
-    false;
+  const listingType = localReservation.listingType ?? getGuestSiteListingType();
 
   const renderReviewBanner = () => {
     if (reviewState.kind === 'not_yet_open') {
@@ -182,11 +159,51 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
           })}
         </p>
         <p><span className="font-semibold">{t('reservationLookup.details.statusLabel')}</span> {statusLabel}</p>
-        <p><span className="font-semibold">{t('reservationLookup.details.guestLabel')}</span> {guestInfo || t('reservationLookup.details.notAvailable')}</p>
+        {localReservation.guests != null && (
+          <p>
+            <span className="font-semibold">{t('reservationLookup.details.guestsLabel')}</span>{' '}
+            {t('reservationLookup.details.guestsCount', { count: localReservation.guests })}
+          </p>
+        )}
+        {localReservation.guestName?.trim() ? (
+          <p>
+            <span className="font-semibold">{t('reservationLookup.details.guestLabel')}</span>{' '}
+            {localReservation.guestName}
+          </p>
+        ) : null}
+        {localReservation.guestEmail?.trim() ? (
+          <p>
+            <span className="font-semibold">{t('reservationLookup.details.emailLabel')}</span>{' '}
+            {localReservation.guestEmail}
+          </p>
+        ) : null}
+        {localReservation.guestPhone?.trim() ? (
+          <p>
+            <span className="font-semibold">{t('reservationLookup.details.phoneLabel')}</span>{' '}
+            {localReservation.guestPhone}
+          </p>
+        ) : null}
+        {!localReservation.guestName?.trim() &&
+          !localReservation.guestEmail?.trim() &&
+          !localReservation.guestPhone?.trim() && (
+          <p>
+            <span className="font-semibold">{t('reservationLookup.details.guestLabel')}</span>{' '}
+            {t('reservationLookup.details.notAvailable')}
+          </p>
+        )}
 
         <HostContactSection
           status={localReservation.status}
           hostContact={localReservation.hostContact}
+        />
+
+        <BookingPaymentFacts
+          totalAmount={localReservation.totalAmount}
+          amountPaid={localReservation.amountPaid}
+          amountDue={localReservation.amountDue}
+          depositAmount={localReservation.depositAmount}
+          paymentStatus={localReservation.paymentStatus}
+          currencyCode={localReservation.currencyCode}
         />
 
         <RefundStatusNotice
@@ -197,61 +214,22 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({
           bookingStatus={localReservation.status}
         />
 
-        {shouldShowMercadoPagoPay({
-          canPayOnline: localReservation.canPayOnline,
-          mercadoPagoApproved: localReservation.mercadoPagoApproved,
-        }) && (
-          <MercadoPagoPaySection
-            bookingId={localReservation.bookingId}
-            canPayOnline={localReservation.canPayOnline}
-            mercadoPagoApproved={localReservation.mercadoPagoApproved}
-            totalAmount={localReservation.totalAmount}
-            amountDue={localReservation.amountDue}
-            amountPaid={localReservation.amountPaid}
-            depositAmount={localReservation.depositAmount}
-            paymentStatus={localReservation.paymentStatus}
-            dueAt={localReservation.balanceDueAt ?? localReservation.depositDeadlineAt}
-            currencyCode={localReservation.currencyCode}
-            manageToken={getLiveManageToken(localReservation.bookingId) ?? undefined}
-            reservationCode={localReservation.reservationCode}
-            listingType={localReservation.listingType}
-          />
-        )}
-
         <div className="pt-2 flex flex-wrap justify-center gap-3">
           <Link to={propertyPath(localReservation.propertyId)}>
             <Button variant="outline">{t('reservationLookup.actions.viewProperty')}</Button>
           </Link>
-
-          {localReservation.canCancel && (
-            <Button
-              variant="primary"
-              className="bg-red-600 hover:bg-red-700 text-white"
-              disabled={isCancelling}
-              onClick={() => setShowCancelModal(true)}
-            >
-              {isCancelling ? t('reservationLookup.actions.cancelling') : t('reservationLookup.actions.cancelReservation')}
-            </Button>
-          )}
         </div>
-
-        {cancelMessage && (
-          <p className={isSuccessMessage ? 'text-green-700 text-sm' : 'text-red-700 text-sm'}>
-            {cancelMessage}
-          </p>
-        )}
       </Card>
 
-      {renderReviewSection()}
-
-      <CancelBookingModal
-        isOpen={showCancelModal}
-        onClose={() => setShowCancelModal(false)}
-        loadPreview={onLoadCancelPreview}
-        confirm={onCancelConfirm}
-        currencyCode={localReservation.currencyCode}
-        onSuccess={onCancelSuccess}
+      <RequestManageLinkForm
+        key={`${localReservation.reservationCode}:${listingType}`}
+        reservationCode={localReservation.reservationCode}
+        listingType={listingType}
+        defaultEmail={localReservation.guestEmail}
+        cardVariant={cardVariant}
       />
+
+      {renderReviewSection()}
     </>
   );
 };
