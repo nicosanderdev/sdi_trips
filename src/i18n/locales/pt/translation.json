@@ -1431,6 +1431,13 @@
       "errorBody": "Não foi possível verificar este retorno de pagamento. Abra sua reserva para ver o status mais recente.",
       "viewReservation": "Ver minha reserva",
       "goHome": "Voltar ao início"
+    },
+    "listingReturn": {
+      "abandoned": "Você não concluiu o pagamento.",
+      "approved": "Pagamento registrado.",
+      "pending": "Pagamento pendente.",
+      "rejected": "Pagamento rejeitado.",
+      "checkReservation": "Confira sua reserva"
     }
   }
 }

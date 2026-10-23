@@ -31,6 +31,9 @@ import {
 } from '../../services/pricing/formatPrice';
 import { parseIsoDateLocal } from '../../services/pricing/listingPricing';
 import { partitionGalleryBySectionImages } from '../../models/properties/publicPropertyImages';
+import MercadoPagoReturnNotice, {
+    useMercadoPagoListingReturn,
+} from '../../components/reservation/MercadoPagoReturnNotice';
 import {
     MapPin,
     Users,
@@ -46,6 +49,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
+    const mpReturn = useMercadoPagoListingReturn(id ? `/property/${id}` : null);
     const previewToken = searchParams.get('preview')?.trim() || null;
     usePreviewGuards(Boolean(previewToken));
 
@@ -272,6 +276,14 @@ const PropertyDetail: React.FC = () => {
         setLightboxIndex((prev) => prev % lightboxImageCount);
     }, [lightboxImageCount]);
 
+    const mpReturnNotice = mpReturn ? (
+        <MercadoPagoReturnNotice
+            bookingId={mpReturn.bookingId}
+            outcome={mpReturn.outcome}
+            propertyId={id}
+        />
+    ) : null;
+
     if (previewExpired) {
         return (
             <Layout>
@@ -283,7 +295,8 @@ const PropertyDetail: React.FC = () => {
     if (loading) {
         return (
             <Layout>
-                <div className="min-h-screen flex items-center justify-center">
+                <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-6">
+                    {mpReturnNotice && <div className="w-full max-w-2xl">{mpReturnNotice}</div>}
                     <LoadingSpinner size="lg" />
                 </div>
             </Layout>
@@ -293,7 +306,8 @@ const PropertyDetail: React.FC = () => {
     if (error) {
         return (
             <Layout>
-                <div className="min-h-screen flex items-center justify-center">
+                <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-6">
+                    {mpReturnNotice && <div className="w-full max-w-2xl">{mpReturnNotice}</div>}
                     <div className="text-center">
                         <ErrorMessage message={error} />
                         <Link to={browseFallbackPath} className="mt-4 inline-block">
@@ -308,7 +322,8 @@ const PropertyDetail: React.FC = () => {
     if (!property) {
         return (
             <Layout>
-                <div className="min-h-screen flex items-center justify-center">
+                <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-6">
+                    {mpReturnNotice && <div className="w-full max-w-2xl">{mpReturnNotice}</div>}
                     <div className="text-center">
                         <h1 className="text-2xl font-bold text-navy mb-4">{t('propertyDetail.errors.propertyNotFound')}</h1>
                         <Link to={browseFallbackPath}>
@@ -380,6 +395,7 @@ const PropertyDetail: React.FC = () => {
             <div className="bg-warm-gray min-h-screen">
                 <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
                     {previewToken && <PreviewBanner hiddenFromGuests={previewHidden} />}
+                    {mpReturnNotice}
 
                     {/* Navigation */}
                     <div className="flex items-center justify-between text-sm text-charcoal">

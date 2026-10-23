@@ -26,6 +26,9 @@ export interface MercadoPagoPaySectionProps {
   currencyCode?: string | null;
   /** Required to start Checkout Pro. Without it, only paid/payable state is shown. */
   manageToken?: string;
+  manageExpiresAt?: string;
+  /** Listing id already on the confirm or manage page. Stashed before leaving for Checkout Pro. */
+  propertyId?: string;
   reservationCode?: string;
   listingType?: GuestSiteListingType;
   /** When true, show Pay now + Pay later (post-confirm). Otherwise Pay now only. */
@@ -33,6 +36,8 @@ export interface MercadoPagoPaySectionProps {
   onPayLater?: () => void;
   /** When false, amounts and payment status are rendered by the parent. */
   showAmountSummary?: boolean;
+  /** When false, hide the Mercado Pago intro and keep the pay button. */
+  showIntro?: boolean;
   className?: string;
 }
 
@@ -44,6 +49,9 @@ function mapPreferenceError(
 ): string {
   if (httpStatus === 401) {
     return t('mercadoPago.errors.expiredToken');
+  }
+  if (errorCode === 'SELLER_NOT_CONNECTED' || errorCode === 'GUEST_RETURN_URL_UNAVAILABLE') {
+    return t('mercadoPago.errors.SELLER_NOT_CONNECTED');
   }
   if (isMercadoPagoPreferenceErrorCode(errorCode)) {
     return t(`mercadoPago.errors.${errorCode}`);
@@ -63,11 +71,14 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
   dueAt,
   currencyCode,
   manageToken,
+  manageExpiresAt,
+  propertyId,
   reservationCode,
   listingType,
   showPayLater = false,
   onPayLater,
   showAmountSummary = true,
+  showIntro = true,
   className = '',
 }) => {
   const { t, i18n } = useTranslation();
@@ -145,13 +156,6 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
     setLoading(true);
     setError(null);
 
-    saveMercadoPagoPayHandoff({
-      bookingId,
-      manageToken: checkoutToken,
-      reservationCode,
-      listingType,
-    });
-
     const result = await createMercadoPagoPreference({ manageToken: checkoutToken });
     if (!result.success) {
       setLoading(false);
@@ -174,16 +178,26 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
       return;
     }
 
+    saveMercadoPagoPayHandoff({
+      bookingId,
+      manageToken: checkoutToken,
+      manageExpiresAt,
+      propertyId,
+      reservationCode,
+      listingType,
+    });
     window.location.assign(checkoutUrl);
   };
 
   return (
     <div className={`space-y-3 ${className}`}>
-      <div className="space-y-2 text-left text-sm text-charcoal">
-        <p className="text-center text-base font-semibold text-navy">{t('mercadoPago.infoTitle')}</p>
-        <p>{t('mercadoPago.infoBody')}</p>
-        <p className="text-xs text-charcoal/80">{t('mercadoPago.infoFees')}</p>
-      </div>
+      {showIntro && (
+        <div className="space-y-2 text-left text-sm text-charcoal">
+          <p className="text-center text-base font-semibold text-navy">{t('mercadoPago.infoTitle')}</p>
+          <p>{t('mercadoPago.infoBody')}</p>
+          <p className="text-xs text-charcoal/80">{t('mercadoPago.infoFees')}</p>
+        </div>
+      )}
 
       {showAmountSummary && amountLabel && (
         <p className="text-sm text-charcoal">

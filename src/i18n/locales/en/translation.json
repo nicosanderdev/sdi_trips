@@ -1481,6 +1481,13 @@
       "errorBody": "We could not verify this payment return. Open your reservation to check the latest status.",
       "viewReservation": "View my reservation",
       "goHome": "Back to home"
+    },
+    "listingReturn": {
+      "abandoned": "You didn't complete the payment.",
+      "approved": "Payment registered.",
+      "pending": "Payment pending.",
+      "rejected": "Payment rejected.",
+      "checkReservation": "Check your reservation"
     }
   }
 }

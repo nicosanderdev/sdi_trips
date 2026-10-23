@@ -229,6 +229,12 @@ function optionalIsoString(value: unknown): string | null | undefined {
   return String(value);
 }
 
+function optionalText(value: unknown): string | undefined {
+  if (typeof value !== 'string' && typeof value !== 'number') return undefined;
+  const text = String(value).trim();
+  return text ? text : undefined;
+}
+
 function mapPaymentFieldsFromPayload(raw: Record<string, unknown>) {
   return {
     amountPaid: optionalNumber(raw.amountPaid ?? raw.amount_paid),
@@ -734,9 +740,27 @@ export async function getBookingByManageToken(token: string): Promise<{ success:
     const listingTypeRaw =
       (bookingRaw.listingType as string | undefined) ??
       (bookingRaw.listing_type as string | undefined);
+    const propertyId =
+      optionalText(bookingRaw.propertyId) ??
+      optionalText(bookingRaw.property_id) ??
+      optionalText(bookingRaw.estatePropertyId) ??
+      optionalText(bookingRaw.estate_property_id) ??
+      optionalText(payload.propertyId) ??
+      optionalText(payload.property_id) ??
+      optionalText(payload.estatePropertyId) ??
+      optionalText(payload.estate_property_id);
+    const manageExpiresAt =
+      optionalIsoString(
+        bookingRaw.manageExpiresAt ??
+          bookingRaw.manage_expires_at ??
+          payload.manageExpiresAt ??
+          payload.manage_expires_at,
+      ) ?? undefined;
     const booking: ManageBookingView = {
       bookingId: String(bookingRaw.bookingId ?? bookingRaw.booking_id ?? ''),
       reservationCode: String(bookingRaw.reservationCode ?? bookingRaw.reservation_code ?? ''),
+      propertyId,
+      manageExpiresAt,
       propertyTitle: String(bookingRaw.propertyTitle ?? bookingRaw.property_title ?? ''),
       checkIn: String(bookingRaw.checkIn ?? bookingRaw.check_in ?? ''),
       checkOut: String(bookingRaw.checkOut ?? bookingRaw.check_out ?? ''),

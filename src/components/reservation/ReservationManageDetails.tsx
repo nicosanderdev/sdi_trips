@@ -57,12 +57,16 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
     saveMercadoPagoPayHandoff({
       bookingId: booking.bookingId,
       manageToken: token,
+      manageExpiresAt: booking.manageExpiresAt,
+      propertyId: booking.propertyId,
       reservationCode: booking.reservationCode,
       listingType: booking.listingType,
     });
   }, [
     booking.bookingId,
     booking.listingType,
+    booking.manageExpiresAt,
+    booking.propertyId,
     booking.reservationCode,
     manageToken,
   ]);
@@ -128,6 +132,8 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
           dueAt={booking.balanceDueAt ?? booking.depositDeadlineAt}
           currencyCode={booking.currencyCode}
           manageToken={manageToken}
+          manageExpiresAt={booking.manageExpiresAt}
+          propertyId={booking.propertyId}
           reservationCode={booking.reservationCode}
           listingType={booking.listingType}
           showAmountSummary={false}
