@@ -120,6 +120,7 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
   const [confirmedPayment, setConfirmedPayment] = useState<{
     bookingId: string;
     manageToken: string;
+    manageExpiresAt?: string;
     totalAmount?: number;
     amountDue?: number;
     amountPaid?: number;
@@ -474,12 +475,14 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
         bookingId,
         manageToken,
         manageExpiresAt: confirmResult.manageExpiresAt,
+        propertyId: property.id,
         reservationCode: confirmResult.reservationCode ?? undefined,
         listingType,
       });
       setConfirmedPayment({
         bookingId,
         manageToken,
+        manageExpiresAt: confirmResult.manageExpiresAt,
         totalAmount: confirmResult.totalAmount,
         amountDue: confirmResult.amountDue,
         depositAmount: confirmResult.depositAmount,
@@ -840,6 +843,8 @@ const GuestBookingFlow: React.FC<GuestBookingFlowProps> = ({
                 depositAmount={confirmedPayment.depositAmount}
                 currencyCode={confirmedPayment.currencyCode}
                 manageToken={confirmedPayment.manageToken}
+                manageExpiresAt={confirmedPayment.manageExpiresAt}
+                propertyId={property.id}
                 reservationCode={reservationCode ?? undefined}
                 listingType={confirmedListingType ?? undefined}
                 showPayLater

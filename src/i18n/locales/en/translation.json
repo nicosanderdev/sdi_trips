@@ -670,7 +670,7 @@
     },
     "form": {
       "title": "Find Your Reservation",
-      "subtitle": "Enter your reservation code to view booking details and available actions.",
+      "subtitle": "Enter your reservation code to view the booking.",
       "codeLabel": "Reservation code",
       "codePlaceholder": "RSV-ABC123"
     },
@@ -682,8 +682,13 @@
       "datesValue": "{{checkIn}} to {{checkOut}}",
       "statusLabel": "Status:",
       "guestLabel": "Guest:",
+      "emailLabel": "Email:",
+      "phoneLabel": "Phone:",
       "guestsLabel": "Guests:",
       "guestsCount": "{{count}} guests",
+      "totalLabel": "Total:",
+      "amountPaidLabel": "Paid:",
+      "amountDueLabel": "Balance:",
       "notAvailable": "Not available"
     },
     "hostContact": {
@@ -695,8 +700,23 @@
     },
     "manageToken": {
       "loading": "Loading reservation…",
-      "missingToken": "This manage link is missing a token. Check the full URL from your confirmation email.",
-      "invalidOrExpired": "Invalid or expired management link."
+      "missingToken": "This manage link is no longer valid.",
+      "invalidOrExpired": "This manage link is no longer valid.",
+      "noLongerValid": "This manage link is no longer valid.",
+      "loadFailed": "We couldn't load this booking. Please try again.",
+      "lookupByCode": "Look up with reservation code"
+    },
+    "manageLink": {
+      "title": "Email a manage link",
+      "body": "Enter the email on the booking to receive a link to manage it.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "submit": "Send link",
+      "submitting": "Sending…",
+      "sent": "If the code and email match this booking, we sent a link to manage it. When a new link is sent, earlier links stop working.",
+      "rateLimited": "Too many attempts. Please try again later.",
+      "failed": "We couldn't send the link. Please try again.",
+      "invalidEmail": "Enter a valid email address."
     },
     "status": {
       "confirmed": "Confirmed",
@@ -1461,6 +1481,13 @@
       "errorBody": "We could not verify this payment return. Open your reservation to check the latest status.",
       "viewReservation": "View my reservation",
       "goHome": "Back to home"
+    },
+    "listingReturn": {
+      "abandoned": "You didn't complete the payment.",
+      "approved": "Payment registered.",
+      "pending": "Payment pending.",
+      "rejected": "Payment rejected.",
+      "checkReservation": "Check your reservation"
     }
   }
 }

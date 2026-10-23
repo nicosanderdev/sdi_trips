@@ -10,6 +10,9 @@ import PropertyContentSections from '../../components/sections/PropertyContentSe
 import PropertyAmenitySections from '../../components/amenities/PropertyAmenitySections';
 import PropertyPolicySections from '../../components/policies/PropertyPolicySections';
 import CancellationPolicySummary from '../../components/policies/CancellationPolicySummary';
+import MercadoPagoReturnNotice, {
+  useMercadoPagoListingReturn,
+} from '../../components/reservation/MercadoPagoReturnNotice';
 import {
   MapPin,
   Users,
@@ -44,6 +47,7 @@ function hasUsableCoordinates(coords: { lat: number; lng: number } | undefined):
 export default function AltVenueDetail() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
+  const mpReturn = useMercadoPagoListingReturn(id ? `/venue/${id}` : null);
   const previewToken = searchParams.get('preview')?.trim() || null;
   usePreviewGuards(Boolean(previewToken));
   const { t, i18n } = useTranslation();
@@ -207,13 +211,22 @@ export default function AltVenueDetail() {
     }, 200);
   };
 
+  const mpReturnNotice = mpReturn ? (
+    <MercadoPagoReturnNotice
+      bookingId={mpReturn.bookingId}
+      outcome={mpReturn.outcome}
+      propertyId={id}
+    />
+  ) : null;
+
   if (previewExpired) {
     return <PreviewExpired />;
   }
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-8 py-20 bg-warm-gray">
+        {mpReturnNotice && <div className="w-full max-w-2xl">{mpReturnNotice}</div>}
         <p className="text-charcoal">Loading venue details...</p>
       </div>
     );
@@ -221,7 +234,8 @@ export default function AltVenueDetail() {
 
   if (!venue || error) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center px-8 py-20 bg-warm-gray">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-8 py-20 bg-warm-gray">
+        {mpReturnNotice && <div className="w-full max-w-2xl">{mpReturnNotice}</div>}
         <h1 className="text-2xl font-bold text-navy mb-4">{t('alt.venueDetail.notFoundTitle')}</h1>
         <p className="text-charcoal mb-6 text-center max-w-md">{error ?? t('alt.venueDetail.notFoundBody')}</p>
         <Link to={browseFallbackPath}>
@@ -235,6 +249,7 @@ export default function AltVenueDetail() {
     <div className="bg-warm-gray min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         {previewToken && <PreviewBanner hiddenFromGuests={previewHidden} />}
+        {mpReturnNotice}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-charcoal">
           <Link to={browseFallbackPath} className="flex items-center gap-2 text-charcoal hover:text-navy transition-colors w-fit">
             <ChevronLeft className="h-4 w-4" />

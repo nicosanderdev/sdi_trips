@@ -8,6 +8,7 @@ import type {
 } from '../../types';
 import type { CancelBookingResponse } from '../../services/bookingService';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
+import BookingPaymentFacts from './BookingPaymentFacts';
 import HostContactSection from './HostContactSection';
 import MercadoPagoPaySection from './MercadoPagoPaySection';
 import RefundStatusNotice from './RefundStatusNotice';
@@ -56,12 +57,16 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
     saveMercadoPagoPayHandoff({
       bookingId: booking.bookingId,
       manageToken: token,
+      manageExpiresAt: booking.manageExpiresAt,
+      propertyId: booking.propertyId,
       reservationCode: booking.reservationCode,
       listingType: booking.listingType,
     });
   }, [
     booking.bookingId,
     booking.listingType,
+    booking.manageExpiresAt,
+    booking.propertyId,
     booking.reservationCode,
     manageToken,
   ]);
@@ -94,6 +99,15 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
 
       <HostContactSection status={booking.status} hostContact={booking.hostContact} />
 
+      <BookingPaymentFacts
+        totalAmount={booking.totalAmount}
+        amountPaid={booking.amountPaid}
+        amountDue={booking.amountDue}
+        depositAmount={booking.depositAmount}
+        paymentStatus={booking.paymentStatus}
+        currencyCode={booking.currencyCode}
+      />
+
       <RefundStatusNotice
         status={booking.refundStatus}
         amountPaid={booking.amountPaid}
@@ -118,8 +132,11 @@ const ReservationManageDetails: React.FC<ReservationManageDetailsProps> = ({
           dueAt={booking.balanceDueAt ?? booking.depositDeadlineAt}
           currencyCode={booking.currencyCode}
           manageToken={manageToken}
+          manageExpiresAt={booking.manageExpiresAt}
+          propertyId={booking.propertyId}
           reservationCode={booking.reservationCode}
           listingType={booking.listingType}
+          showAmountSummary={false}
         />
       )}
 
