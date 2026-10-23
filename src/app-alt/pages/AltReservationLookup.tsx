@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { browseFallbackPath, isSearchPageEnabled } from '../../core/config/searchPageVisibility';
+import { isSearchPageEnabled } from '../../core/config/searchPageVisibility';
 import { useTranslation } from 'react-i18next';
 import HeroTitleSection from '../../components/sections/HeroTitleSection';
 import ReservationLookupForm from '../../components/reservation/ReservationLookupForm';
@@ -8,18 +8,28 @@ import ReservationDetails from '../../components/reservation/ReservationDetails'
 import ReservationManageDetails from '../../components/reservation/ReservationManageDetails';
 import { Button, Card } from '../../components/ui';
 import { parseListingTypeParam } from '../../core/config/guestBookingManageUrl';
-import { getGuestSiteListingType } from '../../core/config/guestSiteListingType';
-import type { CancellationPreview, ManageBookingView } from '../../types';
+import type { CancellationPreview, GuestSiteListingType, ManageBookingView } from '../../types';
 import {
-  cancelBookingByCode,
   cancelBookingByManageToken,
   getBookingByManageToken,
   getReservationByCode,
   normalizeReservationCode,
-  previewBookingCancellationByCode,
   previewBookingCancellationByManageToken,
   type ReservationLookupData,
 } from '../../services/bookingService';
+
+function codeLookupPath(code: string | null, listingType: GuestSiteListingType | undefined): string {
+  const next = new URLSearchParams();
+  const trimmed = code?.trim();
+  if (trimmed) next.set('code', trimmed);
+  if (listingType) next.set('listingType', listingType);
+  const query = next.toString();
+  return query ? `/reservation-lookup?${query}` : '/reservation-lookup';
+}
+
+function isManageTokenTransportError(error: string | undefined): boolean {
+  return (error ?? '') === 'Failed to load reservation.';
+}
 
 function mapLookupError(error: string | undefined, t: (key: string) => string): string {
   if (!error) return t('reservationLookup.errors.couldNotFindCode');
@@ -55,7 +65,7 @@ export default function AltReservationLookup() {
   const [tokenError, setTokenError] = useState<string | null>(null);
 
   const hasLookupResult = useMemo(() => view.mode === 'lookup', [view.mode]);
-  const siteListingType = listingTypeFromUrl ?? getGuestSiteListingType();
+  const codeLookupTo = codeLookupPath(searchParams.get('code'), listingTypeFromUrl);
 
   const refreshManageBooking = useCallback(async (manageToken: string) => {
     const result = await getBookingByManageToken(manageToken);
@@ -74,7 +84,7 @@ export default function AltReservationLookup() {
       return;
     }
     if (!token) {
-      setTokenError(t('reservationLookup.manageToken.missingToken'));
+      setTokenError(t('reservationLookup.manageToken.noLongerValid'));
       setTokenLoading(false);
       setView((v) => (v.mode === 'manage' ? { mode: 'none' } : v));
       return;
@@ -90,7 +100,11 @@ export default function AltReservationLookup() {
       if (!mounted) return;
       setTokenLoading(false);
       if (!result.success || !result.booking) {
-        setTokenError(result.error ?? t('reservationLookup.manageToken.invalidOrExpired'));
+        setTokenError(
+          isManageTokenTransportError(result.error)
+            ? t('reservationLookup.manageToken.loadFailed')
+            : t('reservationLookup.manageToken.noLongerValid'),
+        );
         setView((v) => (v.mode === 'lookup' ? v : { mode: 'none' }));
         return;
       }
@@ -103,6 +117,7 @@ export default function AltReservationLookup() {
   }, [hasTokenParam, token, t]);
 
   useEffect(() => {
+    if (hasTokenParam) return;
     const normalized = normalizeReservationCode(initialCode);
     if (!normalized) return;
 
@@ -116,10 +131,11 @@ export default function AltReservationLookup() {
         setSearchParams(
           (prev) => {
             const next = new URLSearchParams(prev);
+            next.delete('token');
             next.set('code', normalized);
             const lt = listingTypeFromUrl ?? result.reservation?.listingType;
             if (lt) next.set('listingType', lt);
-            return next;
+            return next.toString() === prev.toString() ? prev : next;
           },
           { replace: true },
         );
@@ -129,8 +145,7 @@ export default function AltReservationLookup() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate from URL on mount only
-  }, []);
+  }, [hasTokenParam, initialCode, listingTypeFromUrl, setSearchParams]);
 
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -151,10 +166,11 @@ export default function AltReservationLookup() {
 
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
+      if (result.success && result.reservation) next.delete('token');
       next.set('code', normalizedCode);
       const lt = listingTypeFromUrl ?? result.reservation?.listingType;
       if (lt) next.set('listingType', lt);
-      return next;
+      return next.toString() === prev.toString() ? prev : next;
     });
 
     if (!result.success || !result.reservation) {
@@ -165,23 +181,6 @@ export default function AltReservationLookup() {
 
     setCode(normalizedCode);
     setView({ mode: 'lookup', reservation: result.reservation });
-  };
-
-  const handleCancelLookup = async (previewHash: string) => {
-    if (view.mode !== 'lookup' || !view.reservation.canCancel || loadingCancel) {
-      return { success: false, error: t('reservationLookup.errors.cancelFailed') };
-    }
-
-    setLoadingCancel(true);
-    setCancelMessage(null);
-    const result = await cancelBookingByCode(
-      view.reservation.reservationCode,
-      view.reservation.listingType ?? siteListingType,
-      'Cancelled by guest from reservation lookup',
-      previewHash,
-    );
-    setLoadingCancel(false);
-    return result;
   };
 
   const handleCancelManage = async (previewHash: string) => {
@@ -197,31 +196,6 @@ export default function AltReservationLookup() {
     );
     setLoadingCancel(false);
     return result;
-  };
-
-  const handleCancelLookupSuccess = async (_preview: CancellationPreview) => {
-    setCancelMessage(t('reservationLookup.messages.cancelSuccess'));
-    if (view.mode !== 'lookup') return;
-    const refreshed = await getReservationByCode(
-      view.reservation.reservationCode,
-      view.reservation.listingType ?? siteListingType,
-    );
-    if (refreshed.success && refreshed.reservation) {
-      setView({ mode: 'lookup', reservation: refreshed.reservation });
-      return;
-    }
-    setView({
-      mode: 'lookup',
-      reservation: {
-        ...view.reservation,
-        status: 'cancelled',
-        canCancel: false,
-        canPayOnline: false,
-        refundStatus: _preview.refundAmount > 0.009 ? 1 : 0,
-        refundDueAt: _preview.refundDueAt,
-        amountPaid: _preview.amountPaid,
-      },
-    });
   };
 
   const handleCancelManageSuccess = async (_preview: CancellationPreview) => {
@@ -260,8 +234,7 @@ export default function AltReservationLookup() {
     }
   };
 
-  const missingTokenMessage = hasTokenParam && !token ? t('reservationLookup.manageToken.missingToken') : null;
-  const displayTokenError = missingTokenMessage ?? tokenError;
+  const displayTokenError = tokenError;
   const showTokenErrorCard = Boolean(displayTokenError) && !tokenLoading;
   const showTokenLoading = hasTokenParam && Boolean(token) && tokenLoading;
 
@@ -298,10 +271,8 @@ export default function AltReservationLookup() {
             <Card className="w-full max-w-2xl rounded-2xl border border-red-200 p-5 bg-red-50/90">
               <p className="text-red-700 m-0">{displayTokenError}</p>
               <div className="mt-4 flex flex-wrap gap-3">
-                <Link to={browseFallbackPath}>
-                  <Button variant="outline">
-                    {isSearchPageEnabled ? t('alt.reservations.browseVenues') : t('auth.backToHome')}
-                  </Button>
+                <Link to={codeLookupTo}>
+                  <Button variant="outline">{t('reservationLookup.manageToken.lookupByCode')}</Button>
                 </Link>
               </div>
             </Card>
@@ -338,16 +309,6 @@ export default function AltReservationLookup() {
               <ReservationDetails
                 cardVariant="surface"
                 reservation={view.reservation}
-                cancelMessage={cancelMessage}
-                isCancelling={loadingCancel}
-                onCancelConfirm={handleCancelLookup}
-                onLoadCancelPreview={() =>
-                  previewBookingCancellationByCode(
-                    view.reservation.reservationCode,
-                    view.reservation.listingType ?? siteListingType,
-                  )
-                }
-                onCancelSuccess={(preview) => void handleCancelLookupSuccess(preview)}
                 propertyPath={venuePath}
               />
               <button

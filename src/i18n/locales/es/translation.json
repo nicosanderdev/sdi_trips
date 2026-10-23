@@ -535,7 +535,7 @@
         "reservationConfirmed": "Solicitud recibida.",
         "body": "Tu solicitud de reserva fue enviada y está pendiente de aprobación del anfitrión. Recibirás un correo cuando se confirme (o WhatsApp si no proporcionaste un correo).",
         "codeLabel": "Tu código de reserva",
-        "lookupHint": "Guarda este código para consultar o gestionar tu reserva más adelante. Usa el botón de abajo para abrir tu reserva.",
+        "lookupHint": "Guardá este código para consultar o gestionar tu reserva más adelante. Usá el botón de abajo para abrir tu reserva.",
         "goToReservationLookup": "Ver mi reserva",
         "close": "Cerrar"
       },
@@ -643,7 +643,7 @@
     },
     "form": {
       "title": "Encontrá tu reserva",
-      "subtitle": "Ingresa tu código de reserva para ver los detalles y las acciones disponibles.",
+      "subtitle": "Ingresá tu código de reserva para ver los detalles.",
       "codeLabel": "Código de reserva",
       "codePlaceholder": "RSV-ABC123"
     },
@@ -655,8 +655,13 @@
       "datesValue": "{{checkIn}} a {{checkOut}}",
       "statusLabel": "Estado:",
       "guestLabel": "Huésped:",
+      "emailLabel": "Correo:",
+      "phoneLabel": "Teléfono:",
       "guestsLabel": "Invitados:",
       "guestsCount": "{{count}} invitados",
+      "totalLabel": "Total:",
+      "amountPaidLabel": "Pagado:",
+      "amountDueLabel": "Saldo:",
       "notAvailable": "No disponible"
     },
     "hostContact": {
@@ -668,8 +673,23 @@
     },
     "manageToken": {
       "loading": "Cargando reserva…",
-      "missingToken": "Falta el token en este enlace de gestión. Revisá la URL completa del correo de confirmación.",
-      "invalidOrExpired": "Enlace de gestión no válido o caducado."
+      "missingToken": "Este enlace de gestión ya no es válido.",
+      "invalidOrExpired": "Este enlace de gestión ya no es válido.",
+      "noLongerValid": "Este enlace de gestión ya no es válido.",
+      "loadFailed": "No pudimos cargar la reserva. Intentá de nuevo.",
+      "lookupByCode": "Buscar con el código de reserva"
+    },
+    "manageLink": {
+      "title": "Enviar enlace de gestión",
+      "body": "Ingresá el correo de la reserva para recibir un enlace y gestionarla.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@correo.com",
+      "submit": "Enviar enlace",
+      "submitting": "Enviando…",
+      "sent": "Si el código y el correo coinciden con la reserva, enviamos un enlace para gestionarla. Cuando se envía un enlace nuevo, los enlaces anteriores dejan de funcionar.",
+      "rateLimited": "Demasiados intentos. Probá de nuevo más tarde.",
+      "failed": "No pudimos enviar el enlace. Intentá de nuevo.",
+      "invalidEmail": "Ingresá un correo electrónico válido."
     },
     "status": {
       "confirmed": "Confirmada",
@@ -686,11 +706,11 @@
     },
     "cancelPreview": {
       "title": "Confirmar cancelación",
-      "cannotUndo": "Esta acción no se puede deshacer. Revisá el reembolso estimado según la política de la propiedad.",
+      "cannotUndo": "Esta acción no se puede deshacer. Revisá el reembolso según la política de la propiedad.",
       "loading": "Calculando reembolso…",
       "loadFailed": "No se pudo calcular el reembolso. Intentá de nuevo.",
       "previewChanged": "El cálculo cambió. Revisá los montos actualizados y confirmá de nuevo.",
-      "tierLabel": "Tramo de política:",
+      "tierLabel": "Estado:",
       "tier": {
         "before": "Dentro del plazo de mayor reembolso",
         "after": "Fuera del plazo de mayor reembolso",
@@ -699,7 +719,6 @@
       },
       "amountPaid": "Monto pagado:",
       "refundPercent": "Porcentaje de reembolso:",
-      "refundAmount": "Reembolso estimado:",
       "refundDueAt": "Fecha límite del reembolso:",
       "dismiss": "No, volver",
       "confirm": "Sí, cancelar reserva"
@@ -1388,14 +1407,22 @@
     "depositAmountLabel": "Seña a pagar:",
     "balanceAmountLabel": "Saldo pendiente:",
     "balanceDueBy": "vence el {{date}}",
-    "paidOfTotal": "Pagado: {{paid}} de {{total}}",
+    "paymentState": {
+      "label": "Estado del pago:",
+      "notPaid": "No pagado",
+      "depositPending": "Seña pendiente",
+      "depositPaid": "Seña pagada, saldo pendiente",
+      "paid": "Pagado"
+    },
     "payNow": "Pagar ahora",
     "payLater": "Pagar después",
     "paying": "Redirigiendo…",
     "cancel": "Cancelar",
     "continueToMercadoPago": "Continuar a Mercado Pago",
     "disclaimerTitle": "Antes de pagar",
-    "bridgeDisclaimer": "No somos responsables de los pagos. Solo actuamos como puente entre el propietario y el huésped. El dinero va directamente a la cuenta de Mercado Pago del propietario.",
+    "bridgeDisclaimer": "El pago se realiza directamente al propietario a través de Mercado Pago. En Cartelera facilita el contacto entre ambas partes, pero no recibe el dinero del alquiler.",
+    "legalLink": "Leer términos y condiciones",
+    "agreeLabel": "Estoy de acuerdo",
     "paymentRegistered": "Pago registrado.",
     "infoTitle": "Pagá en línea con Mercado Pago",
     "infoBody": "Podés pagar de forma segura en línea con Mercado Pago. Tenés varios medios de pago, confirmación inmediata para el anfitrión y un registro claro del pago de tu estadía.",
@@ -1427,6 +1454,13 @@
       "errorBody": "No pudimos verificar este retorno de pago. Abrí tu reserva para ver el estado más reciente.",
       "viewReservation": "Ver mi reserva",
       "goHome": "Volver al inicio"
+    },
+    "listingReturn": {
+      "abandoned": "No completaste el pago.",
+      "approved": "Pago registrado.",
+      "pending": "Pago pendiente.",
+      "rejected": "Pago rechazado.",
+      "checkReservation": "Revisá tu reserva"
     }
   }
 }

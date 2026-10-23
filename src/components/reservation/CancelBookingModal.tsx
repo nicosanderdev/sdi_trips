@@ -127,10 +127,6 @@ const CancelBookingModal: React.FC<CancelBookingModalProps> = ({
               <span className="font-semibold">{t('reservationLookup.cancelPreview.refundPercent')}</span>{' '}
               {preview.refundPercent}%
             </p>
-            <p>
-              <span className="font-semibold">{t('reservationLookup.cancelPreview.refundAmount')}</span>{' '}
-              {amountLabel(preview.refundAmount)}
-            </p>
             {refundDueLabel && preview.refundAmount > 0.009 && (
               <p>
                 <span className="font-semibold">{t('reservationLookup.cancelPreview.refundDueAt')}</span>{' '}

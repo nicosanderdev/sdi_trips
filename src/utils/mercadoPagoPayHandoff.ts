@@ -6,6 +6,8 @@ export interface MercadoPagoPayHandoff {
   bookingId: string;
   manageToken?: string;
   manageExpiresAt?: string;
+  /** Listing id (`Bookings.EstatePropertyId`) so a return can reopen this site's property or venue. */
+  propertyId?: string;
   reservationCode?: string;
   listingType?: GuestSiteListingType;
 }
@@ -24,6 +26,7 @@ export function saveMercadoPagoPayHandoff(handoff: MercadoPagoPayHandoff): void 
       bookingId: handoff.bookingId,
       manageToken: handoff.manageToken?.trim() || existing?.manageToken,
       manageExpiresAt: handoff.manageExpiresAt?.trim() || existing?.manageExpiresAt,
+      propertyId: handoff.propertyId?.trim() || existing?.propertyId,
       reservationCode: handoff.reservationCode?.trim() || existing?.reservationCode,
       listingType: handoff.listingType ?? existing?.listingType,
     };

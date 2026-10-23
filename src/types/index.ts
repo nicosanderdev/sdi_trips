@@ -87,6 +87,10 @@ export interface HostContactInfo {
 export interface ManageBookingView {
   bookingId: string;
   reservationCode: string;
+  /** Estate property id for the booked listing, when the manage payload includes it. */
+  propertyId?: string;
+  /** Manage-token expiry from the manage payload, when present. */
+  manageExpiresAt?: string;
   propertyTitle: string;
   checkIn: string;
   checkOut: string;

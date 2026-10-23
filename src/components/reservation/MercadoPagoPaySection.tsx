@@ -7,8 +7,10 @@ import {
   resolveMercadoPagoCheckoutUrl,
 } from '../../services/bookingService';
 import { formatPriceAmount } from '../../services/pricing/formatPrice';
+import { getAppVariant } from '../../core/config/guestSiteListingType';
 import { isMercadoPagoPreferenceErrorCode } from '../../types/guestReviewContract';
 import { clearMercadoPagoPayHandoff, saveMercadoPagoPayHandoff } from '../../utils/mercadoPagoPayHandoff';
+import { resolvePaymentStateKey } from '../../core/services/bookingPaymentState';
 import { formatReservationStayDate } from '../../utils/formatReservationStayDate';
 
 export interface MercadoPagoPaySectionProps {
@@ -24,11 +26,18 @@ export interface MercadoPagoPaySectionProps {
   currencyCode?: string | null;
   /** Required to start Checkout Pro. Without it, only paid/payable state is shown. */
   manageToken?: string;
+  manageExpiresAt?: string;
+  /** Listing id already on the confirm or manage page. Stashed before leaving for Checkout Pro. */
+  propertyId?: string;
   reservationCode?: string;
   listingType?: GuestSiteListingType;
   /** When true, show Pay now + Pay later (post-confirm). Otherwise Pay now only. */
   showPayLater?: boolean;
   onPayLater?: () => void;
+  /** When false, amounts and payment status are rendered by the parent. */
+  showAmountSummary?: boolean;
+  /** When false, hide the Mercado Pago intro and keep the pay button. */
+  showIntro?: boolean;
   className?: string;
 }
 
@@ -40,6 +49,9 @@ function mapPreferenceError(
 ): string {
   if (httpStatus === 401) {
     return t('mercadoPago.errors.expiredToken');
+  }
+  if (errorCode === 'SELLER_NOT_CONNECTED' || errorCode === 'GUEST_RETURN_URL_UNAVAILABLE') {
+    return t('mercadoPago.errors.SELLER_NOT_CONNECTED');
   }
   if (isMercadoPagoPreferenceErrorCode(errorCode)) {
     return t(`mercadoPago.errors.${errorCode}`);
@@ -59,17 +71,23 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
   dueAt,
   currencyCode,
   manageToken,
+  manageExpiresAt,
+  propertyId,
   reservationCode,
   listingType,
   showPayLater = false,
   onPayLater,
+  showAmountSummary = true,
+  showIntro = true,
   className = '',
 }) => {
   const { t, i18n } = useTranslation();
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [markedApproved, setMarkedApproved] = useState(false);
+  const legalPath = getAppVariant() === 'alt' ? '/terms-and-conditions' : '/terms';
 
   const isApproved = Boolean(mercadoPagoApproved || markedApproved || paymentStatus === 1);
   const checkoutToken = manageToken?.trim() ?? '';
@@ -114,16 +132,20 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
     chargeAmount != null
       ? formatPriceAmount(chargeAmount, currencyCode ?? 'USD')
       : null;
-  const paidLabel =
-    amountPaid != null && Number.isFinite(amountPaid)
-      ? formatPriceAmount(amountPaid, currencyCode ?? 'USD')
-      : null;
-  const totalLabel =
-    totalAmount != null && Number.isFinite(totalAmount)
-      ? formatPriceAmount(totalAmount, currencyCode ?? 'USD')
-      : null;
+  const paymentStateKey = resolvePaymentStateKey({
+    amountPaid,
+    depositAmount,
+    totalAmount,
+    paymentStatus,
+  });
   const dueLabel =
     dueAt != null ? formatReservationStayDate(dueAt, i18n.language) : null;
+
+  const closeDisclaimer = () => {
+    if (loading) return;
+    setShowDisclaimer(false);
+    setAgreed(false);
+  };
 
   const handleConfirmPay = async () => {
     if (!checkoutToken) {
@@ -133,13 +155,6 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
 
     setLoading(true);
     setError(null);
-
-    saveMercadoPagoPayHandoff({
-      bookingId,
-      manageToken: checkoutToken,
-      reservationCode,
-      listingType,
-    });
 
     const result = await createMercadoPagoPreference({ manageToken: checkoutToken });
     if (!result.success) {
@@ -163,18 +178,28 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
       return;
     }
 
+    saveMercadoPagoPayHandoff({
+      bookingId,
+      manageToken: checkoutToken,
+      manageExpiresAt,
+      propertyId,
+      reservationCode,
+      listingType,
+    });
     window.location.assign(checkoutUrl);
   };
 
   return (
     <div className={`space-y-3 ${className}`}>
-      <div className="space-y-2 text-left text-sm text-charcoal">
-        <p className="font-semibold text-navy">{t('mercadoPago.infoTitle')}</p>
-        <p>{t('mercadoPago.infoBody')}</p>
-        <p className="text-charcoal/80">{t('mercadoPago.infoFees')}</p>
-      </div>
+      {showIntro && (
+        <div className="space-y-2 text-left text-sm text-charcoal">
+          <p className="text-center text-base font-semibold text-navy">{t('mercadoPago.infoTitle')}</p>
+          <p>{t('mercadoPago.infoBody')}</p>
+          <p className="text-xs text-charcoal/80">{t('mercadoPago.infoFees')}</p>
+        </div>
+      )}
 
-      {amountLabel && (
+      {showAmountSummary && amountLabel && (
         <p className="text-sm text-charcoal">
           <span className="font-semibold">{t(amountLabelKey)}</span> {amountLabel}
           {!isDepositPhase && dueLabel ? (
@@ -183,9 +208,10 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
         </p>
       )}
 
-      {paidLabel && totalLabel && (
-        <p className="text-sm text-charcoal/80">
-          {t('mercadoPago.paidOfTotal', { paid: paidLabel, total: totalLabel })}
+      {showAmountSummary && (
+        <p className="text-sm text-charcoal">
+          <span className="font-semibold">{t('mercadoPago.paymentState.label')}</span>{' '}
+          {t(`mercadoPago.paymentState.${paymentStateKey}`)}
         </p>
       )}
 
@@ -197,6 +223,7 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
             disabled={loading}
             onClick={() => {
               setError(null);
+              setAgreed(false);
               setShowDisclaimer(true);
             }}
           >
@@ -220,26 +247,41 @@ const MercadoPagoPaySection: React.FC<MercadoPagoPaySectionProps> = ({
 
       <Modal
         isOpen={showDisclaimer}
-        onClose={() => {
-          if (loading) return;
-          setShowDisclaimer(false);
-        }}
+        onClose={closeDisclaimer}
         title={t('mercadoPago.disclaimerTitle')}
       >
         <div className="space-y-4">
           <p className="text-sm text-charcoal">{t('mercadoPago.bridgeDisclaimer')}</p>
+          <a
+            href={legalPath}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-sm font-medium text-navy underline underline-offset-4 hover:text-gold"
+          >
+            {t('mercadoPago.legalLink')}
+          </a>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              disabled={loading}
+              className="mt-1 rounded border-gray-300 text-gold focus:ring-gold"
+            />
+            <span className="text-sm text-charcoal">{t('mercadoPago.agreeLabel')}</span>
+          </label>
           <div className="flex flex-wrap justify-center gap-3">
             <Button
               variant="outline"
               disabled={loading}
-              onClick={() => setShowDisclaimer(false)}
+              onClick={closeDisclaimer}
             >
               {t('mercadoPago.cancel')}
             </Button>
             <Button
               variant="primary"
               className="bg-gold text-navy hover:bg-gold-dark"
-              disabled={loading}
+              disabled={!agreed || loading}
               onClick={() => void handleConfirmPay()}
             >
               {loading ? t('mercadoPago.paying') : t('mercadoPago.continueToMercadoPago')}
